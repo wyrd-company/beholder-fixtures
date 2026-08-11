@@ -47,10 +47,12 @@ pub fn refcell_panicking_caught() -> bool {
 }
 
 /// Minimal sound `UnsafeCell` abstraction.
-/// Provides interior mutability behind `&self` with a safe API.
-/// Safety: single-threaded access; no creation of aliasing mutable references
-/// that overlap with live shared references outside the abstraction boundary.
-/// This wrapper is `!Sync` by containing `UnsafeCell`.
+/// Provides interior mutability behind `&self` with a safe API restricted to
+/// `Copy` get/set so no live reference can be re-entered. This prevents safe
+/// reentrant aliasing through callbacks that capture the same cell.
+/// Safety: `UnsafeCell` is the only source of aliasing; the safe API never
+/// hands out a reference that could overlap mutation, so aliasing rules are
+/// preserved. The wrapper is `!Sync` by containing `UnsafeCell`.
 pub struct SoundCell<T> {
     inner: UnsafeCell<T>,
 }
@@ -74,14 +76,6 @@ impl<T> SoundCell<T> {
     {
         unsafe { *self.inner.get() }
     }
-
-    pub fn with<R>(&self, f: impl FnOnce(&T) -> R) -> R {
-        unsafe { f(&*self.inner.get()) }
-    }
-
-    pub fn with_mut<R>(&self, f: impl FnOnce(&mut T) -> R) -> R {
-        unsafe { f(&mut *self.inner.get()) }
-    }
 }
 
 // SoundCell is !Sync due to UnsafeCell; we do not impl Sync.
@@ -91,8 +85,8 @@ pub fn sound_cell_demo() -> i32 {
     let c = SoundCell::new(100);
     c.set(200);
     let v = c.get();
-    c.with_mut(|x| *x += 1);
-    let w = c.with(|x| *x);
+    c.set(v + 1);
+    let w = c.get();
     v + w - 200
 }
 

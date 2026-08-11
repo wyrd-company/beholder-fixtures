@@ -113,21 +113,23 @@ pub fn evaluation_drop_order() -> i32 {
 
 /// Generic wrappers with and without suitable phantom ownership under `Drop`.
 
-/// Owning wrapper: `PhantomData<T>` indicates ownership; requires `T: 'a` outlives wrapper if wrapper implements Drop.
+/// Owning wrapper: stores `T` by value and carries `PhantomData<T>` to
+/// indicate logical ownership. With a `Drop` impl the compiler's drop check
+/// requires `T` to strictly outlive the wrapper.
 pub struct Owning<T> {
-    ptr: *const T,
+    value: T,
     _marker: PhantomData<T>,
 }
 
 impl<T> Owning<T> {
-    pub fn new(value: &T) -> Self {
+    pub fn new(value: T) -> Self {
         Self {
-            ptr: value as *const T,
+            value,
             _marker: PhantomData,
         }
     }
     pub fn get(&self) -> &T {
-        unsafe { &*self.ptr }
+        &self.value
     }
 }
 
@@ -135,21 +137,24 @@ impl<T> Drop for Owning<T> {
     fn drop(&mut self) {}
 }
 
-/// Non-owning wrapper: `PhantomData<&'a T>` does not imply ownership; drop check is more permissive.
+/// Non-owning wrapper: borrows `T` and carries `PhantomData<&'a T>` to
+/// indicate it does not own `T`. With a `Drop` impl the drop check is more
+/// permissive and does not require `T` to outlive the wrapper beyond the
+/// borrow.
 pub struct NonOwning<'a, T> {
-    ptr: *const T,
+    reference: &'a T,
     _marker: PhantomData<&'a T>,
 }
 
 impl<'a, T> NonOwning<'a, T> {
     pub fn new(value: &'a T) -> Self {
         Self {
-            ptr: value as *const T,
+            reference: value,
             _marker: PhantomData,
         }
     }
     pub fn get(&self) -> &T {
-        unsafe { &*self.ptr }
+        self.reference
     }
 }
 
@@ -157,14 +162,16 @@ impl<'a, T> Drop for NonOwning<'a, T> {
     fn drop(&mut self) {}
 }
 
-/// Borrow rejected by destruction order is documented as counterexample in `docs/counterexamples.md`.
-/// Valid contrast: owning wrapper requires owned data outlives wrapper; non-owning wrapper can reference shorter-lived data
-/// within the same scope because PhantomData<&T> is not ownership.
+/// Borrow rejected by destruction order is documented as counterexample in
+/// `docs/counterexamples.md`. Valid contrast: `Owning<T>` logically owns `T`
+/// (`PhantomData<T>` + `Drop`) and its `T` must outlive the wrapper, while
+/// `NonOwning<'a, T>` only borrows (`PhantomData<&'a T>` + `Drop`).
 
 pub fn owning_vs_nonowning() -> i32 {
     let value = 42;
-    let owning = Owning::new(&value);
-    let non_owning = NonOwning::new(&value);
+    let owning = Owning::new(value);
+    let borrowed = 42;
+    let non_owning = NonOwning::new(&borrowed);
     let _ = owning.get();
     let _ = non_owning.get();
     value

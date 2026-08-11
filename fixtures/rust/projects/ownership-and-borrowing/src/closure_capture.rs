@@ -33,18 +33,18 @@ pub fn capture_modes() {
     // `owned` moved, not usable here (counterexample documented).
 }
 
-/// Unique immutable borrow capture (disjoint immutable of one field while mutating another).
-pub fn unique_immutable_capture() {
-    let mut pair = Pair {
-        first: String::from("a"),
-        second: String::from("b"),
-    };
-    // Closure borrows `first` immutably without borrowing whole `pair`.
-    let read_first = || pair.first.len();
-    let _ = read_first();
-    // `pair.second` not captured, so mutation is allowed even while closure exists (disjoint).
-    pair.second.push_str("!");
-    let _ = read_first();
+/// Unique immutable capture: closure captures a `&mut` binding immutably
+/// through a unique borrow. The closure borrows `borrow: &mut String` without
+/// mutating it or moving it, exercising the unique-immutable mode.
+pub fn unique_immutable_capture() -> usize {
+    let mut data = String::from("hello");
+    let mut borrow: &mut String = &mut data;
+    let closure = || borrow.len();
+    let a = closure();
+    let b = closure();
+    // `borrow` is still uniquely borrowed but not consumed; we can reborrow it mutably after.
+    borrow.push_str("!");
+    a + b + borrow.len()
 }
 
 /// Disjoint field capture: closure captures one field, other field remains free.

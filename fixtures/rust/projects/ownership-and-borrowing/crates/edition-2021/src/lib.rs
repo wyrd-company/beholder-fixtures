@@ -2,6 +2,7 @@
 #![allow(dead_code)]
 
 use std::cell::Cell;
+use std::rc::Rc;
 
 pub struct Pair {
     pub first: String,
@@ -23,7 +24,6 @@ pub fn capture_2021_disjoint() -> String {
     // Disjoint: `pair.second` not captured, so mutation while closure is live is allowed in 2021.
     pair.second.push_str("!");
     let _ = closure();
-    // Also mutation after use demonstrates disjoint borrow precision.
     pair.second
 }
 
@@ -62,28 +62,50 @@ pub fn nonextending_borrow_2021() {
     let _ = &String::from("nonextending-2021");
 }
 
-pub fn match_scrutinee_temporary_2021() -> usize {
-    match String::from("scrutinee-2021").len() {
-        0 => 0,
-        n => n,
+pub fn match_scrutinee_temporary_2021() -> bool {
+    let flag = Rc::new(Cell::new(false));
+    struct Guard(Rc<Cell<bool>>);
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            self.0.set(true);
+        }
     }
-}
-
-pub fn if_let_temporary_2021() -> usize {
-    // In 2021 the temporary in `if let Some(..) = Some(String::from(...))` lives into the then-branch.
-    if let Some(len) = Some(String::from("if-let-2021").len()) {
-        len
-    } else {
-        0
-    }
-}
-
-pub fn block_tail_temporary_2021() -> usize {
-    let val = {
-        let inner = String::from("block-tail-2021");
-        inner.len()
+    let inside_alive = match &Guard(Rc::clone(&flag)) {
+        _ => !flag.get(),
     };
-    val
+    inside_alive && flag.get()
+}
+
+pub fn if_let_temporary_2021() -> bool {
+    let flag = Rc::new(Cell::new(false));
+    struct Guard(Rc<Cell<bool>>);
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            self.0.set(true);
+        }
+    }
+    if let Some(_) = Some(&Guard(Rc::clone(&flag))) {
+        // In edition 2021 the `&Guard` temporary from the condition lives into
+        // the then block, so flag is still false here.
+        !flag.get()
+    } else {
+        false
+    }
+}
+
+pub fn block_tail_temporary_2021() -> bool {
+    let flag = Rc::new(Cell::new(false));
+    struct Guard(Rc<Cell<bool>>);
+    impl Drop for Guard {
+        fn drop(&mut self) {
+            self.0.set(true);
+        }
+    }
+    let after_block_still_alive = {
+        let _ptr = { &Guard(Rc::clone(&flag)) as *const Guard };
+        !flag.get()
+    };
+    after_block_still_alive && !flag.get()
 }
 
 pub fn destructor_order_2021() -> Vec<&'static str> {
@@ -112,7 +134,6 @@ pub fn explicit_binding_modes_2021() -> usize {
         value: String::from("explicit-2021"),
         count: 5,
     };
-    // In 2021 explicit `ref` under inherited `&` mode is still allowed.
     match &container {
         Container {
             ref value,

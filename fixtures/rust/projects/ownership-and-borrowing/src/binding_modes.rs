@@ -43,36 +43,47 @@ pub fn inferred_binding_modes() -> (String, u32, String) {
     (moved_value, copied_count, m.value)
 }
 
-/// Explicit binding modes in edition 2024 must respect restricted `ref`/`ref mut`/`mut` and reference patterns
-/// under inherited modes. We demonstrate valid explicit reference patterns without violating the 2024 restriction.
+/// Explicit binding modes in edition 2024 must respect that `ref`/`ref mut`
+/// under an inherited `&`/`&mut` mode is restricted. Valid explicit 2024 forms
+/// use `ref` on an owned scrutinee or reference patterns on the scrutinee
+/// itself, not `ref` under an inherited reference mode.
 pub fn explicit_binding_modes_2024() -> (String, u32) {
+    // Explicit `ref` on an owned scrutinee is valid in 2024 because the
+    // binding mode is not inherited as `&`.
     let container = Container {
         value: String::from("explicit"),
         count: 5,
     };
-    // Explicit reference pattern: `&Container` with inner field patterns as references.
-    // In 2024, `ref` under inherited `&` mode is restricted; we use reference patterns `&value` instead where needed.
-    let ref_container = &container;
-    let len = match ref_container {
-        Container { value, count } => {
-            // `value` is &String via match ergonomics (inferred mode).
-            // Explicit alternative using reference pattern:
-            value.len() + *count as usize
-        }
+    let len = match container {
+        Container {
+            ref value,
+            ref count,
+        } => value.len() + *count as usize,
     };
 
-    // Owned match with explicit `mut` binding for mutation of the binding (not the source).
-    let mut owned = Container {
+    // Explicit `mut` binding on an owned scrutinee is valid in 2024 when not
+    // under an inherited mode.
+    let owned = Container {
         value: String::from("mut-binding"),
         count: 0,
     };
-    match owned {
+    let (value, _count) = match owned {
         Container { mut value, count } => {
             value.push_str("-modified");
-            owned = Container { value, count };
+            (value, count)
         }
-    }
-    (owned.value, len as u32)
+    };
+
+    // Explicit reference pattern via borrowing the scrutinee outside the pattern
+    // (valid 2024 alternative to `ref` under `&`).
+    let container2 = Container {
+        value: String::from("ref-pattern"),
+        count: 7,
+    };
+    let len2 = match &container2 {
+        Container { value, count } => value.len() + *count as usize,
+    };
+    (value, (len + len2) as u32)
 }
 
 /// `@` bindings and nested references remain valid.

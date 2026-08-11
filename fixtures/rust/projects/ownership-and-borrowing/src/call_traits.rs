@@ -29,10 +29,11 @@ pub fn mutating_closure_fnmut() -> usize {
     call_fn_mut(closure)
 }
 
-/// Consuming closure satisfies `FnOnce`.
+/// Consuming closure satisfies `FnOnce` only: the body moves `data` out
+/// via `into_bytes`, so the closure cannot implement `Fn` or `FnMut`.
 pub fn consuming_closure_fnonce() -> usize {
     let data = String::from("consume");
-    let closure = move || data.len();
+    let closure = move || data.into_bytes().len();
     call_fn_once(closure)
 }
 

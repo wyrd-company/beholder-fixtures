@@ -7,9 +7,12 @@ pub struct Inventory {
     pub label: String,
 }
 
-/// Drop type to illustrate field-move restriction (moving a field out of a
-/// type that implements `Drop` requires careful handling; partial moves
-/// are still possible via destructuring when the type is not dropped afterward).
+/// Drop type illustrating the field-move restriction: Rust forbids moving a
+/// non-`Copy` field out of any type that implements `Drop`. Attempting
+/// `let WithDrop { owned, count } = value` is rejected by the compiler.
+/// Valid partial moves are demonstrated on `Inventory`, which does not
+/// implement `Drop`. The rejected `WithDrop` field move is preserved as
+/// documentation in `docs/counterexamples.md`.
 pub struct WithDrop {
     pub owned: String,
     pub count: u32,

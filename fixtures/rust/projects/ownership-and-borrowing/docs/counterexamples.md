@@ -17,6 +17,19 @@ let _ = name; // `name` moved here
 Valid contrast: `src/moves_partial_moves.rs` `destructure_move_and_borrow` and `partial_move_remaining_usable`
 move one field while borrowing/copying another and continue using unaffected paths.
 
+## Drop type field-move restriction (RS-CAN-OWN-001)
+
+Moving a non-`Copy` field out of a type that implements `Drop` is rejected regardless of whether the value is later used:
+
+```rust
+struct WithDrop { owned: String, count: u32 }
+impl Drop for WithDrop { fn drop(&mut self) {} }
+let w = WithDrop { owned: String::from("x"), count: 1 };
+let WithDrop { owned, count } = w; // error[E0509]: cannot move out of type which implements `Drop`
+```
+
+Valid contrast: `WithDrop` in `src/moves_partial_moves.rs` exists solely to illustrate the rejected pattern; valid partial moves are demonstrated on `Inventory`, which does not implement `Drop`.
+
 ## Conflicting simultaneous borrows (RS-CAN-OWN-002)
 
 Simultaneous mutable and shared borrows are rejected:
@@ -135,13 +148,18 @@ Valid contrast: `src/patterns.rs` `let_else_pattern` uses `let Some(value) = opt
 Generic wrapper with `PhantomData<T>` and `Drop` requires `T` outlives wrapper; a borrow that would be invalidated by drop is rejected:
 
 ```rust
-struct Owning<T> { ptr: *const T, _m: PhantomData<T> }
+struct Owning<T> { value: T, _m: PhantomData<T> }
 impl<T> Drop for Owning<T> { fn drop(&mut self) {} }
-let short;
-let owning = Owning::new(&short /* temporary */); // error: borrowed value does not live long enough
+let owning;
+{
+    let short = String::from("short");
+    owning = Owning::new(short); // owning takes ownership, short moved
+    // NonOwning can borrow short without owning it:
+    // let borrowed = NonOwning::new(&short); // would require short to outlive borrowed
+}
 ```
 
-Valid contrast: `src/destructuring_assignment.rs` `Owning` vs `NonOwning<'a, T>` with `PhantomData<&'a T>` and `Drop` demonstrates drop-check-appropriate phantom ownership.
+Valid contrast: `src/destructuring_assignment.rs` `Owning<T>` (`value: T` + `PhantomData<T>` + `Drop`) logically owns `T` and requires `T` to outlive the wrapper, while `NonOwning<'a, T>` (`&'a T` + `PhantomData<&'a T>` + `Drop`) only borrows and is more permissive under the drop check.
 
 ## Illegal destructuring assignment pattern (RS-CAN-OWN-010)
 
