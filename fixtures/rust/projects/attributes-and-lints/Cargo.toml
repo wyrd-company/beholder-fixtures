@@ -1,0 +1,53 @@
+[package]
+name = "attributes-and-lints"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for Rust attributes and lint surface"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace]
+members = [
+    "crates/derive_helpers",
+    "crates/lint_downstream",
+    "crates/lint_workspace_member",
+    "crates/cfg_attr_no_std",
+]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Shared fixture description"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace.lints.rust]
+dead_code = "warn"
+unfulfilled_lint_expectations = "warn"
+unexpected_cfgs = {
+    level = "warn",
+    check-cfg = [
+        "cfg(fixture_custom_cfg)",
+        "cfg(fixture_no_std_edge)",
+        "cfg(doc)",
+        "cfg(doctest)",
+    ],
+}
+
+[workspace.lints.clippy]
+all = "warn"
+
+[lib]
+name = "attributes_and_lints"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+derive_helpers = { path = "crates/derive_helpers" }
+lint_downstream = { path = "crates/lint_downstream" }
+
+[lints]
+workspace = true

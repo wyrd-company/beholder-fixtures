@@ -1,0 +1,28 @@
+[package]
+name = "lint_workspace_member"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Workspace member demonstrating lint-table inheritance"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "lint_workspace_member"
+path = "src/lib.rs"
+
+[lints.rust]
+dead_code = "allow"
+unfulfilled_lint_expectations = "warn"
+unexpected_cfgs = {
+    level = "warn",
+    check-cfg = [
+        "cfg(fixture_custom_cfg)",
+        "cfg(fixture_no_std_edge)",
+        "cfg(doc)",
+        "cfg(doctest)",
+    ],
+}
+
+[lints.clippy]
+all = "warn"

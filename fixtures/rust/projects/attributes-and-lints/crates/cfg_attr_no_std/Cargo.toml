@@ -1,0 +1,15 @@
+[package]
+name = "cfg_attr_no_std"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "cfg_attr no_std edge compiled only when fixture flag is active"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "cfg_attr_no_std"
+path = "src/lib.rs"
+
+[lints]
+workspace = true

@@ -1,0 +1,6 @@
+[build]
+rustflags = ["--cfg", "fixture_custom_cfg"]
+
+[alias]
+fixture-lint-deny = "clippy --offline --workspace --all-targets -- -W dead_code"
+fixture-lint-cap = "clippy --offline --workspace --all-targets -- -D dead_code --cap-lints=warn"
