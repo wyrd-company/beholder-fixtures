@@ -35,7 +35,7 @@ def gil_reacquire_demo() -> dict[str, object]:
         "mechanism": "Py_BEGIN_ALLOW_THREADS ... Py_END_ALLOW_THREADS then PyUnicode_FromString",
         "python_api_while_detached": "undefined behavior — must reacquire first",
         "external_thread": "native thread calling Python must use PyGILState_Ensure / PyGILState_Release",
-        "subinterpreter": "per-interpreter GIL note (Py_MOD_PER_INTERPRETER_GIL_SUPPORTED) shown in _native_multi slots",
+        "subinterpreter": "excluded variant: high-level subinterpreter API unstable; not declared", 
         "free_threaded_excluded": "free-threaded declaration variant excluded; installed build is GIL-enabled",
         "gil_disabled": sysconfig.get_config_var("Py_GIL_DISABLED"),
         "incompatible_extension": "extension incompatible with free-threaded may re-enable GIL",

@@ -5,32 +5,51 @@ from __future__ import annotations
 import ast
 import pickle
 import types
-import traceback
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, Protocol, runtime_checkable
 
 
-registry: dict[str, Any] = {}
+@runtime_checkable
+class AdderProtocol(Protocol):
+    def __call__(self, value: int) -> int: ...
 
 
-def make_closure_adder(base: int) -> Callable[[int], int]:
+@runtime_checkable
+class WidgetProtocol(Protocol):
+    kind: str
+    label: str
+
+
+if TYPE_CHECKING:
+    # Static stub surface: declarations a type checker would see for runtime-generated names
+    adder_5: AdderProtocol
+    adder_10: AdderProtocol
+    StableWidget: type[WidgetProtocol]
+    exec_add: Callable[[int, int], int]
+    ast_mul: Callable[[int, int], int]
+
+
+# Stable registry typed via protocols; runtime-generated values are consumed through it
+registry: dict[str, AdderProtocol | type[WidgetProtocol] | Callable[..., Any]] = {}
+
+
+def make_closure_adder(base: int) -> AdderProtocol:
     def adder(value: int) -> int:
         return value + base
 
     adder.__name__ = f"adder_{base}"
     adder.__qualname__ = f"adder_{base}"
-    registry[adder.__name__] = adder
-    return adder
+    registry[adder.__name__] = adder  # type: ignore[assignment]
+    return adder  # type: ignore[return-value]
 
 
-def make_type_class(name: str, base: type | None = None) -> type:
+def make_type_class(name: str, base: type | None = None) -> type[WidgetProtocol]:
     bases = (base,) if base is not None else (object,)
     attrs = {"kind": name.lower(), "label": name}
     cls = types.new_class(name, bases, {}, lambda ns: ns.update(attrs))
-    # Alternative via type()
     alt = type(f"{name}Alt", bases, {"alt_kind": name.lower()})
-    registry[name] = cls
-    registry[alt.__name__] = alt
-    return cls
+    registry[name] = cls  # type: ignore[assignment]
+    registry[alt.__name__] = alt  # type: ignore[assignment]
+    return cls  # type: ignore[return-value]
 
 
 def make_exec_function() -> Callable[[int, int], int]:
@@ -46,8 +65,7 @@ def make_exec_function() -> Callable[[int, int], int]:
 
 def make_ast_function() -> Callable[[int, int], int]:
     tree = ast.parse("def ast_mul(a, b): return a * b")
-    # Synthetic filename affects traceback
-    tree.body[0].args.args[0].arg = "a"  # keep deterministic
+    tree.body[0].args.args[0].arg = "a"
     code = compile(tree, "<synthetic-ast>", "exec")
     namespace: dict[str, Any] = {}
     exec(code, namespace)
@@ -56,9 +74,24 @@ def make_ast_function() -> Callable[[int, int], int]:
     return fn
 
 
+def consume_via_protocol(name: str, value: int) -> int:
+    obj = registry[name]
+    if isinstance(obj, WidgetProtocol):
+        raise TypeError("widget is not adder")
+    # protocol check: AdderProtocol is callable
+    assert isinstance(obj, AdderProtocol) or callable(obj)
+    return obj(value)  # type: ignore[call-arg, operator]
+
+
+def consume_widget_via_protocol(name: str) -> str:
+    obj = registry[name]
+    assert isinstance(obj, WidgetProtocol) or isinstance(obj, type)
+    # access via protocol attributes
+    return getattr(obj, "kind", str(obj))
+
+
 def synthetic_traceback_demo() -> dict[str, object]:
     fn = make_exec_function()
-    # Capture synthetic filename from code object
     return {
         "filename": fn.__code__.co_filename,
         "qualname": fn.__qualname__,
@@ -70,7 +103,6 @@ def synthetic_traceback_demo() -> dict[str, object]:
 def pickle_qualname_demo() -> dict[str, object]:
     fn = make_closure_adder(10)
     cls = make_type_class("RuntimeWidget")
-    # Functions created at runtime with module/qualname may not pickle unless importable
     try:
         pickle.dumps(fn)
         fn_picklable = True
@@ -79,7 +111,6 @@ def pickle_qualname_demo() -> dict[str, object]:
         fn_error = str(exc)
     else:
         fn_error = ""
-    # Class created via type() shares module
     try:
         pickle.dumps(cls)
         cls_picklable = True
@@ -89,7 +120,7 @@ def pickle_qualname_demo() -> dict[str, object]:
     else:
         cls_error = ""
     return {
-        "function_qualname": fn.__qualname__,
+        "function_qualname": fn.__qualname__,  # type: ignore[attr-defined]
         "class_qualname": cls.__qualname__,
         "function_picklable": fn_picklable,
         "function_pickle_error": fn_error,
@@ -102,14 +133,11 @@ def pickle_qualname_demo() -> dict[str, object]:
 def shared_cell_demo() -> dict[str, object]:
     funcs: list[Callable[[], int]] = []
     for i in range(3):
-        # Accidental shared cell if closure captures loop variable without default
         def f() -> int:
             return i
 
         funcs.append(f)
-    # All share final i == 2
     shared = [f() for f in funcs]
-    # Correct via default argument
     corrected: list[Callable[[], int]] = []
     for i in range(3):
         def g(i=i) -> int:  # type: ignore[no-redef]
@@ -125,25 +153,44 @@ def stable_registry_demo() -> dict[str, object]:
     make_type_class("StableWidget")
     make_exec_function()
     make_ast_function()
-    return {"registry_keys": sorted(registry.keys()), "protocol": "consume via stable registry/protocol"}
-
-
-def stub_surface_note() -> dict[str, str]:
+    # demonstrate protocol consumption
+    adder_result = consume_via_protocol("adder_5", 10)
+    widget_kind = consume_widget_via_protocol("StableWidget")
     return {
-        "stub": "Static stubs for runtime-generated symbols are intentionally absent; runtime surface is dynamic",
-        "static_checker": "Type checker cannot see registry entries without stub generation",
+        "registry_keys": sorted(registry.keys()),
+        "protocol": "consume via stable registry/protocol",
+        "adder_protocol_result": adder_result,
+        "widget_protocol_kind": widget_kind,
+    }
+
+
+def stub_surface_demo() -> dict[str, object]:
+    # Static stub surface exists in TYPE_CHECKING block above and via protocols;
+    # runtime values conform to AdderProtocol/WidgetProtocol.
+    fn = make_closure_adder(99)
+    is_protocol = isinstance(fn, AdderProtocol)
+    return {
+        "has_protocol": True,
+        "protocol_type": "AdderProtocol",
+        "isinstance_check": is_protocol,
+        "stub_declarations": ["adder_5", "adder_10", "StableWidget", "exec_add", "ast_mul"],
+        "static_surface": "TYPE_CHECKING declares runtime names for checker",
     }
 
 
 __all__ = [
+    "AdderProtocol",
+    "WidgetProtocol",
     "registry",
     "make_closure_adder",
     "make_type_class",
     "make_exec_function",
     "make_ast_function",
+    "consume_via_protocol",
+    "consume_widget_via_protocol",
     "synthetic_traceback_demo",
     "pickle_qualname_demo",
     "shared_cell_demo",
     "stable_registry_demo",
-    "stub_surface_note",
+    "stub_surface_demo",
 ]

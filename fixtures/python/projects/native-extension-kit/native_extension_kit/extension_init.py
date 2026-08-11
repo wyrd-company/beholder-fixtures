@@ -47,7 +47,7 @@ def multi_phase_demo() -> dict[str, object]:
         "counter_after": _native_multi.get_counter(),
         "label": _native_multi.get_label(),
         "per_module_state": True,
-        "slots": ["Py_mod_exec", "Py_mod_multiple_interpreters"],
+        "slots": ["Py_mod_exec"],
     }
 
 
