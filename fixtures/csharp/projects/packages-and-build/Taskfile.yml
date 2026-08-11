@@ -1,0 +1,39 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Compile all fixture-owned projects in every declared build context without restoring from the network
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet build PackagesAndBuild.sln -c Release --no-restore
+      - dotnet build PackagesAndBuild.sln -c Debug --no-restore
+      - dotnet build src/Core/Core.csproj -c Release -f net10.0 --no-restore
+      - dotnet build src/Core/Core.csproj -c Release -f netstandard2.1 --no-restore
+      - dotnet build src/Core/Core.csproj -c Release -p:EnableExperimentalFeature=true --no-restore
+      - dotnet build src/ConditionalVariant/ConditionalVariant.csproj -c Release -p:Platform=x64 --no-restore
+      - dotnet build src/ConditionalVariant/ConditionalVariant.csproj -c Release -p:EnableExperimentalFeature=true --no-restore
+      - dotnet build src/LangVersionFixed/LangVersionFixed.csproj -c Release --no-restore
+      - dotnet build src/LangVersionLatest/LangVersionLatest.csproj -c Release --no-restore
+      - dotnet build src/LangVersionPreview/LangVersionPreview.csproj -c Release --no-restore
+      - dotnet build src/ExplicitCompile/ExplicitCompile.csproj -c Release --no-restore
+      # Direct no-solution build demonstrates CS-CAN-124 no-solution build
+      - dotnet build src/Core/Core.csproj -c Release --no-restore
+      - dotnet build src/ExplicitCompile/ExplicitCompile.csproj -c Release --no-restore
+
+  lint:
+    desc: Verify formatting and run analyzers via build
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet format PackagesAndBuild.sln --verify-no-changes --no-restore
+      - dotnet build PackagesAndBuild.sln -c Release --no-restore /p:TreatWarningsAsErrors=true
+      - dotnet build src/Core/Core.csproj -c Release -f netstandard2.1 --no-restore /p:TreatWarningsAsErrors=true
+      - dotnet build src/LangVersionFixed/LangVersionFixed.csproj -c Release --no-restore /p:TreatWarningsAsErrors=true
+      - dotnet build src/LangVersionLatest/LangVersionLatest.csproj -c Release --no-restore /p:TreatWarningsAsErrors=true
+      - dotnet build src/LangVersionPreview/LangVersionPreview.csproj -c Release --no-restore /p:TreatWarningsAsErrors=true
+      - dotnet build src/ExplicitCompile/ExplicitCompile.csproj -c Release --no-restore /p:TreatWarningsAsErrors=true
+
+  test:
+    desc: Run tests if present; succeeds with no test source
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - echo "No test source"

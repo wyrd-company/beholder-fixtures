@@ -1,0 +1,7 @@
+<Project>
+  <!-- Nested import for CS-CAN-103: imported build policy branching. -->
+  <PropertyGroup>
+    <PolicyTier>Nested</PolicyTier>
+    <EnableExperimentalFeature Condition="'$(EnableExperimentalFeature)' == ''">false</EnableExperimentalFeature>
+  </PropertyGroup>
+</Project>

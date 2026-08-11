@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <PackageId>Acme.ContentPackage</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Wyrd Company</Authors>
+    <Description>ContentFiles source-distributing package for CS-CAN-097</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+      <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="contentFiles\cs\net10.0\ContentPayload.cs" Pack="true" PackagePath="contentFiles/cs/net10.0/" BuildAction="Compile" CopyToOutput="false" />
+    <Content Include="contentFiles\cs\any\ContentPayloadAny.cs" Pack="true" PackagePath="contentFiles/cs/any/" BuildAction="Compile" />
+  </ItemGroup>
+</Project>

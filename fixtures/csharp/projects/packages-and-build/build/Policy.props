@@ -1,0 +1,33 @@
+<Project>
+  <Import Project="../imports/NestedImport.props" />
+
+  <PropertyGroup>
+    <!-- CS-CAN-103: imported build policy sets semantic defaults for every project. -->
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>false</EnforceCodeStyleInBuild>
+
+    <!-- CS-CAN-105: deterministic, path-mapped, portable PDB, embedded source, Source Link readiness. -->
+    <Deterministic>true</Deterministic>
+    <DeterministicSourcePaths>true</DeterministicSourcePaths>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)../'))=/repo/packages-and-build/</PathMap>
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <RepositoryUrl>https://example.com/wyrd-company/fixtures/packages-and-build</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <SourceRevisionId>packages-and-build-fixture</SourceRevisionId>
+
+    <!-- CS-CAN-096: lock file generation and enforcement. Lock file is committed; restore validates in locked mode. -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <RestoreLockedMode Condition="'$(PackagesAndBuildSkipLocked)' != 'true'">true</RestoreLockedMode>
+
+    <!-- CS-CAN-099: SDK version recorded via informational version. -->
+    <Version>1.0.0</Version>
+    <InformationalVersion>1.0.0+sdk10.0.110</InformationalVersion>
+  </PropertyGroup>
+</Project>

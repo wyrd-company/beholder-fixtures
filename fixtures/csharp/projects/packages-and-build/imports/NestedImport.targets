@@ -1,0 +1,6 @@
+<Project>
+  <!-- Nested targets import for CS-CAN-103. -->
+  <Target Name="NestedPolicyCheck" BeforeTargets="BeforeBuild">
+    <Message Text="Nested policy active: EnableExperimentalFeature=$(EnableExperimentalFeature)" Importance="high" />
+  </Target>
+</Project>

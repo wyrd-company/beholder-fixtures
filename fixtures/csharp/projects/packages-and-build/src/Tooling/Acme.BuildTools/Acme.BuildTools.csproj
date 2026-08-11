@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <PackageId>Acme.BuildTools</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Wyrd Company</Authors>
+    <Description>Build and buildTransitive assets package for CS-CAN-095</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+      <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="build\Acme.BuildTools.props" Pack="true" PackagePath="build/" />
+    <Content Include="build\Acme.BuildTools.targets" Pack="true" PackagePath="build/" />
+    <Content Include="buildTransitive\Acme.BuildTools.props" Pack="true" PackagePath="buildTransitive/" />
+    <Content Include="buildTransitive\Acme.BuildTools.targets" Pack="true" PackagePath="buildTransitive/" />
+  </ItemGroup>
+</Project>

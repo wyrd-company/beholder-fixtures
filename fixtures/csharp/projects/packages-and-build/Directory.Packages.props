@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <CentralPackageVersionOverrideEnabled>true</CentralPackageVersionOverrideEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="Acme.CoreLib" Version="1.0.0" />
+    <PackageVersion Include="Acme.TransitiveLib" Version="1.0.0" />
+    <PackageVersion Include="Acme.Analyzer" Version="1.0.0" />
+    <PackageVersion Include="Acme.BuildTools" Version="1.0.0" />
+    <PackageVersion Include="Acme.ContentPackage" Version="1.0.0" />
+    <PackageVersion Include="NETStandard.Library.Ref" Version="2.1.0" />
+  </ItemGroup>
+</Project>

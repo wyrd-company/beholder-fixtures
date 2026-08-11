@@ -1,0 +1,44 @@
+{
+  "version": 2,
+  "dependencies": {
+    ".NETStandard,Version=v2.1": {},
+    "net10.0": {
+      "Acme.Analyzer": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "0Yj4ka7qFPlvtftHmxFavxe1N9gcznnF05oi20NBmUWW/jXmN0Pptn+8hb1E5VG7fO/wemWli9eNjkahZJErfA=="
+      },
+      "Acme.BuildTools": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "k735wmM1b3Ox11DMzhh6bm6f6U4koO6Ezbs4SSgSoFZy1AA9mTkPsM8seFGM2HhyXDyeGKSkyq78Dfx3h/4Rcw=="
+      },
+      "Acme.ContentPackage": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "XcI3fo8ghoejnG1ItYmp+fEOM0LZbhH8iq85gWG033I+S7P92ZdwCqYybHDWAXHSvBttWdzklAilY2aMhLrpNQ=="
+      },
+      "Acme.CoreLib": {
+        "type": "Direct",
+        "requested": "[1.1.0, )",
+        "resolved": "1.1.0",
+        "contentHash": "K+Vu6OQ8CZQWCyAUwPAYCr9oSE1Xe91CoDzRrFb35EukU+AoryBAqgKth4CH554HWkA14A4Cq43Y9rVuIVhyRw=="
+      },
+      "Acme.TransitiveLib": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "4kPRt+s6APWVJ/9CCT9I1A2KtfOTDzQ4WEazxI4YUcEmDg3xif2R0GvD4HREjsxN1y2cqfk4npSkVi1PJ4Zi2Q==",
+        "dependencies": {
+          "Acme.CoreLib": "1.0.0"
+        }
+      },
+      "Catalog.Packages.OmittedLib": {
+        "type": "Project"
+      }
+    }
+  }
+}

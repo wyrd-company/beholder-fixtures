@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <PackageId>Acme.TransitiveLib</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Wyrd Company</Authors>
+    <Description>Transitive package depending on Acme.CoreLib for CS-CAN-095</Description>
+      <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Acme.CoreLib" />
+  </ItemGroup>
+</Project>

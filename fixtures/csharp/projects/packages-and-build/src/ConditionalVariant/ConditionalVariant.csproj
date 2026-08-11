@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Catalog.Packages.ConditionalVariant</RootNamespace>
+    <AssemblyName>Catalog.Packages.ConditionalVariant</AssemblyName>
+    <EnableExperimentalFeature Condition="'$(EnableExperimentalFeature)' == ''">false</EnableExperimentalFeature>
+  </PropertyGroup>
+
+  <!-- Demonstrate Choose/When/Otherwise imported via Directory.Build flow -->
+  <Choose>
+    <When Condition="'$(EnableExperimentalFeature)' == 'true'">
+      <PropertyGroup>
+        <DefineConstants>EXPERIMENTAL</DefineConstants>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <DefineConstants>STABLE</DefineConstants>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DefineConstants>$(DefineConstants);RELEASE_BUILD</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)' == 'x64'">
+    <DefineConstants>$(DefineConstants);PLATFORM_X64</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
+    <DefineConstants>$(DefineConstants);RID_LINUX_X64</DefineConstants>
+  </PropertyGroup>
+</Project>

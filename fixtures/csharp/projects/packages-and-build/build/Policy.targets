@@ -1,0 +1,20 @@
+<Project>
+  <Import Project="../imports/NestedImport.targets" />
+
+  <!-- CS-CAN-014: pre-compile target that emits a source file. The output is committed; the target is incremental and never rewrites tracked source during required validation. -->
+  <PropertyGroup>
+    <PreCompileOutput>$(MSBuildThisFileDirectory)generated/PreCompileGenerated.cs</PreCompileOutput>
+  </PropertyGroup>
+
+  <Target Name="GeneratePreCompileSource"
+          BeforeTargets="BeforeCompile"
+          Inputs="$(MSBuildThisFileDirectory)Policy.props"
+          Outputs="$(PreCompileOutput)"
+          Condition="!Exists('$(PreCompileOutput)')">
+    <WriteLinesToFile File="$(PreCompileOutput)"
+                      Lines="// &lt;auto-generated&gt; by GeneratePreCompileSource; committed output for CS-CAN-014.&#10;namespace Catalog.Packages; &#10;public static partial class BuildTimeConstants &#10;{ &#10;    public const string GeneratedValue = &quot;pre-compile-v1&quot;; &#10;    public const string GeneratorName = &quot;MSBuild-GeneratePreCompileSource&quot;; &#10;}"
+                      Overwrite="true"
+                      Encoding="utf-8" />
+    <Message Text="Generated $(PreCompileOutput) (incremental)" Importance="high" />
+  </Target>
+</Project>

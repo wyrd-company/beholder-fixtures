@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>true</IsPackable>
+    <PackageId>Acme.CoreLib</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Wyrd Company</Authors>
+    <Description>Locally authored compile+runtime package for CS-CAN-095/096 fixture</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+      <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+  </PropertyGroup>
+</Project>

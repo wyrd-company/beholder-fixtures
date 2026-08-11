@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Catalog.Packages.Explicit</RootNamespace>
+    <AssemblyName>Catalog.Packages.Explicit</AssemblyName>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- CS-CAN-012 explicit inclusion when defaults are disabled: only this file is compiled, default glob would be empty. Demonstrates EnableDefaultCompileItems=false variant. -->
+    <Compile Include="Source\ExplicitItem.cs" />
+    <!-- Logical vs physical path: explicit Include with Link would show logical path, but here explicit Include without Link shows physical == logical; linked file demonstrates the other side (see Core/Companion). -->
+  </ItemGroup>
+</Project>

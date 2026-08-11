@@ -1,0 +1,116 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;netstandard2.1</TargetFrameworks>
+    <RootNamespace>Catalog.Packages</RootNamespace>
+    <AssemblyName>Catalog.Packages.Core</AssemblyName>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <DefineConstants>CORE_COMPILATION</DefineConstants>
+    <!-- CS-CAN-099: default language version is SDK default; overridden projects below show fixed/latest/preview. -->
+    <!-- CS-CAN-100: custom property EnableExperimentalFeature is defined in NestedImport.props -->
+    <PlatformTarget Condition="'$(Platform)' == 'x86'">x86</PlatformTarget>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DefineConstants>$(DefineConstants);RELEASE_BUILD</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(EnableExperimentalFeature)' == 'true'">
+    <DefineConstants>$(DefineConstants);EXPERIMENTAL</DefineConstants>
+  </PropertyGroup>
+
+  <!-- CS-CAN-012: SDK default globbing. Files under this project are default-globbed unless explicitly controlled. -->
+  <!-- CS-CAN-012: Removed source — file exists but is removed from compilation. -->
+  <ItemGroup>
+    <Compile Remove="Excluded\RemovedDemo.cs" />
+  </ItemGroup>
+
+  <!-- CS-CAN-012: Linked external source (one physical file in multiple compilations for CS-CAN-013). -->
+  <!-- CS-CAN-013: SharedModel.cs is compiled here and also in Companion; conditional symbols give it distinct shapes. -->
+  <ItemGroup>
+    <Compile Include="..\SharedSource\SharedModel.cs" Link="Linked\SharedModel.cs" />
+  </ItemGroup>
+
+  <!-- CS-CAN-012: Conditional compile items varying by Configuration and custom property — SDK default glob includes them, so remove then conditionally re-add to demonstrate conditional items without duplicates. -->
+  <ItemGroup>
+    <Compile Remove="Conditional\ReleaseFeature.cs" />
+    <Compile Remove="Conditional\ExperimentalFeature.cs" />
+    <Compile Remove="TfmSpecific\Net10Specific.cs" />
+    <Compile Remove="TfmSpecific\NetStandardSpecific.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <Compile Include="Conditional\ReleaseFeature.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(EnableExperimentalFeature)' == 'true'">
+    <Compile Include="Conditional\ExperimentalFeature.cs" />
+  </ItemGroup>
+
+  <!-- CS-CAN-014: Generated source — the pre-compile target output is a real compilation unit. -->
+  <ItemGroup>
+    <Compile Include="..\..\build\generated\PreCompileGenerated.cs" Link="Generated\PreCompileGenerated.cs" />
+  </ItemGroup>
+
+  <!-- CS-CAN-101: Multi-targeting produces distinct compilation inputs per TFM. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <Compile Include="TfmSpecific\Net10Specific.cs" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <Compile Include="TfmSpecific\NetStandardSpecific.cs" />
+  </ItemGroup>
+
+  <!-- CS-CAN-106: Resources — default and localized with typed accessor. Both resx are SDK-default globbed; we only update metadata for the default. -->
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Strings.resx" Generator="PublicResXFileCodeGenerator" LastGenOutput="Strings.Designer.cs" />
+  </ItemGroup>
+
+  <!-- CS-CAN-095: PackageReference graph and asset separation. -->
+  <ItemGroup>
+    <!-- Direct compile+runtime asset, central version overridden on net10.0 (CS-CAN-096 one override). Per-TFM package items differ (CS-CAN-101). Netstandard2.1 intentionally omits this direct package to show per-TFM selection. -->
+    <PackageReference Include="Acme.CoreLib" VersionOverride="1.1.0" Condition="'$(TargetFramework)' == 'net10.0'" />
+    <!-- Transitive dependency via Acme.TransitiveLib; only on net10.0 to demonstrate per-TFM package selection; compile variant exercised transitively on net10.0. -->
+    <PackageReference Include="Acme.TransitiveLib" Condition="'$(TargetFramework)' == 'net10.0'" />
+    <!-- Analyzer asset separation: only analyzers, private, not flowing transitively. -->
+    <PackageReference Include="Acme.Analyzer" PrivateAssets="all" IncludeAssets="analyzers;build" Condition="'$(TargetFramework)' == 'net10.0'" />
+    <!-- Build and buildTransitive assets separated; runtime excluded. -->
+    <PackageReference Include="Acme.BuildTools" PrivateAssets="none" ExcludeAssets="runtime" IncludeAssets="build;buildTransitive;compile;contentFiles" Condition="'$(TargetFramework)' == 'net10.0'" />
+    <!-- Source-distributing contentFiles asset (CS-CAN-097) — only on net10.0; netstandard2.1 uses Any fallback without compile to demonstrate per-TFM asset selection. -->
+    <PackageReference Include="Acme.ContentPackage" PrivateAssets="none" IncludeAssets="contentFiles;compile;build" ExcludeAssets="runtime;native" GeneratePathProperty="true" Condition="'$(TargetFramework)' == 'net10.0'" />
+  </ItemGroup>
+
+  <!-- CS-CAN-101: Vendored reference pack for netstandard2.1 inner build (NETStandard.Library.Ref 2.1.0).
+       The pack is vendored at vendor/NETStandard.Library.Ref.2.1.0.nupkg with provenance (README.md, LICENSE.txt, THIRD-PARTY-NOTICES.txt, NOTICE.nuspec).
+       On SDK 10.0.110 the netstandard2.1 ref pack is already available via Microsoft.NETCore.App.Ref, so no explicit PackageReference is required for the build to succeed offline.
+       Offline restore of a netstandard2.1 compilation requires only that vendored pack when the SDK does not provide it; provenance and MSI metadata are preserved for that scenario. -->
+
+  <!-- CS-CAN-103: NuGet build assets flow through imported props/targets already via Acme.BuildTools buildTransitive. -->
+
+  <!-- Project references: -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <ProjectReference Include="..\OmittedLib\OmittedLib.csproj" />
+  </ItemGroup>
+
+  <!-- CS-CAN-100: Choose/When for output and constants. -->
+  <Choose>
+    <When Condition="'$(Configuration)' == 'Debug'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);DEBUG_CHOICE</DefineConstants>
+      </PropertyGroup>
+    </When>
+    <When Condition="'$(Configuration)' == 'Release'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);RELEASE_CHOICE</DefineConstants>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);CHOICE_OTHERWISE</DefineConstants>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+
+  <PropertyGroup>
+    <!-- CS-CAN-105: per-project deterministic source revision is set in build/Policy.props -->
+  </PropertyGroup>
+</Project>

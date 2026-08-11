@@ -1,0 +1,7 @@
+<Project>
+  <!-- Acme.BuildTools compile/build asset — imported via NuGet build folder for CS-CAN-095/103 -->
+  <PropertyGroup>
+    <AcmeBuildToolsImported>true</AcmeBuildToolsImported>
+    <DefineConstants>$(DefineConstants);BUILD_TOOLS_IMPORTED</DefineConstants>
+  </PropertyGroup>
+</Project>
