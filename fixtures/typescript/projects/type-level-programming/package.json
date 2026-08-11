@@ -1,0 +1,14 @@
+{
+  "name": "@fixtures/type-level-programming",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture library computing types from types: conditionals, mapped types, indexed access, templates, recursion, shapes, and utilities",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
+  }
+}
