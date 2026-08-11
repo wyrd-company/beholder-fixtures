@@ -1,0 +1,14 @@
+{
+  "name": "@fixtures/alternate-tools-and-hosts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture library showing non-tsc tools and runtime-native TypeScript hosts",
+  "engines": {
+    "node": ">=22.6.0",
+    "bun": ">=1.3.0"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

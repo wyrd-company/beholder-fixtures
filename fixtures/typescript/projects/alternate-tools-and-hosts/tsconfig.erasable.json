@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "erasableSyntaxOnly": true,
+    "outDir": "dist-erasable",
+    "declaration": false,
+    "declarationMap": false
+  },
+  "include": ["src/erasable.ts", "src/runtime-node-erasable.ts", "src/helpers.ts"]
+}

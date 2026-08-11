@@ -1,0 +1,18 @@
+# Bun transpiler configuration for alternate-tools-and-hosts fixture.
+# Documents non-tsc transform path with its own configuration.
+# Bun is a locally installed host and transpiler; this config is the
+# per-file transform surface for TS-CAN-090.
+
+[install]
+# bun handles TypeScript via its built-in transpiler; no extra loader config needed
+
+[test]
+# bun's test runner is not used (planned tests: none per brief)
+
+# Transpiler behavior:
+# - loader: "ts" per file (see scripts/bun-transpile.ts)
+# - target: "bun" (Bun runtime)
+# - tsconfig handling: partial — Bun respects "target"/"module" but ignores
+#   "erasableSyntaxOnly", "paths", and most declaration options (TS-CAN-091)
+# - specifier resolution: Bun resolves extensionless "./helpers" and real
+#   extensions "./helpers.ts" differently from Node's strict ESM (TS-CAN-091)
