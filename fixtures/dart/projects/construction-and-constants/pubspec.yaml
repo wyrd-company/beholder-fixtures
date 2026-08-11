@@ -1,0 +1,10 @@
+name: construction_and_constants
+description: >-
+  Fixture package demonstrating object construction, factories and
+  redirection, cascades, implicit operator lowering, the constant-expression
+  subset, canonicalization, and equality/identity/hashing.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.12.2 <4.0.0'
