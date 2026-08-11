@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Fixture.AttributesAndMetadata.Core.Attributes;
 
 namespace Fixture.AttributesAndMetadata.Core.Recognized;
 
@@ -43,6 +44,43 @@ public static class ObsoleteExperimentalShowcase
     UrlFormat = "https://example.invalid/diagnostics/{0}")]
 public sealed class ObsoleteTypeShowcase
 {
+}
+
+/// <summary>
+/// An accessor-level reference: only the <see langword="set"/> accessor is
+/// obsolete, so reading <see cref="Value"/> is an ordinary, undiagnosed
+/// reference while writing it is not.
+/// </summary>
+public sealed class ObsoleteAccessorShowcase
+{
+    private int _value;
+
+    public int Value
+    {
+        get => _value;
+        [Obsolete(
+            "Superseded setter; kept only for this fixture's accessor reference demonstration.",
+            DiagnosticId = "SHOWCASE_OBS_ACCESSOR",
+            UrlFormat = "https://example.invalid/diagnostics/{0}")]
+        set => _value = value;
+    }
+}
+
+/// <summary>
+/// An interface-implementation-level reference: the implementing method is
+/// obsolete, but the interface member it implements is not, so a call
+/// through the interface reference is undiagnosed while a direct call on the
+/// concrete type is.
+/// </summary>
+public sealed class ObsoleteInterfaceImplementationShowcase : IShowcaseContract
+{
+    [Obsolete(
+        "Superseded implementation; kept only for this fixture's interface-implementation reference demonstration.",
+        DiagnosticId = "SHOWCASE_OBS_IMPL",
+        UrlFormat = "https://example.invalid/diagnostics/{0}")]
+    public void Act()
+    {
+    }
 }
 
 /// <summary>
@@ -97,5 +135,44 @@ public static class ObsoleteReferenceDemo
             .Single();
 #pragma warning restore SHOWCASE_OBS_TYPE
         return $"obsolete-type-diagnostic-id={attribute.DiagnosticId} is-error={attribute.IsError}";
+    }
+
+    /// <summary>
+    /// Reading <see cref="ObsoleteAccessorShowcase.Value"/> is an ordinary,
+    /// undiagnosed reference; only the <see langword="set"/> accessor is
+    /// obsolete.
+    /// </summary>
+    public static int ReferenceAccessorGetter()
+    {
+        var showcase = new ObsoleteAccessorShowcase();
+        return showcase.Value;
+    }
+
+    public static int ReferenceAccessorSetter()
+    {
+        var showcase = new ObsoleteAccessorShowcase();
+#pragma warning disable SHOWCASE_OBS_ACCESSOR
+        showcase.Value = 5;
+#pragma warning restore SHOWCASE_OBS_ACCESSOR
+        return showcase.Value;
+    }
+
+    /// <summary>
+    /// A call through the <see cref="Attributes.IShowcaseContract"/>
+    /// reference is undiagnosed: the interface member itself is not
+    /// obsolete, only this concrete implementation.
+    /// </summary>
+    public static void ReferenceInterfaceImplementationViaInterface()
+    {
+        IShowcaseContract contract = new ObsoleteInterfaceImplementationShowcase();
+        contract.Act();
+    }
+
+    public static void ReferenceInterfaceImplementationDirectly()
+    {
+        var concrete = new ObsoleteInterfaceImplementationShowcase();
+#pragma warning disable SHOWCASE_OBS_IMPL
+        concrete.Act();
+#pragma warning restore SHOWCASE_OBS_IMPL
     }
 }

@@ -5,6 +5,11 @@ tasks:
     desc: Compile every declared build context without restoring from the network.
     dir: '{{.TASKFILE_DIR}}'
     cmds:
+      # Offline restore first: this project has no PackageReference, so restore
+      # touches only the local SDK/ref packs already on disk and needs no
+      # network. Without this, a clean checkout has no obj/project.assets.json
+      # and every subsequent --no-restore build fails with NETSDK1004.
+      - dotnet restore AttributesAndMetadata.sln
       - dotnet build src/Core/Core.csproj --no-restore -c Release
       - dotnet build src/ReferencedModule/ReferencedModule.csproj --no-restore -c Release
       - dotnet build src/MetadataConsumer/MetadataConsumer.csproj --no-restore -c Release
@@ -18,6 +23,9 @@ tasks:
     desc: Verify formatting and analyzer warnings for fixture-owned source.
     dir: '{{.TASKFILE_DIR}}'
     cmds:
+      # Same offline restore as `build`, required standalone since `lint` may
+      # run on a clean checkout without a prior `task build`.
+      - dotnet restore AttributesAndMetadata.sln
       - dotnet format AttributesAndMetadata.sln --verify-no-changes --no-restore
       - dotnet build src/Core/Core.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
       - dotnet build src/ReferencedModule/ReferencedModule.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true

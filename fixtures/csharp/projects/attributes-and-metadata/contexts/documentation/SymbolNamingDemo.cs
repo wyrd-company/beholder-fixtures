@@ -44,4 +44,14 @@ public static class SymbolNamingDemo
         var closedGeneric = typeof(Container<int>);
         return $"open-is-definition={openGeneric.IsGenericTypeDefinition} closed-is-definition={closedGeneric.IsGenericTypeDefinition}";
     }
+
+    /// <summary>
+    /// Captures the member-name form <c>nameof(Sample.Label)</c> and a
+    /// deeper-qualified form <c>nameof(SymbolNamingDemo.Sample.Label)</c>;
+    /// <see langword="nameof"/> always evaluates to only the final
+    /// identifier, so both forms yield the same simple name regardless of
+    /// how much of the containing chain is written.
+    /// </summary>
+    public static string DescribeMemberNameForms()
+        => $"member-name-form={nameof(Sample.Label)} final-identifier-form={nameof(SymbolNamingDemo.Sample.Label)}";
 }

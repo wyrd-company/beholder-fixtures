@@ -34,4 +34,44 @@ public static class PlatformAbiLatitude
 
         return $"native-library-probe-attempted=true loaded={loaded}";
     }
+
+    public static string DescribeNativeIntRange()
+        // Parameterized by pointer width; on this x64 host the native
+        // integer range matches Int64's, but that is never asserted as a
+        // portable constant.
+        => $"native-int-max={nint.MaxValue} native-int-min={nint.MinValue}";
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct PaddedLayout
+    {
+        public byte Flag;
+        public long Value;
+    }
+
+    public static string DescribeLayoutPadding()
+    {
+        // Padding inserted between differently sized fields is
+        // platform/ABI-determined; only the resulting managed size is
+        // observed, never asserted as a fixed cross-platform constant.
+        var size = Marshal.SizeOf<PaddedLayout>();
+        return $"padded-layout-size-bytes={size}";
+    }
+
+    public static string DescribeFilesystemCaseAndNewlineLatitude()
+    {
+        var newline = Environment.NewLine;
+        return $"newline-length={newline.Length} newline-is-lf={newline == "\n"} alt-separator={Path.AltDirectorySeparatorChar}";
+    }
+
+    public static string DescribeMemoryReorderingLatitude()
+    {
+        var flag = 0;
+
+        // Whether the runtime or CPU may reorder surrounding memory
+        // operations absent this barrier is never asserted; only that the
+        // barrier API is available and usable.
+        Volatile.Write(ref flag, 1);
+        var observed = Volatile.Read(ref flag);
+        return $"memory-reordering-barrier-observed-value={observed}";
+    }
 }

@@ -34,4 +34,38 @@ public static class SynthesizedShapeLatitude
 
         return $"lambda-closure-target-compiler-generated={targetIsCompilerGenerated}";
     }
+
+    public static string DescribeLocalFunctionSynthesis()
+    {
+        var capturingResult = LocalFunctionHost.InvokeCapturingLocalFunction(3);
+        var staticResult = LocalFunctionHost.InvokeStaticLocalFunction(4);
+
+        // A capturing local function is lowered onto a compiler-generated
+        // closure type or method; a non-capturing (static) local function is
+        // ordinarily an unmarked private method. Presence is checked across
+        // both nested types and declared methods, never by a specific name.
+        var hasCompilerGeneratedArtifact =
+            typeof(LocalFunctionHost).GetNestedTypes(BindingFlags.NonPublic)
+                .Any(t => t.IsDefined(typeof(CompilerGeneratedAttribute), false))
+            || typeof(LocalFunctionHost).GetMethods(BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly)
+                .Any(m => m.IsDefined(typeof(CompilerGeneratedAttribute), false));
+
+        return $"capturing-local-function-result={capturingResult} static-local-function-result={staticResult} " +
+               $"local-function-compiler-generated-artifact-present={hasCompilerGeneratedArtifact}";
+    }
+}
+
+public static class LocalFunctionHost
+{
+    public static int InvokeCapturingLocalFunction(int seed)
+    {
+        int Compute(int x) => (x * 2) + seed;
+        return Compute(seed);
+    }
+
+    public static int InvokeStaticLocalFunction(int value)
+    {
+        static int Double(int x) => x * 2;
+        return Double(value);
+    }
 }
