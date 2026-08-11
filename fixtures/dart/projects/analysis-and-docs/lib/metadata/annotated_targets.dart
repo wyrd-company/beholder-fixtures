@@ -28,7 +28,6 @@ class AnnotatedBin {
   String describe() => 'bin:$name';
 }
 
-/// Annotation on type use: parameter type carries metadata.
 typedef TaggedItems = List<CatalogItem>;
 
 /// Function with annotations on itself, parameters, and type parameters.
@@ -47,9 +46,19 @@ class Holder<@WorkshopTag('type-param-tag') T> {
   final T value;
 }
 
-/// Annotation on type use.
-CatalogItem? findItem(@WorkshopTag('param-type-use') List<CatalogItem> items) =>
+/// Parameter example (not type-use).
+CatalogItem? findItem(List<CatalogItem> items) =>
     items.isEmpty ? null : items.first;
+
+/// Type-use: annotation on the `CatalogItem` type itself.
+@WorkshopTag('type-use')
+CatalogItem? typeUseExample;
+
+/// Type-use on a field's type.
+class TypeUseHolder {
+  @WorkshopTag('type-use-field')
+  CatalogItem held = const CatalogItem('u', 'v', 1);
+}
 
 /// Variable with metadata.
 @WorkshopTag('variable-tag')

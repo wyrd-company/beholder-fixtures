@@ -10,4 +10,4 @@ library;
 
 int excludedValue() => 7;
 
-String describeExcluded() => 'excluded:$excludedValue';
+String describeExcluded() => 'excluded:${excludedValue()}';

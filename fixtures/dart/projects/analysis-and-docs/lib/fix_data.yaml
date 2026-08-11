@@ -1,0 +1,10 @@
+version: 1
+transforms:
+  - title: "Use 'createItem' instead of 'legacyCreateItem'"
+    date: 2026-02-01
+    element:
+      uris: ['package:analysis_and_docs/fixes/deprecated_api.dart']
+      function: 'legacyCreateItem'
+    changes:
+      - kind: 'rename'
+        newName: 'createItem'

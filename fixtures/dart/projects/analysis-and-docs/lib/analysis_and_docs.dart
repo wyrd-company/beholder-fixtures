@@ -15,6 +15,7 @@ export 'fixes/deprecated_api.dart';
 export 'fixes/deprecated_use.dart';
 export 'fixes/deprecated_fixed.dart';
 export 'synthetic/implicit_entities.dart';
+export 'synthetic/implicit_caller.dart';
 export 'synthetic/accessors_and_records.dart';
 export 'synthetic/mixins.dart';
 export 'synthetic/no_such_method.dart';

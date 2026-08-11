@@ -1,0 +1,18 @@
+version: 1
+transforms:
+  - title: "Use 'helperNew' instead of 'helperLegacy'"
+    date: 2026-02-01
+    element:
+      uris: ['package:helper/src/deprecated_helper.dart', 'package:helper/helper.dart']
+      function: 'helperLegacy'
+    changes:
+      - kind: 'rename'
+        newName: 'helperNew'
+  - title: "Rename to 'HelperNewClass'"
+    date: 2026-02-01
+    element:
+      uris: ['package:helper/src/deprecated_helper.dart', 'package:helper/helper.dart']
+      class: 'HelperLegacyClass'
+    changes:
+      - kind: 'rename'
+        newName: 'HelperNewClass'

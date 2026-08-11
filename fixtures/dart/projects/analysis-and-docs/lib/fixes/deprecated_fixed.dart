@@ -4,7 +4,6 @@
 /// The deprecated call has been rewritten to the current API.
 library;
 
-import '../shared_models.dart';
-import 'deprecated_api.dart';
+import 'package:helper/helper.dart';
 
-CatalogItem useMigrated() => createItem('d-1', 'Bracket', quantity: 1);
+String useMigrated() => helperNew('d-1');

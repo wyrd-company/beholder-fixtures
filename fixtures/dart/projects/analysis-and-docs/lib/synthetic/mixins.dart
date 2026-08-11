@@ -20,8 +20,8 @@ class WorkshopBin extends BaseBin with Sealable, LabeledMixin {
   final String id;
 }
 
-// Named mixin application: explicit class alias introduces a named application.
-class NamedApp extends BaseBin with Sealable {}
+// Named mixin application alias: distinct from the anonymous intermediate.
+class NamedMixinAlias = BaseBin with Sealable;
 
 mixin class MixedClass {
   String mixed() => 'mixed';
@@ -32,7 +32,7 @@ mixin class MixedClass {
 bool isSealable(BaseBin bin) => bin is Sealable;
 
 String useNamedMixins() {
-  final a = NamedApp();
+  final a = NamedMixinAlias();
   final b = WorkshopBin('w-1');
   return '${a.describe()}:${b.seal()}';
 }

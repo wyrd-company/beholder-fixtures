@@ -5,6 +5,7 @@
 library;
 
 import 'package:meta/meta.dart';
+import 'package:helper/helper.dart';
 
 import '../src/internal_api.dart';
 import '../shared_models.dart';
@@ -35,18 +36,22 @@ void useInternalApi() {
   registry.registerItem('w-1');
 }
 
-/// `@visibleForTesting` compliant use within test-adjacent code.
-/// In production code the member would not be referenced outside tests, but
-/// this fixture shows the valid import and call path.
-void useVisibleForTestingCompliantly() {
-  const helper = TestHelper();
-  // Compliant library-level use; production code would invoke this from tests.
-  // ignore: invalid_use_of_visible_for_testing_member
-  helper.debugLabel();
+/// Package-boundary internal use within helper package.
+/// `HelperFacade` uses `HelperRegistry` inside its own package compliantly.
+void useHelperPackage() {
+  const facade = HelperFacade();
+  facade.doWork();
 }
 
-// Observation: calling `InternalWorkshopRegistry` from outside the package
-// would be a violation of `@internal` and is not included as valid source.
+// Observation: calling `InternalWorkshopRegistry` from outside
+// `analysis_and_docs` package or `HelperRegistry` from outside `helper`
+// would be a violation of `@internal` and is not included.
+
+// `@visibleForTesting` members are defined for test use only.
+// Compliant use is within tests; production code does not call them.
+// The class and member are defined but not invoked here to avoid an
+// `invalid_use_of_visible_for_testing_member` diagnostic.
+// For demonstration, `TestHelper` is available for tests.
 
 // ---------------------------------------------------------------------------
 // Behavior contracts.
@@ -77,37 +82,40 @@ class LifecycleDerived extends LifecycleBase {
 @useResult
 String computeLabel(CatalogItem item) => item.label;
 
-// Compliant use of `@useResult` discards via `_` silence would still be a
-// violation; compliant use actually consumes the result.
+// Compliant use of `@useResult` consumes the result.
 String consumeUseResult(CatalogItem item) => computeLabel(item).toUpperCase();
 
-/// Demonstrates `@reopen` and extension-type `@redeclare` where supported.
-
-// `@reopen` is documented for packages that intentionally reopen a sealed
-// hierarchy. Keeping the annotation here with an ignore preserves the
-// demonstration without requiring a full sealed hierarchy.
-// ignore: invalid_reopen_annotation
-@reopen
-class ReopenableWorkshop {
+/// Demonstrates `@reopen` with a `final` supertype.
+/// `ReopenBase` is `final`; this `base` subtype intentionally reopens the
+/// final restriction and the annotation suppresses the `implicit_reopen` lint.
+final class ReopenBase {
   void perform() {}
 }
 
-extension type WorkshopId(int id) {
-  // `@redeclare` on extension type members where the SDK validates the target.
+@reopen
+base class Reopened extends ReopenBase {
+  @override
+  void perform() {}
+}
+
+/// Demonstrates `@redeclare` on an extension type member that redeclares a
+/// superinterface member.
+abstract class HasIdValue {
+  int get idValue;
+}
+
+class IdHolder implements HasIdValue {
+  const IdHolder(this.idValue);
+  @override
+  final int idValue;
+}
+
+extension type WorkshopId(IdHolder holder) implements HasIdValue {
   @redeclare
-  // ignore: redeclare_on_non_redeclaring_member
-  int get idValue => id;
+  int get idValue => holder.idValue;
 }
 
 /// Observation: violating cases such as omitting `super.dispose()` when
 /// `@mustCallSuper` is required, ignoring a `@useResult` value, or overriding
 /// a `@immutable` class with mutable fields are not represented as valid
 /// source. They are recorded here as observations.
-
-// ---------------------------------------------------------------------------
-// Additional representative contracts.
-// ---------------------------------------------------------------------------
-
-/// Example of `@experimental` and `@literal` style annotations if needed.
-/// Kept minimal because `package:meta` contracts are represented by the set
-/// above, which covers visibility and behavior categories across boundaries.

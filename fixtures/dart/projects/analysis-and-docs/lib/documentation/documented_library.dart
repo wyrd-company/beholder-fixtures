@@ -18,13 +18,12 @@ import '../shared_models.dart' as shared;
 import '../shared_models.dart';
 import 'catalog.dart';
 
-// Doc-only dependency: used only in documentation, not in code.
-/// See [Catalog] for an imported example that is also a code dependency.
-/// See [Future] for a doc-only reference with no code import of `dart:async`.
-// ignore: unused_import
-// The import below is intentionally doc-only and not otherwise referenced.
-// ignore: unused_import
-import 'dart:async' as _docOnlyFutureImport;
+/// Private helper defined in this library for resolvable private docs.
+// ignore: unused_element
+class _PrivateHelper {
+  const _PrivateHelper();
+  String help() => 'library-private';
+}
 
 /// Documents the workshop inventory with bracket references.
 ///
@@ -55,12 +54,14 @@ class DocumentedInventory {
 (String label, int count) makeRecord(CatalogItem item) =>
     (item.label, item.quantity);
 
-/*
- * Block documentation with resolvable references.
+/** Block documentation with resolvable references.
  *
  * This block doc references [CatalogItem] and [DocumentedInventory.firstItem].
  * It also mentions [Catalog] from the imported library.
  */
+class BlockDocExample {
+  const BlockDocExample();
+}
 
 /// This declaration is hidden from documentation.
 ///

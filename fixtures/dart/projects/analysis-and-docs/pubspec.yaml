@@ -11,3 +11,4 @@ environment:
 
 dependencies:
   meta: ^1.19.0
+  helper: ^1.0.0
