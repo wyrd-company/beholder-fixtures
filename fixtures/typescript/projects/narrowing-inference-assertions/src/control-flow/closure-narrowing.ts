@@ -26,20 +26,21 @@ export function constIndexedAccessNarrowing(
   record: Record<string, string | number>,
 ): string {
   const key = "label" as const;
-  const value = record[key];
-  if (typeof value === "string") {
-    return value.toUpperCase();
+  if (typeof record[key] === "string") {
+    return record[key].toUpperCase();
   }
-  if (typeof value === "number") {
-    return value.toFixed(2);
+  if (typeof record[key] === "number") {
+    return record[key].toFixed(2);
   }
   return "missing";
 }
 
 export function constantIndexNarrowingOnTuple(
-  tuple: [string, number, boolean],
+  tuple: [string | number, string | number],
 ): string {
   const index = 0 as const;
-  const first = tuple[index];
-  return first.toUpperCase();
+  if (typeof tuple[index] === "string") {
+    return tuple[index].toUpperCase();
+  }
+  return tuple[index].toFixed(2);
 }

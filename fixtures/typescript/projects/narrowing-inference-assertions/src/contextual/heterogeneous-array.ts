@@ -5,14 +5,13 @@
 //     - reports/typescript/synthesis/checklist
 // ---
 
-export function heterogeneousBestCommonTypeChanges(): string {
-  const strings = ["atlas", "ledger"];
-  const numbers = [1, 2, 3];
-  const mixed: Array<string | number> = [...strings, ...numbers];
-  const narrowed = mixed.filter(
-    (value): value is string => typeof value === "string",
-  );
-  return narrowed.join("-");
+export function heterogeneousBestCommonTypeChanges(): [
+  Array<string | number>,
+  string[],
+] {
+  const mixedInferred = ["atlas", 1];
+  const stringsInferred = ["atlas", "ledger"];
+  return [mixedInferred, stringsInferred];
 }
 
 export function homogeneousThenHeterogeneous(): Array<string | number> {
@@ -28,13 +27,15 @@ export function contextualReturnInference(): string {
 }
 
 export function undefinedReturnInference(): void {
-  const handler = (label: string) => {
+  const invoke = (handler: (label: string) => undefined): void => {
+    void handler("atlas");
+  };
+  invoke((label) => {
     if (label.length === 0) {
       return;
     }
     consumeLabel(label);
-  };
-  handler("atlas");
+  });
 }
 
 function consumeLabel(value: string): void {

@@ -5,7 +5,7 @@
 //     - reports/typescript/synthesis/checklist
 // ---
 
-export function wideningAssertion(value: string): string {
+export function wideningAssertion(value: "atlas"): string {
   const widened = value as string;
   return widened;
 }
