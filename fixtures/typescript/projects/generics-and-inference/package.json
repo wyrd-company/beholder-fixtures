@@ -1,0 +1,14 @@
+{
+  "name": "@fixtures/generics-and-inference",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture library covering generic declarations and inference, variance, index signatures, tuples, hybrid objects, and polymorphic this",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
+  }
+}
