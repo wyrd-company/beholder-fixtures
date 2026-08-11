@@ -1,4 +1,4 @@
-use hyphen_crate_lib::{library_fn, HyphenType};
+use hyphen_crate_lib::{HyphenType, library_fn};
 
 fn main() {
     let v: HyphenType = library_fn();

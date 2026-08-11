@@ -51,7 +51,11 @@ tasks:
     desc: Check formatting and clippy on every fixture-owned crate (vendored/git-deps source excluded).
     cmds:
       - cargo fmt -- --check
+      # Excluded workspace members: root `cargo fmt` skips them, so check each
+      # directly. `crates/hyphen-crate-v03` is excluded from the root workspace
+      # and is not the resolver-v3 crate, so it needs its own rustfmt check.
       - cargo fmt --manifest-path crates/excluded-crate/Cargo.toml -- --check
+      - cargo fmt --manifest-path crates/hyphen-crate-v03/Cargo.toml -- --check
       - cargo fmt --manifest-path resolver-fixtures/resolver-v1/Cargo.toml -- --check
       - cargo fmt --manifest-path resolver-fixtures/resolver-v2/Cargo.toml -- --check
       - cargo fmt --manifest-path resolver-fixtures/resolver-v3/Cargo.toml -- --check
