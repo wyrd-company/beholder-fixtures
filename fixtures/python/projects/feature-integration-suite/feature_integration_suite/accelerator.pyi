@@ -1,0 +1,6 @@
+from typing import overload
+
+def fast_add(a: int, b: int) -> int: ...
+def fast_multiply(a: int, b: int) -> int: ...
+
+ACCEL_IMPL: str

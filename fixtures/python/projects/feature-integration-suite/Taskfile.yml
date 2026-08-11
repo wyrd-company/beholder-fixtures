@@ -1,0 +1,24 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Byte-compile all fixture-owned packages and compile the native accelerator.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - python3 -m compileall -q feature_integration_suite tests
+      - sh -c 'set -e; suffix=$(python3 -c "import sysconfig; print(sysconfig.get_config_var(\"EXT_SUFFIX\"))"); inc=$(python3-config --includes 2>/dev/null || python3 -c "import sysconfig; print(\"-I\"+sysconfig.get_config_var(\"INCLUDEPY\"))"); gcc -shared -fPIC feature_integration_suite/_native_accel.c $inc -o "feature_integration_suite/_native_accel${suffix}"; echo "built feature_integration_suite/_native_accel${suffix}"'
+
+  lint:
+    desc: Parse and byte-compile every fixture-owned source file.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - python3 -m py_compile feature_integration_suite/descriptor_suite.pyi feature_integration_suite/accelerator.pyi
+      - >-
+        find feature_integration_suite tests -type f -name '*.py' -print0 |
+        xargs -0 python3 -m py_compile
+
+  test:
+    desc: Run standard-library tests for the multiprocessing main-identity variant.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - python3 -m unittest tests.test_main_identity -v

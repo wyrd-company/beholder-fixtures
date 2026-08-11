@@ -1,0 +1,12 @@
+[project]
+name = "feature-integration-suite"
+version = "0.1.0"
+description = "Cross-feature integration suite exercising combined Python language and runtime interactions"
+requires-python = ">=3.11"
+readme = "coverage.md"
+
+[project.scripts]
+feature-suite-worker = "feature_integration_suite.mp_entry:main"
+
+[tool.setuptools.packages.find]
+include = ["feature_integration_suite*"]
