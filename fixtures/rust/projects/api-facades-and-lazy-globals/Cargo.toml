@@ -1,0 +1,37 @@
+[package]
+name = "api-facades-and-lazy-globals"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for API facades, sealed traits, lazy globals, and naming conventions"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace]
+members = ["crates/facade_downstream"]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Shared fixture description"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(doc)", "cfg(doctest)"] }
+
+[workspace.lints.clippy]
+all = "warn"
+
+[lib]
+name = "api_facades_and_lazy_globals"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+lazy_static = "1.5.0"
+
+[lints]
+workspace = true

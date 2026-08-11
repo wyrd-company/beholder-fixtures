@@ -1,0 +1,14 @@
+[package]
+name = "facade_downstream"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Cross-crate consumer for facade and sealed-trait identity effects"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[dependencies]
+api-facades-and-lazy-globals = { path = "../.." }
+
+[lints]
+workspace = true
