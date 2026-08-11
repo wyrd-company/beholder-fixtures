@@ -88,13 +88,26 @@ def uninstall_finder() -> None:
 
 
 def malformed_spec_demo() -> str:
-    """Create a spec with ``loader=None`` and show that import fails gracefully."""
-    spec = importlib.machinery.ModuleSpec("synthetic_plugin.malformed", None, origin="synthetic://malformed")
+    """Create a genuinely malformed spec/loader whose execution fails."""
+
+    class MalformedLoader(importlib.abc.Loader):
+        def create_module(self, spec):  # type: ignore[override]
+            return None
+
+        def exec_module(self, module):  # type: ignore[override]
+            raise ImportError("malformed loader: exec_module failed")
+
+    spec = importlib.machinery.ModuleSpec(
+        "synthetic_plugin.malformed", MalformedLoader(), origin="synthetic://malformed"
+    )
     try:
-        mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)  # type: ignore[attr-defined]
         return f"unexpected:{mod}"
     except (ValueError, ImportError) as exc:
-        return f"malformed-spec:{exc.__class__.__name__}"
+        return f"malformed-spec:{exc.__class__.__name__}: {exc}"
+    except Exception as exc:  # pragma: no cover
+        return f"malformed-spec-other:{exc.__class__.__name__}: {exc}"
 
 
 def loader_varieties() -> dict[str, str]:

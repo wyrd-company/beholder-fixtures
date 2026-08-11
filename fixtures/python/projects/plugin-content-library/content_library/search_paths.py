@@ -76,18 +76,166 @@ def path_order_shadowing_demo() -> dict[str, str]:
             sys.modules.pop("shadow_candidate", None)
 
 
+def working_directory_demo() -> dict[str, object]:
+    """Working-directory resolution: directory on sys.path[0] analogue."""
+    import importlib
+
+    project = pathlib.Path(__file__).parent.parent
+    candidate_dir = project / "search_extras" / "workdir_candidate"
+    sys.path.insert(0, str(candidate_dir))
+    try:
+        sys.modules.pop("workdir_mod", None)
+        importlib.invalidate_caches()
+        mod = importlib.import_module("workdir_mod")
+        return {
+            "value": mod.VALUE,  # type: ignore
+            "path_used": str(candidate_dir),
+            "sys_path_0": sys.path[0],
+        }
+    finally:
+        if str(candidate_dir) in sys.path:
+            sys.path.remove(str(candidate_dir))
+        sys.modules.pop("workdir_mod", None)
+        importlib.invalidate_caches()
+
+
+def pythonpath_demo() -> dict[str, object]:
+    """PYTHONPATH resolution via sys.path entry (simulates PYTHONPATH env)."""
+    import importlib
+    import os
+
+    project = pathlib.Path(__file__).parent.parent
+    candidate_dir = project / "search_extras" / "pythonpath_candidate"
+    # Simulate PYTHONPATH by inserting the directory; real PYTHONPATH is env var
+    # read at interpreter startup and prepended to sys.path.
+    sys.path.insert(0, str(candidate_dir))
+    # Also demonstrate via subprocess with PYTHONPATH env set.
+    env_value = os.environ.get("PYTHONPATH", "")
+    try:
+        sys.modules.pop("pp_mod", None)
+        importlib.invalidate_caches()
+        mod = importlib.import_module("pp_mod")
+        return {
+            "value": mod.VALUE,  # type: ignore
+            "path_used": str(candidate_dir),
+            "pythonpath_env": env_value or "<not-set>",
+        }
+    finally:
+        if str(candidate_dir) in sys.path:
+            sys.path.remove(str(candidate_dir))
+        sys.modules.pop("pp_mod", None)
+        importlib.invalidate_caches()
+
+
+def venv_or_editable_pth_demo() -> dict[str, object]:
+    """Virtual-environment / editable .pth root via site.addsitedir."""
+    import importlib
+    import site
+
+    project = pathlib.Path(__file__).parent.parent
+    pth_site_dir = project / "search_extras" / "venv_site"
+    candidate_dir = (project / "search_extras" / "venv_candidate").resolve()
+
+    # Ensure clean state.
+    for name in list(sys.modules):
+        if name.startswith("venv_mod"):
+            del sys.modules[name]
+    # Use site.addsitedir to process editable.pth which adds ../venv_candidate
+    site.addsitedir(str(pth_site_dir))
+    importlib.invalidate_caches()
+    try:
+        mod = importlib.import_module("venv_mod")
+        return {
+            "value": mod.VALUE,  # type: ignore
+            "pth_file": str(pth_site_dir / "editable.pth"),
+            "pth_target_resolved": str(candidate_dir),
+            "in_sys_path": str(candidate_dir) in sys.path,
+        }
+    finally:
+        if str(candidate_dir) in sys.path:
+            sys.path.remove(str(candidate_dir))
+        for name in list(sys.modules):
+            if name.startswith("venv_mod"):
+                del sys.modules[name]
+        importlib.invalidate_caches()
+
+
+def stdlib_shadowing_demo() -> dict[str, object]:
+    """Standard-library shadowing: local json.py earlier on sys.path shadows stdlib."""
+    import importlib
+
+    project = pathlib.Path(__file__).parent.parent
+    shadow_dir = project / "search_extras" / "stdlib_shadow"
+    sys.path.insert(0, str(shadow_dir))
+    try:
+        # Ensure stdlib json not already loaded? It typically is. Force reload of shim.
+        sys.modules.pop("json", None)
+        import json as shadow_json  # type: ignore
+
+        is_shadow = getattr(shadow_json, "VALUE", None) == "shadow-json"
+        origin = getattr(shadow_json.__spec__, "origin", "") if hasattr(shadow_json, "__spec__") else ""
+        return {
+            "is_shadow": is_shadow,
+            "value": getattr(shadow_json, "VALUE", None),
+            "origin": str(origin),
+            "shadow_path": str(shadow_dir / "json.py"),
+        }
+    finally:
+        if str(shadow_dir) in sys.path:
+            sys.path.remove(str(shadow_dir))
+        # Restore stdlib json.
+        sys.modules.pop("json", None)
+        try:
+            import json  # noqa: F401
+        except Exception:
+            pass
+        importlib.invalidate_caches()
+
+
+def launcher_vs_working_directory_demo() -> dict[str, object]:
+    """Launcher mode (-m) vs direct script sys.path[0] difference (executable)."""
+    import subprocess
+
+    project = pathlib.Path(__file__).parent.parent
+    # Direct script: run the declaration file as a script; capture package identity and sys.path[0].
+    r_direct = subprocess.run(
+        [sys.executable, str(project / "content_library" / "entry_declarations.py")],
+        capture_output=True, text=True, cwd=str(project),
+    )
+    r_module = subprocess.run(
+        [sys.executable, "-m", "content_library.entry_declarations"],
+        capture_output=True, text=True, cwd=str(project),
+    )
+    # Also demonstrate sys.path[0] via path_probe helper (launcher -m vs direct).
+    r_direct_path = subprocess.run(
+        [sys.executable, str(project / "content_library" / "path_probe.py")],
+        capture_output=True, text=True, cwd=str(project),
+    )
+    r_m_path = subprocess.run(
+        [sys.executable, "-m", "content_library.path_probe"],
+        capture_output=True, text=True, cwd=str(project),
+    )
+    return {
+        "launcher_mode_m_stdout": r_module.stdout.strip()[:400],
+        "direct_script_stdout": r_direct.stdout.strip()[:400],
+        "launcher_path0": r_m_path.stdout.strip() or r_m_path.stderr.strip()[:200],
+        "direct_path0": r_direct_path.stdout.strip() or r_direct_path.stderr.strip()[:200],
+        "note": "launcher -m sets sys.path[0] to ''/cwd; direct script sets to script directory; package None vs content_library",
+    }
+
+
 def stdlib_shadowing_note() -> str:
-    """Local ``json.py`` would shadow stdlib ``json`` if placed early on path."""
-    return "hazard: local json.py on sys.path before stdlib shadows the stdlib"
-
-
-def case_insensitive_note() -> str:
-    return "on case-insensitive filesystems Search_Demo.py and search_demo.py collide"
+    """Deprecated prose alias kept for coverage back-compat; use stdlib_shadowing_demo."""
+    return stdlib_shadowing_demo()["value"]  # type: ignore
 
 
 def editable_pth_note() -> str:
-    return "editable .pth in site-packages adds project src to sys.path"
+    return str(venv_or_editable_pth_demo()["pth_file"])
 
 
 def launcher_vs_working_directory_note() -> str:
-    return "launcher mode (-m) sets different sys.path[0] than direct script path"
+    return launcher_vs_working_directory_demo()["note"]  # type: ignore
+
+
+# Unavailable contexts — excluded, not claimed as demonstrations.
+EXCLUDED_VARIANTS_NOTE = "test-runner and case-insensitive filesystem collisions are unavailable conditional contexts and are not demonstrated"

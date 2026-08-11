@@ -24,6 +24,64 @@ def extend_path_demo() -> dict[str, object]:
     }
 
 
+def mixed_style_failure_demo() -> dict[str, object]:
+    """Mixed PEP 420 implicit + legacy regular counterexample (PY-CAN-MOD-004).
+
+    ``shared_mixed`` has an implicit namespace portion in ``mixed_a`` (no
+    ``__init__.py``) and a regular package portion in ``mixed_b`` (with
+    ``__init__.py``).  Placing both on ``sys.path`` demonstrates that the
+    mixed style fails: the regular package shadows the namespace, so the
+    implicit child ``plugin_a`` is not found without path extension.
+    """
+    project = pathlib.Path(__file__).parent.parent
+    mixed_a = str(project / "mixed_a")
+    mixed_b = str(project / "mixed_b")
+    for p in (mixed_a, mixed_b):
+        if p not in sys.path:
+            sys.path.insert(0, p)
+    for name in list(sys.modules):
+        if name.startswith("shared_mixed"):
+            del sys.modules[name]
+    importlib.invalidate_caches()
+    # Ensure regular portion wins when mixed_b is earlier.
+    if mixed_b in sys.path:
+        sys.path.remove(mixed_b)
+        sys.path.insert(0, mixed_b)
+    try:
+        import shared_mixed  # type: ignore
+
+        is_regular = getattr(shared_mixed, "__file__", None) is not None
+        # Implicit child should not be resolvable via regular __path__.
+        try:
+            import shared_mixed.plugin_a  # type: ignore  # noqa: F401
+            plugin_a_status = "found-despite-mixed"
+        except ModuleNotFoundError as exc:
+            plugin_a_status = f"mixed-style-not-found:{exc.name}"
+
+        try:
+            import shared_mixed.plugin_b as pb  # type: ignore
+
+            plugin_b_status = pb.VALUE
+        except ModuleNotFoundError as exc:
+            plugin_b_status = f"not-found:{exc.name}"
+
+        return {
+            "is_regular": is_regular,
+            "regular_file": getattr(shared_mixed, "__file__", None),
+            "plugin_a": plugin_a_status,
+            "plugin_b": plugin_b_status,
+            "note": "mixing implicit namespace (no __init__) with legacy regular package for same top name fails without controlled __path__",
+        }
+    finally:
+        for p in (mixed_a, mixed_b):
+            if p in sys.path:
+                sys.path.remove(p)
+        for name in list(sys.modules):
+            if name.startswith("shared_mixed"):
+                del sys.modules[name]
+        importlib.invalidate_caches()
+
+
 def mixed_style_failure_note() -> str:
     return "mixing PEP 420 implicit namespace with extend_path in same package fails or is undefined"
 

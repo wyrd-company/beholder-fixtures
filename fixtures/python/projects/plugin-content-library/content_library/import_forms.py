@@ -58,16 +58,18 @@ def missing_component_demo() -> str:
         return f"import-error:{exc}"
 
 
-# Partially initialized package — import that observes a package before its
-# initializer completes (cycle case is in ``cycles``; here we show a soft
-# variant via importer that touches ``sys.modules`` early).
-def partially_initialized_demo() -> str:
-    import sys
+# Partially initialized package — observation inside actual initialization.
+# ``content_library.partial_pkg``'s ``__init__`` imports its ``child`` while
+# ``CHILD_DONE`` not yet set; the child records ``PARTIALLY_INITIALIZED``.
+from content_library.partial_pkg import PARTIALLY_DURING_INIT as _partial_during_init
+from content_library.partial_pkg.child import PARTIALLY_INITIALIZED as _partial_child, PARENT_IN_SYS_MODULES
 
-    # Simulate observing the package during its own initialization by checking
-    # that ``content_library`` is already in ``sys.modules`` while its
-    # ``__init__`` is still executing — that is the normal state for any
-    # package initializer; this function documents the shape.
-    if "content_library" in sys.modules:
-        return "package-partially-visible-during-init"
-    return "not-visible"
+PARTIALLY_INITIALIZED_DURING_INIT = _partial_during_init and _partial_child
+
+def partially_initialized_demo() -> dict[str, object]:
+    return {
+        "parent_partially_during_init": _partial_during_init,
+        "child_observes_partial": _partial_child,
+        "parent_in_sys_modules_during_child": PARENT_IN_SYS_MODULES,
+        "note": "child imported while parent __init__ not yet complete — sys.modules entry exists but CHILD_DONE missing",
+    }

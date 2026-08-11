@@ -11,11 +11,17 @@ definition is active.
 
 from __future__ import annotations
 
+import content_library.reload_dep as reload_dep  # dependency for non-recursive reload variant
+
 VERSION = 1
 RETAINED_MARKER = "original"
+DEP_VALUE = reload_dep.DEP_VALUE
 
 def get_version() -> int:
     return VERSION
+
+def get_dep_value() -> str:
+    return reload_dep.DEP_VALUE
 
 class Holder:
     """Instances capture the class object at creation time."""

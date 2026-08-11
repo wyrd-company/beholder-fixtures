@@ -94,27 +94,65 @@ def extension_origin() -> dict[str, object]:
     candidate = next(project.glob(f"_native_ext*{suffix}"), None) if suffix else None
     if candidate is None:
         return {"origin": None, "note": "extension not yet built — run task build", "suffix": suffix}
-    # Import via spec to record origin without polluting if already loaded.
-    spec = importlib.util.spec_from_file_location("content_library._native_ext", str(candidate))
-    assert spec is not None
+    # Actually import the extension via its ExtensionFileLoader / import system.
+    import importlib
+
+    # Ensure content_library package is importable, then import the extension.
+    # Use import_module which triggers ExtensionFileLoader.
+    ext_mod = importlib.import_module("content_library._native_ext")
+    spec = getattr(ext_mod, "__spec__", None)
+    origin = getattr(spec, "origin", None) if spec else str(candidate)
     return {
-        "origin": spec.origin,
-        "has_file": True,
-        "file": spec.origin,
+        "origin": origin,
+        "has_file": hasattr(ext_mod, "__file__"),
+        "file": getattr(ext_mod, "__file__", None),
         "suffix": suffix,
-        "is_extension": str(candidate).endswith(suffix or ".so"),
+        "is_extension": str(origin).endswith(suffix or ".so") if origin else str(candidate).endswith(suffix or ".so"),
+        "imported": True,
+        "hello": ext_mod.hello(),  # type: ignore[attr-defined]
+        "loader": type(spec.loader).__name__ if spec and spec.loader else None,
     }
 
 
 def bytecode_invalidation_demo() -> dict[str, object]:
-    """Demonstrate bytecode magic and invalidation tags (PEP 552)."""
+    """Demonstrate bytecode magic and actual invalidation (PEP 552)."""
     import py_compile
+
+    project = pathlib.Path(__file__).parent
+    pyc = project / "generated_bytecode" / "bytecode_only.pyc"
+    # Real default on this interpreter; CPython 3.14 reports TIMESTAMP.
+    try:
+        default_mode = py_compile._get_default_invalidation_mode()  # type: ignore[attr-defined]
+    except AttributeError:
+        default_mode = py_compile.PycInvalidationMode.TIMESTAMP  # type: ignore
+
+    # Inspect actual committed pyc header flags (0 = timestamp, 1 = unchecked hash, 3 = checked hash per PEP 552).
+    header_flags = None
+    header_desc = None
+    if pyc.exists():
+        data = pyc.read_bytes()
+        if len(data) >= 8:
+            import struct
+
+            flags = int.from_bytes(data[4:8], "little")
+            header_flags = flags
+            if flags == 0:
+                header_desc = "timestamp"
+            elif flags & 1:
+                header_desc = "hash-based"
+            else:
+                header_desc = f"flags={flags}"
 
     return {
         "magic_number": importlib.util.MAGIC_NUMBER.hex(),
         "cache_tag": sys.implementation.cache_tag,
-        "bytecode_invalidation_modes": ["timestamp", "hash"],
-        "py_compile_default": py_compile.PycInvalidationMode.CHECKED_HASH,
+        "bytecode_invalidation_modes": ["timestamp", "hash (checked/unchecked)"],
+        "py_compile_default": str(default_mode).split(".")[-1],
+        "py_compile_default_repr": repr(default_mode),
+        "committed_pyc": str(pyc),
+        "committed_pyc_flags": header_flags,
+        "committed_pyc_invalidation": header_desc,
+        "stale_cache_note": "stale cache: .pyc mtime/size mismatch (timestamp) or hash mismatch (hash) causes regeneration",
     }
 
 
