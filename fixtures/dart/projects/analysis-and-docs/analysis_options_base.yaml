@@ -1,0 +1,9 @@
+# Base analyzer options that are extended via include chaining.
+linter:
+  rules:
+    - avoid_print
+    - avoid_empty_else
+    - prefer_const_constructors
+analyzer:
+  errors:
+    todo: ignore
