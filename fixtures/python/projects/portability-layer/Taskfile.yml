@@ -1,0 +1,27 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Byte-compile all fixture-owned packages.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - python3 -m compileall -q portability_layer
+      - python3 -OO -m compileall -q portability_layer
+      - python3 -m compileall -q portability_layer --invalidation-mode=unchecked-hash
+
+  lint:
+    desc: Parse and byte-compile every fixture-owned source file.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - >-
+        find portability_layer -type f -name '*.py' -print0 |
+        xargs -0 python3 -m py_compile
+      - >-
+        find portability_layer -type f -name '*.py' -print0 |
+        xargs -0 python3 -OO -m py_compile
+
+  test:
+    desc: Succeed with no planned test files.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - ':'
