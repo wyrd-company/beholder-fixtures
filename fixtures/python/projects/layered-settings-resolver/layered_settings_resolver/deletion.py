@@ -4,16 +4,25 @@ from __future__ import annotations
 
 
 class DescriptorSlot:
-    """Descriptor whose deletion path is explicit."""
+    """Data descriptor whose deletion makes subsequent reads raise.
+
+    Defining ``__delete__`` makes this a data descriptor, so ``__get__`` runs on
+    every instance read. After ``__delete__`` clears the presence flag, reads
+    raise ``AttributeError``, matching the observed post-``del`` behavior.
+    """
 
     def __init__(self) -> None:
-        self._value: str | None = "present"
+        self._present = True
 
-    def __get__(self, instance, owner) -> str | None:
-        return self._value
+    def __get__(self, instance, owner) -> "DescriptorSlot | str":
+        if instance is None:
+            return self
+        if not self._present:
+            raise AttributeError("slot")
+        return "present"
 
     def __delete__(self, instance) -> None:
-        self._value = None
+        self._present = False
 
 
 class SettingsBag:
@@ -52,7 +61,12 @@ _DELETE_ME: str | None = None
 
 
 def delete_nonlocal_name() -> tuple[str, int]:
-    """Delete a `nonlocal` binding and rebind it afterward."""
+    """Delete a `nonlocal` binding and observe `NameError`, then rebind it.
+
+    A deleted free (cell) variable raises `NameError` on read, not the
+    `UnboundLocalError` a deleted fast local raises, so this variant catches
+    `NameError` before rebinding the cell.
+    """
 
     counter = 2
 
@@ -62,8 +76,8 @@ def delete_nonlocal_name() -> tuple[str, int]:
         try:
             _ = counter
             first = "no-error"
-        except UnboundLocalError:
-            first = "unbound-local"
+        except NameError:
+            first = "name-error"
         counter = 5
         return first, counter
 

@@ -59,15 +59,22 @@ def qualified_value_pattern(record: SettingRecord) -> str:
 
 
 def failed_match_partial_binding(payload: object) -> tuple[bool, str | None]:
-    """Expose unequal OR bindings without reading unspecified partial captures."""
+    """Capture a name before a later component of the same pattern fails.
+
+    The sequence subpattern binds ``head`` from element zero, then the trailing
+    literal is compared. A payload whose second element is not ``"sentinel"``
+    partially matches: ``head`` is captured and the case then fails. Whether
+    CPython leaves ``head`` bound after that failed match is unspecified, so the
+    failure path never reads it.
+    """
 
     matched = False
     selected: str | None = None
 
     match payload:
-        case [bound_a, bound_b] | {"left": bound_a, "right": bound_b}:
+        case [head, "sentinel"]:
             matched = True
-            selected = bound_a
+            selected = head
         case _:
             pass
 
