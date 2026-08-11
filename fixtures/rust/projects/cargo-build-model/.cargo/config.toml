@@ -4,10 +4,16 @@
 
 [build]
 # RS-CAN-PROJ-019: cfg supplied via Cargo configuration rather than source.
+# A `[target.<triple>].rustflags` match takes precedence over `build.rustflags`
+# for that target rather than merging with it, so this flag is the base/default
+# mechanism and is superseded below for our declared host target.
 rustflags = ["--cfg", "cargo_config_flag"]
 
 [target.x86_64-unknown-linux-gnu]
-rustflags = ["--cfg", "target_config_flag"]
+# Supersedes `build.rustflags` above for this exact triple; both cfgs are listed
+# here so the default host build observes `cargo_config_flag` and
+# `target_config_flag` together (see `src/config_variant.rs`).
+rustflags = ["--cfg", "cargo_config_flag", "--cfg", "target_config_flag"]
 
 [alias]
 mybuild = "build --verbose"
@@ -17,6 +23,16 @@ mycfg = "rustc -- --cfg cargo_config_flag"
 CARGO_BUILD_MODEL_ENV = "checked_in_value"
 
 [source.crates-io]
+replace-with = "vendored-sources"
+
+# RS-CAN-PROJ-009: the git-revision source is vendored so the checked-in fixture
+# is self-contained and portable without a warm Cargo git cache. Once
+# `Cargo.lock` records this source, offline/locked builds resolve entirely from
+# `vendor/fake-git-crate` and never checkout this URL again, so it does not
+# need to stay reachable (including after the authoring worktree is removed).
+[source."git+file:///workspaces/worktrees/beholder/task-400-cargo-build-model/fixtures/rust/projects/cargo-build-model/git-deps/fake-crate.git?rev=383698f3080a96e9c6362a088ea0e0ca4796d55f"]
+git = "file:///workspaces/worktrees/beholder/task-400-cargo-build-model/fixtures/rust/projects/cargo-build-model/git-deps/fake-crate.git"
+rev = "383698f3080a96e9c6362a088ea0e0ca4796d55f"
 replace-with = "vendored-sources"
 
 [source.vendored-sources]
