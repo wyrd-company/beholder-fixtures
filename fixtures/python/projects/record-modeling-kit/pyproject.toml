@@ -1,0 +1,6 @@
+[project]
+name = "record-modeling-kit"
+version = "0.1.0"
+description = "Record and entity modeling kit built on class-creation protocol, descriptors, properties, dataclasses, enums and named tuples"
+requires-python = ">=3.11"
+readme = "coverage.md"
