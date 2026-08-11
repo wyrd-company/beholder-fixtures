@@ -16,7 +16,13 @@
   },
   "include": [
     "${configDir}/../generated/**/*",
-    "${configDir}/../packages/app/src/**/*",
+    "${configDir}/../packages/app/src/alias/**/*",
+    "${configDir}/../packages/app/src/platform/**/*",
+    "${configDir}/../packages/app/src/platform-native/**/*",
+    "${configDir}/../packages/app/src/platform-empty/**/*",
+    "${configDir}/../packages/app/src/wildcard/**/*",
+    "${configDir}/../packages/app/src/rootdirs/**/*",
     "${configDir}/../src/generated-consumer.ts"
-  ]
+  ],
+  "exclude": ["${configDir}/../packages/app/src/cross-root-consumer.ts"]
 }

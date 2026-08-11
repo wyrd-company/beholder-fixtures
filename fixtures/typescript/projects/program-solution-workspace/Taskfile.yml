@@ -18,6 +18,7 @@ tasks:
       - ./node_modules/.bin/tsc -p config/with-config-dir.json
       - ./node_modules/.bin/tsc -p packages/app/tsconfig.noredirect.json
       - ./node_modules/.bin/tsc src/roots/cli-only.ts --noEmit --module nodenext --moduleResolution nodenext --target ES2022 --skipLibCheck --allowJs
+      - node ./scripts/incremental-demo.mjs
 
   lint:
     desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)

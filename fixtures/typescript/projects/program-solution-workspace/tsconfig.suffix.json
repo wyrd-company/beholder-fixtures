@@ -6,6 +6,10 @@
     "tsBuildInfoFile": "./dist/suffix/.tsbuildinfo",
     "moduleSuffixes": [".ios", ".native", ""]
   },
-  "include": ["packages/app/src/platform/**/*"],
+  "include": [
+    "packages/app/src/platform/**/*",
+    "packages/app/src/platform-native/**/*",
+    "packages/app/src/platform-empty/**/*"
+  ],
   "references": []
 }

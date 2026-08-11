@@ -12,7 +12,7 @@
     "rootDir": "./packages/dual",
     "baseUrl": "./packages/dual",
     "lib": ["ES2022", "DOM"],
-    "types": ["node"],
+    "types": [],
     "esModuleInterop": true,
     "skipLibCheck": true
   },

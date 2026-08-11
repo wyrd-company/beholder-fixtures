@@ -21,5 +21,9 @@
     "rootDirs": ["./packages/app/src", "./generated"],
     "moduleSuffixes": [".ios", ".native", ""]
   },
-  "exclude": ["dist/**/*"]
+  "exclude": [
+    "dist/**/*",
+    "src/roots/unreachable-orphan.ts",
+    "src/roots/excluded/**/*"
+  ]
 }
