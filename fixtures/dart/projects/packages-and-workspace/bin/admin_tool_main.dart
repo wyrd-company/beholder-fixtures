@@ -7,7 +7,9 @@ import 'package:ledger_support/ledger_support.dart';
 /// entry point (DART-CAN-PKG-002) that imports workspace members directly
 /// rather than through the root façade, and that is invoked with a
 /// different argument shape than `console_main.dart`
-/// (DART-CAN-PKG-008: `dart run bin/admin_tool_main.dart -- <station> <value>...`).
+/// (DART-CAN-PKG-008: `dart run signal_console:admin_tool_main <station> <value>...`).
+/// Also the entry point compiled to a native ahead-of-time executable for
+/// the `native-aot` build context.
 void main(List<String> arguments) {
   if (arguments.length < 2) {
     stderr.writeln('usage: admin-tool <station-id> <value> [value...]');

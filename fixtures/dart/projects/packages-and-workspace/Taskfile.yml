@@ -19,8 +19,8 @@ tasks:
       - dart pub get --offline
       - dart analyze
       - mkdir -p {{.BUILD_DIR}}
-      - dart run bin/console_main.dart 4.5 5.5
-      - dart run bin/admin_tool_main.dart pier-1 3 4
+      - dart run signal_console:console_main 4.5 5.5
+      - dart run signal_console:admin_tool_main pier-1 3 4
       - >-
         dart compile exe
         -o {{.BUILD_DIR}}/admin_tool_main
@@ -28,18 +28,20 @@ tasks:
       - '{{.BUILD_DIR}}/admin_tool_main pier-1 3 4'
 
   lint:
-    desc: Check dart format and run dart analyze.
+    desc: Resolve offline, check dart format, and run dart analyze.
     dir: '{{.TASKFILE_DIR}}'
     env:
       PUB_CACHE: '{{.PUB_CACHE}}'
     cmds:
+      - dart pub get --offline
       - dart format --output=none --set-exit-if-changed lib bin example tool test packages
       - dart analyze
 
   test:
-    desc: Run the planned test/ suite offline.
+    desc: Resolve offline and run the planned test/ suite.
     dir: '{{.TASKFILE_DIR}}'
     env:
       PUB_CACHE: '{{.PUB_CACHE}}'
     cmds:
+      - dart pub get --offline
       - dart test
