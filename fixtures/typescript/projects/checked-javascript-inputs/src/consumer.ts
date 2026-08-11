@@ -11,7 +11,7 @@ import constructorProto = require("../js/constructor-prototype.js");
 import ignored = require("../js/ignored-tag.js");
 import nocheck = require("../js/nocheck-module.js");
 import jsxComponent = require("../js/component.jsx");
-import uncheckedJsx = require("../js/unchecked-plain.jsx");
+import uncheckedView = require("../js/unchecked-view.jsx");
 import fromJs = require("../js/from-typescript.js");
 import shallowTyped = require("@fixtures/shallow-typed");
 import { describeFromTs } from "./to-javascript.ts";
@@ -31,7 +31,7 @@ export function aggregate(): string {
   const fromJsCombined = fromJs.combined;
   const tsFromJs = fromJs.fromTs;
   const marker = jsxComponent.Marker({ label: "jsx" });
-  const plainJsx = uncheckedJsx.Plain({ text: "jsx-plain" });
+  const uncheckedViewText = uncheckedView.View({ text: "jsx-view" });
   return [
     sum,
     norm,
@@ -46,7 +46,7 @@ export function aggregate(): string {
     describeFromTs(),
     counter.value,
     marker,
-    plainJsx,
+    uncheckedViewText,
   ].join("-");
 }
 
