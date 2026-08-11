@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Catalog.Web.Pages;
 
-public sealed class EntryModel : PageModel
+public sealed partial class EntryModel : PageModel
 {
     public string EntryName { get; set; } = "Sample Entry";
 
