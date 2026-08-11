@@ -1,0 +1,9 @@
+name: primitive_values
+description: >-
+  Fixture package demonstrating numbers with per-target semantics, strings
+  and Unicode, and typed data and views across compilation targets.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.12.2 <4.0.0'
