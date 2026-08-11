@@ -1,0 +1,53 @@
+[package]
+name = "tests-and-documentation"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for Rust test and documentation compilation model"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "tests_and_documentation"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[[test]]
+name = "integration-basic"
+path = "tests/integration_basic.rs"
+
+[[test]]
+name = "integration-storage"
+path = "tests/integration_storage.rs"
+
+[[test]]
+name = "harnessless"
+path = "tests/harnessless.rs"
+harness = false
+
+[[example]]
+name = "basic"
+path = "examples/basic.rs"
+
+[[example]]
+name = "required-feature-demo"
+path = "examples/required_feature_demo.rs"
+required-features = ["required-feature"]
+
+[[bench]]
+name = "bench-demo"
+path = "benches/bench_demo.rs"
+harness = false
+
+[features]
+default = []
+required-feature = []
+
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fixture_custom)"] }
+
+[workspace.lints.clippy]
+all = "warn"
+
+[lints]
+workspace = true
