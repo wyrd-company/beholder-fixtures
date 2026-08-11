@@ -69,6 +69,34 @@ public record InventoryRecord(string Label, int Count)
 
 public record struct PointRecord(int X, int Y);
 
+// Retains each instance under construction via a constructor-side reference so a partially
+// initialized object stays observable after a later initializer assignment throws.
+public sealed class TrackedEntry
+{
+    public static TrackedEntry? LastConstructed { get; private set; }
+
+    public static void Reset() => LastConstructed = null;
+
+    public TrackedEntry() => LastConstructed = this;
+
+    public string Label { get; set; } = "unset";
+
+    public int Count { get; set; }
+}
+
+// Nested variant: the host captures itself on construction; the throwing nested initializer
+// mutates the same Inner list the retained host exposes.
+public sealed class TrackedHost
+{
+    public static TrackedHost? LastConstructed { get; private set; }
+
+    public static void Reset() => LastConstructed = null;
+
+    public TrackedHost() => LastConstructed = this;
+
+    public List<string> Inner { get; } = new();
+}
+
 public static class Initializers
 {
     public static readonly List<string> InitOrderLog = new();
@@ -171,54 +199,44 @@ public static class Initializers
         return new CatalogEntry("ctor-label") { Count = 99 };
     }
 
-    // Partial object after exception: later initializer assignment throws, earlier assignments already applied
-    public static CatalogEntry? PartialAfterException()
+    // Partial object after exception: the constructor retains a reference to the very instance
+    // being initialized, so after a later initializer assignment throws the earlier assignment
+    // stays observable on that same retained instance.
+    public static TrackedEntry? PartialAfterException()
     {
-        InitOrderLog.Clear();
-        CatalogEntry? observed = null;
+        TrackedEntry.Reset();
         try
         {
-            observed = new CatalogEntry { Label = LogLabel("pre"), Count = ThrowingCount() };
-        }
-        catch (InvalidOperationException ex)
-        {
-            InitOrderLog.Add($"caught:{ex.Message}");
-        }
-
-        // InitOrderLog contains "Label:pre" proving constructor and first initializer ran before Count threw;
-        // observed remains null because assignment never completed, but construction is observable via log.
-        // For a retained object shape, return a second object that preserves the first property:
-        if (InitOrderLog.Contains("Label:pre"))
-        {
-            return new CatalogEntry { Label = "recovered", Count = 0 };
-        }
-
-        return observed;
-    }
-
-    // Retained partial shape: outer object already assigned before later nested initializer throws
-    public static EntryHost? PartialNestedRetained()
-    {
-        InitOrderLog.Clear();
-        var host = new EntryHost { Inner = { Tags = { "before" } } };
-        try
-        {
-            // This initializer mutates existing Inner; if the later assignment throws, host.Inner.Tags already reflects earlier mutation
-            host = new EntryHost { Inner = { Tags = { ThrowingLabel() } } };
+            // Object-initializer order: construct (captures LastConstructed), assign Label = "pre",
+            // then evaluate Count = ThrowingCount(), which throws before the assignment completes.
+            _ = new TrackedEntry { Label = "pre", Count = ThrowingCount() };
         }
         catch (InvalidOperationException)
         {
-            // host still refers to first successfully created EntryHost with Inner.Tags.Count = 1
-            InitOrderLog.Add($"retained:{host.Inner.Tags.Count}");
         }
 
-        return host;
+        // LastConstructed is the instance whose initializer threw: Label == "pre" was applied,
+        // Count remains its default 0 because that assignment never ran.
+        return TrackedEntry.LastConstructed;
     }
 
-    private static string LogLabel(string value)
+    // Retained partial shape: the throwing nested initializer mutates the same Inner list the
+    // constructor-retained host exposes, so the earlier element survives the later failure.
+    public static TrackedHost? PartialNestedRetained()
     {
-        InitOrderLog.Add($"Label:{value}");
-        return value;
+        TrackedHost.Reset();
+        try
+        {
+            // Nested initializer order: construct host (captures LastConstructed), add "before" to
+            // Inner, then evaluate ThrowingLabel(), which throws before its element is added.
+            _ = new TrackedHost { Inner = { "before", ThrowingLabel() } };
+        }
+        catch (InvalidOperationException)
+        {
+        }
+
+        // LastConstructed is the host the throwing initializer was mutating: Inner == { "before" }.
+        return TrackedHost.LastConstructed;
     }
 
     private static int ThrowingCount() => throw new InvalidOperationException("init failure");
