@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "moduleDetection": "legacy",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@fixture/lib-stub": [
+        "src/triple-slash/types/@fixture/lib-stub/index.d.ts"
+      ]
+    },
+    "typeRoots": ["./src/triple-slash/custom-types", "./node_modules/@types"]
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "src/legacy/**/*",
+    "src/augmentation/consumer-without.ts",
+    "src/triple-slash/directive-no-default-lib.ts",
+    "src/triple-slash/generated-marker.ts"
+  ]
+}

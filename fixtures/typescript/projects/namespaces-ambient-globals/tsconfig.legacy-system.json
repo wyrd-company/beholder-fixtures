@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "system",
+    "strict": true,
+    "outFile": "dist-legacy/concat-system.js",
+    "rootDir": "src/legacy/system",
+    "skipLibCheck": true
+  },
+  "files": [
+    "src/legacy/system/part-first.ts",
+    "src/legacy/system/part-second.ts",
+    "src/legacy/system/entry.ts"
+  ]
+}

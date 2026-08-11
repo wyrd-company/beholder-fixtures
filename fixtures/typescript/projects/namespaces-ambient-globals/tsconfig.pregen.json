@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "declaration": true,
+    "outDir": "pregen/triple-slash",
+    "rootDir": "src/triple-slash",
+    "skipLibCheck": true
+  },
+  "files": ["src/triple-slash/generated-marker.ts"]
+}

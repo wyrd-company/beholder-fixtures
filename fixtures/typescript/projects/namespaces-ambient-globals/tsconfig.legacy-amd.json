@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "amd",
+    "strict": true,
+    "outFile": "dist-legacy/concat-amd.js",
+    "rootDir": "src/legacy/amd",
+    "skipLibCheck": true
+  },
+  "files": [
+    "src/legacy/amd/part-first.ts",
+    "src/legacy/amd/part-second.ts",
+    "src/legacy/amd/entry.ts"
+  ]
+}
