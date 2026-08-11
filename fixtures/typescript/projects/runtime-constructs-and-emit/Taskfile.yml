@@ -1,0 +1,22 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Type-check and emit in native modern, downlevel, and importHelpers contexts
+    cmds:
+      - ./node_modules/.bin/tsc -p tsconfig.json
+      - ./node_modules/.bin/tsc -p tsconfig.downlevel.json
+      - ./node_modules/.bin/tsc -p tsconfig.helpers.json
+
+  lint:
+    desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)
+    cmds:
+      - ./node_modules/.bin/prettier --check "src/**/*" "Taskfile.yml" "tsconfig*.json" "coverage.md" "package.json"
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.downlevel.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.helpers.json
+
+  test:
+    desc: No fixture tests; succeeds when no test source is required
+    cmds:
+      - echo "no tests"

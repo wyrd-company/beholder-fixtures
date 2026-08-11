@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "lib": [
+      "ES2015",
+      "ES2018.AsyncGenerator",
+      "ES2018.AsyncIterable",
+      "ESNext.Disposable",
+      "DOM"
+    ],
+    "baseUrl": ".",
+    "paths": { "tslib": ["./vendor/tslib/tslib.d.ts"] },
+    "strict": true,
+    "useUnknownInCatchVariables": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist/helpers",
+    "rootDir": "src",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": false,
+    "downlevelIteration": true,
+    "importHelpers": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/async/top-level-await.ts", "src/async/top-level-consumer.ts"]
+}
