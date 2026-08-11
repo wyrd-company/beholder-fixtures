@@ -1,0 +1,34 @@
+[package]
+name = "async-runtime-and-registration"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for runtime attribute macros and link-time registration"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "async_runtime_and_registration"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[[bin]]
+name = "async-main"
+path = "src/bin/async_main.rs"
+
+[features]
+default = []
+rt = ["tokio/rt"]
+rt-multi-thread = ["tokio/rt-multi-thread"]
+full-runtime = ["rt-multi-thread", "tokio/macros", "tokio/rt", "tracing/attributes"]
+
+[dependencies]
+tokio = { version = "=1.47.1", default-features = false, features = ["rt", "rt-multi-thread", "macros"] }
+tracing = { version = "=0.1.41", default-features = false, features = ["std", "attributes"] }
+inventory = { version = "=0.3.21" }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fixture_rt_multi_thread)"] }
+
+[lints.clippy]
+all = "warn"
