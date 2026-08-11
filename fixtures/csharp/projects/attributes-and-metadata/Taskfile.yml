@@ -1,0 +1,35 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Compile every declared build context without restoring from the network.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet build src/Core/Core.csproj --no-restore -c Release
+      - dotnet build src/ReferencedModule/ReferencedModule.csproj --no-restore -c Release
+      - dotnet build src/MetadataConsumer/MetadataConsumer.csproj --no-restore -c Release
+      - dotnet build src/TopLevelEntry/TopLevelEntry.csproj --no-restore -c Release
+      - dotnet build contexts/csharp9/CSharp9.csproj --no-restore -c Release
+      - dotnet build contexts/csharp10/CSharp10.csproj --no-restore -c Release
+      - dotnet build contexts/csharp11/CSharp11.csproj --no-restore -c Release
+      - dotnet build contexts/documentation/Documentation.csproj --no-restore -c Release
+
+  lint:
+    desc: Verify formatting and analyzer warnings for fixture-owned source.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet format AttributesAndMetadata.sln --verify-no-changes --no-restore
+      - dotnet build src/Core/Core.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build src/ReferencedModule/ReferencedModule.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build src/MetadataConsumer/MetadataConsumer.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build src/TopLevelEntry/TopLevelEntry.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build contexts/csharp9/CSharp9.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build contexts/csharp10/CSharp10.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build contexts/csharp11/CSharp11.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build contexts/documentation/Documentation.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+
+  test:
+    desc: Succeed when a project has no test source.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - echo "No test source"

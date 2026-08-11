@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Fixture.AttributesAndMetadata.Core</RootNamespace>
+    <AssemblyName>Fixture.AttributesAndMetadata.Core</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <!-- CA2255 flags module initializers as "application code only"; this project's purpose is to exercise them in a library, so the advisory does not apply. -->
+    <NoWarn>$(NoWarn);CA2255</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../ReferencedModule/ReferencedModule.csproj" />
+  </ItemGroup>
+
+</Project>
