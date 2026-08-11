@@ -184,17 +184,54 @@ class CorrectBindingHost:
         self.field = v  # type: ignore[attr-defined]
 
 
-# Wrong order: wrapper strips __set_name__ or loses binding
-def stripping_wrapper(cls: type[Any]) -> type[Any]:
-    """Replacement decorator that would lose original descriptor if order wrong."""
-    # Simulate a non-callable replacement failure: returning non-descriptor loses binding
-    return cls  # but if placed inside __set_name__ chain wrongly, registration misses
+# Wrong order: wrapper strips descriptor/property nature and loses binding/setter/registration
+def stripping_wrapper(target: Any) -> Any:
+    """Wrapper that strips descriptor/property to plain function, losing binding and setter."""
+    # If target is a property, return its getter function; if descriptor, return plain int/function
+    if isinstance(target, property):
+        return target.fget  # type: ignore[return-value]
+    if isinstance(target, ManagedField):
+        return 999  # plain value loses descriptor binding and __set_name__
+    return target
 
 
-# Counterexample: registration inner vs outer
-class WrongRegistrationOrder:
-    # If @register_field is inner to a replacing decorator, the registry sees wrapper not descriptor
-    pass
+# Valid registration variants: correct outer registers descriptor; wrong inner loses it
+@register_field("correct_registration")
+class CorrectRegistrationHost:
+    registered_field = ManagedField[int](expected_type=int, default=10)
+
+
+class WrongOrderLosesRegistration:
+    # Wrong order: descriptor wrapped before class attribute assignment hides __set_name__ registration
+    # The class attribute is plain int, not descriptor, so REGISTRY entry is missing/wrong
+    wrapped_field: int = stripping_wrapper(ManagedField[int](expected_type=int, default=10))  # type: ignore[assignment]
+
+
+# Valid setter variants: correct preserves setter, wrong strips it
+class CorrectSetterHost:
+    @property
+    def value(self) -> int:
+        return getattr(self, "_value", 0)
+
+    @value.setter
+    def value(self, v: int) -> None:
+        self._value = v  # type: ignore[attr-defined]
+
+
+class WrongOrderLosesSetter:
+    @stripping_wrapper  # type: ignore[arg-type]
+    @property
+    def value(self) -> int:
+        return getattr(self, "_value", 0)
+
+
+# Valid binding variants: correct descriptor binding vs wrapped function loses binding
+class CorrectBindingDescriptorHost:
+    bound_field = ManagedField[int](expected_type=int, default=5)
+
+
+class WrongOrderLosesBinding:
+    bound_field = stripping_wrapper(ManagedField[int](expected_type=int, default=5))  # type: ignore[assignment]
 
 
 # Demonstrate signature loss when wrapper not using wraps
@@ -249,6 +286,21 @@ def decorator_order_effects() -> dict[str, Any]:
         "binding_via_instance_is_value": binding_via_instance_is_value,
         "abstract_preserved": getattr(CorrectAbstractProperty.value, "__isabstractmethod__", False),  # type: ignore[attr-defined]
         "wrapped_has_wrapped_attr": hasattr(wrapped_managed_get, "__wrapped__"),
+        "registration_correct_is_descriptor": isinstance(
+            CorrectRegistrationHost.__dict__.get("registered_field"), ManagedField
+        ),
+        "registration_wrong_loses_descriptor": not isinstance(
+            WrongOrderLosesRegistration.__dict__.get("wrapped_field"), ManagedField
+        ),
+        "registration_wrong_registry_missing": "WrongOrderLosesRegistration.wrapped_field" not in REGISTRY,
+        "setter_correct_has_fset": getattr(CorrectSetterHost.value, "fset", None) is not None,
+        "setter_wrong_loses_fset": not hasattr(WrongOrderLosesSetter.__dict__.get("value"), "fset"),
+        "binding_correct_is_descriptor": isinstance(
+            CorrectBindingDescriptorHost.__dict__.get("bound_field"), ManagedField
+        ),
+        "binding_wrong_loses_descriptor": not isinstance(
+            WrongOrderLosesBinding.__dict__.get("bound_field"), ManagedField
+        ),
     }
 
 

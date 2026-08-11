@@ -11,26 +11,34 @@ from typing import AsyncGenerator
 cleanup_log: list[str] = []
 
 
-@contextlib.asynccontextmanager
-async def tracked_context(name: str):  # type: ignore[no-untyped-def]
-    try:
-        cleanup_log.append(f"{name}:enter")
-        yield
-    finally:
-        cleanup_log.append(f"{name}:exit")
+class _TrackedContext:
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    async def __aenter__(self) -> None:
+        cleanup_log.append(f"{self.name}:enter")
+        return None
+
+    async def __aexit__(self, exc_type: object, exc: object, tb: object) -> bool:
+        cleanup_log.append(f"{self.name}:exit")
+        return False
+
+
+def tracked_context(name: str) -> _TrackedContext:  # type: ignore[no-untyped-def]
+    return _TrackedContext(name)
 
 
 # --- Async generator with two cleanup layers ---
 
 
 async def cancellable_stream(count: int) -> AsyncGenerator[int, None]:
-    """Async generator whose cleanup must run even when cancelled during suspension."""
+    """Async generator whose cleanup must run even when cancelled during suspension or loop shutdown."""
     try:
         async with tracked_context("outer"):
             try:
                 for idx in range(count):
                     cleanup_log.append(f"produce:{idx}")
-                    # Suspension point where cancellation can arrive
+                    # Suspension point where cancellation or GeneratorExit can arrive
                     await asyncio.sleep(0.05)
                     yield idx
             finally:
@@ -41,6 +49,9 @@ async def cancellable_stream(count: int) -> AsyncGenerator[int, None]:
     except asyncio.CancelledError:
         cleanup_log.append("cancelled:caught")
         raise
+    except GeneratorExit:
+        cleanup_log.append("generator-exit:caught")
+        return
     finally:
         cleanup_log.append("outer:finally")
 
@@ -109,7 +120,7 @@ async def early_exit_cleanup_demo() -> dict[str, object]:
 
 
 async def cleanup_raises_group_demo() -> dict[str, object]:
-    """Cleanup that raises while cancellation is pending should surface ExceptionGroup / combined error."""
+    """Cleanup that raises group while cancellation is pending should surface ExceptionGroup."""
     cleanup_log.clear()
 
     async def failing_cleanup_stream() -> AsyncGenerator[int, None]:
@@ -120,20 +131,40 @@ async def cleanup_raises_group_demo() -> dict[str, object]:
                     yield idx
         finally:
             cleanup_log.append("failing:finally")
-            # Simulate cleanup raising an exception group (Python 3.11 BaseExceptionGroup)
-            raise RuntimeError("cleanup-failure")
+            # Grouped cleanup failure: two distinct errors as ExceptionGroup
+            raise BaseExceptionGroup("cleanup-group", [RuntimeError("cleanup-a"), ValueError("cleanup-b")])
 
-    agen = failing_cleanup_stream()
-    task = asyncio.create_task(_drive_agen(agen))
-    await asyncio.sleep(0.05)
-    task.cancel()
+    # Use TaskGroup so cancellation and grouped cleanup combine to visible ExceptionGroup
     try:
-        await task
+        async with asyncio.TaskGroup() as tg:  # type: ignore[attr-defined]
+            agen = failing_cleanup_stream()
+
+            async def driver() -> None:
+                async for _ in agen:
+                    pass
+
+            task = tg.create_task(driver())
+            await asyncio.sleep(0.05)
+            task.cancel()
+            # TaskGroup will collect cancellation + cleanup group
     except BaseException as exc:  # noqa: BLE001
-        # Cancellation + cleanup failure may combine to BaseExceptionGroup
         exc_type = type(exc).__name__
-        # If TaskGroup were used, ExceptionGroup would appear; here we at least capture RuntimeError
-        return {"exception_type": exc_type, "exception": str(exc), "log": list(cleanup_log)}
+        # ExceptionGroup should surface with two sub-exceptions
+        sub_types: list[str] = []
+        if isinstance(exc, BaseExceptionGroup):
+            for sub in exc.exceptions:  # type: ignore[attr-defined]
+                sub_types.append(type(sub).__name__)
+                # Flatten nested CancelledError + group
+                if isinstance(sub, BaseExceptionGroup):
+                    for inner in sub.exceptions:  # type: ignore[attr-defined]
+                        sub_types.append(type(inner).__name__)
+        return {
+            "exception_type": exc_type,
+            "exception": str(exc),
+            "sub_types": sub_types,
+            "is_group": isinstance(exc, BaseExceptionGroup),
+            "log": list(cleanup_log),
+        }
     return {"exception_type": "none", "log": list(cleanup_log)}
 
 
@@ -168,20 +199,42 @@ async def uncancel_suppression_demo() -> dict[str, object]:
     return {"was_cancelled": was_cancelled, "log": list(cleanup_log)}
 
 
-async def loop_shutdown_finalization_demo() -> dict[str, object]:
-    """Generator finalization hooks: aclose and loop shutdown should still finalize."""
+def _loop_shutdown_sync() -> dict[str, object]:
+    """Sync helper that uses a fresh loop to demonstrate shutdown-asyncgens finalization."""
     cleanup_log.clear()
-    agen = cancellable_stream(3)
-    # Not fully consumed, then garbage-collected / explicitly closed via aclose hook
-    await agen.aclose()
-    # Also test that an unclosed generator triggers asyncgen finalizer (requires loop)
-    agen2 = cancellable_stream(3)
-    it = agen2.__aiter__()
+    loop = asyncio.new_event_loop()
     try:
-        await it.__anext__()
+        asyncio.set_event_loop(loop)
+
+        async def start_without_close():
+            agen = cancellable_stream(3)
+            await agen.__anext__()  # start and suspend inside tracked_context
+            # Do NOT call aclose; return agen so loop keeps it alive for shutdown phase
+            return agen
+
+        agen = loop.run_until_complete(start_without_close())
+        # agen is still open, suspended at await sleep inside outer context; shutdown_asyncgens will finalize
+        loop.run_until_complete(loop.shutdown_asyncgens())
+        # Keep reference to prove we did not call explicit aclose on this instance
+        _ = agen
+        return {
+            "log": list(cleanup_log),
+            "shutdown_triggered": "inner:cleanup" in cleanup_log and "outer:exit" in cleanup_log,
+            "used_shutdown_asyncgens": True,
+            "explicit_aclose_not_called": True,
+        }
     finally:
-        await agen2.aclose()
-    return {"log": list(cleanup_log)}
+        asyncio.set_event_loop(None)
+        loop.close()
+
+
+async def loop_shutdown_finalization_demo() -> dict[str, object]:
+    """Generator finalization via loop shutdown-asyncgens, distinct from explicit aclose."""
+    # Run sync helper in thread to avoid nesting inside already-running loop
+    # Use to_thread if available, otherwise run directly via sync helper (fresh loop not nested)
+    # Since this is called from asyncio.run context, we cannot create new loop inside running loop via run_until_complete,
+    # so delegate to thread
+    return await asyncio.to_thread(_loop_shutdown_sync)
 
 
 def run_async_demo() -> dict[str, object]:

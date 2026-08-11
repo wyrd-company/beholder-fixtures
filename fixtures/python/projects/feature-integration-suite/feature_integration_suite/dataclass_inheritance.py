@@ -50,18 +50,21 @@ validated_label = GenericDescriptor[str](expected=str, default="default-label")
 
 @dataclass(slots=True)
 class BaseItem:
-    """Base dataclass with descriptor-managed field, slots, and ClassVar."""
+    """Base dataclass with descriptor installed as class attribute for field discovery probe."""
 
     identifier: int
     label: str = field(default="base")
-    # Descriptor-managed field via default probe: descriptor instance as default value
-    # The descriptor instance stored as field default is not invoked as descriptor protocol;
-    # instead the field holds the descriptor object itself, demonstrating probe.
-    probe: int = field(default=validated_int)  # type: ignore[arg-type]  # descriptor instance as default probe
+    # Descriptor installed directly as class attribute; dataclass field discovery calls __set_name__
+    # and stores the descriptor instance as the field default, exercising the descriptor-default probe.
+    probe: Any = validated_int  # type: ignore[assignment]  # descriptor default probe
     total_count: ClassVar[int] = 0
 
+    # Score is an alias to probe's descriptor-managed storage via validated_int; keep helper property
+    # that delegates through descriptor protocol for convenient int access without bypassing probe.
     @property
     def score(self) -> int:  # type: ignore[no-redef]
+        # For compatibility with probe-as-descriptor probe, score delegates to validated_int storage
+        # validated_int returns default 0 when no per-instance value installed
         return validated_int.__get__(self, type(self))  # type: ignore[no-any-return]
 
     @score.setter
@@ -110,11 +113,20 @@ class FrozenItem(FrozenBase):
 base_field_order = [f.name for f in dataclasses.fields(BaseItem)]
 derived_field_order = [f.name for f in dataclasses.fields(DerivedItem)]
 
-# Descriptor default probe: probe field's default is descriptor instance; property `score` probes descriptor
+# Descriptor default probe: installed descriptor as class attribute, field default is descriptor instance
+# Check via BaseItem.__dataclass_fields__ and instance slot value
 base_probe_instance = BaseItem(identifier=1)
-probe_value = base_probe_instance.score  # should be 0 via descriptor default
+# Instance slot holds the descriptor instance itself (ordinary value), not an int, showing probe stored descriptor
+probe_via_slot = base_probe_instance.probe  # type: ignore[attr-defined]  # descriptor instance
+probe_via_descriptor = base_probe_instance.score  # int via descriptor storage (delegated)
+descriptor_field_default_is_descriptor = isinstance(
+    BaseItem.__dataclass_fields__["probe"].default, GenericDescriptor
+)
+probe_value = probe_via_slot
 descriptor_probe_via_base = base_probe_instance
-descriptor_probe_is_int = isinstance(probe_value, int)
+descriptor_probe_is_int = isinstance(probe_via_descriptor, int)
+# Class attribute after dataclass is slot member, but __set_name__ was invoked at class creation
+probe_set_name_invoked = hasattr(validated_int, "name") and getattr(validated_int, "name", None) == "probe"
 
 
 # Frozen write failure demo
@@ -127,9 +139,35 @@ def frozen_write_failure_demo() -> str:
         return f"frozen-error:{exc.__class__.__name__}"
 
 
-# Slot overlap demo: defining duplicate slot name in subclass hierarchy should fail or be deduped?
-# Provide a counterexample where subclass tries to redeclare base slot incorrectly.
-slot_overlap_note = "DerivedItem slots are merged; duplicate field name would be field-order failure not slot overlap"
+# Slot overlap: base and subclass declare overlapping slot/field names via dataclass slots inheritance
+@dataclass(slots=True)
+class OverlapBase:
+    shared: int = 1
+    base_only: int = 2
+
+
+@dataclass(slots=True)
+class OverlapChild(OverlapBase):
+    # Overlapping field name 'shared' shadows base; slots are merged with overlap behavior
+    shared: int = 99
+    child_only: int = 3
+
+
+overlap_base_slots = getattr(OverlapBase, "__slots__", ())
+overlap_child_slots = getattr(OverlapChild, "__slots__", ())
+# Field overlap: child redeclares 'shared', demonstrating slot/field overlap across inheritance
+slot_overlap_demo_value = OverlapChild(shared=7, base_only=2, child_only=9)
+slot_overlap_note = f"OverlapChild shared={slot_overlap_demo_value.shared} base_only={slot_overlap_demo_value.base_only} child_only={slot_overlap_demo_value.child_only}; base slots {overlap_base_slots}, child slots {overlap_child_slots}"
+
+
+def slot_overlap_demo() -> dict[str, object]:
+    return {
+        "child_shared": slot_overlap_demo_value.shared,
+        "base_slots": overlap_base_slots,
+        "child_slots": overlap_child_slots,
+        "is_dataclass": dataclasses.is_dataclass(OverlapChild),
+        "field_names": [f.name for f in dataclasses.fields(OverlapChild)],
+    }
 
 
 def field_order_failure_demo() -> str:
