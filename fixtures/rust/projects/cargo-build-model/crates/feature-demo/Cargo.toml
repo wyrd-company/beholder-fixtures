@@ -1,0 +1,27 @@
+[package]
+name = "feature-demo"
+version = "0.1.0"
+edition = "2024"
+rust-version.workspace = true
+description.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[features]
+default = ["feat-a"]
+feat-a = []
+feat-b = []
+feat-c = []
+optional-bridge = ["dep:optional-dep-crate"]
+# dep: syntax
+use-optional = ["dep:optional-dep-crate"]
+# strong forwarding: feat-a enables optional-dep-crate/feat (if that crate had feat)
+strong-forward = ["optional-dep-crate/feat-a"]
+# weak forwarding: dep?/feature only enables if dep already enabled
+weak-forward = ["optional-dep-crate?/feat-a"]
+
+[dependencies]
+optional-dep-crate = { path = "../optional-dep-crate", optional = true }
+
+[lints]
+workspace = true

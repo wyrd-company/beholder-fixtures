@@ -1,0 +1,19 @@
+[package]
+name = "resolver-demo-v3"
+version = "0.1.0"
+edition = "2024"
+description = "Resolver v3 demo"
+license = "MIT"
+authors = ["Wyrd Company"]
+resolver = "3"
+
+[dependencies]
+unify-shared = { path = "../../crates/unify-shared", features = ["feat-a"] }
+unify-consumer-a = { path = "../../crates/unify-consumer-a" }
+unify-consumer-b = { path = "../../crates/unify-consumer-b" }
+
+# Also depend on both hyphen versions to show duplicate versions in lockfile
+hyphen_v2 = { package = "hyphen-crate", version = "0.2.0", path = "../../crates/hyphen-crate-v02" }
+hyphen_v3 = { package = "hyphen-crate", version = "0.3.0", path = "../../crates/hyphen-crate-v03" }
+
+[workspace]

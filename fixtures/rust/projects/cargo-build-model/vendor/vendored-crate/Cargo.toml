@@ -1,0 +1,7 @@
+[package]
+name = "vendored-crate"
+version = "0.1.0"
+edition = "2024"
+description = "Vendored registry equivalent"
+license = "MIT"
+authors = ["Wyrd Company"]

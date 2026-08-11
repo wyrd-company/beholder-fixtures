@@ -1,0 +1,16 @@
+[package]
+name = "edition-2024-member"
+version = "0.1.0"
+edition = "2024"
+rust-version.workspace = true
+description.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+edition-2015 = { path = "../edition-2015" }
+edition-2018 = { path = "../edition-2018" }
+edition-2021 = { path = "../edition-2021" }
+
+[lints]
+workspace = true

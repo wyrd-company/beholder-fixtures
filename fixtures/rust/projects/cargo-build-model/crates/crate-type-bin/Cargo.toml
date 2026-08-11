@@ -1,0 +1,15 @@
+[package]
+name = "crate-type-bin"
+version = "0.1.0"
+edition = "2024"
+rust-version.workspace = true
+description.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "crate-type-bin"
+path = "src/main.rs"
+
+[lints]
+workspace = true

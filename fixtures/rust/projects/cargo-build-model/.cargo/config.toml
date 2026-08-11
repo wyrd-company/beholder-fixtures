@@ -1,0 +1,23 @@
+# Cargo configuration checked in for RS-CAN-PROJ-019.
+# Demonstrates target, cfg/rustflag, environment, source replacement, and alias.
+# Config is discovered hierarchically; this file is the authoritative checked-in source.
+
+[build]
+# RS-CAN-PROJ-019: cfg supplied via Cargo configuration rather than source.
+rustflags = ["--cfg", "cargo_config_flag"]
+
+[target.x86_64-unknown-linux-gnu]
+rustflags = ["--cfg", "target_config_flag"]
+
+[alias]
+mybuild = "build --verbose"
+mycfg = "rustc -- --cfg cargo_config_flag"
+
+[env]
+CARGO_BUILD_MODEL_ENV = "checked_in_value"
+
+[source.crates-io]
+replace-with = "vendored-sources"
+
+[source.vendored-sources]
+directory = "vendor"

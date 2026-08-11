@@ -1,0 +1,14 @@
+[package]
+name = "unify-consumer-b"
+version = "0.1.0"
+edition = "2024"
+rust-version.workspace = true
+description.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+unify-shared = { path = "../unify-shared", features = ["feat-b"] }
+
+[lints]
+workspace = true

@@ -1,0 +1,14 @@
+[workspace]
+members = ["member-a", "member-b"]
+resolver = "1"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Virtual workspace"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace.lints.rust]
+unused = "warn"

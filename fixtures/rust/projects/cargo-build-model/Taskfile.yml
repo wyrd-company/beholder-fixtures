@@ -1,0 +1,32 @@
+# ---
+# relationships:
+#   references:
+#     - coverage
+# ---
+version: '3'
+
+tasks:
+  build:
+    desc: Build all fixture-owned crates in every declared build context (offline, non-mutating).
+    cmds:
+      - cargo build --offline
+      - cargo build --offline --release
+      - cargo build --offline --profile custom
+      - cargo build --offline --all-features
+      - cargo build --offline --no-default-features
+      - cargo build --offline --manifest-path resolver-fixtures/resolver-v1/Cargo.toml
+      - cargo build --offline --manifest-path resolver-fixtures/resolver-v2/Cargo.toml
+      - cargo build --offline --manifest-path resolver-fixtures/resolver-v3/Cargo.toml
+      - cargo build --offline --manifest-path virtual-workspace/Cargo.toml
+      - cargo build --offline --target x86_64-unknown-linux-gnu
+
+  lint:
+    desc: Check formatting and clippy on fixture-owned crates (vendored source excluded).
+    cmds:
+      - cargo fmt -- --check
+      - cargo clippy --offline --workspace --all-targets
+
+  test:
+    desc: Compile and run fixture tests (single planned unit test).
+    cmds:
+      - cargo test --offline --workspace

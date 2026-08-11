@@ -1,0 +1,195 @@
+[package]
+name = "cargo-build-model"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for Cargo build model"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace]
+members = [
+    "crates/disabled-autodiscovery",
+    "crates/hyphen-crate-v02",
+    "crates/shared-source",
+    "crates/optional-dep-crate",
+    "crates/feature-demo",
+    "crates/unify-shared",
+    "crates/unify-consumer-a",
+    "crates/unify-consumer-b",
+    "crates/target-unix-dep",
+    "crates/target-windows-dep",
+    "crates/target-arch-dep",
+    "crates/target-os-dep",
+    "crates/target-triple-dep",
+    "crates/target-cfg-caller",
+    "crates/normal-dep",
+    "crates/dev-dep",
+    "crates/build-dep",
+    "crates/build-dep-unix",
+    "crates/proc-macro-crate",
+    "crates/crate-type-rlib",
+    "crates/crate-type-dylib",
+    "crates/crate-type-cdylib",
+    "crates/crate-type-staticlib",
+    "crates/crate-type-bin",
+    "crates/edition-2015",
+    "crates/edition-2018",
+    "crates/edition-2021",
+    "crates/edition-2024-member",
+    "crates/fake-git-crate-local",
+]
+exclude = ["crates/excluded-crate", "crates/hyphen-crate-v03"]
+default-members = ["crates/feature-demo", "crates/target-cfg-caller"]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Shared fixture description"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace.dependencies]
+hyphen-crate-v02 = { package = "hyphen-crate", version = "0.2.0", path = "crates/hyphen-crate-v02" }
+hyphen-crate-v03 = { package = "hyphen-crate", version = "0.3.0", path = "crates/hyphen-crate-v03" }
+shared-source = { path = "crates/shared-source" }
+normal-dep = { path = "crates/normal-dep" }
+build-dep = { path = "crates/build-dep" }
+
+[workspace.lints.rust]
+unused = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(cargo_config_flag)", "cfg(target_config_flag)", "cfg(extra_flag)", "cfg(doc)", "cfg(doctest)"] }
+
+[workspace.lints.clippy]
+all = "warn"
+
+[lib]
+name = "cargo_build_model"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[[bin]]
+name = "cargo-build-model-bin"
+path = "src/bin/cargo_build_model_bin.rs"
+
+[[bin]]
+name = "cargo-build-model-secondary"
+path = "src/bin/secondary.rs"
+
+[[example]]
+name = "demo-example"
+path = "examples/demo_example.rs"
+
+[[test]]
+name = "integration-test"
+path = "tests/integration_test.rs"
+
+[[bench]]
+name = "demo-bench"
+path = "benches/demo_bench.rs"
+harness = false
+
+[features]
+default = []
+extra = []
+never_enabled = []
+
+[dependencies]
+normal-dep = { workspace = true }
+# RS-CAN-PROJ-003: two versions under aliases (hyphen-to-underscore, package vs lib vs dep-key)
+hyphen_v2 = { package = "hyphen-crate", version = "0.2.0", path = "crates/hyphen-crate-v02" }
+hyphen_v3 = { package = "hyphen-crate", version = "0.3.0", path = "crates/hyphen-crate-v03" }
+# RS-CAN-PROJ-016 mixed editions
+edition-2024-member = { path = "crates/edition-2024-member" }
+# RS-CAN-PROJ-008 caller
+target-cfg-caller = { path = "crates/target-cfg-caller" }
+feature-demo = { path = "crates/feature-demo" }
+unify-shared = { path = "crates/unify-shared" }
+unify-consumer-a = { path = "crates/unify-consumer-a" }
+unify-consumer-b = { path = "crates/unify-consumer-b" }
+# RS-CAN-PROJ-014 crate types (rlib/dylib are dependencies to show link boundaries)
+crate-type-rlib = { path = "crates/crate-type-rlib" }
+crate-type-dylib = { path = "crates/crate-type-dylib" }
+crate-type-cdylib = { path = "crates/crate-type-cdylib" }
+crate-type-staticlib = { path = "crates/crate-type-staticlib" }
+# RS-CAN-PROJ-005 proc-macro dependency
+proc-macro-crate = { path = "crates/proc-macro-crate" }
+# RS-CAN-PROJ-009 path source (inside workspace) + vendored + git
+vendored-crate = "0.1.0"
+# Git revision source (local git repo); offline via path patch below and Cargo.lock
+fake-git-crate = { git = "file:///workspaces/worktrees/beholder/task-400-cargo-build-model/fixtures/rust/projects/cargo-build-model/git-deps/fake-crate.git", rev = "383698f3080a96e9c6362a088ea0e0ca4796d55f", package = "fake-git-crate" }
+
+[dev-dependencies]
+dev-dep = { path = "crates/dev-dep" }
+
+[build-dependencies]
+build-dep = { workspace = true }
+
+[target.'cfg(unix)'.dependencies]
+target-unix-dep = { path = "crates/target-unix-dep" }
+
+[target.'cfg(windows)'.dependencies]
+target-windows-dep = { path = "crates/target-windows-dep" }
+
+[target.'cfg(target_arch = "x86_64")'.dependencies]
+target-arch-dep = { path = "crates/target-arch-dep" }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+target-os-dep = { path = "crates/target-os-dep" }
+
+[target.x86_64-unknown-linux-gnu.dependencies]
+target-triple-dep = { path = "crates/target-triple-dep" }
+
+[target.'cfg(unix)'.build-dependencies]
+build-dep-unix = { path = "crates/build-dep-unix" }
+
+[profile.dev]
+opt-level = 0
+debug-assertions = true
+overflow-checks = true
+panic = "unwind"
+debug = true
+lto = false
+codegen-units = 256
+
+[profile.release]
+opt-level = 3
+debug-assertions = false
+overflow-checks = false
+panic = "unwind"
+debug = false
+lto = true
+codegen-units = 1
+
+[profile.custom]
+inherits = "dev"
+opt-level = 2
+debug-assertions = true
+overflow-checks = true
+lto = false
+codegen-units = 16
+panic = "abort"
+
+# RS-CAN-PROJ-015: package-override profiles (observable codegen differences)
+[profile.dev.package."hyphen-crate"]
+opt-level = 3
+
+[profile.release.package."hyphen-crate"]
+opt-level = 0
+
+# RS-CAN-PROJ-004: root-only profile and patch behavior.
+# These apply only at the root workspace manifest; the virtual workspace has its own.
+[profile.dev.package."crate-type-rlib"]
+opt-level = 2
+
+# RS-CAN-PROJ-009: graph-wide patch
+[patch.crates-io]
+vendored-crate = { path = "vendor/vendored-crate" }
+
+# Counterexample: unused patch would emit warning if not in graph:
+# unused-patch = { path = "crates/normal-dep" }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(cargo_config_flag)", "cfg(target_config_flag)", "cfg(extra_flag)", "cfg(doc)", "cfg(doctest)"] }

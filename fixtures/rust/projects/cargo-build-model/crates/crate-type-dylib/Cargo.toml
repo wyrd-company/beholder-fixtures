@@ -1,0 +1,14 @@
+[package]
+name = "crate-type-dylib"
+version = "0.1.0"
+edition = "2024"
+rust-version.workspace = true
+description.workspace = true
+license.workspace = true
+authors.workspace = true
+[lib]
+name = "crate_type_dylib"
+crate-type = ["dylib"]
+path = "src/lib.rs"
+[lints]
+workspace = true

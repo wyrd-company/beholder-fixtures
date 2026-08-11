@@ -1,0 +1,20 @@
+[package]
+name = "hyphen-crate"
+version = "0.3.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Shared fixture description"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "hyphen_crate_lib"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[[bin]]
+name = "hyphen-executable"
+path = "src/bin/hyphen_bin.rs"
+
+[lints.rust]
+unused = "warn"
