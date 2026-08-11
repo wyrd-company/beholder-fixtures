@@ -21,6 +21,10 @@ tasks:
       - dart run {{.DEFINE_FLAGS}} bin/vm_main.dart
       - dart run --no-enable-asserts {{.DEFINE_FLAGS}} bin/vm_main.dart
       - >-
+        dart run --enable-asserts
+        {{.DEFINE_FLAGS}}
+        bin/vm_main.dart --expect-asserts
+      - >-
         dart compile exe
         -o {{.BUILD_DIR}}/native_aot_main
         {{.DEFINE_FLAGS}}
