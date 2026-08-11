@@ -1,0 +1,23 @@
+[package]
+name = "serde-and-error-derives"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for serialization-style and error-derive ecosystem conventions"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[features]
+default = ["serde-derive", "thiserror-std"]
+serde-derive = ["serde/derive"]
+thiserror-std = ["thiserror/std"]
+
+[dependencies]
+serde = { version = "=1.0.219", default-features = false, features = ["alloc"] }
+thiserror = { version = "=2.0.12", default-features = false }
+
+[lints.rust]
+dead_code = "warn"
+
+[lints.clippy]
+all = "warn"

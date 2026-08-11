@@ -1,0 +1,26 @@
+# ---
+# relationships:
+#   references:
+#     - coverage
+# ---
+version: '3'
+
+tasks:
+  build:
+    desc: Build all fixture-owned crates in every declared build context (offline, non-mutating).
+    cmds:
+      - cargo build --offline
+      - cargo build --offline --no-default-features
+
+  lint:
+    desc: Check formatting and clippy on fixture-owned crates (vendored source excluded).
+    cmds:
+      - cargo fmt -- --check
+      - cargo clippy --offline --all-targets
+      - cargo clippy --offline --all-targets --no-default-features
+
+  test:
+    desc: Compile and run fixture tests (succeeds when no test source is present).
+    cmds:
+      - cargo test --offline
+      - cargo test --offline --no-default-features
