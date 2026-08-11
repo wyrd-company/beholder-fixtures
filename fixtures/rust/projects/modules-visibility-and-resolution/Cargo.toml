@@ -1,0 +1,60 @@
+[package]
+name = "modules-visibility-and-resolution"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for modules, visibility, and resolution"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace]
+members = [
+    "crates/direct_dep",
+    "crates/transitive_dep",
+    "crates/skew_v1",
+    "crates/downstream_consumer",
+    "crates/edition2015",
+    "crates/edition2018",
+]
+exclude = ["crates/skew_v2"]
+resolver = "3"
+
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fixture_use_a)", "cfg(fixture_use_legacy)", "cfg(doc)", "cfg(doctest)"] }
+private_interfaces = "allow"
+private_bounds = "allow"
+non_camel_case_types = "allow"
+non_upper_case_globals = "allow"
+unused_labels = "allow"
+unused_variables = "allow"
+unused_assignments = "allow"
+
+[workspace.lints.clippy]
+all = "warn"
+needless_return = "allow"
+vec_init_then_push = "allow"
+never_loop = "allow"
+new_without_default = "allow"
+let_and_return = "allow"
+unused_labels = "allow"
+
+[lib]
+name = "modules_visibility_and_resolution"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[[bin]]
+name = "mvr-bin"
+path = "src/bin/mvr_bin.rs"
+
+[dependencies]
+# Direct dep provides fixture_direct crate (package fixture-direct)
+fixture-direct = { path = "crates/direct_dep" }
+# Version skew: same package name fixture-skew at two versions via aliases
+skew_v1 = { package = "fixture-skew", version = "0.1.0", path = "crates/skew_v1" }
+skew_v2 = { package = "fixture-skew", version = "0.2.0", path = "crates/skew_v2" }
+
+[dev-dependencies]
+
+[lints]
+workspace = true

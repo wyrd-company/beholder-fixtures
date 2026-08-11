@@ -1,0 +1,19 @@
+[package]
+name = "fixture-edition2015"
+version = "0.1.0"
+edition = "2015"
+rust-version = "1.85"
+description = "Edition 2015 legacy path and macro_use demonstration"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "fixture_edition2015"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+fixture-direct = { path = "../direct_dep" }
+
+[lints]
+workspace = true

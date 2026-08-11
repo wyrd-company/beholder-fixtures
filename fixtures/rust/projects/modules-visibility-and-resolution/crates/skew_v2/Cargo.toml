@@ -1,0 +1,19 @@
+[package]
+name = "fixture-skew"
+version = "0.2.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Skew crate v0.2.0"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "fixture_skew"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fixture_use_a)"] }
+
+[lints.clippy]
+all = "warn"

@@ -1,0 +1,19 @@
+[package]
+name = "fixture-direct"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Direct dependency - re-exports transitive type"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "fixture_direct"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+fixture-transitive = { path = "../transitive_dep" }
+
+[lints]
+workspace = true

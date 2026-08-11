@@ -1,0 +1,16 @@
+[package]
+name = "fixture-skew"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Skew crate v0.1.0"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "fixture_skew"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[lints]
+workspace = true

@@ -1,0 +1,32 @@
+# relationships:
+#   references:
+#     - coverage
+# ---
+version: '3'
+
+tasks:
+  build:
+    desc: Build all fixture-owned crates in every declared build context (offline, non-mutating).
+    cmds:
+      - cargo build --offline --workspace
+      - RUSTFLAGS="--cfg fixture_use_a" cargo build --offline
+      - cargo build --offline --manifest-path crates/skew_v2/Cargo.toml
+      - cargo build --offline --manifest-path crates/edition2015/Cargo.toml
+      - cargo build --offline --manifest-path crates/edition2018/Cargo.toml
+      - cargo doc --offline --workspace --no-deps
+      - cargo doc --offline --manifest-path crates/skew_v2/Cargo.toml --no-deps
+      - cargo build --offline --target x86_64-unknown-linux-gnu
+
+  lint:
+    desc: Check formatting and clippy on fixture-owned crates (vendored source excluded).
+    cmds:
+      - cargo fmt -- --check
+      - cargo fmt --manifest-path crates/skew_v2/Cargo.toml -- --check
+      - cargo clippy --offline --workspace --all-targets
+      - cargo clippy --offline --manifest-path crates/skew_v2/Cargo.toml --all-targets
+
+  test:
+    desc: Compile and run fixture tests (succeeds when no test source is present).
+    cmds:
+      - cargo test --offline --workspace
+      - cargo test --offline --manifest-path crates/skew_v2/Cargo.toml

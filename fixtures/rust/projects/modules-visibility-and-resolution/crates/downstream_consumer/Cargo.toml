@@ -1,0 +1,19 @@
+[package]
+name = "fixture-downstream"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Downstream crate accessing visibility-restricted items"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "fixture_downstream"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+modules-visibility-and-resolution = { path = "../.." }
+
+[lints]
+workspace = true
