@@ -1,16 +1,17 @@
-version: '3'
+version: "3"
 
 tasks:
   build:
     desc: Type-check allowJs/checkJs context and emit declarations from JavaScript
     cmds:
-      - npx tsc --noEmit -p tsconfig.json
-      - npx tsc -p tsconfig.emit.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.json
+      - ./node_modules/.bin/tsc -p tsconfig.emit.json
 
   lint:
-    desc: tsc no-emit check over fixture sources (vendored source excluded, no tracked source mutated)
+    desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)
     cmds:
-      - npx tsc --noEmit -p tsconfig.json
+      - ./node_modules/.bin/prettier --check "src/**/*" "js/**/*" "vendor/**/*" "Taskfile.yml" "tsconfig*.json" "coverage.md" "package.json"
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.json
 
   test:
     desc: No fixture tests; succeeds when no test source is required
