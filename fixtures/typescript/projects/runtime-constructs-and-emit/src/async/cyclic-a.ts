@@ -7,7 +7,7 @@
 
 import { valueFromB } from "./cyclic-b.js";
 
-export const valueFromA = "alpha";
+export const valueFromA = await Promise.resolve("alpha");
 
 export async function getFromA(): Promise<string> {
   const fromB = await Promise.resolve(valueFromB);

@@ -14,13 +14,24 @@ export function forOfDemo(values: string[]): string[] {
 }
 
 export function earlyCleanupDemo(values: string[]): string[] {
+  const cleanupLog: string[] = [];
+  function* tracking(): Generator<string, void, unknown> {
+    try {
+      for (const v of values) {
+        yield v;
+      }
+    } finally {
+      cleanupLog.push("cleanup");
+    }
+  }
   const seen: string[] = [];
-  for (const value of values) {
+  for (const value of tracking()) {
     seen.push(value);
     if (value === "stop") {
       break;
     }
   }
+  seen.push(...cleanupLog);
   return seen;
 }
 

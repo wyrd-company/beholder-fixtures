@@ -42,3 +42,17 @@ export function consumeIterable(iterable: Iterable<string>): string {
   }
   return result;
 }
+
+export type ModernIteratorObject = IteratorObject<string, void, unknown>;
+
+export function getModernIterator(): ModernIteratorObject {
+  const items = ["atlas", "ledger"];
+  return items.values() as ModernIteratorObject;
+}
+
+export function iteratorReturnStrict(): string {
+  const iter = getModernIterator();
+  const first: IteratorResult<string, void> = iter.next();
+  const done = iter.return?.();
+  return `${String(first.value)}:${String(done?.done)}`;
+}

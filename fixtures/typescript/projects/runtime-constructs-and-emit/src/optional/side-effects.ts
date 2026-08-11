@@ -34,11 +34,13 @@ export function sideEffectIndexSkipped(
   record?: Record<string, string>,
 ): string | undefined {
   sideEffectLog.push("before-optional");
-  const key = (() => {
-    sideEffectLog.push("compute-key");
-    return "atlas";
-  })();
-  const result = record?.[key];
+  const result =
+    record?.[
+      (() => {
+        sideEffectLog.push("compute-key");
+        return "atlas";
+      })()
+    ];
   sideEffectLog.push("after-optional");
   return result;
 }

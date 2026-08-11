@@ -6,8 +6,9 @@
 // ---
 
 export class Base {
+  kind = "base";
   label(): string {
-    return "base";
+    return this.kind;
   }
 
   describe(): string {
@@ -35,12 +36,15 @@ export function extractedReceiverLoss(instance: Base): string {
 }
 
 export function prototypeMutation(): string {
-  const instance = new Derived();
+  const instance = new Base();
   const before = instance.label();
   (Base.prototype as unknown as { label: () => string }).label = () =>
     "mutated";
   const after = instance.label();
-  (Base.prototype as unknown as { label: () => string }).label = () => "base";
+  (Base.prototype as unknown as { label(this: Base): string }).label =
+    function (this: Base): string {
+      return this.kind;
+    };
   return `${before}:${after}`;
 }
 

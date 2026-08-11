@@ -30,14 +30,16 @@ export function spreadAssumptions(): string {
   return `spread:${fromArray.length}:${fromSet.length}:${fromMapKeys.length}`;
 }
 
-export class HelperDedupA {
+import { BaseField } from "./fields.js";
+
+export class HelperDedupA extends BaseField {
   prop = "a";
   method(): string {
     return this.prop;
   }
 }
 
-export class HelperDedupB {
+export class HelperDedupB extends BaseField {
   prop = "b";
   method(): string {
     return this.prop;

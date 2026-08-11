@@ -49,8 +49,16 @@ export function optionalMethodPreservesReceiver(
 }
 
 export function groupingBreaksChain(profile?: Profile): string | undefined {
-  const grouped = (profile as unknown as { name?: string })?.name;
-  return grouped?.toString();
+  // parentheses terminate the optional chain; .city is a regular access on the result of profile?.address
+  // contrast with profile?.address?.city where both accesses are optional
+  return (profile?.address as unknown as { city: string }).city;
+}
+
+export function groupingTerminatesChain(profile?: Profile): string | undefined {
+  // (profile?.address) ends the chain – the following .city would access undefined if profile is missing
+  const chained = profile?.address?.city;
+  void chained;
+  return (profile?.address as unknown as { city: string }).city;
 }
 
 export function chainedOptional(profile?: Profile): string | undefined {
