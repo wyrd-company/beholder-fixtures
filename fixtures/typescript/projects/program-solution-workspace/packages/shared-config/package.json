@@ -1,0 +1,6 @@
+{
+  "name": "@fixtures/shared-config",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portable shared TypeScript configuration package for program-solution-workspace"
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": [
+    "@fixtures/shared-config/tsconfig.json",
+    "../../config/base.json"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "incremental": true,
+    "tsBuildInfoFile": "../../dist/core/.tsbuildinfo",
+    "outDir": "../../dist/core",
+    "rootDir": "./src",
+    "baseUrl": ".",
+    "declarationMap": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "strict": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/unreachable.ts"],
+  "references": []
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "${configDir}/../dist/base",
+    "rootDir": "${configDir}/..",
+    "baseUrl": "${configDir}/..",
+    "paths": {
+      "@alias/*": [
+        "${configDir}/../packages/app/src/alias/*",
+        "${configDir}/../packages/app/src/alias/fallback/*"
+      ],
+      "@data/*": ["${configDir}/../packages/app/src/wildcard/*"],
+      "@data/special/*": ["${configDir}/../packages/app/src/wildcard/special/*"]
+    },
+    "composite": false
+  },
+  "include": [
+    "${configDir}/../src/roots/include/**/*",
+    "${configDir}/../packages/app/src/**/*"
+  ],
+  "exclude": [
+    "${configDir}/../src/roots/excluded/**/*",
+    "${configDir}/../src/roots/unreachable-orphan.ts"
+  ]
+}

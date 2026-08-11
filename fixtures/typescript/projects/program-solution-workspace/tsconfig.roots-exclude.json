@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "allowJs": true,
+    "sourceMap": true,
+    "outDir": "./dist/roots-exclude"
+  },
+  "include": ["src/roots/**/*"],
+  "exclude": ["src/roots/excluded/**/*", "src/roots/unreachable-orphan.ts"]
+}

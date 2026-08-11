@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "outDir": "${configDir}/../dist/configDir",
+    "baseUrl": "${configDir}/..",
+    "paths": {
+      "@generated/*": ["${configDir}/../generated/*"],
+      "@alias/*": [
+        "${configDir}/../packages/app/src/alias/*",
+        "${configDir}/../packages/app/src/alias/fallback/*"
+      ],
+      "@data/*": ["${configDir}/../packages/app/src/wildcard/*"],
+      "@data/special/*": ["${configDir}/../packages/app/src/wildcard/special/*"]
+    }
+  },
+  "include": [
+    "${configDir}/../generated/**/*",
+    "${configDir}/../packages/app/src/**/*",
+    "${configDir}/../src/generated-consumer.ts"
+  ]
+}

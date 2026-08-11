@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist/dual-strict",
+    "rootDir": "./packages/dual",
+    "baseUrl": "./packages/dual",
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["packages/dual/shared.ts", "packages/dual/consumer-strict.ts"],
+  "files": ["packages/dual/shared.ts", "packages/dual/consumer-strict.ts"]
+}

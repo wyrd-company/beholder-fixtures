@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "./dist/paths-no-base",
+    "paths": {
+      "@alias/*": [
+        "./packages/app/src/alias/*",
+        "./packages/app/src/alias/fallback/*"
+      ]
+    }
+  },
+  "include": ["packages/app/src/alias/**/*"]
+}

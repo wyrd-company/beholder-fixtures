@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "allowJs": true,
+    "sourceMap": true,
+    "outDir": "./dist/roots-defaults",
+    "baseUrl": ".",
+    "paths": {
+      "@alias/*": [
+        "./packages/app/src/alias/*",
+        "./packages/app/src/alias/fallback/*"
+      ],
+      "@data/*": ["./packages/app/src/wildcard/*"],
+      "@data/special/*": ["./packages/app/src/wildcard/special/*"],
+      "@generated/*": ["./generated/*"]
+    },
+    "rootDirs": ["./packages/app/src", "./generated"],
+    "moduleSuffixes": [".ios", ".native", ""]
+  },
+  "exclude": ["dist/**/*"]
+}

@@ -1,0 +1,48 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Type-check and emit in every declared context — solution build mode with incremental state, moduleSuffixes, rootDirs, dual-program and roots variants
+    cmds:
+      - ./node_modules/.bin/tsc -b
+      - ./node_modules/.bin/tsc -b tsconfig.assume.json
+      - ./node_modules/.bin/tsc -p tsconfig.suffix.json
+      - ./node_modules/.bin/tsc -p tsconfig.rootdirs.json
+      - ./node_modules/.bin/tsc -p tsconfig.dual-strict.json
+      - ./node_modules/.bin/tsc -p tsconfig.dual-loose.json
+      - ./node_modules/.bin/tsc -p tsconfig.roots-files.json
+      - ./node_modules/.bin/tsc -p tsconfig.roots-include.json
+      - ./node_modules/.bin/tsc -p tsconfig.roots-exclude.json
+      - ./node_modules/.bin/tsc -p tsconfig.roots-defaults.json
+      - ./node_modules/.bin/tsc -p tsconfig.paths-no-base.json
+      - ./node_modules/.bin/tsc -p config/with-config-dir.json
+      - ./node_modules/.bin/tsc -p packages/app/tsconfig.noredirect.json
+      - ./node_modules/.bin/tsc src/roots/cli-only.ts --noEmit --module nodenext --moduleResolution nodenext --target ES2022 --skipLibCheck --allowJs
+
+  lint:
+    desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)
+    cmds:
+      - ./node_modules/.bin/prettier --check "packages/**/*" "src/**/*" "generated/**/*" "scripts/**/*" "config/**/*" "Taskfile.yml" "tsconfig*.json" "coverage.md" "package.json"
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.suffix.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.rootdirs.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.dual-strict.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.dual-loose.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.roots-files.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.roots-include.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.roots-exclude.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.roots-defaults.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.paths-no-base.json
+      - ./node_modules/.bin/tsc --noEmit -p config/with-config-dir.json
+      - ./node_modules/.bin/tsc --noEmit -p packages/app/tsconfig.json
+      - ./node_modules/.bin/tsc --noEmit -p packages/core/tsconfig.json
+      - ./node_modules/.bin/tsc --noEmit src/roots/cli-only.ts --module nodenext --moduleResolution nodenext --target ES2022 --skipLibCheck --allowJs
+
+  test:
+    desc: No fixture tests; succeeds when no test source is required
+    cmds:
+      - echo "no tests"
+
+  generate:
+    desc: Regenerate committed generated sources from schema (never invoked by build/lint/test)
+    cmds:
+      - node ./scripts/generate.mjs

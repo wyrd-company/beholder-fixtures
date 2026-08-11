@@ -1,0 +1,13 @@
+{
+  "models": [
+    {
+      "name": "GeneratedModel",
+      "fields": { "id": "string", "revision": "number" }
+    },
+    {
+      "name": "GeneratedApi",
+      "fields": { "endpoint": "string", "timeout": "number" }
+    }
+  ],
+  "version": 1
+}
