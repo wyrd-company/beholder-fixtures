@@ -1,0 +1,19 @@
+[package]
+name = "capture-2021"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+description = "Edition 2021 contrast for opaque precise capture"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "capture_2021"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fixture_cfg)"] }
+
+[lints.clippy]
+all = "warn"
