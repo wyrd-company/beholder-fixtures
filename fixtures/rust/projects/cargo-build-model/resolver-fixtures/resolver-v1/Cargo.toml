@@ -7,9 +7,18 @@ license = "MIT"
 authors = ["Wyrd Company"]
 resolver = "1"
 
+# RS-CAN-PROJ-007: `unify-consumer-a` (normal) requests `unify-shared/feat-a`;
+# `unify-consumer-b` (dev-only, below) requests `unify-shared/feat-b`. Under
+# resolver = "1", dev-dependency feature requests are unified into the normal
+# build even when dev-dependencies are not themselves being built, so a plain
+# `cargo build` here compiles `unify-shared` with feat-a+feat-b ("with
+# sibling"). Resolver "2"/"3" (see resolver-v2, resolver-v3) keep the dev-only
+# edge separate, so the same plain build yields `unify-shared` alone with only
+# feat-a.
 [dependencies]
-unify-shared = { path = "../../crates/unify-shared", features = ["feat-a"] }
 unify-consumer-a = { path = "../../crates/unify-consumer-a" }
+
+[dev-dependencies]
 unify-consumer-b = { path = "../../crates/unify-consumer-b" }
 
 # Also depend on both hyphen versions to show duplicate versions in lockfile

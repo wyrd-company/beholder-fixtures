@@ -1,3 +1,4 @@
 fn main() {
-    println!("resolver v2: {}", unify_shared::active_features());
+    // RS-CAN-PROJ-007: see Cargo.toml for the alone/with-sibling contrast.
+    println!("resolver v2: {}", unify_consumer_a::active_features());
 }

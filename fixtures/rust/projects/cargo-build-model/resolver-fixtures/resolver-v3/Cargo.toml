@@ -7,9 +7,13 @@ license = "MIT"
 authors = ["Wyrd Company"]
 resolver = "3"
 
+# RS-CAN-PROJ-007: same alone/with-sibling shape as resolver-v2 (resolver "3"
+# has the same feature-unification rules as "2"; both keep the dev-only
+# `unify-consumer-b` request separate from a plain `cargo build`).
 [dependencies]
-unify-shared = { path = "../../crates/unify-shared", features = ["feat-a"] }
 unify-consumer-a = { path = "../../crates/unify-consumer-a" }
+
+[dev-dependencies]
 unify-consumer-b = { path = "../../crates/unify-consumer-b" }
 
 # Also depend on both hyphen versions to show duplicate versions in lockfile
