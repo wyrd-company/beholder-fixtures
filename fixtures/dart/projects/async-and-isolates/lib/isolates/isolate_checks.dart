@@ -48,13 +48,24 @@ Future<void> runIsolateSpawningChecks() async {
   expectEqual(spawnedValue, 5, 'confirmNoSharedMutableState spawnedValue');
   expectEqual(delta, 0, 'confirmNoSharedMutableState delta');
 
-  final (beforePause, whilePaused, finalCount) = await pauseResumeAndKill();
+  final (beforePause, whilePaused, stillPaused, finalCount) =
+      await pauseResumeAndKill();
+  // `whilePaused` is deliberately not compared against `beforePause`:
+  // `Isolate.pause()` takes effect only once the target receives the
+  // request, so a tick already in flight may still arrive afterward, and
+  // the accepted brief requires that host/message-ordering corner to
+  // remain an observation rather than an assertion. Comparing the two
+  // samples taken entirely within the paused window instead confirms
+  // ticks stopped arriving once pausing had taken hold.
   final pauseTookEffect =
       beforePause >= 1 &&
-      whilePaused == beforePause &&
-      finalCount > whilePaused;
+      whilePaused == stillPaused &&
+      finalCount > stillPaused;
   if (!pauseTookEffect) {
-    fail('pauseResumeAndKill', '$beforePause,$whilePaused,$finalCount');
+    fail(
+      'pauseResumeAndKill',
+      '$beforePause,$whilePaused,$stillPaused,$finalCount',
+    );
   }
 }
 

@@ -89,10 +89,16 @@ Future<(int, int)> confirmNoSharedMutableState() async {
   return (spawnedValue, after - before);
 }
 
-/// Spawns a periodically-ticking isolate, pauses it, confirms no further
-/// ticks arrive while paused, resumes it, observes another tick, then
-/// kills it. Returns `(countBeforePause, countWhilePaused, finalCount)`.
-Future<(int, int, int)> pauseResumeAndKill() async {
+/// Spawns a periodically-ticking isolate, pauses it, samples the event
+/// count twice while it stays paused to confirm ticks stop arriving,
+/// resumes it, observes another tick, then kills it. The pre-pause
+/// sample is not compared against the paused samples: `Isolate.pause()`
+/// takes effect only once the target isolate receives the request, so a
+/// tick already in flight may still arrive afterward, and that
+/// host/message-ordering corner is an observation rather than an
+/// assertion. Returns
+/// `(countBeforePause, countWhilePaused, countStillPaused, finalCount)`.
+Future<(int, int, int, int)> pauseResumeAndKill() async {
   final receivePort = ReceivePort();
   final isolate = await Isolate.spawn(countingEntryPoint, receivePort.sendPort);
   final events = <int>[];
@@ -106,15 +112,17 @@ Future<(int, int, int)> pauseResumeAndKill() async {
 
   await Future<void>.delayed(const Duration(milliseconds: 30));
   final countWhilePaused = events.length;
+  await Future<void>.delayed(const Duration(milliseconds: 30));
+  final countStillPaused = events.length;
 
   isolate.resume(resumeCapability);
-  await _waitUntil(() => events.length > countWhilePaused);
+  await _waitUntil(() => events.length > countStillPaused);
 
   isolate.kill(priority: Isolate.immediate);
   await subscription.cancel();
   receivePort.close();
 
-  return (countBeforePause, countWhilePaused, events.length);
+  return (countBeforePause, countWhilePaused, countStillPaused, events.length);
 }
 
 Future<void> _waitUntil(bool Function() condition) async {
