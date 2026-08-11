@@ -1,0 +1,9 @@
+name: async_and_isolates
+description: >-
+  Fixture package demonstrating futures, generators, streams, event queues,
+  zones, and native isolate messaging.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.12.2 <4.0.0'
