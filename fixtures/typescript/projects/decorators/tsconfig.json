@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist/standard",
+    "rootDir": "src/standard",
+    "lib": ["ES2022", "ESNext.Decorators", "DOM"],
+    "skipLibCheck": true
+  },
+  "include": ["src/standard/**/*"]
+}
