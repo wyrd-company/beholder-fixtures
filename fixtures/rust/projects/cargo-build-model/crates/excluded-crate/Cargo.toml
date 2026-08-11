@@ -2,9 +2,11 @@
 name = "excluded-crate"
 version = "0.1.0"
 edition = "2024"
-rust-version.workspace = true
-description.workspace = true
-license.workspace = true
-authors.workspace = true
-[lints]
-workspace = true
+# RS-CAN-PROJ-004: excluded from the root workspace's `members`
+# (`exclude = ["crates/excluded-crate", ...]`), so it has no workspace root to
+# inherit `workspace.package`/`workspace.lints` from; fields are literal here
+# rather than `.workspace = true`.
+rust-version = "1.85"
+description = "Shared fixture description"
+license = "MIT"
+authors = ["Wyrd Company"]

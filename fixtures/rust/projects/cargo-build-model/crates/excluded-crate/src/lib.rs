@@ -1,1 +1,3 @@
-pub fn excluded_fn() -> u32 { 999 }
+pub fn excluded_fn() -> u32 {
+    999
+}
