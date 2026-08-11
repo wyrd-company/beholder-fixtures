@@ -134,7 +134,8 @@ macro_rules! expr_2021_demo {
 }
 
 pub fn expr_2024_demo() -> u32 {
-    expr_2024_demo!(1 + 2) + expr_2021_demo!(1 + 2)
+    // `const { .. }` blocks match `expr` only under the 2024 grammar; `expr_2021` rejects them.
+    expr_2024_demo!(const { 1u32 + 2 }) + expr_2021_demo!(1 + 2)
 }
 
 // Counterexamples (invalid, not compiled) documented in docs/counterexamples.md:
