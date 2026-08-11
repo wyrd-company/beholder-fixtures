@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "jsxImportSource": "@fixtures/atlas-jsx-runtime",
+    "outDir": "dist/preserve",
+    "rootDir": "src/transforms/preserve"
+  },
+  "include": [
+    "src/transforms/preserve/**/*",
+    "vendor/atlas-jsx-runtime/**/*.d.ts"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "Ledger.createElement",
+    "jsxFragmentFactory": "Ledger.Fragment",
+    "outDir": "dist/pragmas",
+    "rootDir": "src/pragmas"
+  },
+  "include": [
+    "src/pragmas/**/*",
+    "types/ledger-global.d.ts",
+    "vendor/atlas-jsx-runtime/**/*.d.ts"
+  ]
+}

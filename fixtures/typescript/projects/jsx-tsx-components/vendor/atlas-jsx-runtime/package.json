@@ -1,0 +1,11 @@
+{
+  "name": "@fixtures/atlas-jsx-runtime",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local automatic JSX runtime typing surface for atlas fixture theme",
+  "exports": {
+    "./jsx-runtime": "./jsx-runtime.d.ts",
+    "./jsx-dev-runtime": "./jsx-dev-runtime.d.ts"
+  }
+}

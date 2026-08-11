@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "@fixtures/atlas-jsx-runtime",
+    "outDir": "dist/runtime-atlas",
+    "rootDir": "src/runtimes/atlas"
+  },
+  "include": ["src/runtimes/atlas/**/*", "vendor/atlas-jsx-runtime/**/*.d.ts"]
+}

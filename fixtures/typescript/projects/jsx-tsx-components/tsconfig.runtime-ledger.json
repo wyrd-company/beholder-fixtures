@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "Ledger.createElement",
+    "jsxFragmentFactory": "Ledger.Fragment",
+    "outDir": "dist/runtime-ledger",
+    "rootDir": "src/runtimes/ledger"
+  },
+  "include": [
+    "src/runtimes/ledger/**/*",
+    "types/ledger-global.d.ts",
+    "types/intrinsic-augmentation.d.ts"
+  ]
+}

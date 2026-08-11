@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-native",
+    "jsxImportSource": "@fixtures/atlas-jsx-runtime",
+    "outDir": "dist/react-native",
+    "rootDir": "src/transforms/react-native"
+  },
+  "include": [
+    "src/transforms/react-native/**/*",
+    "vendor/atlas-jsx-runtime/**/*.d.ts"
+  ]
+}

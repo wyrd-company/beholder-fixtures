@@ -1,0 +1,38 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Type-check and emit in every declared JSX mode and runtime typing surface
+    cmds:
+      - ./node_modules/.bin/tsc -p tsconfig.parsing-ts.json
+      - ./node_modules/.bin/tsc -p tsconfig.parsing-tsx.json
+      - ./node_modules/.bin/tsc -p tsconfig.preserve.json
+      - ./node_modules/.bin/tsc -p tsconfig.classic.json
+      - ./node_modules/.bin/tsc -p tsconfig.automatic.json
+      - ./node_modules/.bin/tsc -p tsconfig.development.json
+      - ./node_modules/.bin/tsc -p tsconfig.react-native.json
+      - ./node_modules/.bin/tsc -p tsconfig.runtime-ledger.json
+      - ./node_modules/.bin/tsc -p tsconfig.runtime-atlas.json
+      - ./node_modules/.bin/tsc -p tsconfig.components.json
+      - ./node_modules/.bin/tsc -p tsconfig.pragmas.json
+
+  lint:
+    desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)
+    cmds:
+      - ./node_modules/.bin/prettier --check "src/**/*" "types/**/*" "vendor/atlas-jsx-runtime/**/*" "Taskfile.yml" "tsconfig*.json" "coverage.md" "package.json"
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.parsing-ts.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.parsing-tsx.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.preserve.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.classic.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.automatic.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.development.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.react-native.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.runtime-ledger.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.runtime-atlas.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.components.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.pragmas.json
+
+  test:
+    desc: No fixture tests; succeeds when no test source is required
+    cmds:
+      - echo "no tests"

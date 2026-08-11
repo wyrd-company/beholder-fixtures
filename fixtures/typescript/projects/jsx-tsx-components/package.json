@@ -1,0 +1,17 @@
+{
+  "name": "@fixtures/jsx-tsx-components",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture library demonstrating TSX parsing, JSX transform modes, and JSX typing surfaces",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "dependencies": {
+    "@fixtures/atlas-jsx-runtime": "file:./vendor/atlas-jsx-runtime"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
+  }
+}
