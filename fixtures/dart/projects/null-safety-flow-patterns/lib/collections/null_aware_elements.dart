@@ -53,6 +53,26 @@ List<int> buildNullElidingWithForLoop(List<int?> values) => <int>[
   for (final v in values) ?v,
 ];
 
+/// Side-effect evaluation: a null-eliding element's expression is always
+/// evaluated exactly once, whether or not the result turns out to be
+/// null — evaluation determines inclusion, so it cannot itself be skipped
+/// (unlike `??`, which skips evaluating its right-hand side entirely when
+/// the left-hand side is already non-null).
+final List<String> nullAwareElementSideEffectLog = <String>[];
+
+int? _loggedNullableValue(String label, int? value) {
+  nullAwareElementSideEffectLog.add('evaluate:$label');
+  return value;
+}
+
+List<int> buildSideEffectingNullElidingList(int? present, int? absent) {
+  nullAwareElementSideEffectLog.clear();
+  return <int>[
+    ?_loggedNullableValue('present', present),
+    ?_loggedNullableValue('absent', absent),
+  ];
+}
+
 List<String> describeNullAwareCollectionElements() {
   return <String>[
     'nullElidingList(both)=${buildNullElidingList(1, 2)}',
@@ -65,5 +85,6 @@ List<String> describeNullAwareCollectionElements() {
     'nullableInclusionList=${buildNullableInclusionList(1, null)}',
     'nullElidingWithSpread=${buildNullElidingWithSpread(null, <int>[7, 8])}',
     'nullElidingWithForLoop=${buildNullElidingWithForLoop(<int?>[1, null, 3])}',
+    'sideEffectingNullElidingList=${buildSideEffectingNullElidingList(1, null)} log=$nullAwareElementSideEffectLog',
   ];
 }

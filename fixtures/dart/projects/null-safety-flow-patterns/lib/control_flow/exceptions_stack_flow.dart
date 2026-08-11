@@ -83,6 +83,34 @@ int describeFinallyOverridingThrow() {
   }
 }
 
+/// The synchronous side of the synchronous-versus-asynchronous error-flow
+/// contrast: a synchronous `throw` is caught by an ordinary `catch` at the
+/// point of the call.
+String describeSynchronousErrorFlow() {
+  try {
+    throw StateError('synchronous failure');
+  } catch (error) {
+    return 'caught-sync:$error';
+  }
+}
+
+Future<int> _asynchronousFailure() async {
+  throw StateError('asynchronous failure');
+}
+
+/// The asynchronous side of the contrast: a `throw` inside a
+/// `Future`-returning `async` function only reaches a `catch` once the
+/// caller `await`s the call; the surrounding synchronous code does not
+/// observe the error at the call site itself.
+Future<String> describeAsynchronousErrorFlow() async {
+  try {
+    await _asynchronousFailure();
+    return 'no-error';
+  } catch (error) {
+    return 'caught-async:$error';
+  }
+}
+
 List<String> describeExceptionsAndStackFlow() {
   return <String>[
     'typedCatch=${describeTypedCatch()}',
@@ -94,5 +122,6 @@ List<String> describeExceptionsAndStackFlow() {
     'catchOrder(other)=${describeCatchOrder('raw')}',
     'finallyOverridingReturn=${describeFinallyOverridingReturn()}',
     'finallyOverridingThrow=${describeFinallyOverridingThrow()}',
+    'synchronousErrorFlow=${describeSynchronousErrorFlow()}',
   ];
 }

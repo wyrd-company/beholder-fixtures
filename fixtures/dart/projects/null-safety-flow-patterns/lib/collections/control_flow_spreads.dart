@@ -52,6 +52,21 @@ List<int> buildNestedIfForForms(bool includeDoubled, List<int> values) => <int>[
     for (final v in values) v * 2,
 ];
 
+/// Iteration order and side effects: a `for` element inside a list literal
+/// evaluates its source iterable and body expression once per element, in
+/// iteration order, left to right — observed here through a shared log.
+final List<String> controlFlowSideEffectLog = <String>[];
+
+String _loggedElement(int value) {
+  controlFlowSideEffectLog.add('visit:$value');
+  return 'v$value';
+}
+
+List<String> buildSideEffectingForList(List<int> values) {
+  controlFlowSideEffectLog.clear();
+  return <String>[for (final v in values) _loggedElement(v)];
+}
+
 const List<int> _constBase = <int>[1, 2];
 
 /// Const restrictions: a const collection literal may only spread other
@@ -74,6 +89,7 @@ List<String> describeCollectionControlFlowAndSpreads() {
     'nullAwareSpreadMap(null)=${buildNullAwareSpreadMap(null)}',
     'nestedForIfForms=${buildNestedForIfForms(const <int>[1, 2, 3, 4])}',
     'nestedIfForForms=${buildNestedIfForForms(true, const <int>[1, 2])}',
+    'sideEffectingForList=${buildSideEffectingForList(const <int>[3, 1, 2])} log=$controlFlowSideEffectLog',
     'constSpreadList=$constSpreadList',
   ];
 }

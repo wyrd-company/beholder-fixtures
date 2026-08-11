@@ -9,12 +9,23 @@ String describeVariablePattern(Object? value) {
   return 'no-match';
 }
 
-/// An identifier pattern used as a wildcard (`_`), matching without binding.
-String describeWildcardIdentifierPattern(Object? value) {
+/// A wildcard pattern (`_`): matches anything without binding.
+String describeWildcardPattern(Object? value) {
   return switch (value) {
     (_, final int y) => 'second:$y',
     _ => 'unmatched',
   };
+}
+
+/// An identifier pattern, distinct from the wildcard above: a bare
+/// identifier (no `var`/`final`, and not `_`) in a pattern-assignment
+/// context refers to an already-existing variable rather than declaring a
+/// new one or matching anonymously.
+String describeIdentifierPattern() {
+  int existingX = 0;
+  int existingY = 0;
+  (existingX, existingY) = (3, 4);
+  return 'existingX=$existingX existingY=$existingY';
 }
 
 const int kThreshold = 10;
@@ -121,6 +132,37 @@ String describeObjectPattern(Object? value) {
   };
 }
 
+/// An object pattern whose fields are backed by side-effecting getters
+/// rather than plain final fields.
+class InstrumentedPoint {
+  final int _x;
+  final int _y;
+  int accessorInvocations = 0;
+
+  InstrumentedPoint(this._x, this._y);
+
+  int get x {
+    accessorInvocations += 1;
+    return _x;
+  }
+
+  int get y {
+    accessorInvocations += 1;
+    return _y;
+  }
+}
+
+/// Per DART-GAP-009, the pattern specification leaves object/list/map
+/// pattern accessor evaluation order and count partially unspecified, so
+/// this only records the observed accessor-invocation count as an
+/// observation, not a portable expectation.
+String describeObjectPatternAccessorSideEffects(InstrumentedPoint point) {
+  final matched = switch (point) {
+    InstrumentedPoint(x: final px, y: final py) => 'point:$px,$py',
+  };
+  return '$matched accessorInvocations=${point.accessorInvocations}';
+}
+
 /// A logical-and pattern: both sub-patterns must match the same value.
 String describeLogicalAndPattern(Object? value) {
   return switch (value) {
@@ -167,7 +209,8 @@ List<String> describePatternTaxonomy() {
   return <String>[
     'variablePattern=${describeVariablePattern(7)}',
     'variablePattern(no-match)=${describeVariablePattern('nope')}',
-    'wildcardIdentifierPattern=${describeWildcardIdentifierPattern((1, 2))}',
+    'wildcardPattern=${describeWildcardPattern((1, 2))}',
+    'identifierPattern=${describeIdentifierPattern()}',
     'constantPattern(0)=${describeConstantPattern(0)}',
     'constantPattern(10)=${describeConstantPattern(10)}',
     'constantPattern(4)=${describeConstantPattern(4)}',
@@ -183,14 +226,15 @@ List<String> describePatternTaxonomy() {
     'listPattern(one)=${describeListPattern(const <int>[5])}',
     'listPattern(many)=${describeListPattern(const <int>[1, 2, 3])}',
     'listPatternWithMiddleRest=${describeListPatternWithMiddleRest(const <int>[1, 2, 3, 4])}',
-    'mapPattern(full)=${describeMapPattern(const <String, Object?>{'name': 'Ada', 'age': 30})}',
-    'mapPattern(partial)=${describeMapPattern(const <String, Object?>{'name': 'Lin'})}',
+    'mapPattern(full)=${describeMapPattern(const <String, Object?>{'name': 'fixture-full', 'age': 30})}',
+    'mapPattern(partial)=${describeMapPattern(const <String, Object?>{'name': 'fixture-partial'})}',
     'recordPattern(origin)=${describeRecordPattern((0, 0))}',
     'recordPattern(point)=${describeRecordPattern((3, 4))}',
     'namedRecordPattern=${describeNamedRecordPattern(x: 1, y: 2)}',
     'objectPattern(origin)=${describeObjectPattern(PointObj(0, 0))}',
     'objectPattern(point)=${describeObjectPattern(PointObj(3, 4))}',
     'objectPattern(other)=${describeObjectPattern('nope')}',
+    'objectPatternAccessorSideEffects=${describeObjectPatternAccessorSideEffects(InstrumentedPoint(3, 4))}',
     'logicalAndPattern=${describeLogicalAndPattern(5)}',
     'logicalOrPattern=${describeTaxonomyLogicalOrPattern(3.14)}',
     'parenthesizedPatternWithGuard(large)=${describeParenthesizedPatternWithGuard(50)}',

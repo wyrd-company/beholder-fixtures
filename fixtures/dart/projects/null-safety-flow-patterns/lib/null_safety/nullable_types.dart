@@ -69,13 +69,17 @@ final List<int?> nullableInts = <int?>[1, null, 3];
 final Slot<int?> nullableSlot = Slot<int?>(null);
 final Slot<int> nonNullSlot = Slot<int>(7);
 
-/// `Never?` would be pointless (equivalent to `Null`); this project
-/// represents the valid, ordinary side of nullable bounds and arguments
-/// instead. `Reading<double?>` instantiates the nullable-bounded parameter
-/// with a nullable type argument; `Reading<double>` instantiates it with a
+/// `Reading<double?>` instantiates the nullable-bounded parameter with a
+/// nullable type argument; `Reading<double>` instantiates it with a
 /// non-nullable one.
 final Reading<double?> nullableReading = Reading<double?>(null);
 final Reading<double> nonNullReading = Reading<double>(98.6);
+
+/// `Never?`: `Never` has no instances, so a `Never?`-typed value can only
+/// ever be `null` at runtime, but it is syntactically and nominally
+/// distinct from `Null` — a `Never?` parameter and return type, both used
+/// here.
+Never? identityOfNever(Never? input) => input;
 
 List<String> describeNullableTypes() {
   final sensor = Sensor('sensor-a', null);
@@ -91,6 +95,7 @@ List<String> describeNullableTypes() {
     'nonNullSlot.value=${nonNullSlot.value}',
     'nullableReading.isPresent=${nullableReading.isPresent}',
     'nonNullReading.isPresent=${nonNullReading.isPresent}',
+    'identityOfNever(null)=${identityOfNever(null)}',
     'widening.render(3)=${widening.render(3)}',
     'widening.render(null)=${widening.render(null)}',
     'nonNullReturning.render(4)=${nonNullReturning.render(4)}',

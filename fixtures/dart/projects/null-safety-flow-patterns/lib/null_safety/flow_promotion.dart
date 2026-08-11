@@ -198,24 +198,9 @@ String describeLoopDefeat(String? seed, List<String?> updates) {
   return observed.join(',');
 }
 
-/// A pre-field-promotion language version: field promotion is a Dart 3.2+
-/// capability, so a library pinned below that version relies on the
-/// long-standing local-copy idiom instead of field promotion.
-class LegacyFieldHolder {
-  final String? _label;
-
-  const LegacyFieldHolder(this._label);
-
-  String describe() {
-    final label = _label; // local copy: the portable pre-3.2 idiom
-    if (label != null) {
-      return label
-          .toUpperCase(); // the local variable is promoted, not the field
-    }
-    return 'none';
-  }
-}
-
+/// The pre-field-promotion language-version variant lives in its own
+/// library, `legacy_field_promotion.dart`, since a language-version override
+/// applies per-library rather than per-declaration.
 List<String> describeFlowPromotion() {
   return <String>[
     'test=${describeTestPromotion('alpha')}',
@@ -232,6 +217,5 @@ List<String> describeFlowPromotion() {
     'mutationDefeat=${describeMutationDefeat('iota', () => null)}',
     'captureDefeat=${describeCaptureDefeat('kappa')}',
     'loopDefeat=${describeLoopDefeat('lambda', <String?>['mu', null, 'nu'])}',
-    'legacyField=${const LegacyFieldHolder('xi').describe()}',
   ];
 }
