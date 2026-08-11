@@ -80,7 +80,17 @@ public static class CallableIdentity
     public static int SelectByTargetSignature(Worker worker, int left, int right)
     {
         PairTransform binary = worker.Transform;
-        Func<int, int> unary = worker.Echo;
+        Func<int, int> unary = worker.Transform;
+        NoticeHandler notice = worker.Transform;
+
+        notice("selected");
+        return binary(left, right) + unary(left);
+    }
+
+    public static int SelectStaticOverloadByTargetSignature(int left, int right)
+    {
+        PairTransform binary = Worker.Scale;
+        Func<int, int> unary = Worker.Scale;
         return binary(left, right) + unary(left);
     }
 
@@ -98,7 +108,13 @@ public sealed class Worker
 
     public int Transform(int left, int right) => left + right;
 
-    public int Echo(int value) => value;
+    public int Transform(int value) => value;
+
+    public void Transform(string message) => _ = message;
+
+    public static int Scale(int left, int right) => left * right;
+
+    public static int Scale(int value) => value * 2;
 
     public static int ThrowingTransform(int left, int right) =>
         throw new InvalidOperationException("multicast target");
