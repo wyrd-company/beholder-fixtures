@@ -5,16 +5,16 @@ tasks:
     desc: Byte-compile fixture-owned packages and build the native wheel representative.
     dir: '{{.TASKFILE_DIR}}'
     cmds:
-      - python3 -m compileall -q distributions helpers scripts generator
-      - sh -c 'set -e; suffix=$(python3 -c "import sysconfig; print(sysconfig.get_config_var(\"EXT_SUFFIX\"))"); inc=$(python3-config --includes 2>/dev/null || python3 -c "import sysconfig; print(\"-I\"+sysconfig.get_config_var(\"INCLUDEPY\"))"); CC=${CC:-gcc}; $CC -shared -fPIC distributions/suite_native/suite_native/_native_impl.c $inc -o "distributions/suite_native/suite_native/_native_impl${suffix}" 2>&1 && echo "built native extension _native_impl${suffix}" || echo "native build skipped"'
-      - sh -c 'mkdir -p dist; CC=gcc python3 -m pip wheel --no-index --find-links wheelhouse --wheel-dir dist --no-deps distributions/suite_core distributions/suite_src distributions/suite_extra_underscore distributions/suite_extra_dot 2>&1 | tail -n 5; CC=gcc python3 -m pip wheel --no-index --find-links wheelhouse --wheel-dir dist --no-deps distributions/suite_native 2>&1 | tail -n 5; uv build --sdist --out-dir dist distributions/suite_core 2>&1 | tail -n 5; ls -lh dist/*.whl dist/*.tar.gz 2>&1 | tail -n 20'
+      - python3 -m compileall -q distributions helpers scripts generator build_helpers
+      - sh -c 'set -e; suffix=$(python3 -c "import sysconfig; print(sysconfig.get_config_var(\"EXT_SUFFIX\"))"); inc=$(python3-config --includes 2>/dev/null || python3 -c "import sysconfig; print(\"-I\"+sysconfig.get_config_var(\"INCLUDEPY\"))"); CC=${CC:-gcc}; $CC -shared -fPIC distributions/suite_native/suite_native/_native_impl.c $inc -o "distributions/suite_native/suite_native/_native_impl${suffix}"; echo "built native extension _native_impl${suffix}"'
+      - sh -c 'set -e; rm -rf dist; mkdir -p dist; CC=gcc python3 -m pip wheel --no-index --find-links wheelhouse --wheel-dir dist --no-deps distributions/suite_core distributions/suite_src distributions/suite_extra_underscore distributions/suite_extra_dot; CC=gcc python3 -m pip wheel --no-index --find-links wheelhouse --wheel-dir dist --no-deps distributions/suite_native; CC=gcc python3 -m pip wheel --no-index --find-links wheelhouse --wheel-dir dist --no-deps distributions/suite_native_abi3; uv build --sdist --offline --no-index --find-links wheelhouse --out-dir dist distributions/suite_core; test -n "$(ls dist/*.tar.gz 2>/dev/null)" || { echo "BUILD GATE FAIL - no source distribution produced" >&2; exit 1; }; test -n "$(ls dist/distributable_suite_core-*-py3-none-any.whl 2>/dev/null)" || { echo "BUILD GATE FAIL - no pure wheel produced" >&2; exit 1; }; test -n "$(ls dist/distributable_suite_native-*-cp*-cp*-linux_*.whl 2>/dev/null)" || { echo "BUILD GATE FAIL - no full-ABI native wheel produced" >&2; exit 1; }; test -n "$(ls dist/distributable_suite_native_abi3-*-cp*-abi3-linux_*.whl 2>/dev/null)" || { echo "BUILD GATE FAIL - no abi3 stable-ABI wheel produced" >&2; exit 1; }; ls -lh dist/*.whl dist/*.tar.gz'
 
   lint:
     desc: Parse and byte-compile every fixture-owned source file.
     dir: '{{.TASKFILE_DIR}}'
     cmds:
       - >-
-        find distributions helpers scripts generator workspace -type f \( -name '*.py' -o -name '*.pyi' \) -print0 |
+        find distributions helpers scripts generator workspace build_helpers -type f \( -name '*.py' -o -name '*.pyi' \) -print0 |
         xargs -0 python3 -m py_compile
 
   test:

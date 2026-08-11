@@ -1,6 +1,9 @@
 #define Py_LIMITED_API 0x030A0000
 #include <Python.h>
 
+/* Compiled against the CPython stable ABI (Py_LIMITED_API 3.10) so the built
+ * wheel carries the abi3 wheel tag and loads on any CPython >= 3.10. */
+
 static PyObject *hello_abi3(PyObject *self, PyObject *args) {
     return PyUnicode_FromString("hello abi3");
 }

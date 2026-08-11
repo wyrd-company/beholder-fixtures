@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "distributable-suite-native-abi3"
+version = "1.4.2"
+description = "Stable-ABI (abi3) native extension representative for distributable-suite"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "Wyrd Company"}]
+
+[tool.setuptools]
+packages = ["suite_native_abi3"]
+
+[tool.setuptools.package-data]
+suite_native_abi3 = ["*.so", "*.pyi"]
+
+# Tag the built wheel for the CPython stable ABI. Combined with the Extension's
+# py_limited_api flag in setup.py this yields a `cpXY-abi3-<platform>` wheel tag
+# (cp310-abi3 for the 3.10 limited-API floor) instead of a version-specific tag.
+[tool.distutils.bdist_wheel]
+py-limited-api = "cp310"
