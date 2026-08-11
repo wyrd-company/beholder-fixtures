@@ -54,6 +54,35 @@ impl<T: ?Sized> Holder<T> {
     }
 }
 
+// DST struct whose own size depends on `T`; methods implicitly support `Self: ?Sized`.
+pub struct UnsizedInner<T: ?Sized> {
+    pub inner: T,
+}
+
+impl<T: ?Sized> UnsizedInner<T> {
+    #[allow(clippy::should_implement_trait)]
+    pub fn as_inner(&self) -> &T {
+        &self.inner
+    }
+}
+
+impl UnsizedInner<str> {
+    pub fn from_boxed(s: Box<str>) -> Box<Self> {
+        // `UnsizedInner<str>` is a DST (trailing `str`).
+        let ptr = Box::into_raw(s);
+        let fat: *mut Self = ptr as *mut Self;
+        unsafe { Box::from_raw(fat) }
+    }
+}
+
+impl UnsizedInner<[u8]> {
+    pub fn from_slice(slice: Box<[u8]>) -> Box<Self> {
+        let ptr = Box::into_raw(slice);
+        let fat: *mut Self = ptr as *mut Self;
+        unsafe { Box::from_raw(fat) }
+    }
+}
+
 pub fn unsizing_examples() {
     let arr = [1_i32, 2, 3];
     let slice: &[i32] = &arr;
@@ -68,6 +97,8 @@ pub fn unsizing_examples() {
     let _ = format!("{as_dyn:?}");
     let _holder_small = Holder::new(Box::new(5_i32));
     let _holder_unsized: Holder<str> = Holder::new("meadow".to_string().into_boxed_str());
+    let _unsized_str = UnsizedInner { inner: *b"plot" };
+    let _boxed_unsized = UnsizedInner::<str>::from_boxed("field".to_string().into_boxed_str());
 }
 
 struct SimpleHolder {
@@ -81,22 +112,29 @@ impl Debug for SimpleHolder {
 }
 
 pub fn pointer_metadata_examples() {
+    // Slice DST: metadata is a length (usize).
     let arr = [10_u8, 20, 30];
     let slice: &[u8] = &arr;
-    assert_eq!(slice.len(), 3);
-    // Slice DST metadata is its length, observable via `len()` / `size_of_val`.
-    assert_eq!(std::mem::size_of_val(slice), 3);
+    let slice_ptr: *const [u8] = slice;
+    let (slice_data, slice_len): (*const u8, usize) = unsafe { std::mem::transmute(slice_ptr) };
+    assert_eq!(slice_len, 3);
+    assert!(!slice_data.is_null());
 
+    // Str DST: metadata is also a length.
     let owned: String = "plot".to_string();
     let as_str: &str = &owned;
-    assert_eq!(as_str.len(), 4);
-    assert_eq!(std::mem::size_of_val(as_str), 4);
+    let str_ptr: *const str = as_str;
+    let (str_data, str_len): (*const u8, usize) = unsafe { std::mem::transmute(str_ptr) };
+    assert_eq!(str_len, 4);
+    assert!(!str_data.is_null());
 
+    // Trait object DST: metadata is a vtable pointer (distinct from length).
     let value = SimpleHolder { value: 3 };
     let as_dyn: &dyn Debug = &value;
-    // Trait-object metadata is a vtable pointer; size_of_val shows object size.
-    let _ = std::mem::size_of_val(as_dyn);
-    let _ = format!("{as_dyn:?}");
+    let dyn_ptr: *const dyn Debug = as_dyn;
+    let (dyn_data, dyn_vtable): (*const (), *const ()) = unsafe { std::mem::transmute(dyn_ptr) };
+    assert!(!dyn_data.is_null());
+    assert!(!dyn_vtable.is_null());
 }
 
 pub fn trailing_slice_access() {

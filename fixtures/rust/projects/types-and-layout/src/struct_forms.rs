@@ -32,6 +32,13 @@ pub struct GenericWithDefault<T = i32> {
     pub label: String,
 }
 
+// Copy-only fields to demonstrate copying the remaining field.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CopyFields {
+    pub a: i32,
+    pub b: u32,
+}
+
 // Phantom-bearing struct changes variance without storage.
 #[derive(Debug)]
 pub struct WithPhantom<T> {
@@ -74,25 +81,18 @@ pub fn update_examples() {
         x: 1,
         y: "soil".to_string(),
     };
-    // Update syntax moves the remaining non-Copy field and copies Copy fields.
-    let updated = Named {
-        x: 9,
-        ..original.clone()
-    };
+    // Update moving the remaining non-Copy field: `y: String` is moved, `x: i32` is copied.
+    let updated = Named { x: 9, ..original };
     assert_eq!(updated.x, 9);
     assert_eq!(updated.y, "soil");
 
-    // Remaining Copy field demonstration.
-    let base_value = GenericWithDefault {
-        value: 7_i32,
-        label: "base".to_string(),
-    };
-    let moved = GenericWithDefault {
-        value: 12,
-        ..base_value.clone()
-    };
-    assert_eq!(moved.value, 12);
-    assert_eq!(base_value.label, "base");
+    // Remaining Copy field is copied: both `a` and `b` are Copy.
+    let base_copy = CopyFields { a: 1, b: 2 };
+    let copied = CopyFields { a: 9, ..base_copy };
+    assert_eq!(copied.a, 9);
+    assert_eq!(copied.b, 2);
+    // `base_copy` remains usable because `b` was copied.
+    assert_eq!(base_copy.b, 2);
 
     // Update with tuple struct via struct update through deconstruction.
     let first = Tuple(1, "alpha".to_string());

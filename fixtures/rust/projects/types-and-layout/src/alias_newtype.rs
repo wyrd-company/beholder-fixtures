@@ -35,7 +35,7 @@ pub trait Described {
     fn describe(&self) -> String;
 }
 
-impl Described for Vec<String> {
+impl Described for Alias {
     fn describe(&self) -> String {
         format!("alias with {} items", self.len())
     }

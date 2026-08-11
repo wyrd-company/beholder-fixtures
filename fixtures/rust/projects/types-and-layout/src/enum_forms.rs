@@ -10,13 +10,13 @@ pub enum Shaped {
     Struct { x: i32, label: String },
 }
 
-// Explicit discriminants with computed value.
+// Explicit and computed discriminants.
 #[repr(i32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Discriminated {
     Alpha = 2,
     Beta = 5,
-    Gamma = 6, // computed as 6 after explicit 5
+    Gamma, // computed as 6 from preceding Beta
 }
 
 // Fieldless enum suitable for `as` casts.

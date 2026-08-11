@@ -21,7 +21,9 @@ let _ = Data::Tuple(5) as i32; // data-bearing enum cannot use `as` integer cast
 ## RS-CAN-TYPE-003 — non-Copy union field, pattern, inactive read
 ```rust,ignore
 union Bad { s: String } // ordinary non-Copy field rejected; use ManuallyDrop
-// Union patterns are heavily restricted; matching a union directly is not allowed.
+// Valid union pattern specifies exactly one field and requires unsafe access:
+// unsafe { match u { CopyUnion { as_u32: v } => { let _ = v; } } }
+// Invalid: `CopyUnion { as_u32: a, as_i32: b }` (multiple fields) or `CopyUnion {}` (zero fields) is rejected.
 // Reading an inactive field or a field whose bit pattern is invalid for the type is UB and never executed.
 ```
 

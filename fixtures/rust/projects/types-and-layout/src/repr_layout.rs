@@ -1,11 +1,20 @@
 //! RS-CAN-TYPE-013 — representation and layout attributes.
 
-// Default repr(Rust) leaves order and padding unspecified.
+// Explicit `repr(Rust)` leaves order and padding unspecified.
+#[repr(Rust)]
 #[derive(Debug, PartialEq)]
 pub struct RustLayout {
     pub a: u8,
     pub b: u32,
     pub c: u16,
+}
+
+// Generic representation: layout guarantees carry through instantiations.
+#[repr(C)]
+#[derive(Debug, PartialEq)]
+pub struct GenericC<T> {
+    pub tag: u32,
+    pub payload: T,
 }
 
 // C-compatible layout.
@@ -117,7 +126,20 @@ pub fn ffi_crossing_example() {
 }
 
 pub fn generic_repr_instance() {
-    // Generic instance retains repr guarantees.
+    // Generic instances retain repr guarantees.
     let c = CLayout { a: 1, b: 2, c: 3 };
-    let _ = c;
+    let generic_u32 = GenericC {
+        tag: 1,
+        payload: 7_u32,
+    };
+    let generic_u8 = GenericC {
+        tag: 2,
+        payload: 9_u8,
+    };
+    let ru = RustLayout { a: 1, b: 2, c: 3 };
+    assert_eq!(
+        std::mem::size_of_val(&generic_u32),
+        std::mem::size_of::<u32>() * 2
+    );
+    let _ = (c, generic_u8, ru);
 }

@@ -60,8 +60,33 @@ pub fn capture_examples() {
     // RPIT captures shared data by move.
     let labeled = make_labeled_iter(prefix, vec![1, 2, 3]);
     assert_eq!(labeled.count(), 3);
+
+    // Opaque return capturing lifetime, type, and const generics.
+    let base = 10_u32;
+    let arr = [1_u32, 2, 3];
+    let captured = capturing_all(&base, &arr);
+    assert_eq!(captured.count(), 3);
 }
 
 fn make_labeled_iter(prefix: String, values: Vec<i32>) -> impl Iterator<Item = String> {
     values.into_iter().map(move |v| format!("{prefix}{v}"))
+}
+
+// Opaque return whose hidden type captures a lifetime, a type parameter, and a const parameter.
+pub fn capturing_all<'a, T, const N: usize>(
+    base: &'a T,
+    items: &'a [T; N],
+) -> impl Iterator<Item = String> + 'a
+where
+    T: Display + 'a,
+{
+    items.iter().map(move |item| format!("{base}:{item}"))
+}
+
+#[allow(dead_code)]
+fn _assert_captures_type_and_const() {
+    let v = 5_i32;
+    let a = [1_i32, 2, 3];
+    let _: i32 = v;
+    let _ = capturing_all(&v, &a);
 }
