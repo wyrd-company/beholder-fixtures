@@ -1,0 +1,6 @@
+{
+  "name": "@fixture-deps/fake-esm-cjs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs"
+}

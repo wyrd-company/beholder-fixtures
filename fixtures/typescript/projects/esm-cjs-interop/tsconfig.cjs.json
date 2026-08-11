@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/cjs",
+    "rootDir": "src",
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "verbatimModuleSyntax": false
+  },
+  "include": [
+    "src/export-equals/chronometer.cts",
+    "src/cycles/cjs/**/*.js",
+    "deps/**/*.js"
+  ]
+}

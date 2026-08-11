@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/esm",
+    "rootDir": ".",
+    "module": "nodenext",
+    "moduleResolution": "nodenext"
+  },
+  "include": [
+    "src/interop/native-esm-consumer.mts",
+    "deps/callable-cjs/**/*",
+    "src/cycles/esm/**/*.ts",
+    "src/cycles/type-only/**/*.ts",
+    "src/cycles/hoisting/**/*.ts",
+    "src/cycles/barrel/**/*.ts",
+    "src/cycles/tla/**/*.ts"
+  ]
+}

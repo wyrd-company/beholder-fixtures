@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/interop-on",
+    "rootDir": ".",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "src/interop/consumers-interop-on/**/*.ts",
+    "src/interop/native-esm-consumer.mts",
+    "deps/**/*.js",
+    "deps/**/*.d.ts"
+  ]
+}

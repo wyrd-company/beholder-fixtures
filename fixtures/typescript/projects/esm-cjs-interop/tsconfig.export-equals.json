@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/export-equals",
+    "rootDir": "src",
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "moduleDetection": "force",
+    "allowJs": true,
+    "checkJs": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "src/export-equals/**/*.ts",
+    "src/export-equals/**/*.cts",
+    "src/export-equals/**/*.d.cts",
+    "src/export-equals/**/*.d.ts",
+    "src/export-equals/**/*.js"
+  ]
+}

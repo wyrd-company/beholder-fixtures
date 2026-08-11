@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/interop-off",
+    "rootDir": ".",
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": false
+  },
+  "include": [
+    "src/interop/consumers-interop-off/**/*.ts",
+    "deps/**/*.js",
+    "deps/**/*.d.ts"
+  ]
+}

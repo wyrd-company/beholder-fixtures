@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "moduleDetection": "auto",
+    "outDir": "dist/detection-auto",
+    "rootDir": "src",
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "checkJs": true
+  },
+  "include": [
+    "src/detection/shared-scripts/**/*.ts",
+    "src/detection/private-modules/**/*.ts",
+    "src/detection/global-flip/**/*",
+    "src/detection/jsx-runtime/**/*.tsx",
+    "src/detection/package-type-esm/**/*",
+    "src/detection/commonjs-indicator/**/*"
+  ]
+}

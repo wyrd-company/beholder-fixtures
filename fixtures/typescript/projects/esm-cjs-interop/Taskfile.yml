@@ -1,0 +1,38 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Type-check and emit in every declared interop, detection, module-mode, and UMD context
+    cmds:
+      - ./node_modules/.bin/tsc -p tsconfig.json
+      - ./node_modules/.bin/tsc -p tsconfig.export-equals.json
+      - ./node_modules/.bin/tsc -p tsconfig.interop-off.json
+      - ./node_modules/.bin/tsc -p tsconfig.interop-synth-on.json
+      - ./node_modules/.bin/tsc -p tsconfig.interop-on.json
+      - ./node_modules/.bin/tsc -p tsconfig.detection-legacy.json
+      - ./node_modules/.bin/tsc -p tsconfig.detection-auto.json
+      - ./node_modules/.bin/tsc -p tsconfig.detection-force.json
+      - ./node_modules/.bin/tsc -p tsconfig.esm.json
+      - ./node_modules/.bin/tsc -p tsconfig.cjs.json
+      - ./node_modules/.bin/tsc -p tsconfig.umd.json
+
+  lint:
+    desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)
+    cmds:
+      - ./node_modules/.bin/prettier --check "src/**/*" "deps/**/*" "Taskfile.yml" "tsconfig*.json" "coverage.md" "package.json"
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.export-equals.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.interop-off.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.interop-synth-on.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.interop-on.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.detection-legacy.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.detection-auto.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.detection-force.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.esm.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.cjs.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.umd.json
+
+  test:
+    desc: No fixture tests; succeeds when no test source is required
+    cmds:
+      - echo "no tests"
