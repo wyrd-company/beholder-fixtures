@@ -1,0 +1,7 @@
+{
+  "name": "@fixtures/typed-conventional",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Typed via conventional index.d.ts",
+  "main": "./index.js"
+}

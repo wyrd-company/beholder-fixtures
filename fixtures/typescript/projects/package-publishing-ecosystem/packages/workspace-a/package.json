@@ -1,0 +1,16 @@
+{
+  "name": "@fixtures/workspace-a",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Workspace package A for package-manager identity",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@fixtures/workspace-b": "1.0.0"
+  }
+}

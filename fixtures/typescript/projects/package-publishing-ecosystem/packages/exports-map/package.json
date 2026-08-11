@@ -1,0 +1,42 @@
+{
+  "name": "@fixtures/exports-map",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture package demonstrating public/blocked exports, import/require entries, types branches, wildcards, and d.mts/d.cts correspondence",
+  "main": "./dist-legacy/index.js",
+  "typings": "./dist-types/index.d.ts",
+  "types": "./dist-types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist-types/index.d.ts",
+      "types@>=5.0": "./dist-types/index.v5.d.ts",
+      "import": "./dist-esm/index.js",
+      "require": "./dist-cjs/index.cjs",
+      "default": "./dist-esm/index.js"
+    },
+    "./utils": {
+      "types": "./dist-types/utils.d.ts",
+      "import": "./dist-esm/utils.js",
+      "require": "./dist-cjs/utils.cjs"
+    },
+    "./utils/*": {
+      "types": "./dist-types/utils/*.d.ts",
+      "import": "./dist-esm/utils/*.js",
+      "require": "./dist-cjs/utils/*.cjs"
+    },
+    "./feature/*": {
+      "types": "./dist-types/feature/*.d.ts",
+      "import": "./dist-esm/feature/*.js",
+      "require": "./dist-cjs/feature/*.cjs",
+      "default": "./dist-esm/feature/*.js"
+    },
+    "./internal": null,
+    "./bundle": {
+      "types": "./dist-types/bundle.d.mts",
+      "import": "./dist-esm/bundle.mjs",
+      "require": "./dist-cjs/bundle.cjs",
+      "default": "./dist-esm/bundle.mjs"
+    }
+  }
+}

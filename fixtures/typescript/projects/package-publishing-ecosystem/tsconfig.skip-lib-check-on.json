@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": false,
+    "outDir": "dist-skip-on"
+  },
+  "include": [
+    "src/**/*",
+    "packages/*/src/**/*",
+    "local-packages/**/*",
+    "local-types/**/*",
+    "generated/**/*"
+  ]
+}

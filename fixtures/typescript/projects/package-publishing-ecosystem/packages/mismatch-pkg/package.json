@@ -1,0 +1,14 @@
+{
+  "name": "@fixtures/mismatch-pkg",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Package with intentional declaration/runtime mismatch that remains compiler-valid",
+  "exports": {
+    ".": {
+      "types": "./dist-types/index.d.ts",
+      "import": "./dist-esm/index.js",
+      "require": "./dist-cjs/index.cjs"
+    }
+  }
+}

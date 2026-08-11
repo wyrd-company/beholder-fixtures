@@ -1,0 +1,16 @@
+{
+  "name": "@fixtures/direct-dep",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Direct type dependency, transitively pulls transitive-dep",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js"
+    }
+  },
+  "dependencies": {
+    "@fixtures/transitive-dep": "1.0.0"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "customConditions": ["browser", "development"],
+    "outDir": "dist-bundler"
+  },
+  "include": [
+    "src/**/*",
+    "packages/*/src/**/*",
+    "local-packages/**/*",
+    "local-types/**/*",
+    "generated/**/*"
+  ],
+  "exclude": [
+    "src/package-exports/require-consumer.cts",
+    "src/internal-alias/custom-conditions-consumer.cts",
+    "src/dual-package/require-consumer.cts",
+    "src/internal-alias/custom-conditions-workspace-consumer.ts"
+  ]
+}

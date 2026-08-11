@@ -1,0 +1,9 @@
+{
+  "name": "@fixtures/legacy-fallback",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Legacy fallback package without exports, using main and typings",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "types": "./dist/index.d.ts"
+}

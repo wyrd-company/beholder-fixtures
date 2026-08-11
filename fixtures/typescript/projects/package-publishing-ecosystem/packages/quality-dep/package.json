@@ -1,0 +1,7 @@
+{
+  "name": "@fixtures/quality-dep",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Dependency with consumer-visible exported type and declaration/runtime mismatch invisible to checking"
+}

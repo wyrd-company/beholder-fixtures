@@ -1,0 +1,10 @@
+{
+  "name": "@fixtures/peer-dep",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Peer type dependency",
+  "peerDependencies": {
+    "typescript": ">=5.0.0"
+  }
+}

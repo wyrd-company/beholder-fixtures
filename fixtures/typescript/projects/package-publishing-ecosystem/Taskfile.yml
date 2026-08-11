@@ -1,0 +1,39 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Type-check and emit in every declared resolution, emit, and platform context
+    cmds:
+      - ./node_modules/.bin/tsc -p tsconfig.json
+      - ./node_modules/.bin/tsc -p tsconfig.nodenext.json
+      - ./node_modules/.bin/tsc -p tsconfig.bundler.json
+      - ./node_modules/.bin/tsc -p tsconfig.custom-conditions.json
+      - ./node_modules/.bin/tsc -p tsconfig.declaration.json
+      - ./node_modules/.bin/tsc -p tsconfig.emit-declaration-only.json
+      - ./node_modules/.bin/tsc -p tsconfig.skip-lib-check-on.json
+      - ./node_modules/.bin/tsc -p tsconfig.skip-lib-check-off.json
+      - ./node_modules/.bin/tsc -p tsconfig.platform.json
+
+  lint:
+    desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)
+    cmds:
+      - ./node_modules/.bin/prettier --check "src/**/*" "packages/**/*" "local-packages/**/*" "generator/**/*" "generated/**/*" "Taskfile.yml" "tsconfig*.json" "coverage.md" "package.json"
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.nodenext.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.bundler.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.custom-conditions.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.declaration.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.emit-declaration-only.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.skip-lib-check-on.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.skip-lib-check-off.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.platform.json
+
+  test:
+    desc: No fixture tests; succeeds when no test source is required
+    cmds:
+      - echo "no tests"
+
+  generate:
+    desc: Regenerate rolled declaration and typed package outputs from generator source (offline, pinned, no network)
+    cmds:
+      - node ./generator/generate.mjs

@@ -1,0 +1,22 @@
+{
+  "name": "@fixtures/types-versions-pkg",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Package whose exported type changes by compiler range via typesVersions",
+  "main": "./index.d.ts",
+  "types": "./index.d.ts",
+  "typesVersions": {
+    ">=5.0": {
+      "*": [
+        "dist-types/v5/*",
+        "dist-types/*"
+      ]
+    },
+    "*": {
+      "*": [
+        "dist-types/v4/*",
+        "dist-types/*"
+      ]
+    }
+  }
+}

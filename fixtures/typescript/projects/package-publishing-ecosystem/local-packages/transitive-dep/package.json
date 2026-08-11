@@ -1,0 +1,7 @@
+{
+  "name": "@fixtures/transitive-dep",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Transitive type dependency, hoisted under npm"
+}

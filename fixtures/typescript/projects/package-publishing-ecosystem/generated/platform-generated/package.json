@@ -1,0 +1,13 @@
+{
+  "name": "@fixtures/generated-platform-pkg",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Generated typed package for platform variants",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js"
+    }
+  }
+}

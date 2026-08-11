@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "customConditions": ["browser", "development", "react-native"],
+    "moduleSuffixes": [".browser", ".server", ".native", ""],
+    "outDir": "dist-platform"
+  },
+  "include": [
+    "src/**/*",
+    "packages/*/src/**/*",
+    "local-packages/**/*",
+    "local-types/**/*",
+    "generated/**/*"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@fixtures/dual-pkg",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Dual ESM/CJS package with matched declaration flavors and types-only export, plus bundler condition",
+  "exports": {
+    ".": {
+      "types": "./dist-types/index.d.ts",
+      "import": "./dist-esm/index.js",
+      "require": "./dist-cjs/index.cjs"
+    },
+    "./utils": {
+      "types": "./dist-types/utils.d.ts",
+      "import": "./dist-esm/utils.js",
+      "require": "./dist-cjs/utils.cjs"
+    },
+    "./types-only": {
+      "types": "./dist-types/types-only.d.ts"
+    },
+    "./bundler": {
+      "types": "./dist-types/bundler.d.ts",
+      "bundler": "./dist-esm/bundler.js",
+      "import": "./dist-esm/index.js",
+      "require": "./dist-cjs/index.cjs"
+    }
+  }
+}

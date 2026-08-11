@@ -1,0 +1,9 @@
+{
+  "name": "@fixtures/typed-via-typings",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Typed via typings field",
+  "main": "./dist/index.js",
+  "typings": "./dist/index.d.ts",
+  "types": "./dist/index.d.ts"
+}

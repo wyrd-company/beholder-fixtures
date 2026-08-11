@@ -1,0 +1,7 @@
+{
+  "name": "@fixtures/sensitive-lib-v1",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Sensitive nominal library v1 with private member identity"
+}

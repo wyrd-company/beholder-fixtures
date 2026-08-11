@@ -1,0 +1,14 @@
+{
+  "name": "@fixtures/typed-via-exports",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Typed through exports types branch",
+  "exports": {
+    ".": {
+      "types": "./dist-types/index.d.ts",
+      "import": "./dist-esm/index.js",
+      "require": "./dist-cjs/index.cjs"
+    }
+  }
+}

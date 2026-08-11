@@ -1,0 +1,13 @@
+{
+  "name": "@fixtures/workspace-b",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Workspace package B, peer-type dependency target",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  }
+}

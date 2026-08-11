@@ -1,0 +1,6 @@
+{
+  "name": "@types/scope__name",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scoped @types package scope__name mapping to @scope/name"
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "customConditions": ["workspace", "myCondition", "browser", "development"],
+    "outDir": "dist-custom-conditions"
+  },
+  "include": [
+    "src/**/*",
+    "packages/*/src/**/*",
+    "local-packages/**/*",
+    "local-types/**/*",
+    "generated/**/*"
+  ],
+  "exclude": []
+}

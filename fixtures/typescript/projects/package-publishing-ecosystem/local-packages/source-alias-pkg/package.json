@@ -1,0 +1,7 @@
+{
+  "name": "@fixtures/source-alias-pkg",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Source-alias versus built-declaration consumption"
+}

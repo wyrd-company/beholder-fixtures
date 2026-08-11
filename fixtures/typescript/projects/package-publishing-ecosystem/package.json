@@ -1,0 +1,21 @@
+{
+  "name": "@fixtures/package-publishing-ecosystem",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture library modeling package publishing, declaration emit, entry-point routing, and platform variants",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "workspaces": [
+    "packages/*",
+    "local-packages/*"
+  ],
+  "imports": {
+    "#internal/*": "./src/internal-alias-target/*.ts"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
+  }
+}

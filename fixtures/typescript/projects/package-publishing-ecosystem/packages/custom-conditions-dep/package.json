@@ -1,0 +1,37 @@
+{
+  "name": "@fixtures/custom-conditions-dep",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Dependency whose declaration surface changes under customConditions",
+  "exports": {
+    ".": {
+      "workspace": {
+        "types": "./dist-types/workspace.d.ts",
+        "import": "./dist-esm/workspace.js",
+        "require": "./dist-cjs/workspace.cjs"
+      },
+      "myCondition": {
+        "types": "./dist-types/my-condition.d.ts",
+        "import": "./dist-esm/my-condition.js",
+        "require": "./dist-cjs/my-condition.cjs"
+      },
+      "default": {
+        "types": "./dist-types/index.d.ts",
+        "import": "./dist-esm/index.js",
+        "require": "./dist-cjs/index.cjs"
+      }
+    },
+    "./utils/*": {
+      "workspace": {
+        "types": "./dist-types/utils/workspace-*.d.ts",
+        "import": "./dist-esm/utils/workspace-*.js"
+      },
+      "default": {
+        "types": "./dist-types/utils/*.d.ts",
+        "import": "./dist-esm/utils/*.js",
+        "require": "./dist-cjs/utils/*.cjs"
+      }
+    }
+  }
+}

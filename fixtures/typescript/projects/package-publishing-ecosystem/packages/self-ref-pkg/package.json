@@ -1,0 +1,29 @@
+{
+  "name": "self-ref-pkg",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fixture package with #internal alias, self-reference, and nested/wildcard exports",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./utils/*": {
+      "types": "./dist/utils/*.d.ts",
+      "import": "./dist/utils/*.js",
+      "require": "./dist/utils/*.cjs"
+    },
+    "./feature/*": {
+      "import": "./dist/feature/*.js",
+      "require": "./dist/feature/*.cjs",
+      "types": "./dist/feature/*.d.ts"
+    }
+  },
+  "imports": {
+    "#internal/*": "./src/internal/*.ts",
+    "#internal": "./src/internal/index.ts",
+    "#utils/*": "./src/internal/utils/*.ts"
+  }
+}

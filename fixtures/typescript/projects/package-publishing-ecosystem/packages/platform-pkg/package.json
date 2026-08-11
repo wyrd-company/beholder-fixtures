@@ -1,0 +1,32 @@
+{
+  "name": "@fixtures/platform-pkg",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Platform-variant package with condition- and suffix-selected browser/server/native and dev/prod/react-native sources",
+  "exports": {
+    ".": {
+      "browser": {
+        "development": "./dist/browser-dev/index.js",
+        "production": "./dist/browser-prod/index.js",
+        "default": "./dist/browser/index.js"
+      },
+      "react-native": "./dist/native/index.js",
+      "default": "./dist/server/index.js",
+      "types": "./dist-types/index.d.ts"
+    },
+    "./browser": {
+      "types": "./dist-types/browser.d.ts",
+      "default": "./dist/browser/index.js"
+    },
+    "./server": {
+      "types": "./dist-types/server.d.ts",
+      "default": "./dist/server/index.js"
+    },
+    "./native": {
+      "types": "./dist-types/native.d.ts",
+      "react-native": "./dist/native/index.js",
+      "default": "./dist/native/index.js"
+    }
+  }
+}
