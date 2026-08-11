@@ -1,0 +1,6 @@
+[project]
+name = "async-task-toolkit"
+version = "0.1.0"
+description = "Cooperative task toolkit exercising Python callables, decorators, generators, and async iteration"
+requires-python = ">=3.10"
+readme = "coverage.md"
