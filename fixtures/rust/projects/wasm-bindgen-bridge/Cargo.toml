@@ -1,0 +1,22 @@
+[package]
+name = "wasm-bindgen-bridge"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for target-gated Wasm bridge generator with wasm-bindgen"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "wasm_bindgen_bridge"
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "=0.2.100"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(target_arch, values(\"wasm32\"))"] }
+
+[lints.clippy]
+all = "warn"

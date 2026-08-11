@@ -1,0 +1,14 @@
+# Cargo configuration for wasm-bindgen-bridge fixture.
+# Vendored registry dependencies replace crates-io to enable offline builds.
+# wasm-bindgen 0.2.100 from https://crates.io/crates/wasm-bindgen/0.2.100 (MIT OR Apache-2.0)
+# Transitive vendored dependencies: bumpalo 3.20.3, cfg-if 1.0.4, log 0.4.33,
+# once_cell 1.21.4, proc-macro2 1.0.107, quote 1.0.47, rustversion 1.0.23,
+# syn 2.0.119, unicode-ident 1.0.24, wasm-bindgen-backend 0.2.100,
+# wasm-bindgen-macro 0.2.100, wasm-bindgen-macro-support 0.2.100,
+# wasm-bindgen-shared 0.2.100
+
+[source.crates-io]
+replace-with = "vendored-sources"
+
+[source.vendored-sources]
+directory = "vendor"
