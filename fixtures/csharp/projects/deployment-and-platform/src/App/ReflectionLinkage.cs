@@ -69,19 +69,32 @@ public static class ReflectionLinkage
         return method?.Invoke(target, null)?.ToString() ?? "missing";
     }
 
-    // Missing / ambiguous names — valid source that handles the failure at runtime.
+    // Missing name — valid source that handles the failure at runtime.
     public static bool TryResolveMissing(out Type? type)
     {
         type = Type.GetType("Acme.Deployment.MissingType, Trimming");
         return type is not null;
     }
 
+    // Ambiguous name — genuine AmbiguousMatchException from overloaded members.
+    public static bool TryInvokeAmbiguousOverload(out string outcome)
+    {
+        try
+        {
+            var method = typeof(OverloadHost).GetMethod("Execute");
+            outcome = method?.Name ?? "none";
+            return false;
+        }
+        catch (AmbiguousMatchException)
+        {
+            outcome = "ambiguous";
+            return true;
+        }
+    }
+
     public static bool TryResolveAmbiguous()
     {
-        // Two types with the same name in different assemblies would be ambiguous;
-        // here we demonstrate the null/missing path the runtime would take.
-        var t = Type.GetType("Acme.Deployment.AmbiguousType, DoesNotExist");
-        return t is null;
+        return TryInvokeAmbiguousOverload(out _);
     }
 
     // Plugin discovery by string — plugin loaded via ALC, discovered by interface name.
@@ -110,4 +123,10 @@ public static class ReflectionLinkage
         _ = pluginBase;
         return [];
     }
+}
+
+public class OverloadHost
+{
+    public string Execute(string s) => s;
+    public string Execute(int i) => i.ToString();
 }

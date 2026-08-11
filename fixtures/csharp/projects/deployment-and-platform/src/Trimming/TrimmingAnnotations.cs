@@ -10,6 +10,11 @@ public class TrimSample
     public static string StaticHelper() => "static";
 }
 
+public class TrimHiddenTarget
+{
+    public string Secret { get; set; } = "secret";
+}
+
 public static class TrimmingAnnotations
 {
     // RequiresUnreferencedCode — trimming may remove members accessed via string.
@@ -62,6 +67,16 @@ public static class TrimmingAnnotations
         [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type t)
     {
         var prop = t.GetProperty("Name");
+        return prop?.GetValue(Activator.CreateInstance(t))?.ToString() ?? "missing";
+    }
+
+    // Genuinely missing after trim: no DynamicallyAccessedMembers preservation, so
+    // the trimmer may remove TrimHiddenTarget.Secret and the lookup returns null at trimmed runtime.
+    // Preserved path above keeps TrimSample.Name; this unpreserved path may lose Secret.
+    [RequiresUnreferencedCode("Member lookup by raw string may be trimmed; 'Secret' may be absent after trim.")]
+    public static string AccessViaRawStringMayBeMissing(Type t)
+    {
+        var prop = t.GetProperty("Secret");
         return prop?.GetValue(Activator.CreateInstance(t))?.ToString() ?? "missing";
     }
 }

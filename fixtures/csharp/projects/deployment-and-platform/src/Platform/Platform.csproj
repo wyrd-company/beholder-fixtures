@@ -30,12 +30,12 @@
     <Compile Include="ConditionalSources/Platform.Windows.cs" />
   </ItemGroup>
 
-  <!-- Native asset conditioned on OS/arch — RID-specific content -->
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+  <!-- Native asset conditioned on operating system and architecture/runtime identifier -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux')) And '$(RuntimeIdentifier)' == 'linux-x64'">
     <Content Include="..\..\assets\native\linux-x64\libnative.so" Link="assets\native\linux-x64\libnative.so" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows')) And '$(RuntimeIdentifier)' == 'win-x64'">
     <Content Include="..\..\assets\native\win-x64\native.dll" Link="assets\native\win-x64\native.dll" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

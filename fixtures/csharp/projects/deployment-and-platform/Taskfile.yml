@@ -5,17 +5,18 @@ tasks:
     desc: Compile all fixture projects in every declared build context
     dir: '{{.TASKFILE_DIR}}'
     cmds:
-      - dotnet build DeploymentAndPlatform.sln -c Release
-      - dotnet publish src/App/App.csproj -c Release -p:PublishTrimmed=true -r linux-x64 --self-contained -o publish/trimmed --no-restore
-      - dotnet publish src/App/App.csproj -c Release -p:PublishSingleFile=true --self-contained -r linux-x64 -o publish/singlefile -p:IncludeNativeLibrariesForSelfExtract=true --no-restore
-      - dotnet publish src/App/App.csproj -c Release -p:PublishAot=true -r linux-x64 -o publish/aot --no-restore
+      - dotnet restore DeploymentAndPlatform.sln -p:NuGetAudit=false --ignore-failed-sources
+      - dotnet build DeploymentAndPlatform.sln -c Release --no-restore -p:NuGetAudit=false
+      - dotnet publish src/App/App.csproj -c Release -r linux-x64 --self-contained -p:PublishTrimmed=true -p:NuGetAudit=false -o publish/trimmed --ignore-failed-sources
+      - dotnet publish src/App/App.csproj -c Release -r linux-x64 --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:NuGetAudit=false -o publish/singlefile --ignore-failed-sources
+      - dotnet publish src/App/App.csproj -c Release -r linux-x64 --self-contained -p:PublishAot=true -p:NuGetAudit=false -o publish/aot --ignore-failed-sources
 
   lint:
     desc: Verify formatting and analyzer warnings for fixture-owned source
     dir: '{{.TASKFILE_DIR}}'
     cmds:
       - dotnet format whitespace --verify-no-changes
-      - dotnet build DeploymentAndPlatform.sln -c Release --no-restore
+      - dotnet build DeploymentAndPlatform.sln -c Release --no-restore -p:NuGetAudit=false
 
   test:
     desc: Succeed when a project has no test source

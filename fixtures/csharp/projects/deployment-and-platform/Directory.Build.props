@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <!-- Disable vulnerability audit network request to keep validation offline (NU1900) -->
+    <NuGetAudit>false</NuGetAudit>
+    <NuGetAuditMode>direct</NuGetAuditMode>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+</Project>

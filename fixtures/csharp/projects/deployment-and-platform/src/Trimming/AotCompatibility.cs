@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 namespace Acme.Deployment.Trimming;
 
@@ -23,13 +24,11 @@ public static class AotCompatibility
         _ = CreateGenericViaReflection(typeof(List<>), typeof(int));
     }
 
-    // Source-generation replacement: AOT-safe alternative that avoids reflection.
-    // The publish toolchain would generate the snapshot; this handwritten shape
-    // represents the replacement the brief describes.
+    // Source-generation replacement: AOT-safe path via System.Text.Json source generator.
+    // The JsonSerializerContext is generated in-process during publish/build.
     public static string SerializeTrimSafe(TrimSample sample)
     {
-        // Manual, reflection-free serialization — AOT compatible.
-        return $"{{\"Name\":\"{sample.Name}\"}}";
+        return JsonSerializer.Serialize(sample, WorkshopJsonContext.Default.TrimSample);
     }
 
     [RequiresUnreferencedCode("Reflection-based serialization may be trimmed.")]
