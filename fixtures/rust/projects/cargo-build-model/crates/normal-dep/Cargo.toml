@@ -6,5 +6,15 @@ rust-version.workspace = true
 description.workspace = true
 license.workspace = true
 authors.workspace = true
+
+[dependencies]
+vendored-crate = "0.1.0"
+
+[features]
+# RS-CAN-PROJ-005 / RS-CAN-PROJ-022: requested only via the [build-dependencies]
+# edge below, separating this package's host-role instance from its
+# normal (target-role) instance.
+host-only = []
+
 [lints]
 workspace = true

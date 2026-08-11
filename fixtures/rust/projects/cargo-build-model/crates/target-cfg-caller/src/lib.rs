@@ -36,13 +36,20 @@ pub fn caller_os() -> &'static str {
     "other-os"
 }
 
-// Exact triple: only on x86_64-unknown-linux-gnu
-#[cfg(target = "x86_64-unknown-linux-gnu")]
+// Exact triple: `[target.x86_64-unknown-linux-gnu.dependencies]` in Cargo.toml
+// selects `target-triple-dep` only when compiling for that literal triple
+// string. `cfg(target = "...")` is not a real rustc cfg key (rustc has no
+// `target` key; see `target_arch`/`target_os`/`target_env`/etc.), so the
+// common caller instead reaches the exact-triple edge with the combination of
+// real, stable cfg keys that uniquely identifies x86_64-unknown-linux-gnu
+// (`rustc --print cfg` on this host: target_arch="x86_64", target_os="linux",
+// target_env="gnu").
+#[cfg(all(target_arch = "x86_64", target_os = "linux", target_env = "gnu"))]
 pub fn caller_triple() -> &'static str {
     target_triple_dep::triple()
 }
 
-#[cfg(not(target = "x86_64-unknown-linux-gnu"))]
+#[cfg(not(all(target_arch = "x86_64", target_os = "linux", target_env = "gnu")))]
 pub fn caller_triple() -> &'static str {
     "other-triple"
 }

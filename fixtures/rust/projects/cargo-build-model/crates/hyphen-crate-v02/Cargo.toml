@@ -7,10 +7,9 @@ description.workspace = true
 license.workspace = true
 authors.workspace = true
 
-[lib]
-name = "hyphen_crate_lib"
-path = "src/lib.rs"
-crate-type = ["rlib"]
+# No [lib] override: the library target takes Cargo's default hyphen-to-underscore
+# mapping of the package name (`hyphen-crate` -> `hyphen_crate`). Contrast with
+# `hyphen-crate-v03`, which explicitly overrides `[lib] name = "hyphen_crate_lib"`.
 
 [[bin]]
 name = "hyphen-executable"

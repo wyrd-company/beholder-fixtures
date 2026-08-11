@@ -13,6 +13,7 @@ members = [
     "crates/hyphen-crate-v02",
     "crates/shared-source",
     "crates/optional-dep-crate",
+    "crates/implicit-optional-dep",
     "crates/feature-demo",
     "crates/unify-shared",
     "crates/unify-consumer-a",
@@ -99,7 +100,11 @@ never_enabled = []
 [dependencies]
 normal-dep = { workspace = true }
 # RS-CAN-PROJ-003: two versions under aliases (hyphen-to-underscore, package vs lib vs dep-key)
-hyphen_v2 = { package = "hyphen-crate", version = "0.2.0", path = "crates/hyphen-crate-v02" }
+# RS-CAN-PROJ-010: `hyphen_v2` uses a wider manifest range (`>=0.2.0`, not capped
+# below 0.3.0 the way a bare `"0.2.0"` caret requirement would be) that both
+# locked versions (0.2.0 and 0.3.0) would satisfy; the path resolution still
+# pins it to `hyphen-crate-v02` specifically.
+hyphen_v2 = { package = "hyphen-crate", version = ">=0.2.0", path = "crates/hyphen-crate-v02" }
 hyphen_v3 = { package = "hyphen-crate", version = "0.3.0", path = "crates/hyphen-crate-v03" }
 # RS-CAN-PROJ-016 mixed editions
 edition-2024-member = { path = "crates/edition-2024-member" }
@@ -118,7 +123,13 @@ crate-type-staticlib = { path = "crates/crate-type-staticlib" }
 proc-macro-crate = { path = "crates/proc-macro-crate" }
 # RS-CAN-PROJ-009 path source (inside workspace) + vendored + git
 vendored-crate = "0.1.0"
-# Git revision source (local git repo); offline via path patch below and Cargo.lock
+# Git revision source: pinned to `git-deps/fake-crate.git`'s only commit
+# (`git --git-dir=git-deps/fake-crate.git log` -> 383698f "initial"). This source
+# is vendored (see `.cargo/config.toml` and `vendor/fake-git-crate`), so once
+# `Cargo.lock` records this entry, offline/locked builds resolve entirely from
+# the tracked vendor directory and never re-fetch or checkout this URL — the
+# identity string does not need to remain reachable after `Cargo.lock` is
+# generated, including after the authoring worktree is removed.
 fake-git-crate = { git = "file:///workspaces/worktrees/beholder/task-400-cargo-build-model/fixtures/rust/projects/cargo-build-model/git-deps/fake-crate.git", rev = "383698f3080a96e9c6362a088ea0e0ca4796d55f", package = "fake-git-crate" }
 
 [dev-dependencies]
@@ -126,6 +137,9 @@ dev-dep = { path = "crates/dev-dep" }
 
 [build-dependencies]
 build-dep = { workspace = true }
+# RS-CAN-PROJ-005 / RS-CAN-PROJ-022: `normal-dep` compiled a second time for the
+# host, with a host-only feature, alongside its normal (target) role above.
+normal-dep = { path = "crates/normal-dep", features = ["host-only"] }
 
 [target.'cfg(unix)'.dependencies]
 target-unix-dep = { path = "crates/target-unix-dep" }

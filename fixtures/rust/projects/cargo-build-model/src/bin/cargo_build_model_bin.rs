@@ -25,11 +25,15 @@ fn main() {
     let _ = loc.value();
 
     // RS-CAN-PROJ-005: build-script host/target reporting is observable via env at build time.
-    // RS-CAN-PROJ-015: profile observables
-    let _ = cargo_build_model::profile_observables::debug_assertions_enabled();
+    // RS-CAN-PROJ-005 / RS-CAN-PROJ-022: normal-dep's target-role instance.
+    // RS-CAN-PROJ-015: profile observables, real per-profile behavior.
     println!(
-        "cargo-build-model-bin: external={}, local={}",
+        "cargo-build-model-bin: external={}, local={}, normal_dep_role={}, debug_assertions={}, panic_strategy={}, opt_level={}",
         ext.value(),
-        loc.value()
+        loc.value(),
+        cargo_build_model::normal_dep_role(),
+        cargo_build_model::profile_observables::debug_assertions_enabled(),
+        cargo_build_model::profile_observables::panic_strategy(),
+        cargo_build_model::profile_observables::opt_level_observable(),
     );
 }

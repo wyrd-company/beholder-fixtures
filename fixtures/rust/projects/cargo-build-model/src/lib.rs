@@ -7,6 +7,7 @@ pub mod crate_type_demo;
 #[path = "disabled/mod.rs"]
 pub mod disabled;
 pub mod dual_identity;
+pub mod hyphen_identity;
 pub mod profile_observables;
 pub mod test_cfg;
 
@@ -57,6 +58,13 @@ pub fn normal_api() -> u32 {
     1
 }
 
+// RS-CAN-PROJ-005 / RS-CAN-PROJ-022: `normal-dep`'s target-role instance (no
+// `host-only` feature), compiled alongside its host-role instance linked by
+// `build.rs`. Same source, same version, two simultaneous crate instances.
+pub fn normal_dep_role() -> &'static str {
+    normal_dep::role()
+}
+
 // RS-CAN-PROJ-001: package vs target vs crate identity.
 // This type exists in the library crate. The binary crate `cargo-build-model-bin`
 // re-uses the same source via `mod shared_identity` vs external crate import,
@@ -72,7 +80,9 @@ pub mod shared_identity;
 // compilation variant.
 
 // RS-CAN-PROJ-015: profile-observable differences.
-pub use profile_observables::{debug_assertions_enabled, overflow_demo, panic_strategy};
+pub use profile_observables::{
+    debug_assertions_enabled, opt_level_observable, overflow_demo, panic_strategy,
+};
 
 // RS-CAN-PROJ-002: cfg-disabled subtree.
 // `disabled_mod` is only compiled when its cfg is satisfied; otherwise absent.
@@ -90,5 +100,6 @@ pub mod disabled_subtree {
 //   because dev-dependencies are not in the normal graph; such an import fails.
 // - Unused-patch warning: a `[patch.crates-io]` entry for a package not in the graph
 //   emits `warning: patch for 'unused-crate' in ... was not used`.
-// - Registry-spelled identifier: using `hyphen-crate` (with hyphen) as a Rust path
-//   like `use hyphen-crate::Foo` fails; the crate is `use hyphen_crate_lib::Foo`.
+// - Registry-spelled identifier: using `hyphen-crate` (with hyphen) as a Rust path,
+//   e.g. `use hyphen-crate::Foo`, fails to parse (`-` is not valid in a path
+//   segment); the dependency-key alias `use hyphen_v2::Foo` is required instead.

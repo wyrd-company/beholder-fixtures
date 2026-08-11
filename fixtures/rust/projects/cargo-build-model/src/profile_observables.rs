@@ -6,33 +6,41 @@ pub fn debug_assertions_enabled() -> bool {
     cfg!(debug_assertions)
 }
 
-/// Overflow-sensitive computation. In dev (overflow-checks = true) this would panic
-/// on `255u8 + 1` in debug builds; in release (overflow-checks = false) it wraps.
-/// We use wrapping to stay valid while proving the profile difference via cfg.
-pub fn overflow_demo() -> u8 {
-    255u8.wrapping_add(1)
+/// Overflow-sensitive computation using real (non-wrapping) addition, so the
+/// profile's `overflow-checks` setting genuinely governs runtime behavior:
+/// panics in dev/custom (`overflow-checks = true`) when called with an input
+/// that overflows `u8`, wraps in release (`overflow-checks = false`).
+pub fn overflow_demo(input: u8) -> u8 {
+    input + 1
 }
 
-/// Whether the custom profile uses `panic = "abort"`; observable via `cfg(panic = "abort")` is unstable,
-/// so we expose the profile difference via `debug_assertions` and `opt-level` indirectly.
-/// The actual abort vs unwind contrast is that `catch_unwind` cannot catch a panic
-/// when compiled with `panic = "abort"` (see `panic_strategy()` test).
+/// Real, stable `panic` cfg (RFC: `#[cfg(panic = "unwind")]` / `#[cfg(panic =
+/// "abort")]`), reflecting the actual configured panic strategy: "abort" for
+/// `[profile.custom] panic = "abort"`, "unwind" for dev/release (both
+/// `panic = "unwind"`).
+#[cfg(panic = "abort")]
 pub fn panic_strategy() -> &'static str {
-    if cfg!(debug_assertions) {
-        "unwind-or-abort-depends-on-profile"
-    } else {
-        "release"
-    }
+    "abort"
 }
 
-/// Debug symbols and LTO/codegen-units affect artifact size and symbol visibility,
-/// not runtime semantics, so they are observable via linker artifact inspection rather
-/// than runtime API. This comment documents that profile inheritance (`custom` inherits
-/// `dev`) and `[profile.dev.package."hyphen-crate"] opt-level = 3` demonstrate
-/// package-override profiles where a dependency is compiled differently than the root.
-
-pub fn codegen_units_observable() -> u32 {
-    // Codegen units affect parallelism, not semantics. The profile `codegen-units = 256` (dev)
-    // vs `1` (release) vs `16` (custom) is observable in build logs and artifact.
-    256
+#[cfg(panic = "unwind")]
+pub fn panic_strategy() -> &'static str {
+    "unwind"
 }
+
+/// Real per-build `OPT_LEVEL`, forwarded by `build.rs` via
+/// `cargo:rustc-env=CARGO_BUILD_MODEL_OPT_LEVEL=...` (Cargo does not expose
+/// `opt-level` to source directly; a build script must relay it). Distinguishes
+/// dev (`0`), release (`3`), and custom (`2`).
+pub fn opt_level_observable() -> &'static str {
+    env!("CARGO_BUILD_MODEL_OPT_LEVEL")
+}
+
+// `codegen-units`, LTO, and debug-symbol settings affect artifact size, symbol
+// visibility, and link behavior, not any value observable from within compiled
+// source, so they are documented rather than exposed as a runtime API here:
+// `codegen-units = 256` (dev) vs `1` (release) vs `16` (custom) is observable
+// via build logs/artifact inspection. Profile inheritance (`custom` inherits
+// `dev`) and `[profile.dev.package."hyphen-crate"] opt-level = 3` demonstrate
+// package-override profiles where a dependency is compiled differently than
+// the root, independently verifiable the same way.

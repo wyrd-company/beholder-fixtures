@@ -22,6 +22,12 @@ weak-forward = ["optional-dep-crate?/feat-a"]
 
 [dependencies]
 optional-dep-crate = { path = "../optional-dep-crate", optional = true }
+# RS-CAN-PROJ-006: genuinely implicit optional feature. No `dep:` reference to
+# this dependency appears anywhere in this table, so Cargo auto-creates a
+# feature named `implicit-optional-dep` (matching the dependency name) that
+# enables it, unlike `optional-dep-crate` above (whose implicit feature is
+# suppressed by the explicit `dep:optional-dep-crate` references below).
+implicit-optional-dep = { path = "../implicit-optional-dep", optional = true }
 
 [lints]
 workspace = true

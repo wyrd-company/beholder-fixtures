@@ -75,6 +75,9 @@ version = "0.1.0"
 [[package]]
 name = "edition-2018"
 version = "0.1.0"
+dependencies = [
+ "edition-2015",
+]
 
 [[package]]
 name = "edition-2021"
@@ -102,6 +105,7 @@ source = "git+file:///workspaces/worktrees/beholder/task-400-cargo-build-model/f
 name = "feature-demo"
 version = "0.1.0"
 dependencies = [
+ "implicit-optional-dep",
  "optional-dep-crate",
 ]
 
@@ -114,8 +118,15 @@ name = "hyphen-crate"
 version = "0.3.0"
 
 [[package]]
+name = "implicit-optional-dep"
+version = "0.1.0"
+
+[[package]]
 name = "normal-dep"
 version = "0.1.0"
+dependencies = [
+ "vendored-crate",
+]
 
 [[package]]
 name = "optional-dep-crate"

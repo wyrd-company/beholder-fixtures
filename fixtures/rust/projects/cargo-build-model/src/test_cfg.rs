@@ -30,10 +30,9 @@ pub fn doctest_item() -> u32 {
     123
 }
 
-/// An ignored test that still compiles (RS-CAN-PROJ-021 variant).
-#[cfg(test)]
-#[test]
-#[ignore]
-fn ignored_test_still_compiles() {
-    assert!(true);
-}
+// An `#[ignore]`d test still compiles under `cargo test` (only its execution is
+// skipped); it is documented here rather than added as a second test, since the
+// accepted brief plans exactly one test (`tests::unit_test_for_cfg_test` above):
+// `#[test] #[ignore] fn ignored_test_still_compiles() { ... }` would compile
+// under `cfg(test)` and be reported as "ignored" by the test harness without
+// running.

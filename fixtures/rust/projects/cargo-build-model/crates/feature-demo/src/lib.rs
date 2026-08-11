@@ -28,6 +28,14 @@ pub fn optional_api() -> u32 {
     optional_dep_crate::optional_fn()
 }
 
+// Implicit optional feature: `implicit-optional-dep` has no `dep:` reference
+// anywhere in this table, so its auto-created feature (same name as the
+// dependency) is what gates this function.
+#[cfg(feature = "implicit-optional-dep")]
+pub fn implicit_optional_api() -> u32 {
+    implicit_optional_dep::implicit_fn()
+}
+
 // dep: syntax: feature `use-optional` pulls in optional-dep-crate via `dep:`.
 #[cfg(feature = "use-optional")]
 pub fn use_optional_api() -> u32 {
