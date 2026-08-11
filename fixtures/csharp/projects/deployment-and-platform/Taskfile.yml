@@ -1,0 +1,24 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Compile all fixture projects in every declared build context
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet build DeploymentAndPlatform.sln -c Release
+      - dotnet publish src/App/App.csproj -c Release -p:PublishTrimmed=true -r linux-x64 --self-contained -o publish/trimmed --no-restore
+      - dotnet publish src/App/App.csproj -c Release -p:PublishSingleFile=true --self-contained -r linux-x64 -o publish/singlefile -p:IncludeNativeLibrariesForSelfExtract=true --no-restore
+      - dotnet publish src/App/App.csproj -c Release -p:PublishAot=true -r linux-x64 -o publish/aot --no-restore
+
+  lint:
+    desc: Verify formatting and analyzer warnings for fixture-owned source
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet format whitespace --verify-no-changes
+      - dotnet build DeploymentAndPlatform.sln -c Release --no-restore
+
+  test:
+    desc: Succeed when a project has no test source
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - echo "No test source"

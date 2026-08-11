@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64'">
+    <DefineConstants>$(DefineConstants);RID_LINUX_X64</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'win-x64'">
+    <DefineConstants>$(DefineConstants);RID_WIN_X64</DefineConstants>
+  </PropertyGroup>
+
+  <!-- Source conditioned on OS: exclude both by default, then include exactly one -->
+  <ItemGroup>
+    <Compile Remove="ConditionalSources/Platform.Linux.cs" />
+    <Compile Remove="ConditionalSources/Platform.Windows.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+    <Compile Include="ConditionalSources/Platform.Linux.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <Compile Include="ConditionalSources/Platform.Windows.cs" />
+  </ItemGroup>
+
+  <!-- Native asset conditioned on OS/arch — RID-specific content -->
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+    <Content Include="..\..\assets\native\linux-x64\libnative.so" Link="assets\native\linux-x64\libnative.so" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <Content Include="..\..\assets\native\win-x64\native.dll" Link="assets\native\win-x64\native.dll" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
