@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Catalog.FunctionsAndAsync.CSharp13</RootNamespace>
+    <AssemblyName>Catalog.FunctionsAndAsync.CSharp13</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>13.0</LangVersion>
+  </PropertyGroup>
+
+</Project>
