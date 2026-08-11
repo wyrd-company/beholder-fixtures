@@ -1,0 +1,15 @@
+{
+  "name": "@fixtures/requires-predicate-inference",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vendored fixture dependency declaring minimum TypeScript 5.5 for inferred predicate support",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "peerDependencies": {
+    "typescript": ">=5.5"
+  },
+  "engines": {
+    "node": ">=22.6.0"
+  }
+}

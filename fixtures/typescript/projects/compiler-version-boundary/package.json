@@ -1,0 +1,17 @@
+{
+  "name": "@fixtures/compiler-version-boundary",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture library observing program identity across the TypeScript 5.5 inferred-type-predicate boundary (5.4.5 vs 5.9.3)",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
+  },
+  "dependencies": {
+    "@fixtures/requires-predicate-inference": "file:./vendor/requires-predicate-inference"
+  }
+}

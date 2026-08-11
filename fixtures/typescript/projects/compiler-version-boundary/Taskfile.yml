@@ -1,0 +1,21 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Type-check and emit with both vendored compilers; make declaration difference inspectable without mutating tracked source
+    cmds:
+      - ./node_modules/.bin/tsc -p tsconfig.json
+      - node ./vendor/typescript-5.4.5/lib/tsc.js -p tsconfig.5-4.json
+      - node ./scripts/compare-declarations.mjs
+
+  lint:
+    desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored compiler excluded, no tracked source mutated)
+    cmds:
+      - ./node_modules/.bin/prettier --check "src/**/*" "scripts/**/*" "Taskfile.yml" "tsconfig*.json" "coverage.md" "package.json"
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.json
+      - node ./vendor/typescript-5.4.5/lib/tsc.js --noEmit -p tsconfig.5-4.json
+
+  test:
+    desc: No fixture tests; succeeds when no test source is required
+    cmds:
+      - echo "no tests"
