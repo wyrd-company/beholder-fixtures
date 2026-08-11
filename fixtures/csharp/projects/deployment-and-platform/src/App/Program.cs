@@ -16,6 +16,11 @@ Console.WriteLine($"Base directory: {SingleFileAwareness.DescribeBaseDirectory()
 Console.WriteLine($"Feature switch: {FeatureSwitches.DescribeSwitch()}");
 Console.WriteLine($"AOT safe serialize: {AotCompatibility.SerializeTrimSafe(new TrimSample { Name = "demo" })}");
 
+// Trim boundary observed in the published runtime: the preserved member survives via
+// DynamicallyAccessedMembers, the raw-string target member is removed and observed missing.
+Console.WriteLine($"Trim preserved member: {TrimmingAnnotations.AccessPotentiallyTrimmedMember(typeof(TrimSample))}");
+Console.WriteLine($"Trim missing member: {TrimmingAnnotations.AccessViaRawStringMayBeMissing(typeof(TrimHiddenTarget))}");
+
 var sample = new TrimSample { Name = "harbor" };
 Console.WriteLine($"Reflection nameof access: {ReflectionLinkage.AccessMemberByNameof(sample)}");
 Console.WriteLine($"Nameof vs raw: {ReflectionLinkage.DescribeNameofVersusRaw()}");

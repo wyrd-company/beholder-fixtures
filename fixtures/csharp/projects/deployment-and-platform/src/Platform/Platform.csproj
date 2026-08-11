@@ -6,6 +6,11 @@
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
     <EnableAotAnalyzer>true</EnableAotAnalyzer>
+    <!-- Declaring runtime identifiers makes this project RID-specific rather than
+         RID-agnostic, so a self-contained App publish (-r linux-x64) negotiates and
+         propagates its RuntimeIdentifier into this project reference. That flows
+         RID_LINUX_X64 into the conditioned source and selects the matching native asset. -->
+    <RuntimeIdentifiers>linux-x64;win-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)' == 'linux-x64'">

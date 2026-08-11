@@ -12,7 +12,10 @@ public class TrimSample
 
 public class TrimHiddenTarget
 {
-    public string Secret { get; set; } = "secret";
+    // Reached only through a raw reflection string. Nothing calls it statically and the
+    // constructor never touches it, so trimming and Native AOT remove the member while the
+    // type itself stays rooted through typeof at the observation site.
+    public string Secret() => "secret";
 }
 
 public static class TrimmingAnnotations
@@ -70,13 +73,18 @@ public static class TrimmingAnnotations
         return prop?.GetValue(Activator.CreateInstance(t))?.ToString() ?? "missing";
     }
 
-    // Genuinely missing after trim: no DynamicallyAccessedMembers preservation, so
-    // the trimmer may remove TrimHiddenTarget.Secret and the lookup returns null at trimmed runtime.
-    // Preserved path above keeps TrimSample.Name; this unpreserved path may lose Secret.
+    // Genuinely missing after trim. The RequiresUnreferencedCode attribute makes this body
+    // opaque to the trimmer, and the unannotated Type parameter carries no
+    // DynamicallyAccessedMembers, so neither trimming nor Native AOT preserves the raw-string
+    // target member. The preserved path above keeps TrimSample.Name via
+    // DynamicallyAccessedMembers; here TrimHiddenTarget.Secret is removed and the lookup is
+    // observed as missing at published runtime. Rooted from Program so the observation runs.
     [RequiresUnreferencedCode("Member lookup by raw string may be trimmed; 'Secret' may be absent after trim.")]
     public static string AccessViaRawStringMayBeMissing(Type t)
     {
-        var prop = t.GetProperty("Secret");
-        return prop?.GetValue(Activator.CreateInstance(t))?.ToString() ?? "missing";
+        var member = t.GetMethod("Secret");
+        return member is null
+            ? "missing-after-trim"
+            : (string?)member.Invoke(Activator.CreateInstance(t), null) ?? "missing-after-trim";
     }
 }
