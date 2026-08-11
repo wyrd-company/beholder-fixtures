@@ -1,0 +1,23 @@
+[package]
+name = "async-and-concurrency"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for Rust async and concurrency surface"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace.lints.rust]
+dead_code = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fixture_highlight)"] }
+
+[workspace.lints.clippy]
+all = "warn"
+
+[lib]
+name = "async_and_concurrency"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[lints]
+workspace = true
