@@ -43,13 +43,16 @@ pub fn inferred_binding_modes() -> (String, u32, String) {
     (moved_value, copied_count, m.value)
 }
 
-/// Explicit binding modes in edition 2024 must respect that `ref`/`ref mut`
-/// under an inherited `&`/`&mut` mode is restricted. Valid explicit 2024 forms
-/// use `ref` on an owned scrutinee or reference patterns on the scrutinee
-/// itself, not `ref` under an inherited reference mode.
+/// Explicit binding modes in edition 2024. Unlike the inferred match ergonomics
+/// above, every binding here is written explicitly: `ref`/`mut` on an owned
+/// scrutinee (default mode by-value), and leading `&`/`&mut` reference patterns
+/// that *reset* the default binding mode when matching shared and mutable
+/// references. Explicit `ref` directly under an inherited `&` mode is rejected
+/// in 2024 (see `docs/counterexamples.md`); the leading reference pattern is
+/// what makes the explicit inner bindings legal.
 pub fn explicit_binding_modes_2024() -> (String, u32) {
-    // Explicit `ref` on an owned scrutinee is valid in 2024 because the
-    // binding mode is not inherited as `&`.
+    // Owned scrutinee, explicit `ref`: bindings are `&String` / `&u32` even
+    // though the default binding mode on an owned scrutinee is by-value.
     let container = Container {
         value: String::from("explicit"),
         count: 5,
@@ -61,8 +64,7 @@ pub fn explicit_binding_modes_2024() -> (String, u32) {
         } => value.len() + *count as usize,
     };
 
-    // Explicit `mut` binding on an owned scrutinee is valid in 2024 when not
-    // under an inherited mode.
+    // Owned scrutinee, explicit `mut` binding.
     let owned = Container {
         value: String::from("mut-binding"),
         count: 0,
@@ -74,16 +76,36 @@ pub fn explicit_binding_modes_2024() -> (String, u32) {
         }
     };
 
-    // Explicit reference pattern via borrowing the scrutinee outside the pattern
-    // (valid 2024 alternative to `ref` under `&`).
-    let container2 = Container {
-        value: String::from("ref-pattern"),
+    // Shared reference scrutinee matched with a leading `&` reference pattern.
+    // The `&` resets the default binding mode to by-value, so `ref value` is an
+    // explicit reference binding (`&String`, since a `String` cannot move out of
+    // a shared borrow) and the `Copy` `count` binds by value.
+    let shared = Container {
+        value: String::from("shared-ref"),
         count: 7,
     };
-    let len2 = match &container2 {
-        Container { value, count } => value.len() + *count as usize,
+    let shared_len = match &shared {
+        &Container { ref value, count } => value.len() + count as usize,
     };
-    (value, (len + len2) as u32)
+
+    // Mutable reference scrutinee matched with a leading `&mut` reference
+    // pattern that resets the binding mode; `ref mut` then binds each field by
+    // unique reference (`&mut String` / `&mut u32`).
+    let mut m = Container {
+        value: String::from("mut-ref"),
+        count: 1,
+    };
+    match &mut m {
+        &mut Container {
+            ref mut value,
+            ref mut count,
+        } => {
+            value.push_str("!");
+            *count += 1;
+        }
+    }
+
+    (value, (len + shared_len + m.count as usize) as u32)
 }
 
 /// `@` bindings and nested references remain valid.

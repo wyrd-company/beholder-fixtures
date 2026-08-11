@@ -145,21 +145,24 @@ Valid contrast: `src/patterns.rs` `let_else_pattern` uses `let Some(value) = opt
 
 ## Borrow rejected by destruction order / Phantom drop check (RS-CAN-OWN-010)
 
-Generic wrapper with `PhantomData<T>` and `Drop` requires `T` outlives wrapper; a borrow that would be invalidated by drop is rejected:
+`Owning<T>` reaches its `T` through an ownership-opaque raw pointer; `PhantomData<T>`
+is what makes the compiler treat it as owning a `T`. Under its `Drop` impl, drop-check
+then requires any data borrowed by that owned `T` to strictly outlive the wrapper.
+Reversing the declaration order so the borrowed data drops first is rejected:
 
 ```rust
-struct Owning<T> { value: T, _m: PhantomData<T> }
-impl<T> Drop for Owning<T> { fn drop(&mut self) {} }
-let owning;
-{
-    let short = String::from("short");
-    owning = Owning::new(short); // owning takes ownership, short moved
-    // NonOwning can borrow short without owning it:
-    // let borrowed = NonOwning::new(&short); // would require short to outlive borrowed
-}
+let owning;                              // declared first -> dropped last
+let subject = String::from("inspected"); // declared later -> dropped first
+owning = Owning::new(Observer(&subject));
+// error[E0597]: `subject` does not live long enough
+//   borrow might be used here, when `owning` is dropped and runs the `Drop` code for `Owning`
 ```
 
-Valid contrast: `src/destructuring_assignment.rs` `Owning<T>` (`value: T` + `PhantomData<T>` + `Drop`) logically owns `T` and requires `T` to outlive the wrapper, while `NonOwning<'a, T>` (`&'a T` + `PhantomData<&'a T>` + `Drop`) only borrows and is more permissive under the drop check.
+Valid contrast: `src/destructuring_assignment.rs` `owning_vs_nonowning` declares `subject`
+before the `Owning<Observer>` that owns an `Observer` borrowing it, so `subject` strictly
+outlives the wrapper. `Owning<T>` (`*mut T` + `PhantomData<T>` + a `Drop` that frees the
+allocation) owns its `T`; `NonOwning<'a, T>` (`*const T` + `PhantomData<&'a T>` + `Drop`)
+merely borrows and imposes no such strict-outlives obligation on the value it references.
 
 ## Illegal destructuring assignment pattern (RS-CAN-OWN-010)
 
@@ -185,4 +188,4 @@ match &container {
 }
 ```
 
-Valid contrast: `src/binding_modes.rs` (2024) uses inferred binding modes for `&container` matches, while `crates/edition-2021/src/lib.rs` `explicit_binding_modes_2021` demonstrates the valid 2021 explicit `ref` pattern.
+Valid contrast: `src/binding_modes.rs` `explicit_binding_modes_2024` uses a leading `&`/`&mut` reference pattern (`&Container { ref value, count }`, `&mut Container { ref mut value, ref mut count }`) that resets the default binding mode, so the explicit inner bindings are legal in 2024. `crates/edition-2021/src/lib.rs` `explicit_binding_modes_2021` demonstrates the 2021 form where `ref` under the inherited `&` mode is still accepted.

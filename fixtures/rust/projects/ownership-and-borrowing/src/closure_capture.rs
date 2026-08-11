@@ -33,18 +33,24 @@ pub fn capture_modes() {
     // `owned` moved, not usable here (counterexample documented).
 }
 
-/// Unique immutable capture: closure captures a `&mut` binding immutably
-/// through a unique borrow. The closure borrows `borrow: &mut String` without
-/// mutating it or moving it, exercising the unique-immutable mode.
+/// Unique immutable capture: a special borrow the compiler selects when a
+/// closure mutates through a captured `&mut` reference whose *binding* is not
+/// itself `mut`. The binding cannot be captured by a mutable borrow (it is not
+/// `mut`), and a shared borrow would forbid mutation through it, so the closure
+/// captures it by a *unique immutable* borrow — immutable, yet exclusive.
 pub fn unique_immutable_capture() -> usize {
     let mut data = String::from("hello");
-    let mut borrow: &mut String = &mut data;
-    let closure = || borrow.len();
-    let a = closure();
-    let b = closure();
-    // `borrow` is still uniquely borrowed but not consumed; we can reborrow it mutably after.
-    borrow.push_str("!");
-    a + b + borrow.len()
+    // `reference` is an immutable binding that holds a mutable reference.
+    let reference = &mut data;
+    // The closure mutates the referent *through* `reference`. Because
+    // `reference` is not declared `mut`, the compiler must capture it by unique
+    // immutable borrow; a concurrent `&reference` here would be rejected (E0501).
+    let mut mutate = || reference.push_str(", world");
+    mutate();
+    mutate();
+    // After the closure's last use the unique borrow ends, so `reference` is
+    // usable again.
+    reference.len()
 }
 
 /// Disjoint field capture: closure captures one field, other field remains free.

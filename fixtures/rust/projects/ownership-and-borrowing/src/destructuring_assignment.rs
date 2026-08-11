@@ -112,49 +112,60 @@ pub fn evaluation_drop_order() -> i32 {
 }
 
 /// Generic wrappers with and without suitable phantom ownership under `Drop`.
+///
+/// Both wrappers store an ownership-opaque raw pointer, so the pointer field
+/// itself says nothing about ownership. The `PhantomData` — and only the
+/// `PhantomData` — supplies the ownership relationship the compiler reasons
+/// about.
 
-/// Owning wrapper: stores `T` by value and carries `PhantomData<T>` to
-/// indicate logical ownership. With a `Drop` impl the compiler's drop check
-/// requires `T` to strictly outlive the wrapper.
+/// Owning wrapper: owns a heap-allocated `T` reached through a raw pointer.
+/// `PhantomData<T>` marks the type as *owning* a `T`, so drop-check and
+/// `T`-outlives reasoning treat it as though a `T` were stored inline; the
+/// `Drop` impl reclaims the allocation, so the ownership claim is real.
 pub struct Owning<T> {
-    value: T,
-    _marker: PhantomData<T>,
+    ptr: *mut T,
+    _owns: PhantomData<T>,
 }
 
 impl<T> Owning<T> {
     pub fn new(value: T) -> Self {
         Self {
-            value,
-            _marker: PhantomData,
+            ptr: Box::into_raw(Box::new(value)),
+            _owns: PhantomData,
         }
     }
     pub fn get(&self) -> &T {
-        &self.value
+        // Safe: `ptr` came from `Box::into_raw` and is freed only in `Drop`.
+        unsafe { &*self.ptr }
     }
 }
 
 impl<T> Drop for Owning<T> {
-    fn drop(&mut self) {}
+    fn drop(&mut self) {
+        // Reconstitute the `Box` to drop the owned `T` and free the allocation.
+        unsafe { drop(Box::from_raw(self.ptr)) };
+    }
 }
 
-/// Non-owning wrapper: borrows `T` and carries `PhantomData<&'a T>` to
-/// indicate it does not own `T`. With a `Drop` impl the drop check is more
-/// permissive and does not require `T` to outlive the wrapper beyond the
-/// borrow.
+/// Non-owning wrapper: refers to a `T` it does not own, through the same kind
+/// of ownership-opaque raw pointer. `PhantomData<&'a T>` marks it as merely
+/// *borrowing* a `T` for `'a` (imposing `T: 'a` and shared-borrow variance)
+/// without claiming ownership; its `Drop` reclaims nothing.
 pub struct NonOwning<'a, T> {
-    reference: &'a T,
-    _marker: PhantomData<&'a T>,
+    ptr: *const T,
+    _borrows: PhantomData<&'a T>,
 }
 
 impl<'a, T> NonOwning<'a, T> {
     pub fn new(value: &'a T) -> Self {
         Self {
-            reference: value,
-            _marker: PhantomData,
+            ptr: value as *const T,
+            _borrows: PhantomData,
         }
     }
     pub fn get(&self) -> &T {
-        self.reference
+        // Safe: `ptr` derives from a live `&'a T` and `'a` outlives `self`.
+        unsafe { &*self.ptr }
     }
 }
 
@@ -162,25 +173,35 @@ impl<'a, T> Drop for NonOwning<'a, T> {
     fn drop(&mut self) {}
 }
 
-/// Borrow rejected by destruction order is documented as counterexample in
-/// `docs/counterexamples.md`. Valid contrast: `Owning<T>` logically owns `T`
-/// (`PhantomData<T>` + `Drop`) and its `T` must outlive the wrapper, while
-/// `NonOwning<'a, T>` only borrows (`PhantomData<&'a T>` + `Drop`).
+/// Instantiate the phantom-ownership contrast on a lifetime-bearing type. The
+/// owned `Observer` borrows `subject` and reads it during its own `Drop`, so
+/// `Owning<Observer>` owning that `Observer` forces drop-check to require
+/// `subject` to strictly outlive the wrapper. The declaration order below
+/// satisfies that requirement; the reversed order is rejected (E0597, see
+/// `docs/counterexamples.md`). `NonOwning` owns nothing, so no such
+/// strict-outlives obligation arises for the value it merely borrows.
+pub fn owning_vs_nonowning() -> usize {
+    struct Observer<'a>(&'a str);
+    impl<'a> Drop for Observer<'a> {
+        fn drop(&mut self) {
+            // Reads borrowed data during drop; requires it to still be live.
+            let _ = self.0.len();
+        }
+    }
 
-pub fn owning_vs_nonowning() -> i32 {
-    let value = 42;
-    let owning = Owning::new(value);
-    let borrowed = 42;
-    let non_owning = NonOwning::new(&borrowed);
-    let _ = owning.get();
-    let _ = non_owning.get();
-    value
+    let subject = String::from("inspected");
+    let owning = Owning::new(Observer(&subject));
+
+    let other = String::from("referenced");
+    let non_owning = NonOwning::new(&other);
+
+    owning.get().0.len() + non_owning.get().len()
 }
 
 pub fn destructuring_assignment_summary() -> (String, u32, i32, String, usize, i32, i32) {
     let (s, n, arr, kept) = nested_destructuring_assignment();
     let a = let_only_pattern();
     let b = evaluation_drop_order();
-    let c = owning_vs_nonowning();
+    let c = owning_vs_nonowning() as i32;
     (s, n, b, kept, a, c, arr)
 }

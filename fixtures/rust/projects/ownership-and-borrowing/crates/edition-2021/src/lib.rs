@@ -84,28 +84,49 @@ pub fn if_let_temporary_2021() -> bool {
             self.0.set(true);
         }
     }
-    if let Some(_) = Some(&Guard(Rc::clone(&flag))) {
-        // In edition 2021 the `&Guard` temporary from the condition lives into
-        // the then block, so flag is still false here.
-        !flag.get()
-    } else {
+    impl Guard {
+        fn as_none(&self) -> Option<&()> {
+            None
+        }
+    }
+    // Same source and same `flag.get()` predicate as the edition-2024 version;
+    // in edition 2021 the scrutinee `Guard` stays alive through the `else`
+    // branch, so this observes `false` where 2024 observes `true`.
+    if let Some(_) = Guard(Rc::clone(&flag)).as_none() {
         false
+    } else {
+        flag.get()
     }
 }
 
 pub fn block_tail_temporary_2021() -> bool {
     let flag = Rc::new(Cell::new(false));
+    let observed = Rc::new(Cell::new(false));
     struct Guard(Rc<Cell<bool>>);
     impl Drop for Guard {
         fn drop(&mut self) {
             self.0.set(true);
         }
     }
-    let after_block_still_alive = {
-        let _ptr = { &Guard(Rc::clone(&flag)) as *const Guard };
-        !flag.get()
+    impl Guard {
+        fn read(&self) -> bool {
+            self.0.get()
+        }
+    }
+    struct Observer(Rc<Cell<bool>>, Rc<Cell<bool>>);
+    impl Drop for Observer {
+        fn drop(&mut self) {
+            self.1.set(self.0.get());
+        }
+    }
+    // Same source and same observation as the edition-2024 version; in edition
+    // 2021 the tail `Guard` temporary drops after the block's locals, so the
+    // observer records `false` where 2024 records `true`.
+    let _tail_value = {
+        let _observer = Observer(Rc::clone(&flag), Rc::clone(&observed));
+        Guard(Rc::clone(&flag)).read()
     };
-    after_block_still_alive && !flag.get()
+    observed.get()
 }
 
 pub fn destructor_order_2021() -> Vec<&'static str> {

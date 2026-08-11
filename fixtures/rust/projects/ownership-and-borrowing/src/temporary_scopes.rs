@@ -52,9 +52,13 @@ pub fn match_scrutinee_temporary() -> bool {
     inside_alive && flag.get()
 }
 
-/// `if let` temporary scope: edition 2024 narrows the temporaries created in the
-/// condition so they are dropped before the `then` block. The paired 2021 crate
-/// keeps the same syntax but the temporary lives into the block.
+/// `if let` temporary scope: a temporary created in the `if let` scrutinee is
+/// dropped at a different point across editions. The scrutinee builds a
+/// Drop-observable `Guard` temporary but yields `None`, so the `else` branch
+/// runs. In edition 2024 the scrutinee temporary is dropped *before* the `else`
+/// branch, so the `flag.get()` predicate reads `true`; in edition 2021 the same
+/// temporary stays alive through the `else` branch, so the identical predicate
+/// reads `false`. The paired 2021 crate runs the exact same predicate.
 pub fn if_let_temporary() -> bool {
     let flag = Rc::new(Cell::new(false));
     struct Guard(Rc<Cell<bool>>);
@@ -63,31 +67,53 @@ pub fn if_let_temporary() -> bool {
             self.0.set(true);
         }
     }
-    if let Some(_) = Some(&Guard(Rc::clone(&flag))) {
-        // In edition 2024 the `&Guard` temporary from the condition is dropped
-        // before entering this block, so flag is true.
-        flag.get()
-    } else {
+    impl Guard {
+        fn as_none(&self) -> Option<&()> {
+            None
+        }
+    }
+    if let Some(_) = Guard(Rc::clone(&flag)).as_none() {
         false
+    } else {
+        // Edition 2024 drops the scrutinee `Guard` before this branch, so the
+        // predicate is `true`; edition 2021 keeps it alive, so it is `false`.
+        flag.get()
     }
 }
 
-/// Block tail temporary: a reference to a temporary produced as the tail
-/// expression of a block. In edition 2024 the tail temporary's scope ends at the
-/// block boundary, while in edition 2021 it was extended.
+/// Block tail temporary: the temporary produced by a block's tail expression is
+/// dropped relative to the block's own locals differently across editions. The
+/// tail expression builds a `Guard` temporary; an `Observer` local records
+/// whether that temporary has already dropped when the local itself drops. In
+/// edition 2024 the tail temporary drops *before* the block's locals, so the
+/// observation is `true`; in edition 2021 it drops *after* the locals, so the
+/// identical observation is `false`.
 pub fn block_tail_temporary() -> bool {
     let flag = Rc::new(Cell::new(false));
+    let observed = Rc::new(Cell::new(false));
     struct Guard(Rc<Cell<bool>>);
     impl Drop for Guard {
         fn drop(&mut self) {
             self.0.set(true);
         }
     }
-    let after_block_dropped = {
-        let _ptr = { &Guard(Rc::clone(&flag)) as *const Guard };
-        flag.get()
+    impl Guard {
+        fn read(&self) -> bool {
+            self.0.get()
+        }
+    }
+    struct Observer(Rc<Cell<bool>>, Rc<Cell<bool>>);
+    impl Drop for Observer {
+        fn drop(&mut self) {
+            // Record the tail temporary's drop state at local-drop time.
+            self.1.set(self.0.get());
+        }
+    }
+    let _tail_value = {
+        let _observer = Observer(Rc::clone(&flag), Rc::clone(&observed));
+        Guard(Rc::clone(&flag)).read()
     };
-    after_block_dropped && flag.get()
+    observed.get()
 }
 
 /// Function return temporary: temporary in return expression lives until end of function.
