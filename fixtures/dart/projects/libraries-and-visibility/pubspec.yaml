@@ -1,0 +1,10 @@
+name: libraries_and_visibility
+description: >-
+  Fixture package demonstrating Dart's library, directive, privacy, and
+  resolution model: façade exports, parts, prefixes, and conditional and
+  deferred imports.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.12.2 <4.0.0'

@@ -1,0 +1,3 @@
+library;
+
+String platformLabel() => 'default';
