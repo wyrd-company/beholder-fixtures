@@ -1,0 +1,15 @@
+[package]
+name = "types_layout_downstream"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Downstream crate for cross-crate non-exhaustive and visibility effects"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "types_layout_downstream"
+path = "src/lib.rs"
+
+[lints]
+workspace = true

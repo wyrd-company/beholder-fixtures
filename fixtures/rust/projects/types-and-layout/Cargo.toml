@@ -1,0 +1,30 @@
+[package]
+name = "types-and-layout"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for Rust type forms, layout, and conversions"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace]
+members = ["crates/types_layout_downstream"]
+resolver = "3"
+
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fixture_highlight)"] }
+dead_code = "warn"
+
+[workspace.lints.clippy]
+all = "warn"
+
+[lib]
+name = "types_and_layout"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+types_layout_downstream = { path = "crates/types_layout_downstream" }
+
+[lints]
+workspace = true
