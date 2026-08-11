@@ -5,7 +5,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Custom-only alias: LibraryA is reachable exclusively via "extern alias LibraryA". -->
     <ProjectReference Include="..\Alias.LibraryA\Alias.LibraryA.csproj" Aliases="LibraryA" />
-    <ProjectReference Include="..\Alias.LibraryB\Alias.LibraryB.csproj" Aliases="LibraryB" />
+    <!-- No Aliases metadata: LibraryB keeps the default "global" reference alias and is
+         reachable unaliased, like an ordinary project reference. -->
+    <ProjectReference Include="..\Alias.LibraryB\Alias.LibraryB.csproj" />
   </ItemGroup>
 </Project>

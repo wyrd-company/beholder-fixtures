@@ -5,6 +5,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Forwarding.Definition\Forwarding.Definition.csproj" />
+    <!-- Built against the pre-move shape of the "Forwarding.Facade" identity: RelocatedType
+         is defined directly there, not forwarded, representing a binary compiled before
+         the type moved to Forwarding.Definition. -->
+    <ProjectReference Include="..\Forwarding.Facade.PreMove\Forwarding.Facade.PreMove.csproj" />
   </ItemGroup>
 </Project>

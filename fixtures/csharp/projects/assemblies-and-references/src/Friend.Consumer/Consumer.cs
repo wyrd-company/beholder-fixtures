@@ -15,7 +15,9 @@ public sealed class FriendConsumer
     public string ConsumeProtectedInternal()
     {
         var inv = new InternalInventory();
-        // Access via derived type scenario: protected internal on internal type is visible to friend.
-        return inv.StockLevel.ToString();
+        // ProtectedInternalNote is declared protected internal; friend access reaches it
+        // directly (no inheritance needed) because InternalsVisibleTo extends the internal
+        // half of protected-internal accessibility to this assembly.
+        return inv.ProtectedInternalNote;
     }
 }

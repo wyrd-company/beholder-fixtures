@@ -10,11 +10,16 @@ public sealed class PublicFacade
     internal static string InternalLabel => "secret-internal";
 }
 
-internal sealed class InternalInventory
+internal class InternalInventory
 {
     public string Sku { get; init; } = "INV-001";
     internal int StockLevel { get; set; } = 42;
     internal string InternalNote => "internal note";
+
+    // protected internal: InternalsVisibleTo extends the internal half of this
+    // accessibility to the friend assembly, so a friend reaches it directly, with no
+    // derived type required.
+    protected internal string ProtectedInternalNote => "protected internal note";
 }
 
 internal interface IInternalContract

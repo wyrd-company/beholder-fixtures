@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- Same simple assembly name as the post-move Forwarding.Facade project: this project
+         represents the pre-move shape of that identity, before RelocatedType moved to
+         Forwarding.Definition and TypeForwardedTo replaced it. -->
+    <AssemblyName>Forwarding.Facade</AssemblyName>
+  </PropertyGroup>
+</Project>

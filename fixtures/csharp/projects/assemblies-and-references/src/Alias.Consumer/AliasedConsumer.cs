@@ -1,8 +1,6 @@
 extern alias LibraryA;
-extern alias LibraryB;
 
-using LibraryA::Acme.Aliased;
-using LibraryB_Aliased = LibraryB::Acme.Aliased;
+using Acme.Aliased;
 
 namespace Acme.Aliased.Consumer;
 
@@ -11,17 +9,20 @@ public sealed class AliasedConsumer
     public string ConsumeBoth()
     {
         var a = new LibraryA::Acme.Aliased.DuplicateType();
-        var b = new LibraryB::Acme.Aliased.DuplicateType();
-        // Reference aliases LibraryA and LibraryB disambiguate the duplicate qualified name.
+        // Alias.LibraryB.csproj carries no Aliases metadata, so its reference keeps the
+        // default "global" alias and DuplicateType resolves unaliased and unambiguously to
+        // LibraryB's type: LibraryA's custom-only alias removed it from the global alias
+        // set, so there is no duplicate-reference ambiguity to resolve here.
+        var b = new DuplicateType();
         return $"{a.Describe()} ({a.Value}) | {b.Describe()} ({b.Value})";
     }
 
     public string ConsumeViaGlobalAlias()
     {
-        // Global alias would be ambiguous without extern alias: the unaliased
-        // Acme.Aliased.DuplicateType would produce CS0433 if both references were
-        // imported without an alias. Extern alias resolves it.
-        var aliasedB = new LibraryB_Aliased.DuplicateType();
-        return aliasedB.Source;
+        // Custom-versus-global contrast: LibraryA is reachable only through its custom
+        // "LibraryA" extern alias (above), while LibraryB is reachable through the default
+        // "global" reference alias, so this call needs no extern alias declaration at all.
+        var viaGlobal = new DuplicateType();
+        return viaGlobal.Source;
     }
 }

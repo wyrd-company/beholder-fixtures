@@ -15,3 +15,17 @@ public sealed class RefConsumer
 
     public string ProbePack() => FrameworkPackProbe.DescribePack();
 }
+
+public static class Program
+{
+    // Runnable entry point: this consumer compiles against the project reference assembly
+    // (public surface only) and, when run, executes against the implementation assembly and
+    // the installed net10.0 implementation pack, which also carries the internal/private
+    // members the reference assembly omits.
+    public static void Main()
+    {
+        var consumer = new RefConsumer();
+        System.Console.WriteLine(consumer.UseReferenceFeature());
+        System.Console.WriteLine(consumer.ProbePack());
+    }
+}

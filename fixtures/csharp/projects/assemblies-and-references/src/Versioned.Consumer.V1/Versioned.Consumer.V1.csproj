@@ -7,4 +7,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Versioned.Api.V1\Versioned.Api.V1.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Controlled consumer input: identical source linked, unmodified, into both
+         Versioned.Consumer.V1 and Versioned.Consumer.V2. -->
+    <Compile Include="..\Versioned.Consumer.Shared\SharedConsumer.cs" Link="SharedConsumer.cs" />
+  </ItemGroup>
 </Project>

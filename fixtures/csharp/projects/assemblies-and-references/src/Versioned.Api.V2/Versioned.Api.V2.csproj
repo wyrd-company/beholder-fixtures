@@ -3,6 +3,9 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <!-- Compatible producer identity: same simple assembly name as Versioned.Api.V1, so this
+         is a version upgrade of the same producer identity rather than an unrelated assembly. -->
+    <AssemblyName>Versioned.Api</AssemblyName>
     <Version>2.0.0</Version>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
   </PropertyGroup>

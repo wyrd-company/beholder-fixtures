@@ -4,9 +4,12 @@ using System.Runtime.CompilerServices;
 
 namespace Acme.Forwarding.FacadeDocs;
 
-// Facade assembly contains no definition of RelocatedType; it forwards to Forwarding.Definition.
-// The forwarding metadata allows binaries compiled against the facade to load the type
-// from the definition assembly at runtime. This mirrors a type moved between assemblies.
+// This is the post-move shape of the "Forwarding.Facade" identity: it contains no definition
+// of RelocatedType and forwards to Forwarding.Definition instead. Forwarding.Facade.PreMove
+// is the pre-move shape of that same identity, where RelocatedType was still defined here
+// directly. The forwarding metadata lets binaries compiled against either shape locate the
+// type: pre-move binaries via the type this facade used to define, post-move binaries via
+// the facade forwarding to Forwarding.Definition.
 public static class FacadeInfo
 {
     public const string ForwardedTypeName = "Acme.Forwarding.RelocatedType";

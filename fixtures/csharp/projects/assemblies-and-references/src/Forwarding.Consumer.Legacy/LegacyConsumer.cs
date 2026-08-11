@@ -6,13 +6,15 @@ public sealed class LegacyConsumer
 {
     public string ConsumeDirect()
     {
-        // Binary compiled before the move referenced RelocatedType in its original assembly.
-        // After the move, if the original assembly had TypeForwardedTo, this still resolves.
-        // Here legacy consumer references the definition directly (post-move location),
-        // simulating a consumer rebuilt after the move.
+        // This consumer is built against Forwarding.Facade.PreMove, which defines
+        // RelocatedType directly under the assembly name "Forwarding.Facade" -- the
+        // pre-move shape of that identity. The post-move Forwarding.Facade project later
+        // replaces that definition with TypeForwardedTo metadata pointing at
+        // Forwarding.Definition, so a binary built against this pre-move shape is the
+        // "before the move" half of the forwarding pair.
         var instance = new RelocatedType();
         var nested = new RelocatedType.NestedPayload();
-        return $"{instance.Describe()} + {nested.Label} via direct reference";
+        return $"{instance.Describe()} + {nested.Label} via pre-move Facade binary";
     }
 
     public string ReflectDeclaringAssembly()
