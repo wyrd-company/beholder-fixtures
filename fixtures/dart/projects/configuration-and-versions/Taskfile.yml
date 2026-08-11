@@ -18,7 +18,7 @@ tasks:
       - dart pub get --offline
       - dart analyze
       - mkdir -p {{.BUILD_DIR}}
-      - dart run --enable-asserts {{.DEFINE_FLAGS}} bin/vm_main.dart --expect-asserts
+      - dart run {{.DEFINE_FLAGS}} bin/vm_main.dart
       - dart run --no-enable-asserts {{.DEFINE_FLAGS}} bin/vm_main.dart
       - >-
         dart compile exe

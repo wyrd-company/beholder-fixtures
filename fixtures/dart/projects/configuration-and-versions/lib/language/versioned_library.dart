@@ -1,5 +1,4 @@
-// @dart=2.19
-/// Library with a per-file language override and a part file.
+/// Library whose part file inherits the package language version.
 library versioned_library;
 
 part 'versioned_library_part.dart';
