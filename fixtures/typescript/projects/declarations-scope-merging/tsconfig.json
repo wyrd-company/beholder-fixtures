@@ -4,6 +4,7 @@
     "target": "ES2022",
     "module": "nodenext",
     "moduleResolution": "nodenext",
+    "moduleDetection": "legacy",
     "strict": true,
     "declaration": true,
     "declarationMap": true,
