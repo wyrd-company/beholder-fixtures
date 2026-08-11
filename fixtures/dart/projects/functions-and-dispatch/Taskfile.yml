@@ -20,6 +20,16 @@ tasks:
       - dart run bin/vm_async_main.dart
       - >-
         dart compile exe
+        -o {{.BUILD_DIR}}/vm_main_native_aot
+        bin/vm_main.dart
+      - '{{.BUILD_DIR}}/vm_main_native_aot'
+      - >-
+        dart compile exe
+        -o {{.BUILD_DIR}}/vm_async_main_native_aot
+        bin/vm_async_main.dart
+      - '{{.BUILD_DIR}}/vm_async_main_native_aot'
+      - >-
+        dart compile exe
         -o {{.BUILD_DIR}}/native_aot_main
         bin/native_aot_main.dart
       - '{{.BUILD_DIR}}/native_aot_main'
