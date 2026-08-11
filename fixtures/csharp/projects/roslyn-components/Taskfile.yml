@@ -1,0 +1,20 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Compile all fixture-owned projects in every declared build context without restoring from the network.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet build RoslynComponents.sln -c Release --no-restore
+
+  lint:
+    desc: Verify formatting and analyzer warnings for fixture-owned source (vendored code excluded).
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet format RoslynComponents.sln --verify-no-changes --no-restore
+
+  test:
+    desc: Succeed when a project has no test source.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - echo "No test source"

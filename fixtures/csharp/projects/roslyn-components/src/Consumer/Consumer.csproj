@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <!-- CS-CAN-102: WarningLevel and AnalysisLevel / AnalysisMode -->
+    <WarningLevel>4</WarningLevel>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <AnalysisLevelDesign>latest</AnalysisLevelDesign>
+    <!-- CS-CAN-102: EnforceCodeStyleInBuild so .editorconfig severities participate in build -->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- CS-CAN-102: NoWarn at project level - suppresses a specific warning id without touching other diagnostics -->
+    <NoWarn>$(NoWarn);CS0436</NoWarn>
+    <!-- CS-CAN-102: promotion/demotion - RCAN001 is promoted to error in StrictArea via .editorconfig, then demoted back to warning here so the fixture build still passes while the per-path precedence is observable in the diagnostic severity -->
+    <WarningsNotAsErrors>RCAN001</WarningsNotAsErrors>
+    <!-- CS-CAN-102: xlf? Not needed. Enable nullable analysis -->
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!-- CS-CAN-015: AdditionalFiles consumed by the incremental generator -->
+  <ItemGroup>
+    <AdditionalFiles Include="AdditionalFiles\generation-config.txt" />
+    <!-- Global analyzer config consumed by the generator's AnalyzerConfigOptionsProvider -->
+    <AdditionalFiles Include="AdditionalFiles\.globalconfig" Condition="false" />
+  </ItemGroup>
+
+  <!-- CS-CAN-015 / CS-CAN-016: Analyzer and generator references (netstandard2.0 components) -->
+  <ItemGroup>
+    <ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Analyzer\Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <!-- CS-CAN-102: AnalyzerConfig items - global and per-path.
+       The project-level .editorconfig is the primary policy file;
+       the .globalconfig at the project root supplies
+       build_property.GeneratorProvenance / CatalogPrefix consumed
+       by the generator via AnalyzerConfigOptionsProvider. -->
+  <ItemGroup>
+    <GlobalAnalyzerConfig Include=".globalconfig" />
+    <GlobalAnalyzerConfig Include="AnalyzerConfig\GlobalAnalyzerConfig.globalconfig" />
+  </ItemGroup>
+
+  <!-- Allow the analyzer's attribute to be referenced as source (not as analyzer assembly type). -->
+  <ItemGroup>
+    <Compile Include="..\Analyzer\SuppressCatalogNamingAttribute.cs" Link="Linked\SuppressCatalogNamingAttribute.cs" />
+  </ItemGroup>
+
+</Project>

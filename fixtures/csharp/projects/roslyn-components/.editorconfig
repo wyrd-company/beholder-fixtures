@@ -1,0 +1,34 @@
+root = true
+
+[*.cs]
+dotnet_analyzer_diagnostic.category-RoslynComponents.Naming.severity = warning
+dotnet_diagnostic.RCAN001.severity = warning
+
+# CS-CAN-102: per-path settings - StrictArea promotes RCAN001 to error, RelaxedArea silences it.
+[PolicyVariants/StrictArea/**.cs]
+dotnet_diagnostic.RCAN001.severity = error
+
+[PolicyVariants/RelaxedArea/**.cs]
+dotnet_diagnostic.RCAN001.severity = none
+
+# CS-CAN-102: generated-code treatment for the Generated folder
+[PolicyVariants/RelaxedArea/**.cs]
+dotnet_diagnostic.CA1822.severity = none
+
+[PolicyVariants/**.cs]
+dotnet_diagnostic.CA1822.severity = none
+
+[CatalogItems/**.cs]
+dotnet_diagnostic.CA1822.severity = none
+
+[CatalogItems/GeneratedLike.cs]
+generated_code = true
+
+# CS-CAN-102: nullable settings projection (file-scoped via build_property)
+# The per-file nullable state is demonstrated in source via #nullable directives;
+# the editorconfig analytics below show how warning level and analysis level
+# interact with those directives.
+
+[PolicyVariants/NullableDisabled.cs]
+dotnet_diagnostic.CS8600.severity = none
+dotnet_diagnostic.CS8602.severity = none
