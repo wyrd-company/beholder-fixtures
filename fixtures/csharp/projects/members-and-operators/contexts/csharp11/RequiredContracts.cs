@@ -36,6 +36,13 @@ namespace Catalog.CSharp11
         public new required string Caption { get; set; }
     }
 
+    public sealed class RequiredFieldHost
+    {
+        public required int RequiredField;
+
+        public required string Label { get; set; }
+    }
+
     public sealed class RequiredConstructorHost
     {
         public required int Count { get; init; }

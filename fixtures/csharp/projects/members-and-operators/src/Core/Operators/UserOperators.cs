@@ -65,16 +65,7 @@ public readonly struct SignedMeasure
 
 public static class NullableLiftedOperators
 {
-    public static int? AddNullable(Measure? left, Measure? right)
-    {
-        if (left is null || right is null)
-        {
-            return null;
-        }
-
-        Measure combined = left.Value + right.Value;
-        return combined.Value;
-    }
+    public static Measure? AddNullable(Measure? left, Measure? right) => left + right;
 }
 
 public interface IAdditive<T> where T : IAdditive<T>
@@ -109,6 +100,9 @@ public static class OperatorExercise
         Measure scaled = left * 2;
         Measure converted = 4;
         int raw = (int)converted;
-        return sum > diff && scaled.Value > 0 && raw > 0;
+        Measure? lifted = (Measure?)left + (Measure?)right;
+        return sum > diff && IsTruthy(scaled) && IsTruthy(converted) && lifted is not null && raw > 0;
     }
+
+    public static bool IsTruthy(Measure value) => value ? true : false;
 }

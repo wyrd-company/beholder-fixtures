@@ -10,4 +10,11 @@ public static class FriendVisibility
         entry.Touch(target);
         target.InternalMethod();
     }
+
+    internal static void DemonstrateEffectiveAccessibility(AccessModifiers target)
+    {
+        FriendDerivedAccess derived = new();
+        derived.UseProtectedInternalUnion();
+        target.InternalMethod();
+    }
 }

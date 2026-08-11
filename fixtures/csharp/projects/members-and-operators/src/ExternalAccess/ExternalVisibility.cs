@@ -9,4 +9,11 @@ public static class ExternalVisibility
         target.PublicMethod();
         _ = target.PublicProperty;
     }
+
+    public static void DemonstrateEffectiveAccessibility(AccessModifiers target)
+    {
+        ExternalDerivedAccess derived = new();
+        derived.UseProtectedInternalUnion();
+        target.PublicMethod();
+    }
 }

@@ -5,6 +5,11 @@ public interface INotifier
     event Action<string>? Changed;
 }
 
+public sealed class NoticeSink
+{
+    public void Record(string message) => _ = message;
+}
+
 public class EventSurface : INotifier
 {
     public event Action<string>? Changed;
@@ -26,6 +31,18 @@ public class EventSurface : INotifier
     }
 
     public void RaiseChanged(string message) => Changed?.Invoke(message);
+
+    public static void SubscribeAndUnsubscribe(EventSurface surface, NoticeSink sink)
+    {
+        surface.Changed += sink.Record;
+        surface.Changed += LogNotice;
+        surface.Changed += message => sink.Record(message);
+        surface.Changed -= sink.Record;
+        surface.Changed -= LogNotice;
+        surface.Changed -= message => sink.Record(message);
+    }
+
+    private static void LogNotice(string message) => _ = message;
 
     public static void RaiseGlobalTick(int value) => GlobalTick?.Invoke(value);
 

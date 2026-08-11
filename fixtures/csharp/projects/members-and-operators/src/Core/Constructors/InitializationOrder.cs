@@ -88,19 +88,46 @@ public struct ExplicitStruct
     public static ExplicitStruct Create(int value) => new(value);
 }
 
-public sealed class VirtualFromBaseConstructor : BaseWithVirtual
-{
-    public VirtualFromBaseConstructor()
-    {
-        DispatchDuringConstruction();
-    }
-}
-
 public class BaseWithVirtual
 {
     protected virtual string Name => "base";
 
+    protected BaseWithVirtual()
+    {
+        DispatchDuringConstruction();
+    }
+
     protected void DispatchDuringConstruction() => _ = Name;
+}
+
+public sealed class VirtualFromBaseConstructor : BaseWithVirtual
+{
+    protected override string Name => "derived";
+}
+
+public sealed class PropertyInitializerHost
+{
+    public int Seed { get; } = CreateSeed();
+
+    private static int CreateSeed() => 3;
+}
+
+public sealed class ThrowingInitializerHost
+{
+    private readonly int _value = ThrowOnInit();
+
+    public int Value => _value;
+
+    private static int ThrowOnInit() => throw new InvalidOperationException("init");
+}
+
+public struct DefaultStructBypass
+{
+    public int Value;
+
+    public DefaultStructBypass(int value) => Value = value;
+
+    public static DefaultStructBypass GetDefault() => default;
 }
 
 public sealed class CircularStaticA
