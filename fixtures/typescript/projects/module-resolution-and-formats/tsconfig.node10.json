@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist/node10",
+    "rootDir": "src",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "preserveSymlinks": false,
+    "baseUrl": ".",
+    "paths": {
+      "#core/*": ["src/core/*"]
+    }
+  },
+  "include": [
+    "src/core/types.ts",
+    "src/core/constants.ts",
+    "src/core/util.ts",
+    "src/core/index.ts",
+    "src/core/consumer-extensionless.ts",
+    "src/core/directory-consumer.ts",
+    "src/graph/shared-types.ts",
+    "src/graph/node-a.ts",
+    "src/graph/node-b.ts",
+    "src/formats/component.tsx",
+    "src/formats/legacy.cts",
+    "src/formats/decl-shapes.d.ts",
+    "src/formats/legacy-decl.d.cts",
+    "src/identity/real/**/*",
+    "src/identity/vendor-v1/**/*",
+    "src/identity/vendor-v2/**/*",
+    "src/identity/alias-via-real.ts",
+    "src/exports/pkg/**/*"
+  ]
+}

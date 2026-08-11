@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES5",
+    "lib": ["ES5", "DOM"],
+    "module": "amd",
+    "moduleResolution": "classic",
+    "strict": true,
+    "declaration": false,
+    "sourceMap": false,
+    "outFile": "dist-legacy/concat.js",
+    "rootDir": "src",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "preserveSymlinks": false
+  },
+  "include": [
+    "src/core/types.ts",
+    "src/core/constants.ts",
+    "src/core/util.ts",
+    "src/core/index.ts",
+    "src/graph/shared-types.ts"
+  ]
+}

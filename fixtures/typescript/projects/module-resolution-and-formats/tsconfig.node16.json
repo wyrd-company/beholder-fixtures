@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "node16",
+    "moduleResolution": "node16",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist/node16",
+    "rootDir": ".",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "forceConsistentCasingInFileNames": true,
+    "preserveSymlinks": false,
+    "baseUrl": ".",
+    "paths": {
+      "#core/*": ["src/core/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "src/core/consumer-extensionless.ts",
+    "src/formats/rewrite-consumer.ts",
+    "src/identity/preserve-consumer.ts"
+  ]
+}

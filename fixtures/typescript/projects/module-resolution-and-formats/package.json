@@ -1,0 +1,26 @@
+{
+  "name": "@fixtures/module-resolution-and-formats",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture library exercising module resolution matrix, extension and per-file formats, and file-identity via symlinks",
+  "exports": {
+    ".": "./src/index.ts",
+    "./core": "./src/core/index.ts",
+    "./core/*": "./src/core/*",
+    "./formats/*": "./src/formats/*"
+  },
+  "imports": {
+    "#core": "./src/core/index.ts",
+    "#core/*": "./src/core/*",
+    "#formats/*": "./src/formats/*",
+    "#identity/*": "./src/identity/*"
+  },
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
+  }
+}

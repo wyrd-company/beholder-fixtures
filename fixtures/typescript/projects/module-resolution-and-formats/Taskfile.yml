@@ -1,0 +1,40 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Type-check and emit in every declared module, resolution, and per-file format context
+    cmds:
+      - ./node_modules/.bin/tsc -p tsconfig.json
+      - ./node_modules/.bin/tsc -p tsconfig.classic.json
+      - ./node_modules/.bin/tsc -p tsconfig.node10.json
+      - ./node_modules/.bin/tsc -p tsconfig.nodenext.json
+      - ./node_modules/.bin/tsc -p tsconfig.node16.json
+      - ./node_modules/.bin/tsc -p tsconfig.bundler.json
+      - ./node_modules/.bin/tsc -p tsconfig.preserve.json
+      - ./node_modules/.bin/tsc -p tsconfig.legacy-outfile.json
+      - ./node_modules/.bin/tsc -p tsconfig.allow-ts-ext.json
+      - ./node_modules/.bin/tsc -p tsconfig.rewrite.json
+      - ./node_modules/.bin/tsc -p tsconfig.symlink.json
+      - ./node_modules/.bin/tsc -p tsconfig.symlink-preserve.json
+
+  lint:
+    desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)
+    cmds:
+      - ./node_modules/.bin/prettier --check "src/**/*" "Taskfile.yml" "tsconfig*.json" "coverage.md" "package.json"
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.classic.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.node10.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.nodenext.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.node16.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.bundler.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.preserve.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.legacy-outfile.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.allow-ts-ext.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.rewrite.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.symlink.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.symlink-preserve.json
+
+  test:
+    desc: No fixture tests; succeeds when no test source is required
+    cmds:
+      - echo "no tests"

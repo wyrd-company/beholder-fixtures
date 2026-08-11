@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist/nodenext",
+    "rootDir": ".",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "allowImportingTsExtensions": false,
+    "rewriteRelativeImportExtensions": false,
+    "jsx": "react-jsx",
+    "forceConsistentCasingInFileNames": true,
+    "preserveSymlinks": false,
+    "baseUrl": ".",
+    "paths": {
+      "#core/*": ["src/core/*"],
+      "#formats/*": ["src/formats/*"],
+      "#identity/*": ["src/identity/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "src/core/consumer-extensionless.ts",
+    "src/formats/rewrite-consumer.ts",
+    "src/identity/preserve-consumer.ts"
+  ]
+}

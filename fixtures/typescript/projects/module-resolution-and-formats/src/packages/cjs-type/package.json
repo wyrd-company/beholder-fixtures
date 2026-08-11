@@ -1,0 +1,5 @@
+{
+  "name": "@fixtures/cjs-type-pkg",
+  "type": "commonjs",
+  "private": true
+}

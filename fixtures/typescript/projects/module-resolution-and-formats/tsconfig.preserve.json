@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist/preserve",
+    "rootDir": ".",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "preserveSymlinks": false,
+    "verbatimModuleSyntax": false,
+    "baseUrl": ".",
+    "paths": {
+      "#core/*": ["src/core/*"]
+    }
+  },
+  "include": [
+    "src/graph/preserve-consumer.ts",
+    "src/core/types.ts",
+    "src/core/constants.ts",
+    "src/core/util.ts",
+    "src/core/index.ts"
+  ]
+}

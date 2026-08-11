@@ -1,0 +1,5 @@
+{
+  "name": "@fixtures/esm-type-pkg",
+  "type": "module",
+  "private": true
+}

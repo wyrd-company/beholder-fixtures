@@ -1,0 +1,14 @@
+{
+  "name": "@fixtures/exported-pkg",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./util": "./util.ts",
+    "./deep": "./nested/deep.ts"
+  },
+  "imports": {
+    "#internal": "./internal.ts",
+    "#internal/*": "./internal/*.ts"
+  }
+}
