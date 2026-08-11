@@ -1,0 +1,10 @@
+# Cargo configuration for build-scripts-and-codegen fixture.
+# Vendored registry dependencies replace crates-io to enable offline builds.
+# cc 1.4.2 from https://crates.io/crates/cc/1.4.2 (MIT OR Apache-2.0)
+# Transitive vendored dependencies: shlex 2.0.1, find-msvc-tools 0.1.10
+
+[source.crates-io]
+replace-with = "vendored-sources"
+
+[source.vendored-sources]
+directory = "vendor"

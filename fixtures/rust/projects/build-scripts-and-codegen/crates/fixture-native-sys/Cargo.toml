@@ -1,0 +1,17 @@
+[package]
+name = "fixture-native-sys"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture native sys crate owning links and compiling hermetic native translation unit"
+license = "MIT"
+authors = ["Wyrd Company"]
+links = "fixture_native"
+
+[lib]
+name = "fixture_native_sys"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[build-dependencies]
+cc = "=1.4.2"
