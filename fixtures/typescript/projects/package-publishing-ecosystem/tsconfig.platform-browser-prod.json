@@ -5,7 +5,7 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "customConditions": ["browser", "production"],
-    "moduleSuffixes": [".browser", "", ".server", ".native"],
+    "moduleSuffixes": [".production", ".browser", "", ".server", ".native"],
     "outDir": "dist-platform-browser-prod"
   },
   "include": [
