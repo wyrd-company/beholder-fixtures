@@ -1,0 +1,28 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Byte-compile all fixture-owned packages.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - python3 -m compileall -q diagnostics_toolkit
+      - python3 -OO -m compileall -q diagnostics_toolkit
+
+  lint:
+    desc: Parse and byte-compile every fixture-owned source file.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - >-
+        find diagnostics_toolkit -type f -name '*.py' -print0 |
+        xargs -0 python3 -m py_compile
+      - >-
+        find diagnostics_toolkit -type f -name '*.py' -print0 |
+        xargs -0 python3 -OO -m py_compile
+
+  test:
+    desc: Run unittest discovery and doctest suites.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - python3 -m unittest discover -s diagnostics_toolkit/tests -p "test_*.py" -v
+      - python3 -m doctest diagnostics_toolkit/doctest_examples.py
+      - python3 -m doctest diagnostics_toolkit/doctest_text.txt

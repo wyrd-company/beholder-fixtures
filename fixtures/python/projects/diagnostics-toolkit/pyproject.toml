@@ -1,0 +1,10 @@
+[project]
+name = "diagnostics-toolkit"
+version = "0.1.0"
+description = "Diagnostics, warnings, and testing toolkit covering import and operation exception taxonomies, deprecation lifecycles, hooks, tracing, logging, security guards, audit hooks, redefinition, class-construction failures, and dangling-attribute contrasts"
+requires-python = ">=3.11"
+readme = "coverage.md"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"

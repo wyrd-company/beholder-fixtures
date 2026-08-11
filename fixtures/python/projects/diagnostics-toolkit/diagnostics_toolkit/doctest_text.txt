@@ -1,0 +1,23 @@
+Doctest text-file examples (PY-CAN-DIAG-014).
+
+Shared state:
+
+>>> x = 10
+>>> x + 5
+15
+>>> x
+10
+
+Exception output:
+
+>>> raise RuntimeError("text failure")
+Traceback (most recent call last):
+...
+RuntimeError: text failure
+
+Ellipsis option directive:
+
+>>> [1, 2, 3, 4, 5]  # doctest: +ELLIPSIS
+[1, 2, ...]
+
+With doctest runner this file is executed via doctest.testfile.
