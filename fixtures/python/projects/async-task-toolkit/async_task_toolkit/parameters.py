@@ -65,27 +65,44 @@ def missing_required_failure() -> str:
         return "type-error"
 
 
+def _strict_pos_only(origin: str, destination: str, /, priority: int) -> tuple[str, str, int]:
+    """Strict positional-only helper without variadics for failure probes."""
+
+    return origin, destination, priority
+
+
+def _strict_kw_only(*, mode: str = "standard") -> str:
+    """Strict keyword-only helper for misuse probe."""
+
+    return mode
+
+
+def _strict_no_variadic(origin: str, destination: str, /, priority: int, *, mode: str = "standard") -> tuple[str, str, int, str]:
+    """Helper without *hops/**options to surface unexpected-keyword failure."""
+
+    return origin, destination, priority, mode
+
+
 def unexpected_keyword_failure() -> str:
-    """Passing an unexpected keyword through ``**options`` must raise only if bound name collides."""
+    """Passing an unexpected keyword to a strict callable must raise ``TypeError``."""
 
     try:
-        # ``origin`` is positional-only, so calling with keyword must fail.
-        schedule_task(origin="a", destination="b", priority=1)  # type: ignore[call-arg]
+        _strict_no_variadic("a", "b", 1, mode="standard", extra="x")  # type: ignore[call-arg]
         return "no-error"
     except TypeError:
         return "type-error"
 
 
 def positional_keyword_misuse() -> str:
-    """Positional-only misuse and keyword-only positioning failures."""
+    """Positional-only as keyword and keyword-only as positional must both raise."""
 
     try:
-        schedule_task("a", "b", priority=1, mode="standard", extra="x")
-        # Should succeed since extra goes to **options.
-        # Now provoke failure by passing keyword-only as positional:
-        schedule_task("a", "b", 1, "hub", "extra-pos", "should-be-kw")  # too many positional before kw
-        # Actually above is valid (extra positional to *hops). Force misuse:
-        schedule_task("a", "b", 1, "hub", mode="standard", unexpected_pos="oops")
+        _strict_pos_only(origin="a", destination="b", priority=1)  # type: ignore[call-arg]
+        return "no-error"
+    except TypeError:
+        pass
+    try:
+        _strict_kw_only("bulk")  # type: ignore[call-arg]
         return "no-error"
     except TypeError:
         return "type-error"
@@ -107,7 +124,7 @@ def positional_only_via_keyword_probe() -> str:
     """Calling a positional-only parameter by keyword must raise ``TypeError``."""
 
     try:
-        schedule_task("a", "b", priority=1, origin="oops")  # type: ignore[call-arg]
+        _strict_pos_only(origin="a", destination="b", priority=1)  # type: ignore[call-arg]
         return "no-error"
     except TypeError:
         return "type-error"

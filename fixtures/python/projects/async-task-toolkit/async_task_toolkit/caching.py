@@ -112,9 +112,14 @@ def slots_without_dict_failure() -> str:
 
 
 def concurrency_caveat_note() -> str:
-    """Note: caching wrappers are not concurrency-safe without external locking."""
+    """Exact concurrency semantics for the caching wrappers."""
 
-    return "lru_cache and cached_property cache per process and are not atomic across threads"
+    return (
+        "lru_cache keeps its cache coherent across threads but the wrapped "
+        "function may be invoked more than once when two threads miss concurrently; "
+        "cached_property may likewise compute more than once per instance on "
+        "concurrent first access"
+    )
 
 
 def cache_clear_and_invalidate() -> dict[str, int]:

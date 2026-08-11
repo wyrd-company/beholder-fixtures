@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import functools
+import inspect
 from typing import Any, Callable, TypeVar
 
 F = TypeVar("F", bound=Callable[..., Any])
@@ -18,6 +19,8 @@ def parameterized(tag: str) -> Callable[[F], F]:
 
     def decorator(func: F) -> F:
         evaluation_log.append(f"apply:{tag}:{func.__name__}")
+        if inspect.isclass(func):
+            return func
 
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
@@ -86,6 +89,26 @@ def replaced_target() -> str:
     """This binding becomes an int after decoration."""
 
     return "should-not-run"
+
+
+@parameterized("class-tracked")
+@registering
+class DecoratedShipment:
+    """Class decoration target using the assigned decorator forms."""
+
+    def __init__(self, code: str) -> None:
+        self.code = code
+
+    def label(self) -> str:
+        return f"shipment:{self.code}"
+
+
+# Arbitrary-expression class decoration (PEP 614).
+@(tag_decorator("parcel-class") if True else tag_decorator("fallback-class"))
+class ArbitraryClassTarget:
+    """Class decorated via an arbitrary conditional expression."""
+
+    kind = "parcel"
 
 
 # Ordering with descriptors: classmethod + custom decorator, both orders.

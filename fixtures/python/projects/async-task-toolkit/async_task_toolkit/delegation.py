@@ -125,13 +125,13 @@ def plain_iterator_limitations() -> dict[str, object]:
 
     gen = delegator()
     assert next(gen) == "a"
-    # Sending non-None into a plain iterable delegation.
+    # Sending non-None through yield from to a list iterator raises AttributeError
+    # because the underlying iterator has no send method.
     try:
         gen.send("ignored")
         send_result = "no-error"
-    except TypeError:
-        send_result = "type-error"
-    # Plain delegation: send(None) works as next, non-None may raise.
+    except AttributeError:
+        send_result = "attribute-error"
     return {"send_result": send_result}
 
 

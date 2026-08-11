@@ -90,14 +90,26 @@ def rebinding_preserves_original() -> dict[str, object]:
     }
 
 
-def synthetic_signature() -> inspect.Signature:
-    """Create a synthetic signature object distinct from the function's own."""
+def synthetic_signature() -> dict[str, object]:
+    """Expose a synthetic signature through callable metadata and resolve it."""
 
     params = [
         inspect.Parameter("label", inspect.Parameter.POSITIONAL_OR_KEYWORD),
         inspect.Parameter("priority", inspect.Parameter.KEYWORD_ONLY, default=1),
     ]
-    return inspect.Signature(params, return_annotation=str)
+    synthetic = inspect.Signature(params, return_annotation=str)
+
+    def target(label: str, priority: int = 1) -> str:
+        return f"{label}:{priority}"
+
+    target.__signature__ = synthetic  # type: ignore[attr-defined]
+    resolved = inspect.signature(target)
+    return {
+        "synthetic": str(synthetic),
+        "resolved": str(resolved),
+        "matches": resolved == synthetic,
+        "callable": target.__name__,
+    }
 
 
 def doc_removal_via_oo() -> dict[str, object]:

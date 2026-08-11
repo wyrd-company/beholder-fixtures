@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 from collections.abc import AsyncGenerator, AsyncIterator
+from typing import Any
 
 
 class ParcelAsyncIterator:
@@ -113,21 +114,37 @@ def no_async_generator_return_value() -> str:
     return str(asyncio.run(collect()))
 
 
-async def obsolete_awaitable_aiter() -> str:
-    """An ``__aiter__`` that returns an awaitable is legacy; current form returns an async iterator.
+async def obsolete_awaitable_aiter() -> dict[str, str]:
+    """Legacy awaitable ``__aiter__`` versus modern direct async iterator.
 
-    Demonstrate the modern correct form and note the obsolete spelling.
+    The modern protocol returns an ``AsyncIterator`` directly. The obsolete
+    form returned an awaitable coroutine; on this interpreter it is rejected
+    with ``TypeError`` because the coroutine does not implement ``__anext__``.
     """
 
-    class Legacy:
-        def __aiter__(self):  # type: ignore[no-untyped-def]
-            # Modern: should return AsyncIterator directly, not awaitable.
+    class Modern:
+        def __aiter__(self) -> AsyncIterator[str]:  # type: ignore[override]
             return ParcelAsyncIterator(["legacy"])
 
-    items: list[str] = []
-    async for item in Legacy():  # type: ignore[call-arg]
-        items.append(item)
-    return ",".join(items)
+    class LegacyAwaitable:
+        def __aiter__(self):  # type: ignore[no-untyped-def]
+            async def _get_iter() -> AsyncIterator[str]:
+                return ParcelAsyncIterator(["legacy"])
+
+            return _get_iter()
+
+    modern_items: list[str] = []
+    async for item in Modern():
+        modern_items.append(item)
+
+    try:
+        async for _ in LegacyAwaitable():  # type: ignore[call-arg]
+            pass
+        legacy_result = "no-error"
+    except TypeError as exc:
+        legacy_result = f"type-error:{exc}"
+
+    return {"modern": ",".join(modern_items), "legacy": legacy_result}
 
 
 def async_iteration_variants() -> dict[str, object]:
@@ -151,27 +168,56 @@ def async_iteration_variants() -> dict[str, object]:
     return asyncio.run(run())
 
 
-async def finalization_hooks() -> list[str]:
-    """Exercise finalization hooks via ``asend``/``aclose``/``athrow``."""
+async def finalization_hooks() -> dict[str, list[str]]:
+    """Exercise async-generator finalization hooks via ``sys.set_asyncgen_hooks``."""
 
+    import gc
+    import sys
+
+    hook_events: list[str] = []
     events: list[str] = []
 
-    async def gen() -> AsyncGenerator[str, None]:
-        try:
-            value = yield "ready"
-            events.append(f"sent:{value}")
-            yield "after"
-        except ValueError as exc:
-            events.append(f"thrown:{exc}")
-            yield "recovered"
-        finally:
-            events.append("finalized")
+    def firstiter(agen: AsyncGenerator[Any, Any]) -> None:
+        hook_events.append("firstiter")
 
-    g = gen()
-    assert await g.asend(None) == "ready"
-    assert await g.asend("parcel") == "after"
+    def finalizer(agen: AsyncGenerator[Any, Any]) -> None:
+        hook_events.append("finalizer")
+
+    prev = sys.get_asyncgen_hooks()
+    sys.set_asyncgen_hooks(firstiter=firstiter, finalizer=finalizer)
     try:
-        await g.athrow(ValueError("oops"))
-    except StopAsyncIteration:
-        pass
-    return list(events)
+        # Hook interaction: firstiter on first asend, finalizer on GC of abandoned generator.
+        async def hook_gen() -> AsyncGenerator[str, None]:
+            try:
+                yield "hook-ready"
+            finally:
+                hook_events.append("hook-finally")
+
+        hg = hook_gen()
+        assert await hg.asend(None) == "hook-ready"
+        # Abandon without aclose so finalizer hook fires on collection.
+        del hg
+        gc.collect()
+        await asyncio.sleep(0)
+
+        async def gen() -> AsyncGenerator[str, None]:
+            try:
+                value = yield "ready"
+                events.append(f"sent:{value}")
+                yield "after"
+            except ValueError as exc:
+                events.append(f"thrown:{exc}")
+                yield "recovered"
+            finally:
+                events.append("finalized")
+
+        g = gen()
+        assert await g.asend(None) == "ready"
+        assert await g.asend("parcel") == "after"
+        recovered = await g.athrow(ValueError("oops"))
+        assert recovered == "recovered"
+        await g.aclose()
+        await asyncio.sleep(0)
+    finally:
+        sys.set_asyncgen_hooks(*prev)
+    return {"events": list(events), "hooks": list(hook_events)}

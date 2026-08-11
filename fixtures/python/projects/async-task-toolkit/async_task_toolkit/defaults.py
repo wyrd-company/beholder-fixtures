@@ -80,7 +80,8 @@ def annotation_evaluation_policy() -> dict[str, object]:
 
     # Annotation is not evaluated eagerly when stringized.
     return {
-        "default": tagged(),
+        "default": tagged("sample"),
+        "default_with_explicit": tagged("sample", label="override"),
         "annotation": tagged.__annotations__,
         "qualname": tagged.__qualname__,
     }

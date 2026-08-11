@@ -5,6 +5,9 @@ from __future__ import annotations
 from collections.abc import Generator, Iterator
 
 
+parcel_stream_cleanup: list[str] = []
+
+
 def parcel_stream(count: int) -> Generator[str, str | None, str]:
     """Generator demonstrating deferred start, send, throw, close, cleanup, and return value."""
 
@@ -14,11 +17,10 @@ def parcel_stream(count: int) -> Generator[str, str | None, str]:
             if incoming is not None:
                 yield f"echo:{incoming}"
     except GeneratorExit:
-        yield "cleanup:generator-exit"
+        parcel_stream_cleanup.append("generator-exit")
         return
     finally:
-        # Cleanup hook runs on close or exhaustion.
-        pass
+        parcel_stream_cleanup.append("cleanup")
     return "stream-complete"
 
 
