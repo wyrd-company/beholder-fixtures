@@ -1,0 +1,6 @@
+[project]
+name = "dispatch-framework"
+version = "0.1.0"
+description = "Runtime dispatch and registry framework exercising Python dynamic dispatch surfaces"
+requires-python = ">=3.10"
+readme = "coverage.md"
