@@ -1,0 +1,14 @@
+{
+  "name": "@fixtures/declarations-scope-merging",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture library demonstrating declaration identity, lexical scope, and declaration merging",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
+  }
+}

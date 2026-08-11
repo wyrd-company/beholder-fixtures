@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "lib": ["es5", "es2015.symbol"],
+    "strict": true,
+    "declaration": true,
+    "outDir": "dist-downlevel",
+    "rootDir": "src/downlevel",
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/downlevel/**/*"]
+}
