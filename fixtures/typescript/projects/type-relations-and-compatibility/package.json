@@ -1,0 +1,14 @@
+{
+  "name": "@fixtures/type-relations-and-compatibility",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture library demonstrating type relations, structural compatibility, unions, nullability, readonly views, and callable variance",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
+  }
+}

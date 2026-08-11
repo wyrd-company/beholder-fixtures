@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "moduleDetection": "legacy",
+    "strict": true,
+    "strictFunctionTypes": false,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist-no-strict-function-types",
+    "rootDir": "src/contexts/no-strict-function-types",
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/contexts/no-strict-function-types/**/*"]
+}
