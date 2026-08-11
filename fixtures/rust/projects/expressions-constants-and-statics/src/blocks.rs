@@ -87,25 +87,68 @@ pub fn specialized_blocks() -> i32 {
     from_const_block + from_unsafe_block
 }
 
-/// Tail temporary destruction: temporary created in block tail lives until end of block.
-pub fn tail_temporary_scope() -> usize {
-    let len = {
-        // `String` temporary extended to end of this block in edition 2024 tail scope.
-        let s: &str = &String::from("harvest");
-        s.len()
-    };
-    len
+use std::cell::RefCell;
+
+thread_local! {
+    static DROP_LOG: RefCell<Vec<&'static str>> = RefCell::new(Vec::new());
 }
 
-/// 2024 tail-scope contrast: in edition 2024, tail temporaries live longer than in earlier editions.
-/// Demonstrated explicitly beside the 2021 crate which documents the prior behavior.
-pub fn tail_scope_2024_demo() -> String {
-    // Tail value lives through block; edition 2024 extends temporary lifetime for tail expressions.
-    let value = {
-        let owned = String::from("plot");
-        owned.clone()
+struct TailGuard(&'static str);
+impl Drop for TailGuard {
+    fn drop(&mut self) {
+        DROP_LOG.with(|l| l.borrow_mut().push(self.0));
+    }
+}
+
+struct TempString {
+    content: &'static str,
+    label: &'static str,
+}
+impl TempString {
+    fn new(content: &'static str, label: &'static str) -> Self {
+        Self { content, label }
+    }
+}
+impl Drop for TempString {
+    fn drop(&mut self) {
+        DROP_LOG.with(|l| l.borrow_mut().push(self.label));
+    }
+}
+impl std::ops::Deref for TempString {
+    type Target = str;
+    fn deref(&self) -> &Self::Target {
+        self.content
+    }
+}
+
+/// Tail temporary destruction: temporary created in block tail lives until end of block (edition 2024).
+/// Drop order of a local guard versus the tail temporary is observable and edition-sensitive.
+pub fn tail_temporary_scope() -> Vec<&'static str> {
+    DROP_LOG.with(|l| l.borrow_mut().clear());
+    let len = {
+        let _local = TailGuard("local");
+        // Tail expression borrows a temporary `TempString`; in edition 2024 it lives until the
+        // end of this block, so its drop follows `_local`. In edition 2021 the tail temporary
+        // was destroyed earlier, which the 2021 companion crate demonstrates with identical code.
+        let s: &str = &TempString::new("harvest", "tail_temp");
+        s.len()
     };
-    value
+    let _ = len;
+    DROP_LOG.with(|l| l.borrow().clone())
+}
+
+/// 2024 tail-scope contrast: tail temporary outlives locals in 2024.
+pub fn tail_scope_2024_demo() -> Vec<&'static str> {
+    DROP_LOG.with(|l| l.borrow_mut().clear());
+    {
+        let _outer = TailGuard("outer");
+        let s: &str = {
+            let _inner = TailGuard("inner");
+            &TempString::new("plot", "plot_temp")
+        };
+        let _ = s.len();
+    }
+    DROP_LOG.with(|l| l.borrow().clone())
 }
 
 pub fn demonstrate() -> i32 {

@@ -81,6 +81,23 @@ pub fn closure_return_target() -> i32 {
     mapped.iter().sum()
 }
 
+/// Closure containing unreachable code after a diverging `return` (distinct from type validity).
+#[allow(unreachable_code)]
+pub fn closure_unreachable_code() -> i32 {
+    let closure = |x: i32| -> i32 {
+        if x == 0 {
+            return 0;
+        }
+        if true {
+            return 5;
+        }
+        // Unreachable but type-checked; lint is distinct from validity.
+        let _unreachable: i32 = 99;
+        _unreachable
+    };
+    closure(1) + closure(0)
+}
+
 /// Never fallback: divergent expression can select type for inferred variable.
 pub fn never_fallback_demo() -> i32 {
     // `!` coerces to `i32` here via branch.
@@ -103,6 +120,7 @@ pub fn demonstrate() -> i32 {
     let _ = panic_usages(false);
     let _ = unreachable_code_demo();
     let _ = closure_return_target();
+    let _ = closure_unreachable_code();
     let _ = never_fallback_demo();
     1
 }

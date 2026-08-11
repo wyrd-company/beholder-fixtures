@@ -71,10 +71,19 @@ impl Recorder {
     }
 }
 
+fn make_recorder(label: &'static str) -> Recorder {
+    ORDER_LOG.with(|log| {
+        let mut v = log.take();
+        v.push(label);
+        log.set(v);
+    });
+    Recorder
+}
+
 pub fn method_order() -> Vec<&'static str> {
     ORDER_LOG.with(|l| l.set(Vec::new()));
-    let rec = Recorder;
-    let _ = rec.method(log_and_value("m_arg1", 5), log_and_value("m_arg2", 6));
+    let _ =
+        make_recorder("receiver").method(log_and_value("m_arg1", 5), log_and_value("m_arg2", 6));
     ORDER_LOG.with(|l| l.take())
 }
 
@@ -85,11 +94,20 @@ pub fn binary_operand_order() -> Vec<&'static str> {
     ORDER_LOG.with(|l| l.take())
 }
 
-/// Assignment right-hand side before place in compound contexts: documented via explicit recording.
+fn place_with_log<'a>(label: &'static str, target: &'a mut i32) -> &'a mut i32 {
+    ORDER_LOG.with(|log| {
+        let mut v = log.take();
+        v.push(label);
+        log.set(v);
+    });
+    target
+}
+
+/// Assignment order: place (assignee) evaluation with side effect ordered before RHS.
 pub fn assignment_order() -> Vec<&'static str> {
     ORDER_LOG.with(|l| l.set(Vec::new()));
     let mut target: i32 = 0;
-    target = log_and_value("rhs", 99);
+    *place_with_log("lhs", &mut target) = log_and_value("rhs", 99);
     ORDER_LOG.with(|l| l.take())
 }
 
@@ -158,24 +176,27 @@ impl IndexMut<usize> for Store {
     }
 }
 
+fn log_index(label: &'static str, value: usize) -> usize {
+    ORDER_LOG.with(|log| {
+        let mut v = log.take();
+        v.push(label);
+        log.set(v);
+    });
+    value
+}
+
 pub fn indexed_compound_assignment() -> i32 {
     let mut store = Store {
         data: vec![10, 20, 30],
     };
-    let mut side_log: Vec<&'static str> = Vec::new();
-
-    // Compound assignment `store[idx] += rhs` evaluates place then rhs in defined order.
-    let idx = {
-        side_log.push("idx");
-        1_usize
-    };
-    let rhs = {
-        side_log.push("rhs");
-        5_i32
-    };
-    store[idx] += rhs;
+    ORDER_LOG.with(|l| l.set(Vec::new()));
+    // Compound assignment evaluates the index place and RHS as part of the single
+    // `store[place] += rhs` expression, not via prior let bindings. Both `idx` and `rhs`
+    // logging occur inside the compound assignment.
+    store[log_index("idx", 1)] += log_and_value("rhs", 5);
+    let log = ORDER_LOG.with(|l| l.take());
+    assert_eq!(log, vec!["idx", "rhs"]);
     assert_eq!(store.data[1], 25);
-    assert_eq!(side_log, vec!["idx", "rhs"]);
     store.data[1]
 }
 
@@ -183,9 +204,9 @@ pub fn demonstrate() -> i32 {
     assert_eq!(tuple_order(), vec!["a", "b", "c"]);
     assert_eq!(array_order(), vec!["x", "y", "z"]);
     assert_eq!(call_order(), vec!["arg1", "arg2", "arg3"]);
-    assert_eq!(method_order(), vec!["m_arg1", "m_arg2"]);
+    assert_eq!(method_order(), vec!["receiver", "m_arg1", "m_arg2"]);
     assert_eq!(binary_operand_order(), vec!["left", "right"]);
-    let _ = assignment_order();
+    assert_eq!(assignment_order(), vec!["lhs", "rhs"]);
     let _ = short_circuit_conditions();
     let _ = overloaded_operator_order();
     let _ = indexed_compound_assignment();

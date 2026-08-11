@@ -22,16 +22,35 @@ pub fn scoped_if_let(input: Option<String>) -> usize {
     }
 }
 
-/// Demonstrates `if let` temporary scope contrast: in edition 2024, temporaries in `if let` condition
-/// are handled with the new scope. This valid code compiles in both editions but illustrates the
-/// intended edition-sensitive behavior documented in the 2021 companion crate.
-pub fn if_let_temporary_scope() -> Option<usize> {
-    let maybe = Some(String::from("field"));
-    if let Some(s) = maybe.as_ref().map(|s| s.clone()) {
-        Some(s.len())
-    } else {
-        None
+use std::cell::RefCell;
+
+thread_local! {
+    static IF_LET_LOG: RefCell<Vec<&'static str>> = RefCell::new(Vec::new());
+}
+
+struct IfLetScrutinee(&'static str);
+impl Drop for IfLetScrutinee {
+    fn drop(&mut self) {
+        IF_LET_LOG.with(|l| l.borrow_mut().push(self.0));
     }
+}
+
+/// Demonstrates `if let` temporary scope contrast: in edition 2024, temporaries created
+/// in the `if let` scrutinee are dropped after the then-branch, not immediately after
+/// the condition. The drop order of `Scrutinee("scrutinee")` versus the branch body
+/// is observable and differs from the 2021 companion with identical code.
+pub fn if_let_temporary_scope() -> Vec<&'static str> {
+    IF_LET_LOG.with(|l| l.borrow_mut().clear());
+    let result = if let Some(s) = Some(IfLetScrutinee("scrutinee")).as_ref() {
+        IF_LET_LOG.with(|l| l.borrow_mut().push("then"));
+        Some(s.0.len())
+    } else {
+        IF_LET_LOG.with(|l| l.borrow_mut().push("else"));
+        None
+    };
+    let _ = result;
+    IF_LET_LOG.with(|l| l.borrow_mut().push("after"));
+    IF_LET_LOG.with(|l| l.borrow().clone())
 }
 
 /// Let chain with short-circuit and binding behavior on edition 2024.

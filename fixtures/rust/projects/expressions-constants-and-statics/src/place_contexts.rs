@@ -46,6 +46,8 @@ pub struct Record {
 
 static GLOBAL_COUNTER: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(0);
 static GLOBAL_VALUE: i32 = 42;
+static PLACE_STATIC_IMMUT: i32 = 123;
+static mut PLACE_STATIC_MUT: i32 = 0;
 
 /// Demonstrates locals, statics, dereferences, fields, and indexes
 /// in value, borrow, assignment, and compound-assignment contexts.
@@ -93,9 +95,19 @@ pub fn demonstrate() -> i32 {
     record.field += 3;
     record.label.push_str("-amended");
 
-    // Static in value, borrow, assignment (via interior mutability of atomic), compound assignment not on `static mut`.
+    // Static in value, borrow, assignment, and compound-assignment contexts.
     let _static_value: i32 = GLOBAL_VALUE;
     let _static_borrow: &'static i32 = &GLOBAL_VALUE;
+    let _static_immut_value: i32 = PLACE_STATIC_IMMUT;
+    let _static_immut_borrow: &'static i32 = &PLACE_STATIC_IMMUT;
+    unsafe {
+        PLACE_STATIC_MUT = 7;
+        PLACE_STATIC_MUT += 4;
+        PLACE_STATIC_MUT *= 2;
+        let _place_mut_value: i32 = PLACE_STATIC_MUT;
+        let _place_mut_borrow: *const i32 = std::ptr::addr_of!(PLACE_STATIC_MUT);
+        let _ = _place_mut_borrow;
+    }
     GLOBAL_COUNTER.store(7, std::sync::atomic::Ordering::SeqCst);
     GLOBAL_COUNTER.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
 
