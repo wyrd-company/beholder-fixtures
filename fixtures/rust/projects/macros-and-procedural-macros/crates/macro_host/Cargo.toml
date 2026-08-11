@@ -1,0 +1,17 @@
+[package]
+name = "macro_host"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Procedural-macro crate for fixture"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+host_helper = { path = "../host_helper" }
+
+[lints]
+workspace = true

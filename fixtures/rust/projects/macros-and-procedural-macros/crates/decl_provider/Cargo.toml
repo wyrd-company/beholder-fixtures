@@ -1,0 +1,15 @@
+[package]
+name = "decl_provider"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Declarative macro provider for fixture"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "decl_provider"
+path = "src/lib.rs"
+
+[lints]
+workspace = true

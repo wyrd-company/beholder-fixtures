@@ -1,0 +1,73 @@
+[package]
+name = "macros-and-procedural-macros"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for Rust macros and procedural macros"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace]
+members = [
+    "crates/macro_host",
+    "crates/host_helper",
+    "crates/decl_provider",
+    "crates/edition-2015",
+    "crates/edition-2018",
+    "crates/edition-2021",
+]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Shared fixture description"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace.lints.rust]
+unused = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fixture_custom)"] }
+
+[workspace.lints.clippy]
+all = "warn"
+
+[lib]
+name = "macros_and_procedural_macros"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[[bin]]
+name = "unit-main"
+path = "src/bin/unit_main.rs"
+test = false
+bench = false
+
+[[bin]]
+name = "result-main"
+path = "src/bin/result_main.rs"
+test = false
+bench = false
+
+[[bin]]
+name = "no-main-demo"
+path = "src/bin/no_main_demo.rs"
+test = false
+bench = false
+
+[[bin]]
+name = "rewritten-main"
+path = "src/bin/rewritten_main.rs"
+test = false
+bench = false
+
+[dependencies]
+macro_host = { path = "crates/macro_host" }
+decl_provider = { path = "crates/decl_provider" }
+edition-2015 = { path = "crates/edition-2015" }
+edition-2018 = { path = "crates/edition-2018" }
+edition-2021 = { path = "crates/edition-2021" }
+
+[lints]
+workspace = true

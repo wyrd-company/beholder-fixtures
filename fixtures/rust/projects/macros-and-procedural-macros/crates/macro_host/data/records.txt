@@ -1,0 +1,5 @@
+# Deterministic offline DSL data for RS-CAN-ECO-009
+alpha 10
+beta 20
+gamma 30
+delta 40

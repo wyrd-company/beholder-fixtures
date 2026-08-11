@@ -1,0 +1,15 @@
+[package]
+name = "host_helper"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Host-only helper for proc-macro crate"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "host_helper"
+path = "src/lib.rs"
+
+[lints]
+workspace = true

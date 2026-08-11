@@ -1,0 +1,15 @@
+[package]
+name = "edition-2018"
+version = "0.1.0"
+edition = "2018"
+rust-version = "1.85"
+description = "Edition 2018 member for uniform paths"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[dependencies]
+decl_provider = { path = "../decl_provider" }
+edition-2015 = { path = "../edition-2015" }
+
+[lints]
+workspace = true
