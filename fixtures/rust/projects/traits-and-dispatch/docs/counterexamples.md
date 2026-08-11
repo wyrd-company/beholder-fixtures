@@ -31,6 +31,22 @@ Valid contrast: conditional `Replicate for Wrap<T> where T: Clone` and blanket
 `ExtLabel for T where T: Display` in `src/conditional.rs` are non-overlapping
 and have satisfying (`Wrap<i32>`, `Displayable`) and non-satisfying (`Wrap<Opaque>`, `Opaque`) sites.
 
+## Uncovered parameter order (RS-CAN-TRAIT-002)
+
+The orphan rule requires a local type to precede any uncovered type parameter.
+Placing the uncovered parameter first is rejected:
+
+```rust,ignore
+struct LocalType(i32);
+// Rejected: uncovered `T` (the `Self` type) precedes the local type argument.
+impl<T> std::ops::Add<LocalType> for T {} // error: type parameter `T` must be covered by another type when it appears before the first local type
+```
+
+Valid contrast: `impl<Rhs> std::ops::Add<Rhs> for LocalType` in `src/coherence.rs`
+is legal because the local `LocalType` (`Self`) precedes the uncovered `Rhs`. The
+fundamental reference case `impl std::ops::Neg for &LocalType` is legal because
+`&T` is `#[fundamental]`, covering the local referent just as `Box<T>` does.
+
 ## Missing supertrait (RS-CAN-TRAIT-004)
 
 A subtrait requires its supertrait; implementing the subtrait without the supertrait fails:

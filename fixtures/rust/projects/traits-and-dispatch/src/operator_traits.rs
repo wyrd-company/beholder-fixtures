@@ -22,13 +22,29 @@ impl AddAssign for Count {
 
 impl PartialOrd for Count {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.0.cmp(&other.0))
+        use std::cmp::Ordering;
+        // Ordering built from comparison operators only; no `Ord::cmp` call.
+        Some(if self.0 < other.0 {
+            Ordering::Less
+        } else if self.0 > other.0 {
+            Ordering::Greater
+        } else {
+            Ordering::Equal
+        })
     }
 }
 
 impl Ord for Count {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        self.0.cmp(&other.0)
+        use std::cmp::Ordering;
+        // Ordering built from comparison operators only; no `Ord::cmp` call.
+        if self.0 < other.0 {
+            Ordering::Less
+        } else if self.0 > other.0 {
+            Ordering::Greater
+        } else {
+            Ordering::Equal
+        }
     }
 }
 

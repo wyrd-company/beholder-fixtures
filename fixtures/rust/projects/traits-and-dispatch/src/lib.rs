@@ -20,6 +20,7 @@ pub use auto_traits::{
 };
 pub use coherence::{
     LocalTrait, LocalType, Wrapper, coherence_summary, display_summary, fundamental_summary,
+    orphan_order_summary,
 };
 pub use conditional::{ExtLabel, Replicate, Wrap, conditional_summary};
 pub use conversion::{CheckedId, ConversionError, UserId, conversion_summary};
@@ -63,5 +64,6 @@ pub fn fixture_summary() -> String {
     parts.push(drop_semantics::drop_summary());
     parts.push(derive_traits::derive_summary());
     parts.push(coherence::fundamental_summary());
+    parts.push(coherence::orphan_order_summary());
     parts.join("|")
 }

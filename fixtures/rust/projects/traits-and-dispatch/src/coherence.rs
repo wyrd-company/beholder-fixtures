@@ -70,12 +70,38 @@ impl std::fmt::Debug for Box<Wrapper> {
     }
 }
 
-/// Generic parameter order: the local type appears as the first generic
-/// argument of the fundamental `Box`. This ordering is what makes the
-/// orphan check succeed for `Box<FundamentalInner>` and `Box<Wrapper>`.
+/// Fundamental `Box` coverage (second trait): `Box<T>` is `#[fundamental]`, so
+/// its single argument `FundamentalInner` (local) is covered and the foreign
+/// `Debug` impl is legal. `Box<T>` has one type argument, so this demonstrates
+/// fundamental coverage, not parameter order; the ordering cases below use a
+/// trait with an additional uncovered type parameter.
 impl std::fmt::Debug for Box<FundamentalInner> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "BoxFundamentalDebug({})", self.0)
+    }
+}
+
+/// Fundamental reference coverage: `&T` is `#[fundamental]` exactly like
+/// `Box<T>`, so a foreign trait (`std::ops::Neg`) may be implemented for
+/// `&LocalType` because the referent `LocalType` is local. No blanket `Neg`
+/// impl exists for references, so this does not conflict.
+impl std::ops::Neg for &LocalType {
+    type Output = LocalType;
+    fn neg(self) -> LocalType {
+        LocalType(-self.0)
+    }
+}
+
+/// Generic uncovered-parameter order: `std::ops::Add<Rhs>` carries an extra type
+/// parameter `Rhs`. This impl is legal because the local `LocalType` is the
+/// `Self` type and therefore precedes the uncovered, fully generic `Rhs` in the
+/// orphan parameter order. Swapping the order to `impl<T> Add<LocalType> for T`
+/// would be rejected, since the uncovered `T` (`Self`) would precede the local
+/// type. See `docs/counterexamples.md`.
+impl<Rhs> std::ops::Add<Rhs> for LocalType {
+    type Output = LocalType;
+    fn add(self, _rhs: Rhs) -> LocalType {
+        LocalType(self.0)
     }
 }
 
@@ -103,4 +129,14 @@ pub fn fundamental_summary() -> String {
     let b = format!("{:?}", Box::new(FundamentalInner(21)));
     let c = format!("{:?}", Box::new(Wrapper(vec![3, 4])));
     format!("{a}|{b}|{c}")
+}
+
+/// Exercises the fundamental-reference impl (`Neg for &LocalType`) and the
+/// generic uncovered-parameter-order impl (`Add<Rhs> for LocalType`).
+pub fn orphan_order_summary() -> String {
+    let negated = -&LocalType(5);
+    // `Rhs` is inferred independently at each call: `i32` then `&str`.
+    let added_int = LocalType(1) + 99;
+    let added_str = LocalType(2) + "ignored";
+    format!("{negated}|{added_int}|{added_str}")
 }
