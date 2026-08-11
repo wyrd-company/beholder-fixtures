@@ -1,0 +1,21 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Compile all fixture projects in every declared build context
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet build FrameworkAndGenerators.sln -c Release
+
+  lint:
+    desc: Verify formatting and run analyzers via build
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet format --verify-no-changes FrameworkAndGenerators.sln
+      - dotnet build FrameworkAndGenerators.sln -c Release --no-restore
+
+  test:
+    desc: Run tests if present; succeeds with no test source
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet build FrameworkAndGenerators.sln -c Release --no-restore

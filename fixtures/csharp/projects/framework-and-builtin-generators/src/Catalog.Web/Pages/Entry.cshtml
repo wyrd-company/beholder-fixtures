@@ -1,0 +1,13 @@
+@page
+@model Catalog.Web.Pages.EntryModel
+@{
+    ViewData["Title"] = "Catalog Entry";
+}
+<h1>@Model.EntryName</h1>
+<p>Price: @Model.Price</p>
+<ul>
+@foreach (var tag in Model.Tags)
+{
+    <li>@tag</li>
+}
+</ul>
