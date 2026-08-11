@@ -1,0 +1,28 @@
+# ---
+# relationships:
+#   references:
+#     - coverage
+# ---
+version: '3'
+
+tasks:
+  build:
+    desc: Resolve offline, analyze, and run the declared entry point.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dart pub get --offline
+      - dart analyze
+      - dart run bin/vm_main.dart
+
+  lint:
+    desc: Check dart format and run dart analyze.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dart format --output=none --set-exit-if-changed .
+      - dart analyze
+
+  test:
+    desc: Succeed with no planned test files.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - ':'

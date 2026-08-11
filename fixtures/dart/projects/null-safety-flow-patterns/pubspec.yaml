@@ -1,0 +1,10 @@
+name: null_safety_flow_patterns
+description: >-
+  Fixture package demonstrating null safety, flow promotion, statements and
+  switches, the pattern taxonomy and its contexts, exceptions and stack flow,
+  and collection literals and control flow.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.12.2 <4.0.0'
