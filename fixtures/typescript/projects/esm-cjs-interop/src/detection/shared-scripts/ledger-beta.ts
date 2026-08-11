@@ -4,6 +4,8 @@
 //   references: ground-rules
 // ---
 
+declare var sharedLedger: number;
+
 function readSharedLedger(): number {
-  return (globalThis as { sharedLedger?: number }).sharedLedger ?? 0;
+  return sharedLedger;
 }
