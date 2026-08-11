@@ -16,4 +16,18 @@ part of 'tool_record.dart';
 extension TorqueWrenchSummary on TorqueWrench {
   String summary() =>
       '${_normalizeLabel(label)} @ ${_calibrationNewtonMeters.toStringAsFixed(1)} Nm';
+
+  /// Joins _torqueWrenchNameParts, so the formatter-style contrast list below is
+  /// generated content actually reachable from TorqueWrench, not dead code.
+  String nameLabel() => _torqueWrenchNameParts.join(' ');
 }
+
+/// TorqueWrench's name parts, generated with a source trailing comma
+/// (DART-CAN-BUILD-004 formatter-style contrast). This file formats at the
+/// package's current default language version, under which `dart format`
+/// does not treat a source trailing comma as a signal to keep a
+/// same-line-eligible list split across lines, so this list collapses onto
+/// one line. Compare `crate_manifest.crate.g.dart`'s identically-shaped
+/// `_storageCrateNameParts`, generated under an explicit `@dart=3.6`
+/// override, where the same trailing comma keeps the list split.
+const List<String> _torqueWrenchNameParts = ['torque', 'wrench'];
