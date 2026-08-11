@@ -2,6 +2,8 @@
 /// shares this library's imports, namespace, and private names.
 library;
 
+import 'dart:math' show pi;
+
 part 'owner_uri_part.dart';
 
 int _ownerUriPrivateCounter = 0;
