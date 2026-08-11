@@ -1,0 +1,10 @@
+# Pub reads dependency_overrides only from the pubspec_overrides.yaml (or the
+# inline dependency_overrides block) of the resolution root. In a pub
+# workspace the resolution root is this file's directory; a workspace member
+# has no override authority of its own, so this single, root-only override
+# reaches every member that depends on `clock`, even though `clock` is
+# declared here only as a plain hosted dependency (see pubspec.yaml) and
+# separately as a hosted dependency of packages/beacon_metrics.
+dependency_overrides:
+  clock:
+    path: overrides/clock

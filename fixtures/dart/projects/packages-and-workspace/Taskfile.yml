@@ -1,0 +1,45 @@
+# ---
+# relationships:
+#   references:
+#     - coverage
+# ---
+version: '3'
+
+vars:
+  BUILD_DIR: '{{.TASKFILE_DIR}}/build'
+  PUB_CACHE: '{{.TASKFILE_DIR}}/vendor/pub-cache'
+
+tasks:
+  build:
+    desc: Resolve offline, analyze, run the declared entry points, and compile the native-aot artifact.
+    dir: '{{.TASKFILE_DIR}}'
+    env:
+      PUB_CACHE: '{{.PUB_CACHE}}'
+    cmds:
+      - dart pub get --offline
+      - dart analyze
+      - mkdir -p {{.BUILD_DIR}}
+      - dart run bin/console_main.dart 4.5 5.5
+      - dart run bin/admin_tool_main.dart pier-1 3 4
+      - >-
+        dart compile exe
+        -o {{.BUILD_DIR}}/admin_tool_main
+        bin/admin_tool_main.dart
+      - '{{.BUILD_DIR}}/admin_tool_main pier-1 3 4'
+
+  lint:
+    desc: Check dart format and run dart analyze.
+    dir: '{{.TASKFILE_DIR}}'
+    env:
+      PUB_CACHE: '{{.PUB_CACHE}}'
+    cmds:
+      - dart format --output=none --set-exit-if-changed lib bin example tool test packages
+      - dart analyze
+
+  test:
+    desc: Run the planned test/ suite offline.
+    dir: '{{.TASKFILE_DIR}}'
+    env:
+      PUB_CACHE: '{{.PUB_CACHE}}'
+    cmds:
+      - dart test

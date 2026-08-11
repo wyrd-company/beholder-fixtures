@@ -1,0 +1,5 @@
+analyzer:
+  exclude:
+    - vendor/**
+    - overrides/**
+    - build/**

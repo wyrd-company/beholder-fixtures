@@ -1,0 +1,23 @@
+name: beacon_metrics
+description: >-
+  Workspace member exercising a portable, non-`dart:io` reading library
+  shared with sibling members. Its directory (packages/beacon_metrics) and
+  package name coincide, in contrast with the workspace root, which
+  demonstrates the opposite case.
+version: 1.0.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: '>=3.10.0 <4.0.0'
+
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  windows:
+  web:
+
+dependencies:
+  clock: ^1.1.2

@@ -1,0 +1,36 @@
+# ---
+# relationships:
+#   references:
+#     - coverage
+# ---
+name: signal_console
+description: >-
+  A pub workspace root and command-line application exercising manifests,
+  package layout and roots, dependency sources, version solving, resolution
+  overrides, workspaces, tests, and executables. The package name
+  (signal_console) is independent of the exclusive fixture directory name
+  (packages-and-workspace).
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.12.2 <4.0.0'
+
+workspace:
+  - packages/beacon_metrics
+  - packages/ledger_support
+
+platforms:
+  linux:
+  macos:
+  windows:
+
+executables:
+  signal-console: console_main
+  admin-tool: admin_tool_main
+
+dependencies:
+  clock: ^1.1.2
+
+dev_dependencies:
+  test: ^1.31.2

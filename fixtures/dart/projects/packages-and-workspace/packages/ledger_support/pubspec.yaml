@@ -1,0 +1,20 @@
+name: ledger_support
+description: >-
+  Workspace member exercising a `dart:io`-backed channel, reached through a
+  conditional import, and an explicit path dependency on a sibling workspace
+  member.
+version: 1.0.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: '>=3.12.2 <4.0.0'
+
+platforms:
+  linux:
+  macos:
+  windows:
+
+dependencies:
+  beacon_metrics:
+    path: ../beacon_metrics

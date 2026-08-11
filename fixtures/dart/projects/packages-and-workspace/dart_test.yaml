@@ -1,0 +1,12 @@
+# package:test discovery configuration (DART-CAN-PKG-007). This project's
+# only declared build contexts are `vm-jit` and `native-aot`, so the VM is
+# the sole configured platform.
+platforms:
+  - vm
+
+tags:
+  slow:
+    timeout: 4x
+  smoke: {}
+
+timeout: 30s
