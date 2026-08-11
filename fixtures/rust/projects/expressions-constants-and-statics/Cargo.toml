@@ -1,0 +1,41 @@
+[package]
+name = "expressions-constants-and-statics"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for Rust expressions, control flow, constants, and statics"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace]
+members = ["crates/edition_2021_demo"]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Shared fixture description"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace.lints.rust]
+dead_code = "warn"
+unused = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fixture_highlight)"] }
+
+[workspace.lints.clippy]
+all = "warn"
+pedantic = "allow"
+
+[lib]
+name = "expressions_constants_and_statics"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[[bin]]
+name = "demo_main_result"
+path = "src/bin/demo_main.rs"
+
+[lints]
+workspace = true
