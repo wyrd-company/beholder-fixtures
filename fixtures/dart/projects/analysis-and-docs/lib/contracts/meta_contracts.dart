@@ -47,11 +47,20 @@ void useHelperPackage() {
 // `analysis_and_docs` package or `HelperRegistry` from outside `helper`
 // would be a violation of `@internal` and is not included.
 
-// `@visibleForTesting` members are defined for test use only.
-// Compliant use is within tests; production code does not call them.
-// The class and member are defined but not invoked here to avoid an
-// `invalid_use_of_visible_for_testing_member` diagnostic.
-// For demonstration, `TestHelper` is available for tests.
+/// Demonstrates `@visibleForTesting`: the member is intended for test access,
+/// and a reference from within its own declaring library is compliant and
+/// raises no `invalid_use_of_visible_for_testing_member` diagnostic.
+class TestSeam {
+  const TestSeam();
+
+  @visibleForTesting
+  int computeForTest() => 42;
+}
+
+/// Compliant use of a `@visibleForTesting` member from within its declaring
+/// library. A use from outside this library (and outside a test) would violate
+/// the contract and is recorded as an observation only.
+int useVisibleForTestingWithinLibrary() => const TestSeam().computeForTest();
 
 // ---------------------------------------------------------------------------
 // Behavior contracts.

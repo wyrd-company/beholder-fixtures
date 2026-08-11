@@ -4,9 +4,9 @@ packages:
   helper:
     dependency: "direct main"
     description:
-      name: helper
-      url: "https://pub.dev"
-    source: hosted
+      path: "packages/helper"
+      relative: true
+    source: path
     version: "1.0.0"
   meta:
     dependency: "direct main"

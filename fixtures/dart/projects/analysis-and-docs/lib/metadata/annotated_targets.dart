@@ -50,15 +50,12 @@ class Holder<@WorkshopTag('type-param-tag') T> {
 CatalogItem? findItem(List<CatalogItem> items) =>
     items.isEmpty ? null : items.first;
 
-/// Type-use: annotation on the `CatalogItem` type itself.
-@WorkshopTag('type-use')
-CatalogItem? typeUseExample;
-
-/// Type-use on a field's type.
-class TypeUseHolder {
-  @WorkshopTag('type-use-field')
-  CatalogItem held = const CatalogItem('u', 'v', 1);
-}
+/// Type-use: a custom const annotation nested on a type node, not on a
+/// declaration. `@WorkshopTag('type-use')` annotates the `CatalogItem`
+/// positional field *inside the record type*, so the metadata sits on a
+/// type-use node rather than on the variable, field, or parameter declarations
+/// above. This is the distinct type-use variant of DART-CAN-DIAG-005.
+typedef TaggedRecord = (@WorkshopTag('type-use') CatalogItem, String label);
 
 /// Variable with metadata.
 @WorkshopTag('variable-tag')
