@@ -48,7 +48,13 @@ function createExampleTransformer(): ts.TransformerFactory<ts.SourceFile> {
   };
 }
 
-const sourceFile = ts.createSourceFile(sourcePath, sourceText, ts.ScriptTarget.ES2022, true, ts.ScriptKind.TS);
+const sourceFile = ts.createSourceFile(
+  sourcePath,
+  sourceText,
+  ts.ScriptTarget.ES2022,
+  true,
+  ts.ScriptKind.TS,
+);
 
 const result = ts.transform(sourceFile, [createExampleTransformer()]);
 const transformed = result.transformed[0] as ts.SourceFile;
@@ -57,15 +63,20 @@ const output = printer.printFile(transformed);
 
 console.log(`// compiler-API before transformer on ${sourcePath}`);
 console.log(output);
-console.log("// injected `__generatedRuntimeEdge` is a generated runtime edge absent from source");
-console.log("// its initializer `synthetic-node` has no source position (pos -1)");
+console.log(
+  "// injected `__generatedRuntimeEdge` is a generated runtime edge absent from source",
+);
+console.log(
+  "// its initializer `synthetic-node` has no source position (pos -1)",
+);
 
 // verify synthetic position
 const injectedStmt = transformed.statements[transformed.statements.length - 1];
 const pos = (injectedStmt as unknown as { pos: number }).pos;
 if (pos !== -1) {
   // transformer keeps synthetic range on literal; statement may have pos but literal is synthetic
-  const literal = (injectedStmt as ts.VariableStatement).declarationList.declarations[0].initializer;
+  const literal = (injectedStmt as ts.VariableStatement).declarationList
+    .declarations[0].initializer;
   const litPos = (literal as unknown as { pos: number }).pos;
   if (litPos !== -1) {
     console.error("expected synthetic node to have pos -1");

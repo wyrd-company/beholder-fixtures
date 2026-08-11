@@ -1,24 +1,27 @@
-version: '3'
+version: "3"
 
 tasks:
   build:
     desc: Type-check with tsc and exercise non-tsc transform and runtime-native hosts
     cmds:
-      - npx tsc --noEmit
-      - npx tsc --noEmit -p tsconfig.erasable.json
-      - npx tsc --outDir dist --noEmit false
+      - ./node_modules/.bin/tsc --noEmit
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.erasable.json
+      - ./node_modules/.bin/tsc --outDir dist --noEmit false
       - bun run scripts/bun-transpile.ts
       - bun run scripts/compiler-transform.ts
       - node --experimental-strip-types src/runtime-node-erasable.ts
       - bun run src/runtime-bun.ts
+      - bun run src/with-extension.ts
 
   lint:
-    desc: tsc no-emit check over fixture sources (vendored source excluded, no tracked source mutated)
+    desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)
     cmds:
-      - npx tsc --noEmit
+      - ./node_modules/.bin/prettier --check "src/**/*" "scripts/**/*" "Taskfile.yml" "tsconfig*.json" "coverage.md" "package.json"
+      - ./node_modules/.bin/tsc --noEmit
 
   test:
     desc: No fixture tests; verifies runtime-native execution without type checking
     cmds:
       - node --experimental-strip-types src/runtime-node-erasable.ts
       - bun run src/runtime-bun.ts
+      - bun run src/with-extension.ts

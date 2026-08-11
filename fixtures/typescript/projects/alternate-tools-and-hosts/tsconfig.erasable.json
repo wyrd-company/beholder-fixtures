@@ -6,5 +6,9 @@
     "declaration": false,
     "declarationMap": false
   },
-  "include": ["src/erasable.ts", "src/runtime-node-erasable.ts", "src/helpers.ts"]
+  "include": [
+    "src/erasable.ts",
+    "src/runtime-node-erasable.ts",
+    "src/helpers.ts"
+  ]
 }
