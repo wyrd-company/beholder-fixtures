@@ -1,0 +1,6 @@
+[project]
+name = "job-runner"
+version = "0.1.0"
+description = "Resilient job runner covering control flow, exceptions, concurrency, and resources"
+requires-python = ">=3.10"
+readme = "coverage.md"
