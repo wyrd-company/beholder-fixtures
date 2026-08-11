@@ -40,10 +40,10 @@ pub enum Tagged<'a, T = u32, const FLAG: bool = true> {
     Empty,
 }
 
-/// Trait with type and const defaults.
-pub trait Repository<T = String, const LIMIT: usize = 10> {
+/// Trait with lifetime, type, and const defaults.
+pub trait Repository<'a, T = String, const LIMIT: usize = 10> {
     type Item;
-    fn store(&mut self, item: Self::Item) -> Option<T>;
+    fn store(&'a mut self, item: Self::Item) -> Option<T>;
     fn capacity() -> usize {
         LIMIT
     }
@@ -71,25 +71,25 @@ pub fn inferred_defaults_demo() {
 }
 
 /// Trait impl demonstrating generic parameters on impl block.
-impl<'a> Repository for Inventory<'a, String, 4> {
+impl<'a> Repository<'a> for Inventory<'a, String, 4> {
     type Item = String;
-    fn store(&mut self, item: Self::Item) -> Option<String> {
+    fn store(&'a mut self, item: Self::Item) -> Option<String> {
         let _ = item;
         None
     }
 }
 
-/// Associated item with own generics: trait with generic method.
+/// Associated item with own generics: trait with generic method carrying lifetime/type/const.
 pub trait Converter {
-    fn convert<T, const N: usize>(&self, input: [T; N]) -> Vec<T>
+    fn convert<'a, T, const N: usize>(&'a self, input: &'a [T; N]) -> Vec<T>
     where
-        T: Clone;
+        T: Clone + 'a;
 }
 
 impl Converter for Inventory<'_, String, 2> {
-    fn convert<T, const N: usize>(&self, input: [T; N]) -> Vec<T>
+    fn convert<'a, T, const N: usize>(&'a self, input: &'a [T; N]) -> Vec<T>
     where
-        T: Clone,
+        T: Clone + 'a,
     {
         input.to_vec()
     }
@@ -155,10 +155,22 @@ where
     }
 }
 
+/// Alias with lifetime, type, and const defaults.
+pub type LifetimeAlias<'a, T = &'a str, const N: usize = 4> = Ordered<'a, T, N>;
+
+/// Alias with type and const defaults using array.
+pub type ArrayAlias<T = u8, const N: usize = 4> = [T; N];
+
 /// Type alias demonstrating default inference and explicit override.
 pub fn alias_usage() {
     let _a: DefaultInventory<'static> = Inventory::new("alias");
     let _b: Inventory<'static, String, 8> = Inventory::new("explicit");
+    let _c: LifetimeAlias<'static> = Ordered {
+        reference: &"aliased",
+        array: ["aliased"; 4],
+    };
+    let _d: ArrayAlias = [0u8; 4];
+    let _e: ArrayAlias<u32, 2> = [1u32; 2];
 }
 
 /// Module demonstrating scope of generic parameters.

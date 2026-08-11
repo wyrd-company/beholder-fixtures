@@ -51,9 +51,10 @@ pub struct Shared<'a, T: ?Sized> {
     _marker: PhantomData<&'a T>,
 }
 
-/// Mutable invariant: PhantomData<&'a mut T> is invariant over 'a and T.
+/// Mutable reference variance: covariant over 'a, invariant over T.
+/// PhantomData<&'a mut T> mirrors &mut T variance.
 #[derive(Debug)]
-pub struct Mutable<'a, T> {
+pub struct Mutable<'a, T: ?Sized> {
     _marker: PhantomData<&'a mut T>,
 }
 
@@ -134,6 +135,16 @@ where
 
 // Demonstrates invariance: function signature would not allow substitution
 // and is preserved as documentation in docs/counterexamples.md.
+
+/// Accepted lifetime covariance for mutable reference wrapper.
+pub fn mutable_lifetime_covariance<'long, 'short>(
+    value: Mutable<'long, str>,
+) -> Mutable<'short, str>
+where
+    'long: 'short,
+{
+    value
+}
 
 pub fn phantom_summary() -> &'static str {
     "variance"

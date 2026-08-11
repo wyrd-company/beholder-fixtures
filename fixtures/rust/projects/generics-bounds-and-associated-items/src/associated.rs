@@ -99,6 +99,10 @@ pub fn association_demo() {
         name: "other".to_owned(),
     };
     let _eq = constrained(entry, another);
+    let doubler = Doubler;
+    let boxed: Box<dyn Transform<Input = u32, Output = u32>> = Box::new(doubler);
+    let _via_ref = transform_via_object(boxed.as_ref(), 7);
+    let _via_box = transform_boxed(boxed);
 }
 
 // Trait object association note: non-dyn-compatible due to associated constant.
@@ -128,6 +132,15 @@ where
     let out = t.transform(value);
     let _ = format!("{out}");
     out
+}
+
+/// Valid trait-object associated binding: `dyn Transform` with concrete Input/Output.
+pub fn transform_via_object(obj: &dyn Transform<Input = u32, Output = u32>, value: u32) -> u32 {
+    obj.transform(value)
+}
+
+pub fn transform_boxed(obj: Box<dyn Transform<Input = u32, Output = u32>>) -> u32 {
+    obj.transform(21)
 }
 
 // Associated constant with generic context: Self in const expression via

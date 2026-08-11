@@ -19,8 +19,14 @@ pub fn longer<'a>(a: &'a str, b: &'a str) -> &'a str {
 // '_ inference: inferred lifetime placeholder in reference type.
 pub fn inferred_placeholder(value: &str) -> &str {
     // Type ascription with '_ requests inference.
-    let borrowed: &str = value;
+    let borrowed: &'_ str = value;
     borrowed
+}
+
+// Explicit '_ placeholder in type path.
+pub fn borrowed_with_placeholder(value: &str) -> &str {
+    let inferred: &'_ str = value;
+    inferred
 }
 
 // Function returning reference with inferred '_ in return position via argument.
@@ -93,15 +99,19 @@ pub fn boxed_static_summary(value: String) -> Box<dyn Summary> {
     Box::new(value)
 }
 
-// Box<dyn Trait + '_> inferred lifetime from context.
-pub fn borrowed_summary<'a>(value: &'a String) -> Box<dyn Summary + 'a> {
-    // Unsized coercion to trait object with inferred borrow.
-    let reference: &dyn Summary = value as &dyn Summary;
-    // For demonstration, return an owned box with static, but show
-    // '_ syntax in signature; actual returned must be 'static if owned.
-    // Instead show function that takes Box<dyn Summary + '_> as parameter.
-    let _needs = reference.summary();
-    Box::new(value.clone())
+/// Borrowed implementor holding a non-static reference.
+#[derive(Debug)]
+pub struct BorrowedSummary<'a>(pub &'a str);
+
+impl<'a> Summary for BorrowedSummary<'a> {
+    fn summary(&self) -> String {
+        self.0.to_owned()
+    }
+}
+
+// Box<dyn Trait + 'a> carries the borrowed lifetime; contrast with default 'static.
+pub fn borrowed_summary<'a>(value: &'a str) -> Box<dyn Summary + 'a> {
+    Box::new(BorrowedSummary(value))
 }
 
 // Accepting trait object with inferred lifetime.
