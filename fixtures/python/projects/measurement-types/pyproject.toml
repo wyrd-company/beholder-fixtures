@@ -1,0 +1,6 @@
+[project]
+name = "measurement-types"
+version = "0.1.0"
+description = "Quantity and container value library implementing Python data-model protocols"
+requires-python = ">=3.10"
+readme = "coverage.md"
