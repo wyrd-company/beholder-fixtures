@@ -24,15 +24,28 @@ pub enum CfgEnum {
     Shared,
 }
 
-/// Label selected by active cfg branches on the host.
+/// Generic type with cfg-gated type parameter compiled only on unix targets.
+pub struct CfgGenericParam<#[cfg(unix)] T: Clone> {
+    /// Field using the cfg-gated generic parameter.
+    #[cfg(unix)]
+    pub unix_clone: T,
+}
+
+/// Label from cfg-gated generic parameter usage on the host unix edge.
+#[cfg(unix)]
+pub fn cfg_generic_label() -> i32 {
+    let demo = CfgGenericParam { unix_clone: 7 };
+    demo.unix_clone
+}
+
+/// Label selected by cfg-removed return statements on the host.
 pub fn cfg_branch_label() -> &'static str {
-    if cfg!(unix) {
-        "unix_branch"
-    } else if cfg!(windows) {
-        "windows_branch"
-    } else {
-        "other_branch"
-    }
+    #[cfg(unix)]
+    return "unix_branch";
+    #[cfg(windows)]
+    return "windows_branch";
+    #[cfg(not(any(unix, windows)))]
+    return "other_branch";
 }
 
 /// cfg on a module with cfg_attr-injected allow attribute.
@@ -84,18 +97,41 @@ impl CfgStruct {
     }
 }
 
-/// cfg on match arm inside expression context.
+/// cfg on match arm with compile-time removal (not `cfg!` boolean guards).
 pub fn cfg_match_arm_label() -> &'static str {
     match () {
-        _ if cfg!(unix) => "unix_match_arm",
-        _ if cfg!(windows) => "windows_match_arm",
-        _ => "fallback_match_arm",
+        #[cfg(unix)]
+        () => "unix_match_arm",
+        #[cfg(windows)]
+        () => "windows_match_arm",
+        #[cfg(not(any(unix, windows)))]
+        () => "fallback_match_arm",
     }
 }
 
-/// cfg in supported subexpression `if` position.
+/// cfg on supported if-statement position with compile-time removal.
 pub fn cfg_if_label() -> i32 {
-    if cfg!(unix) { 1 } else { 0 }
+    #[cfg(unix)]
+    if true {
+        return 1;
+    }
+    #[cfg(windows)]
+    if true {
+        return 2;
+    }
+    0
+}
+
+/// cfg on let statement and block statement positions.
+pub fn cfg_stmt_label() -> i32 {
+    let mut total = 0;
+    #[cfg(unix)]
+    let unix_stmt_slot = 1;
+    #[cfg(unix)]
+    {
+        total += unix_stmt_slot;
+    }
+    total
 }
 
 // Counterexample (documented, not compiled): `cfg!(windows)` referencing windows-only APIs inside a `cfg(windows)` block fails on the host because the cfg branch is removed before name resolution.

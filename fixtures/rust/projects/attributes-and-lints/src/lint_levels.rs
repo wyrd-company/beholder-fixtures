@@ -73,4 +73,4 @@ pub fn deny_unused_variables_ok() -> i32 {
 }
 
 // Workspace lint inheritance is demonstrated by `lint_workspace_member` compiling with workspace `dead_code = "warn"` overridden to `allow` in the member manifest.
-// Command-line deny and cap are exercised by Taskfile `fixture-lint-deny` and `fixture-lint-cap` aliases.
+// Command-line deny (`-D dead_code` via `fixture-lint-deny` on helper packages) and cap (`fixture-lint-cap`) are exercised by Taskfile aliases.

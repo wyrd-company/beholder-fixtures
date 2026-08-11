@@ -2,5 +2,5 @@
 rustflags = ["--cfg", "fixture_custom_cfg"]
 
 [alias]
-fixture-lint-deny = "clippy --offline --workspace --all-targets -- -W dead_code"
+fixture-lint-deny = "clippy --offline -p derive_helpers -p lint_downstream -p lint_workspace_member -p cfg_attr_no_std --all-targets -- -D dead_code"
 fixture-lint-cap = "clippy --offline --workspace --all-targets -- -D dead_code --cap-lints=warn"

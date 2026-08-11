@@ -61,5 +61,7 @@ fn windows_only_reference() {
 }
 ```
 
-Valid contrast: `cfg!` used in expression positions with host-visible branches
-appears in `src/cfg_removal.rs` (`cfg_branch_label`, `cfg_match_arm_label`).
+Valid contrast: `#[cfg(...)]` compile-time removal on match arms, if statements,
+let/block statements, and generic parameters appears in `src/cfg_removal.rs`
+(`cfg_match_arm_label`, `cfg_if_label`, `cfg_stmt_label`, `cfg_branch_label`,
+`CfgGenericParam`, `cfg_generic_label`).
