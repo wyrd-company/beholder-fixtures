@@ -1,0 +1,16 @@
+{
+  "name": "@fixtures/checked-javascript-inputs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "Checked JavaScript library demonstrating JSDoc dialect, inferred CommonJS shapes, and declaration emit",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "dependencies": {
+    "@fixtures/shallow-typed": "file:./vendor/shallow-typed"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "@fixtures/shallow-typed",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vendored typed JavaScript dependency for maxNodeModuleJsDepth",
+  "main": "index.js"
+}
