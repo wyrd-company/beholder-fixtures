@@ -1,0 +1,6 @@
+include README.md
+include build_only_sdist.txt
+include suite_core/resources/data.txt
+include suite_core/resources/binary.dat
+recursive-include suite_shared_ns *.txt *.py
+global-exclude *.secret

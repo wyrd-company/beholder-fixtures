@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "distributable-suite-native"
+version = "1.4.2"
+description = "Native extension representative for distributable-suite"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Wyrd Company"}]
+
+[tool.setuptools]
+packages = ["suite_native"]
+
+[tool.setuptools.package-data]
+suite_native = ["*.so", "*.pyi"]

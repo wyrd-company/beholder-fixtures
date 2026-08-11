@@ -1,0 +1,2 @@
+sample text resource for PKG-012 package data
+Line two of the resource file.

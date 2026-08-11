@@ -1,0 +1,2 @@
+This file is build-only: included in sdist via MANIFEST.in, not installed as package data.
+Required for PY-CAN-PKG-004 source distribution versus wheel distinction.

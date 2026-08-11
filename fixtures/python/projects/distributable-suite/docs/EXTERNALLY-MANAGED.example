@@ -1,0 +1,3 @@
+[externally-managed]
+Error=This environment is externally managed
+; modeled marker for PKG-017 without changing host installation

@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "distributable-suite-src"
+version = "1.4.2"
+description = "Src-layout distribution for distributable-suite — src root, namespace portion"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Wyrd Company"}]
+dependencies = [
+  "requests>=2.28.1",
+  "suite-extra; extra == 'visualization'",
+]
+optional-dependencies.extra-feature = ["packaging"]
+
+[project.entry-points."suite.plugins"]
+src_plugin = "suite_src.plugins:plugin_src"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["suite_src*", "suite_shared_ns*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+suite_src = ["resources/*.txt"]
+suite_shared_ns = ["*.txt"]

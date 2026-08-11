@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "suite-workspace-alpha"
+version = "0.2.0"
+description = "Workspace member alpha for PKG-020"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+
+[tool.setuptools]
+packages = ["suite_workspace_alpha"]

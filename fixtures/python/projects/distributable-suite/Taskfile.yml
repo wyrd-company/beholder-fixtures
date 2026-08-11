@@ -1,0 +1,30 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Byte-compile fixture-owned packages and build the native wheel representative.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - python3 -m compileall -q distributions helpers scripts generator
+      - sh -c 'set -e; suffix=$(python3 -c "import sysconfig; print(sysconfig.get_config_var(\"EXT_SUFFIX\"))"); inc=$(python3-config --includes 2>/dev/null || python3 -c "import sysconfig; print(\"-I\"+sysconfig.get_config_var(\"INCLUDEPY\"))"); CC=${CC:-gcc}; $CC -shared -fPIC distributions/suite_native/suite_native/_native_impl.c $inc -o "distributions/suite_native/suite_native/_native_impl${suffix}" 2>&1 && echo "built native extension _native_impl${suffix}" || echo "native build skipped"'
+      - sh -c 'mkdir -p dist; CC=gcc python3 -m pip wheel --no-index --find-links wheelhouse --wheel-dir dist --no-deps distributions/suite_core distributions/suite_src 2>&1 | tail -n 5; CC=gcc python3 -m pip wheel --no-index --find-links wheelhouse --wheel-dir dist --no-deps distributions/suite_native 2>&1 | tail -n 5; ls -lh dist/*.whl 2>&1 | tail -n 10'
+
+  lint:
+    desc: Parse and byte-compile every fixture-owned source file.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - >-
+        find distributions helpers scripts generator workspace -type f \( -name '*.py' -o -name '*.pyi' \) -print0 |
+        xargs -0 python3 -m py_compile
+
+  test:
+    desc: Succeed with no planned test files.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - ':'
+
+  generate:
+    desc: Generate the committed generated-version artifact.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - python3 generator/generate_version.py
