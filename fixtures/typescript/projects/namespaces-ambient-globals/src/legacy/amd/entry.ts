@@ -4,8 +4,6 @@
 /// <reference path="./module-second.ts" />
 /// <reference path="../../namespaces/script-atlas-a.ts" />
 /// <reference path="../../namespaces/script-atlas-b.ts" />
-/// <amd-module name="namespaces-ambient-globals-amd" />
-/// <amd-dependency path="module-second" />
 
 // ---
 // relationships:

@@ -1,3 +1,6 @@
+/// <amd-module name="legacy-amd-named-second" />
+/// <amd-dependency path="legacy-amd-side-effect" />
+
 // ---
 // relationships:
 //   references:

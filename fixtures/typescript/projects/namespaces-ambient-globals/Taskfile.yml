@@ -6,7 +6,6 @@ tasks:
     cmds:
       - ./node_modules/.bin/tsc -p tsconfig.json
       - ./node_modules/.bin/tsc -p tsconfig.without-augment.json
-      - ./node_modules/.bin/tsc -p tsconfig.script-namespace.json
       - ./node_modules/.bin/tsc -p tsconfig.legacy-amd.json
       - ./node_modules/.bin/tsc -p tsconfig.legacy-system.json
 
@@ -18,7 +17,6 @@ tasks:
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.without-augment.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-default-lib.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-resolve.json
-      - ./node_modules/.bin/tsc --noEmit -p tsconfig.script-namespace.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.legacy-amd.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.legacy-system.json
 
