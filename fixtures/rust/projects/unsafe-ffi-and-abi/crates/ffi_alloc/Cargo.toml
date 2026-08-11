@@ -1,0 +1,19 @@
+[package]
+name = "ffi_alloc"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Alloc-using no_std variant for RS-CAN-PROJ-017"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "ffi_alloc"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+ffi_no_std = { path = "../ffi_no_std" }
+
+[lints]
+workspace = true

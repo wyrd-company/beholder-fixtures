@@ -1,0 +1,16 @@
+[package]
+name = "ffi_provider"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Provides Rust-defined C-ABI symbols for cross-crate linking"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "ffi_provider"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[lints]
+workspace = true

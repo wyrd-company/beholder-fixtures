@@ -1,0 +1,16 @@
+[package]
+name = "ffi_wasm_runtime"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Freestanding wasm runtime hooks for RS-CAN-PROJ-017"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "ffi_wasm_runtime"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[lints]
+workspace = true

@@ -1,0 +1,45 @@
+[package]
+name = "unsafe-ffi-and-abi"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for Rust unsafe, FFI, ABI, and no_std/runtime surface"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace]
+members = [
+    "crates/ffi_provider",
+    "crates/ffi_no_std",
+    "crates/ffi_alloc",
+    "crates/ffi_wasm_runtime",
+]
+resolver = "3"
+
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fixture_no_std)", "cfg(target_feature_check)"] }
+dead_code = "warn"
+unsafe_op_in_unsafe_fn = "warn"
+
+[workspace.lints.clippy]
+all = "warn"
+
+[lib]
+name = "unsafe_ffi_and_abi"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+ffi_provider = { path = "crates/ffi_provider" }
+ffi_no_std = { path = "crates/ffi_no_std" }
+ffi_alloc = { path = "crates/ffi_alloc" }
+
+[lints]
+workspace = true
+
+[profile.dev]
+panic = "unwind"
+
+[profile.abort]
+inherits = "dev"
+panic = "abort"

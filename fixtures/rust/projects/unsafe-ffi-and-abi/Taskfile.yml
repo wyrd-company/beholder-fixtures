@@ -1,0 +1,25 @@
+# ---
+# relationships:
+#   references:
+#     - coverage
+# ---
+version: '3'
+
+tasks:
+  build:
+    desc: Build all fixture-owned crates in every declared build context (offline, non-mutating).
+    cmds:
+      - cargo build --offline --workspace
+      - cargo build --offline --workspace --profile abort
+      - PATH=/usr/local/cargo/bin:$PATH cargo build --offline --workspace --target wasm32-unknown-unknown
+
+  lint:
+    desc: Check formatting and clippy on fixture-owned crates (vendored source excluded).
+    cmds:
+      - cargo fmt -- --check
+      - cargo clippy --offline --workspace --all-targets
+
+  test:
+    desc: Compile and run fixture tests (succeeds when no test source is present).
+    cmds:
+      - cargo test --offline --workspace

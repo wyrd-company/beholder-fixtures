@@ -1,0 +1,16 @@
+[package]
+name = "ffi_no_std"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "No-std library for RS-CAN-PROJ-017 host no_std context"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lib]
+name = "ffi_no_std"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[lints]
+workspace = true
