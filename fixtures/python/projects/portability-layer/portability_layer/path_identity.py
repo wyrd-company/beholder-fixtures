@@ -143,20 +143,22 @@ def demonstrate_identity_suite() -> dict[str, object]:
     with tempfile.TemporaryDirectory() as td:
         base = pathlib.Path(td)
         helper = PathIdentity(base)
-        # Lexical difference: "a/./b" vs "a/b" — same resolved, different lexical
-        p_a = base / "a" / "." / "b"
-        p_b = base / "a" / "b"
-        (base / "a" / "b").parent.mkdir(parents=True, exist_ok=True)
-        (base / "a" / "b" / "file.txt").parent.mkdir(parents=True, exist_ok=True)
-        file_a = base / "a" / "b" / "file.txt"
-        file_a.write_text("data", encoding="utf-8")
-        lexical = lexical_comparison(p_a / "file.txt", p_b / "file.txt")
-        resolved = resolved_comparison(p_a / "file.txt", p_b / "file.txt")
+        # Lexically distinct via ".." component but resolves to same file.
+        # pathlib keeps ".." in the lexical form, so equality is False until resolve.
+        (base / "a" / "b").mkdir(parents=True, exist_ok=True)
+        file_b = base / "a" / "b" / "file.txt"
+        file_b.write_text("data", encoding="utf-8")
+        p_via_dotdot = base / "a" / "b" / ".." / "b" / "file.txt"
+        p_direct = base / "a" / "b" / "file.txt"
+        lexical = lexical_comparison(p_via_dotdot, p_direct)
+        resolved = resolved_comparison(p_via_dotdot, p_direct)
+        same = same_file_comparison(p_via_dotdot, p_direct)
         symlink_case = helper.guarded_symlink_case()
         hardlink_case = helper.guarded_hardlink_case()
         return {
-            "lexical_equal_a_dot_b": lexical,
-            "resolved_equal_a_dot_b": resolved,
+            "lexical_equal_via_dotdot": lexical,
+            "resolved_equal_via_dotdot": resolved,
+            "same_file_via_dotdot": same,
             "symlink": symlink_case,
             "hardlink": hardlink_case,
         }

@@ -30,6 +30,7 @@ class AmbiguousWallTime:
 class TimestampPrecision:
     requested_ns: int
     observed_ns: int
+    observed_float_ns: int
     non_exact: bool
 
 
@@ -91,17 +92,23 @@ def timestamp_precision_probe() -> TimestampPrecision:
     with tempfile.TemporaryDirectory() as td:
         p = pathlib.Path(td) / "probe.txt"
         p.write_text("x", encoding="utf-8")
-        # Request a timestamp with nanosecond precision that filesystem may truncate.
-        # Use utime_ns with an odd nanosecond value unlikely to be stored exactly on all FS.
         requested = 1_700_000_000_123_456_789
         try:
             os.utime(p, ns=(requested, requested))
             observed = p.stat().st_mtime_ns
-            non_exact = observed != requested
+            observed_float = int(p.stat().st_mtime * 1e9)
+            # Float seconds lose nanosecond precision; compare float-derived ns versus ns field.
+            non_exact = observed_float != observed
         except OSError:
             observed = p.stat().st_mtime_ns
-            non_exact = False
-        return TimestampPrecision(requested_ns=requested, observed_ns=observed, non_exact=non_exact)
+            observed_float = int(p.stat().st_mtime * 1e9)
+            non_exact = observed_float != observed
+        return TimestampPrecision(
+            requested_ns=requested,
+            observed_ns=observed,
+            observed_float_ns=observed_float,
+            non_exact=non_exact,
+        )
 
 
 def zoneinfo_availability() -> dict[str, object]:

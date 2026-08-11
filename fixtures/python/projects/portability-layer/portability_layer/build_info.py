@@ -17,6 +17,8 @@ class BuildInfo:
     free_threaded: bool
     jit_enabled: bool
     debug_build: bool
+    optimize_level: int
+    optimized: bool
     version: str
     platform: str
     executable: str
@@ -39,6 +41,8 @@ def collect_build_info() -> BuildInfo:
     # Also check sys.flags.debug
     if sys.flags.debug:
         debug_build = True
+    optimize_level = int(sys.flags.optimize)
+    optimized = optimize_level > 0
     free_threaded = bool(gil_disabled)
     return BuildInfo(
         pointer_width_bits=pointer_width,
@@ -48,6 +52,8 @@ def collect_build_info() -> BuildInfo:
         free_threaded=free_threaded,
         jit_enabled=jit_enabled,
         debug_build=debug_build,
+        optimize_level=optimize_level,
+        optimized=optimized,
         version=sys.version,
         platform=sys.platform,
         executable=sys.executable,
@@ -90,8 +96,9 @@ def describe_build_flags() -> dict[str, object]:
         "free_threaded": info.free_threaded,
         "jit_enabled": info.jit_enabled,
         "debug_build": info.debug_build,
-        "optimized": not info.debug_build,
-        "standard_build": not info.free_threaded and not info.jit_enabled and not info.debug_build,
+        "optimize_level": info.optimize_level,
+        "optimized": info.optimized,
+        "standard_build": not info.free_threaded and not info.jit_enabled and not info.debug_build and not info.optimized,
         "note": "Free-threaded and JIT flag values are the standard build's actual (disabled) flags per brief.",
     }
 
