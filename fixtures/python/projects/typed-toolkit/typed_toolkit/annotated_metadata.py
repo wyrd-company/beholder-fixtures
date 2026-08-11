@@ -64,19 +64,39 @@ def extras_stripped_unless_requested_demo() -> dict[str, object]:
     }
 
 
-# --- Alias flattening boundary variant ---------------------------------------
+# --- Alias boundary variant: non-flattening alias ----------------------------
+# ``TypeAlias`` prevents flattening; nesting an alias via ``TypeAlias`` keeps
+# the inner ``Annotated`` boundary intact.  Without ``TypeAlias``, the alias
+# would flatten.
 
-Quantity = Annotated[int, Unit("kg")]
-AliasedQuantity = Annotated[Quantity, Range(0, 500)]
+from typing import TypeAlias
 
-def alias_flattening_demo() -> tuple[object, object]:
-    # ``Annotated`` aliases flatten at the outermost level when inspected with
-    # ``include_extras=True`` but retain inner metadata.
-    hints = get_type_hints(Batch, include_extras=True)
-    aliased = get_type_hints(  # noqa: F841
-        type("_Tmp", (), {"x": AliasedQuantity}), include_extras=True
-    )
-    return get_origin(Quantity), get_args(Quantity)
+Quantity: TypeAlias = Annotated[int, Unit("kg")]
+AliasedQuantity: TypeAlias = Annotated[Quantity, Range(0, 500)]
+
+
+class AliasedHolder:
+    direct: Quantity
+    wrapped: AliasedQuantity
+
+
+def alias_flattening_demo() -> dict[str, object]:
+    hints_direct = get_type_hints(AliasedHolder, include_extras=True)
+    # ``Quantity`` preserves its Unit metadata; ``AliasedQuantity`` preserves
+    # both Unit and Range without flattening the inner alias away.
+    return {
+        "direct_args": get_args(hints_direct["direct"])[1:],
+        "wrapped_args": get_args(hints_direct["wrapped"])[1:],
+        "direct_is_annotated": get_origin(hints_direct["direct"]) is Annotated,
+        "wrapped_is_annotated": get_origin(hints_direct["wrapped"]) is Annotated,
+    }
+
+
+def alias_boundary_preserved() -> bool:
+    hints = get_type_hints(AliasedHolder, include_extras=True)
+    direct_meta = list(get_args(hints["direct"])[1:])
+    wrapped_meta = list(get_args(hints["wrapped"])[1:])
+    return any(m == Unit("kg") for m in direct_meta) and any(m == Range(0, 500) for m in wrapped_meta)
 
 
 # --- Order-sensitive equality variant -----------------------------------------

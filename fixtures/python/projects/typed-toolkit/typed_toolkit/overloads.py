@@ -80,12 +80,25 @@ def dispatch_demo() -> tuple[str, str, str]:
     )
 
 
-# --- Overlap / unreachable and implementation compatibility note ---------------
+# --- Overlap / unreachable overload (assigned variant) -----------------------
 
-# The overload set above has disjoint signatures (int, str, list[int]).
-# Overlapping overloads (e.g. ``int`` vs ``object`` ordering) would cause a
-# checker to warn about unreachable second overloads.  The implementation
-# signature ``int | str | list[int]`` is compatible with all overloads.
+# The broader ``object`` overload appears first and shadows the more specific
+# ``int`` overload.  A static checker can judge the second overload as
+# unreachable, satisfying the assigned overlap/unreachable variant.
+
+@overload
+def shadowed(value: object) -> str: ...
+
+@overload
+def shadowed(value: int) -> int: ...  # type: ignore[overload-cannot-match]
+
+def shadowed(value: object) -> str | int:
+    if isinstance(value, int):
+        return value * 2
+    return str(value)
+
+
+# --- Implementation compatibility note -----------------------------------------
 
 @overload
 def checked_overload(value: int) -> int: ...

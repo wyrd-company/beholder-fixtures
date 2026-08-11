@@ -83,9 +83,30 @@ def mixed_demo() -> MixedVariadic[int, str, float, bool]:
     return MixedVariadic(1, "a", 3.14, last=True)
 
 
-# Variadic with ordinary type vars and default-ish usage
-def variadic_with_defaults[T, *Ts](first: T, *rest: Unpack[Ts]) -> tuple[T, tuple[Unpack[Ts]]]:
-    return first, rest
+# Variadic with ordinary type vars and actual defaults (assigned variant).
+# The type-parameter list contains both the variadic pack and a default.
+# Valid ordering: ordinary non-default before variadic default ``*Ts=()``.
+
+class VariadicWithDefault[T, *Ts = ()]:
+    value: T
+
+    def __init__(self, value: T, *args: Unpack[Ts]) -> None:
+        self.value = value
+        self.items: tuple[Unpack[Ts]] = args
+
+
+def variadic_with_defaults[T, *Ts = ()](value: T, *args: Unpack[Ts]) -> tuple[T, tuple[Unpack[Ts]]]:
+    return value, args
+
+
+def variadic_defaults_demo() -> tuple[VariadicWithDefault[int, str], tuple[int, tuple[str, ...]]]:
+    box: VariadicWithDefault[int, str] = VariadicWithDefault(42, "a")
+    result = variadic_with_defaults(1, "a", "b")
+    return box, result
+
+
+def variadic_default_params_demo() -> tuple[object, ...]:
+    return getattr(VariadicWithDefault, "__type_params__", ())  # type: ignore[attr-defined]
 
 
 # --- Callable with variadic generics -----------------------------------------

@@ -1,4 +1,4 @@
-"""Distribution with py.typed marker (PY-CAN-TYPE-016: marker-present)."""
+"""Marker-present package: py.typed present, stub paired with runtime."""
 
 from __future__ import annotations
 

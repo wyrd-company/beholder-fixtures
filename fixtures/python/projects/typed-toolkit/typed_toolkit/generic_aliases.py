@@ -90,12 +90,36 @@ def parameterized_isinstance_failure_demo() -> str:
         return f"TypeError:{exc}"
 
 
-# --- Metaclass __or__ and alias equality/pickling ----------------------------
+# --- Custom metaclass __or__ variant ----------------------------------------
+
+class OrMeta(type):
+    def __or__(self, other: object) -> str:
+        other_name = getattr(other, "__name__", str(other))
+        return f"custom-union:{self.__name__}|{other_name}"
+
+    def __ror__(self, other: object) -> str:
+        self_name = getattr(self, "__name__", str(self))
+        other_name = getattr(other, "__name__", str(other))
+        return f"custom-union:{other_name}|{self_name}"
+
+
+class CustomA(metaclass=OrMeta):
+    pass
+
+
+class CustomB(metaclass=OrMeta):
+    pass
+
 
 def metaclass_or_demo() -> tuple[object, object, bool]:
-    # Union via ``|`` uses ``__or__`` on types (PEP 604)
+    # Built-in union still works.
     union_type = int | str
     return int | str, union_type, (int | str) == union_type
+
+
+def custom_metaclass_or_demo() -> tuple[str, str]:
+    # Exercises the assigned custom metaclass ``__or__`` edge case.
+    return (CustomA | CustomB), (CustomA | int)  # type: ignore[operator]
 
 
 def alias_equality_and_pickling() -> dict[str, bool]:

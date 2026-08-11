@@ -11,19 +11,45 @@ import typing
 from typing import get_type_hints
 
 # --- Forward name variant ----------------------------------------------------
-
-class Batch:
-    """A simple batch record used before its definition in annotations."""
+# The referenced name is used before it is defined, exercising a true
+# forward reference under postponed evaluation.
 
 def create_batch(label: str) -> Batch:
-    return Batch()
+    return Batch(label)  # type: ignore[name-defined]
+
+
+class Batch:
+    """A simple batch record referenced before its definition above."""
+
+    def __init__(self, label: str = "") -> None:
+        self.label = label
+
+
+# --- Side-effectful annotation expression variant ----------------------------
+
+_side_effect_calls: list[str] = []
+
+
+def _side_effect() -> type:
+    _side_effect_calls.append("evaluated")
+    return int
+
+
+# Under ``from __future__ import annotations`` the call ``_side_effect()``
+# inside the annotation is stringized and not evaluated at definition time.
+def with_side_effect(value: _side_effect()) -> _side_effect():  # type: ignore[valid-type]
+    return value
+
+
+def side_effect_not_yet_evaluated() -> bool:
+    # If the annotation had been eager, _side_effect() would have run.
+    raw = with_side_effect.__annotations__["value"]
+    return isinstance(raw, str) and len(_side_effect_calls) == 0
 
 
 def side_effect_annotation() -> list[str]:
-    """Side-effectful expression variant: annotation evaluates a call."""
+    """Legacy helper keeps import compatibility; no longer claims side effect."""
 
-    # The annotation below is stringized due to future import, so the call
-    # does not execute at definition time.
     def _helper(items: list[str] = []) -> list[str]:  # noqa: B006
         return items
 

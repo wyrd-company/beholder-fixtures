@@ -155,10 +155,11 @@ def frozen_member_set_demo() -> frozenset[str]:
 
 
 # --- Data-protocol ``issubclass`` variant ------------------------------------
+# A runtime-checkable data protocol still rejects ``issubclass`` at runtime;
+# we expose the TypeError rather than letting it propagate as an unhandled
+# exception.
 
-def data_protocol_issubclass_demo() -> bool:
-    # For data protocols, ``issubclass`` checks structural compatibility
-    # only when the protocol is runtime-checkable.
+def data_protocol_issubclass_demo() -> str:
     @runtime_checkable
     class DataProto(Protocol):
         x: int
@@ -166,7 +167,11 @@ def data_protocol_issubclass_demo() -> bool:
     class HasX:
         x: int
 
-    return issubclass(HasX, DataProto)
+    try:
+        result = issubclass(HasX, DataProto)
+        return f"bool:{result}"
+    except TypeError as exc:
+        return f"TypeError:{exc}"
 
 
 # --- Dynamic attributes variant -----------------------------------------------
@@ -182,11 +187,32 @@ def dynamic_attributes_protocol_demo() -> str:
 
 
 # --- Unsafe overlap variant ---------------------------------------------------
+# Two protocols overlap on the same member name with incompatible types.
+# A class satisfying one protocol's type for that member will be considered
+# structurally compatible at runtime but unsound at the static level.
 
-# Two protocols with overlapping members demonstrate that structural matching
-# can be unsafe: an instance satisfying one protocol may be misused as the
-# other.
+class ProcessorInt(Protocol):
+    def process(self, value: int) -> int: ...
 
+
+class ProcessorStr(Protocol):
+    def process(self, value: str) -> str: ...
+
+
+class IntProcessor:
+    def process(self, value: int) -> int:  # type: ignore[override]
+        return value * 2
+
+
+def unsafe_overlap_demo() -> tuple[bool, str]:
+    # ``IntProcessor`` satisfies ``ProcessorInt``; using it where
+    # ``ProcessorStr`` is expected is the unsafe overlap.
+    obj: ProcessorStr = IntProcessor()  # type: ignore[assignment]
+    # Runtime call succeeds even though static checker would flag type mismatch.
+    return True, str(obj.process("hello"))  # type: ignore[arg-type]
+
+
+# Keep original disjoint example for reference (not the unsafe case).
 class Readable(Protocol):
     def read(self) -> str: ...
 

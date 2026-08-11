@@ -1,0 +1,3 @@
+value: int
+
+def format_value(x: int) -> str: ...

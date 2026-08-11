@@ -1,0 +1,10 @@
+[project]
+name = "typed-toolkit-extension"
+version = "0.1.0"
+description = "Extension stub distribution for typed-toolkit"
+requires-python = ">=3.10"
+readme = "README.md"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

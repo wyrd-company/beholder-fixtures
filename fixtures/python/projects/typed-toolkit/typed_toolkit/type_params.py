@@ -28,7 +28,33 @@ def legacy_covariant(items: list[T_co]) -> T_co | None:
     return items[0] if items else None
 
 
-# --- PEP 695 new syntax -------------------------------------------------------
+# --- Legacy Generic form for explicit variance (assigned) ---------------------
+
+T_co2 = TypeVar("T_co2", covariant=True)
+T_contra2 = TypeVar("T_contra2", contravariant=True)
+
+
+class CovariantBox(Generic[T_co2]):
+    def __init__(self, value: T_co2) -> None:
+        self.value = value
+
+    def get(self) -> T_co2:
+        return self.value
+
+
+class ContravariantBox(Generic[T_contra2]):
+    def __init__(self) -> None:
+        pass
+
+    def consume(self, value: T_contra2) -> None:
+        pass
+
+
+def explicit_variance_demo() -> tuple[bool, bool]:
+    return CovariantBox.__parameters__[0].__covariant__, ContravariantBox.__parameters__[0].__contravariant__  # type: ignore[attr-defined]
+
+
+# --- PEP 695 new syntax (inferred variance) ----------------------------------
 
 def pep695_generic_function[T](value: T) -> T:
     return value
@@ -52,25 +78,6 @@ class ConstrainedBox[T: (int, str)]:
         self.value = value
 
 
-# Variance in new syntax: explicit variance is declared via TypeVar,
-# while PEP 695 type parameters infer variance from usage.
-T_co2 = TypeVar("T_co2", covariant=True)
-T_contra2 = TypeVar("T_contra2", contravariant=True)
-
-
-class CovariantBox[T_co2]:
-    def __init__(self, value: T_co2) -> None:
-        self.value = value
-
-
-class ContravariantBox[T_contra2]:
-    def __init__(self) -> None:
-        pass
-
-    def consume(self, value: T_contra2) -> None:
-        pass
-
-
 # Inferred variance demonstration: type checker infers variance from usage.
 class InferredReadOnlyBox[T]:
     def __init__(self, value: T) -> None:
@@ -78,6 +85,11 @@ class InferredReadOnlyBox[T]:
 
     def get(self) -> T:
         return self._value
+
+
+def inferred_variance_demo() -> tuple[object, ...]:
+    params = getattr(InferredReadOnlyBox, "__type_params__", ())  # type: ignore[attr-defined]
+    return tuple(getattr(p, "__name__", str(p)) for p in params)  # type: ignore[arg-type]
 
 
 # --- PEP 696 defaults (Python 3.13+) -----------------------------------------

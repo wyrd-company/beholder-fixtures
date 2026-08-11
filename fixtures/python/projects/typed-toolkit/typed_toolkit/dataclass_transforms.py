@@ -15,7 +15,7 @@ def model_field(*, default: object = dataclasses.MISSING, default_factory=datacl
     return dataclasses.field(default=default, default_factory=default_factory, init=init)  # type: ignore[arg-type]
 
 
-# --- Transform-decorated decorator -------------------------------------------
+# --- Transform-decorated decorator (real runtime is dataclass) ---------------
 
 @dataclass_transform(field_specifiers=(model_field, dataclasses.field))
 def create_model(cls: type[T]) -> type[T]:
@@ -65,6 +65,32 @@ class ConcreteMeta(MetaModel):
     extra: str = dataclasses.field(default="none")
 
 
+# --- Divergent transform (advertised dataclass but runtime is plain class) ----
+# A checker treats this as a dataclass with generated ``__init__``, but at
+# runtime the decorator does not call ``dataclasses.dataclass``, so the
+# advertised init contract diverges and ``__dataclass_fields__`` is absent.
+
+@dataclass_transform(field_specifiers=(dataclasses.field,))
+def advertise_only(cls: type[T]) -> type[T]:
+    # Intentionally not calling dataclasses.dataclass at runtime.
+    return cls
+
+
+@advertise_only
+class DivergentModel:
+    label: str
+    quantity: int = dataclasses.field(default=0)
+
+
+def divergent_runtime_check() -> bool:
+    return not hasattr(DivergentModel, "__dataclass_fields__")
+
+
+def advertised_vs_real_init() -> tuple[bool, bool]:
+    # ``InventoryModel`` has real dataclass fields, ``DivergentModel`` does not.
+    return hasattr(InventoryModel, "__dataclass_fields__"), hasattr(DivergentModel, "__dataclass_fields__")
+
+
 # --- Static defaults versus runtime overrides ---------------------------------
 
 def static_defaults_vs_runtime_demo() -> tuple[InventoryModel, BatchRecord]:
@@ -86,10 +112,9 @@ def generated_init_contract_demo() -> str:
     return m.label
 
 
-# --- Checker divergence and advertised/runtime drift note ---------------------
+# --- Checker divergence and advertised/runtime drift --------------------------
 
-# A checker sees ``@create_model`` and assumes dataclass semantics.  If the
-# runtime decorator failed to call ``dataclasses.dataclass``, the advertised
-# ``__init__`` would drift from runtime reality.  Here they align.
 def advertised_runtime_drift_note() -> bool:
-    return hasattr(InventoryModel, "__dataclass_fields__") and hasattr(BatchRecord, "__dataclass_fields__")
+    # Real drift between advertised transform contract and runtime reality,
+    # plus checker divergence where static and runtime disagree.
+    return hasattr(InventoryModel, "__dataclass_fields__") and not hasattr(DivergentModel, "__dataclass_fields__")

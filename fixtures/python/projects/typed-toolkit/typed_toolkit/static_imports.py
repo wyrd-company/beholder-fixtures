@@ -67,7 +67,7 @@ def resolve_with_explicit_namespaces() -> dict[str, object]:
     return get_type_hints(holder, globalns={"Batch": Batch})
 
 
-# --- Base / decorator still needs runtime import variant -----------------------
+# --- Base and decorator still need runtime import (assigned variant) -----------
 
 # Base classes and decorators are evaluated at runtime even under postponed
 # annotations, so they cannot be guarded by TYPE_CHECKING alone.
@@ -79,5 +79,21 @@ class DerivedBatch(RuntimeBatch):
     extra: str = "derived"
 
 
-def decorator_needs_runtime() -> type[DerivedBatch]:
-    return DerivedBatch
+def _runtime_decorator(cls: type) -> type:  # type: ignore[no-untyped-def]
+    cls._decorated = True  # type: ignore[attr-defined]
+    return cls
+
+
+# Decorator must be imported at runtime (not inside TYPE_CHECKING) and applied
+# at definition time; postponed annotations do not defer decorator evaluation.
+@_runtime_decorator
+class DecoratedBatch(RuntimeBatch):
+    tag: str = "decorated"
+
+
+def decorator_needs_runtime() -> type[DecoratedBatch]:
+    return DecoratedBatch
+
+
+def base_and_decorator_runtime_demo() -> tuple[bool, bool]:
+    return issubclass(DerivedBatch, RuntimeBatch), getattr(DecoratedBatch, "_decorated", False)

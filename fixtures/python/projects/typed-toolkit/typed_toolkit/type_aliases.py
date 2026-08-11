@@ -55,15 +55,23 @@ def type_alias_type_demo() -> str:
 
 
 # --- Lazy TypeAliasType and forward value ------------------------------------
+# The type statement lazily refers to the later class itself, not the string
+# "Batch".  This creates the assigned forward-value relationship.
 
-type ForwardAlias = "Batch"
+type ForwardAlias = Batch
+
 class Batch:
     label: str
 
 
 def lazy_forward_demo() -> object:
-    # ``ForwardAlias`` references ``Batch`` before its definition via lazy eval.
+    # ``ForwardAlias`` lazily resolves to the actual ``Batch`` class defined
+    # after the alias, not to the string "Batch".
     return ForwardAlias
+
+
+def lazy_forward_is_batch() -> bool:
+    return getattr(ForwardAlias, "__value__", None) is Batch  # type: ignore[attr-defined]
 
 
 # --- Parameter scope variant --------------------------------------------------

@@ -53,15 +53,19 @@ def same_runtime_class_demo() -> bool:
     return type(OldBox(1)) is type(OldBox("x")) and OldBox[int].__origin__ is OldBox  # type: ignore[attr-defined]
 
 
-# --- Best-effort __orig_class__ ------------------------------------------------
+# --- Best-effort __orig_class__ (real instantiation) -------------------------
 
 def orig_class_demo() -> object | None:
-    box = OldBox(123)
-    # CPython stashes the subscripted alias on the instance when Generic is
-    # instantiated via ``__orig_class__`` (best-effort, not guaranteed for
-    # all generics).
-    box.__orig_class__ = OldBox[int]  # type: ignore[attr-defined]
+    # Instantiate through the parameterized alias so CPython supplies the
+    # best-effort ``__orig_class__`` metadata itself.
+    box = OldBox[int](123)
     return getattr(box, "__orig_class__", None)
+
+
+def orig_class_is_int_alias() -> bool:
+    box = OldBox[int](99)
+    orig = getattr(box, "__orig_class__", None)
+    return orig == OldBox[int]  # type: ignore[comparison]
 
 
 # --- Runtime metadata inspection ----------------------------------------------
@@ -117,12 +121,19 @@ class GenericSubclass[T, U]:
         self.second = second
 
 
-class PartialGenericSubclass(GenericSubclass[int, str]):
+# Partial: fixes only part of the base arguments and retains a parameter.
+class PartialGenericSubclass[T](GenericSubclass[T, int]):
     pass
 
 
 def subclass_specialization_demo() -> tuple[PartialSpecialization, FullSpecialization]:
     return PartialSpecialization(10), FullSpecialization("world")
+
+
+def partial_retains_type_param() -> bool:
+    # ``PartialGenericSubclass`` still has a type parameter after fixing second.
+    params = getattr(PartialGenericSubclass, "__type_params__", None)  # type: ignore[attr-defined]
+    return params is not None and len(params) == 1  # type: ignore[arg-type]
 
 
 # --- Erasure: runtime type ignores parameters ---------------------------------
