@@ -53,6 +53,15 @@ pub mod generated_items {
     include!(concat!(env!("OUT_DIR"), "/generated_items.rs"));
 }
 
+// Handwritten references to generated OUT_DIR items (RS-CAN-PROJ-012).
+pub fn use_generated_items() -> u32 {
+    let item = generated_items::GeneratedItem { value: 7 };
+    let a = generated_items::GENERATED_CONST;
+    let b = generated_items::generated_fn();
+    let c: &str = generated_items::GENERATED_SEED_STR;
+    item.value + a + b + c.len() as u32
+}
+
 pub mod generated_expr {
     pub fn expr_value() -> u32 {
         // Item and expression inclusion via include! in expression position.
