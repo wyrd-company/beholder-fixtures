@@ -1,0 +1,22 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Compile all fixture projects in every declared build context without restoring from the network.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet restore InteropLanguagesAndTesting.sln --ignore-failed-sources
+      - dotnet build InteropLanguagesAndTesting.sln -c Release --no-restore
+
+  lint:
+    desc: Verify formatting and run analyzers via build
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet format InteropLanguagesAndTesting.sln --verify-no-changes
+      - dotnet build InteropLanguagesAndTesting.sln -c Release --no-restore /p:TreatWarningsAsErrors=true
+
+  test:
+    desc: Run tests via the vendored xUnit VSTest host
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet test InteropLanguagesAndTesting.sln -c Release --no-restore

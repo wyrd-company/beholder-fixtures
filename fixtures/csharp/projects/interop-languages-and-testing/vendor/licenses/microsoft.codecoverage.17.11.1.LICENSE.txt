@@ -1,0 +1,11 @@
+Package: microsoft.codecoverage.17.11.1
+Source: nuget.org (https://api.nuget.org/v3-flatcontainer/microsoft.codecoverage.17.11.1/1/microsoft.codecoverage.17.11.1.nupkg) and SDK library-packs for FSharp.Core
+License: MIT
+LicenseUrl: https://licenses.nuget.org/MIT
+ProjectUrl: https://github.com/microsoft/vstest
+Copyright: © Microsoft Corporation. All rights reserved.
+
+This file records provenance for offline restore. The original .nupkg in vendor/packages
+contains the authoritative .nuspec license metadata. For MIT packages, license text is
+the standard MIT license at https://licenses.nuget.org/MIT. For Apache-2.0, see https://www.apache.org/licenses/LICENSE-2.0.
+ThirdPartyNotices where present are preserved as separate files or in the original package.
