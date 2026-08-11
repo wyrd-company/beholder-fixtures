@@ -1,0 +1,10 @@
+name: platforms_and_interop
+description: >-
+  Fixture package exercising the Dart compilation-target matrix, platform
+  library availability, native FFI, JavaScript interop, and non-portable
+  observations.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.12.2 <4.0.0'
