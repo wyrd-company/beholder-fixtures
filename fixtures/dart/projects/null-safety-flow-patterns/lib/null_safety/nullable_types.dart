@@ -76,9 +76,9 @@ final Reading<double?> nullableReading = Reading<double?>(null);
 final Reading<double> nonNullReading = Reading<double>(98.6);
 
 /// `Never?`: `Never` has no instances, so a `Never?`-typed value can only
-/// ever be `null` at runtime, but it is syntactically and nominally
-/// distinct from `Null` — a `Never?` parameter and return type, both used
-/// here.
+/// ever be `null` at runtime. Dart's type normalization rewrites `Never?`
+/// to `Null`, so the two are the same type — only the source spelling
+/// differs. The `Never?` parameter and return type are exercised here.
 Never? identityOfNever(Never? input) => input;
 
 List<String> describeNullableTypes() {
