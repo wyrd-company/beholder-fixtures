@@ -3,9 +3,16 @@
 // capture every in-scope generic by default. Explicit use<...> (stable 1.82)
 // controls the set, but the default differs from edition 2024.
 
-// In 2021, `fn legacy_default<'a>(value: &'a u32) -> impl Clone { value }`
-// returns an opaque that does not capture 'a by default, unlike edition 2024
-// where the same signature would be equivalent to `impl Clone + use<'a>`.
+// The valid edition contrast is the same-shaped unused-lifetime pair below.
+// `legacy_default_unused<'a>(value: &'a u32) -> impl Clone` discards the borrow
+// and returns `42u32`, so its hidden type is `u32` and does not use 'a. Under the
+// edition 2021 default that unused 'a is not captured, so the opaque holds no
+// borrow and `value` stays mutable while it is live. In edition 2024 the same
+// signature captures 'a by default (as if `impl Clone + use<'a>`) and would hold
+// the borrow; `default_unused_2024` in the root crate is that edition-2024 half.
+// A body returning `value` would instead make the hidden type `&'a u32`, which
+// the 2021 default cannot leave uncaptured, so that form is a hard error unless
+// it opts in with explicit `use<'a>` (or `+ '_`) — it is not a default demo.
 
 // Captures lifetime with explicit set (same syntax in both editions).
 pub fn captures_lifetime<'a>(value: &'a u32) -> impl Clone + use<'a> {
