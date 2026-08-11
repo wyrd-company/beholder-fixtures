@@ -17,11 +17,16 @@ import type { RecordShape } from "./record-base.js";
 
 export interface CompositeRecord extends RecordShape, Sized, Labeled {
   format(value: string): string;
-  format(value: number): number;
 }
 
 export interface CompositeRecord {
+  format(value: number): number;
   describe(): string;
+  tag(value: "draft"): "DRAFT";
+}
+
+export interface CompositeRecord {
+  tag(value: "final"): "FINAL";
 }
 
 export class CompositeRecordImpl implements CompositeRecord {
@@ -40,6 +45,12 @@ export class CompositeRecordImpl implements CompositeRecord {
   describe(): string {
     return `${this.label}:${this.id}`;
   }
+
+  tag(value: "draft"): "DRAFT";
+  tag(value: "final"): "FINAL";
+  tag(value: "draft" | "final"): "DRAFT" | "FINAL" {
+    return value === "draft" ? "DRAFT" : "FINAL";
+  }
 }
 
 export function formatLiteral(record: CompositeRecord, value: "draft"): "DRAFT";
@@ -48,6 +59,9 @@ export function formatLiteral(
   record: CompositeRecord,
   value: "draft" | "final",
 ): "DRAFT" | "FINAL" {
-  void record;
-  return value === "draft" ? "DRAFT" : "FINAL";
+  if (value === "draft") {
+    return record.tag("draft");
+  }
+
+  return record.tag("final");
 }

@@ -9,13 +9,14 @@ declare const brandSymbol: unique symbol;
 export const brandToken = Symbol("brand") as typeof brandSymbol;
 
 export interface BrandedHandle {
-  readonly [brandSymbol]: void;
+  readonly [brandToken]: void;
   readonly id: string;
 }
 
 export const brandedHandle: BrandedHandle = {
+  [brandToken]: void 0,
   id: "handle-1",
-} as BrandedHandle;
+};
 
 export interface SymbolKeyedTable {
   [key: symbol]: number;
@@ -33,17 +34,15 @@ export const keyedService = {
   [versionKey]: 1,
 };
 
-export const iterator = Symbol.iterator;
-
 export interface IterableBox<T> {
   values: T[];
-  [iterator](): Iterator<T>;
+  [Symbol.iterator](): Iterator<T>;
 }
 
 export class IterableBoxImpl<T> implements IterableBox<T> {
   constructor(public values: T[]) {}
 
-  [iterator](): Iterator<T> {
+  [Symbol.iterator](): Iterator<T> {
     return this.values[Symbol.iterator]();
   }
 }

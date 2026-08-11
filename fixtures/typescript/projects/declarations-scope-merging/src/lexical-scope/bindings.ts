@@ -52,43 +52,31 @@ export function demonstrateBindings(
   }
 }
 
-export function demonstrateDestructuring(source: [string, ...number[]]): {
-  head: string;
-  tailSum: number;
-} {
-  const [head, ...tail] = source;
-  const { head: aliasHead } = { head };
-  const nested = { pair: { left: 1, right: 2 } };
-  const {
-    pair: { left, ...remaining },
-  } = nested;
+export function demonstrateDestructuring({
+  pair: { left, right: aliasRight = 2, ...remaining } = {
+    left: 1,
+    right: 2,
+    extra: 0,
+  },
+}: {
+  pair: { left: number; right?: number; extra?: number };
+}): { head: string; tailSum: number } {
+  const tailSum = left + aliasRight + (remaining.extra ?? 0);
 
-  const tailSum = tail.reduce(
-    (sum, value) => sum + value,
-    left + remaining.right,
-  );
-
-  return { head: aliasHead, tailSum };
+  return { head: `pair-${left}`, tailSum };
 }
 
 export function demonstrateSwitchScope(value: number): string {
   let outcome = "none";
 
   switch (value) {
-    case 1: {
-      const tag = "one";
-      outcome = tag;
+    case 1:
+    case 2:
+      const sharedTag = value === 1 ? "one" : "two";
+      outcome = sharedTag;
       break;
-    }
-    case 2: {
-      const tag = "two";
-      outcome = tag;
-      break;
-    }
-    default: {
-      const tag = "other";
-      outcome = tag;
-    }
+    default:
+      outcome = "other";
   }
 
   return outcome;

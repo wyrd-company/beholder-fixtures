@@ -23,6 +23,12 @@ export class Vector {
   x = 0;
 }
 
+export namespace Vector {
+  export function zero(): Vector {
+    return new Vector();
+  }
+}
+
 export interface Vector {
   y: number;
 }
@@ -33,6 +39,12 @@ export enum Palette {
 
 export enum Palette {
   Cool = 2,
+}
+
+export namespace Palette {
+  export function label(value: Palette): string {
+    return value === Palette.Warm ? "warm" : "cool";
+  }
 }
 
 function helper(value: number): number {
@@ -46,11 +58,16 @@ namespace helper {
 
 namespace exportedFacet {
   export const visible = "exported";
-  namespace privateFacet {
-    export const hidden = "block-private";
-  }
+  const hidden = "block-private";
+
   export function readPrivate(): string {
-    return privateFacet.hidden;
+    return hidden;
+  }
+}
+
+namespace exportedFacet {
+  export function readSummary(): string {
+    return `${visible}:${readPrivate()}`;
   }
 }
 
@@ -59,16 +76,19 @@ export function demonstrateCrossKind(): {
   retried: string;
   point: Vector;
   paletteValue: number;
+  paletteLabel: string;
   transformed: number;
   exportedMember: string;
   privateMember: string;
+  summaryMember: string;
 } {
   const connection = connect("api");
   const retried = connect.retry("api", 2);
-  const point = new Vector();
+  const point = Vector.zero();
   point.y = 5;
 
   const paletteValue = Palette.Cool;
+  const paletteLabel = Palette.label(paletteValue);
   const transformed = helper(4);
 
   return {
@@ -76,9 +96,11 @@ export function demonstrateCrossKind(): {
     retried,
     point,
     paletteValue,
+    paletteLabel,
     transformed,
     exportedMember: exportedFacet.visible,
     privateMember: exportedFacet.readPrivate(),
+    summaryMember: exportedFacet.readSummary(),
   };
 }
 
