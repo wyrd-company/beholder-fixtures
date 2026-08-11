@@ -1,0 +1,26 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Type-check and emit in every declared compilation context
+    cmds:
+      - ./node_modules/.bin/tsc -p tsconfig.json
+      - ./node_modules/.bin/tsc -p tsconfig.verbatim.json
+      - ./node_modules/.bin/tsc -p tsconfig.attributes.json
+      - ./node_modules/.bin/tsc -p tsconfig.no-unchecked.json
+      - ./node_modules/.bin/tsc -p tsconfig.defer.json
+
+  lint:
+    desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)
+    cmds:
+      - ./node_modules/.bin/prettier --check "src/**/*" "Taskfile.yml" "tsconfig*.json" "coverage.md" "package.json"
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.verbatim.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.attributes.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-unchecked.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.defer.json
+
+  test:
+    desc: No fixture tests; succeeds when no test source is required
+    cmds:
+      - echo "no tests"

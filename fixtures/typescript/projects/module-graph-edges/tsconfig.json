@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "moduleDetection": "force",
+    "strict": true,
+    "declaration": true,
+    "declarationMap": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "checkJs": false,
+    "skipLibCheck": true,
+    "resolveJsonModule": false,
+    "allowArbitraryExtensions": false
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "src/defer/**/*",
+    "src/assets/json-consumer.ts",
+    "src/assets/json-consumer-legacy.ts",
+    "src/assets/bloom-consumer.ts",
+    "src/assets/note.d.bloom.ts"
+  ]
+}

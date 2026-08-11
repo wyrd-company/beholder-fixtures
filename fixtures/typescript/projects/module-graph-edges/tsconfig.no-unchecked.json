@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noUncheckedSideEffectImports": true,
+    "outDir": "dist-no-unchecked"
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "src/defer/**/*",
+    "src/assets/json-consumer.ts",
+    "src/assets/json-consumer-legacy.ts",
+    "src/assets/bloom-consumer.ts",
+    "src/assets/note.d.bloom.ts"
+  ]
+}

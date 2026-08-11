@@ -1,0 +1,19 @@
+{
+  "name": "@fixtures/module-graph-edges",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture library for module graph edges, re-export barrels, dynamic imports, JSON attributes, and deferred evaluation",
+  "sideEffects": [
+    "./src/side-effects/asset.css",
+    "./src/side-effects/side-effect-patch.ts",
+    "./src/defer/side-effectful.ts"
+  ],
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "devDependencies": {
+    "prettier": "3.9.6",
+    "typescript": "5.9.3"
+  }
+}

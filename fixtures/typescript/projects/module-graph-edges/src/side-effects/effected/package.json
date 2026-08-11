@@ -1,0 +1,6 @@
+{
+  "name": "effected-fixture",
+  "version": "1.0.0",
+  "type": "module",
+  "sideEffects": false
+}
