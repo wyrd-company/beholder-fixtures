@@ -5,13 +5,19 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "suite-workspace-beta"
 version = "0.2.0"
-description = "Workspace member beta depending on alpha via path for PKG-020"
+description = "Workspace member beta depending on alpha for PKG-020"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 dependencies = [
-  "suite-workspace-alpha @ file:../suite_workspace_alpha",
+  "suite-workspace-alpha",
 ]
 
 [tool.setuptools]
 packages = ["suite_workspace_beta"]
+
+# The alpha dependency is bound to the sibling workspace member. uv resolves it
+# from the workspace for development (uv sync); pip resolves the same name from a
+# find-links directory of locally built wheels for the published case.
+[tool.uv.sources]
+suite-workspace-alpha = { workspace = true }

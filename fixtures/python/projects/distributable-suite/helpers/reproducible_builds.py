@@ -1,57 +1,64 @@
-"""PKG-015 reproducible and environment-sensitive builds."""
+"""PKG-015 reproducible and environment-sensitive builds, built offline."""
 
 from __future__ import annotations
 
+import hashlib
+import os
 import pathlib
+import subprocess
+import tarfile
+import tempfile
 
-# Two builds from equivalent normalized inputs produce equivalent artifacts.
-# Normalization: sorted file lists, clamped timestamps (SOURCE_DATE_EPOCH),
-# deterministic file order via `sort` in archive creation.
-# Actual builds via uv build --sdist with SOURCE_DATE_EPOCH=315532800.
+ROOT = pathlib.Path(__file__).parents[1]
+WHEELHOUSE = ROOT / "wheelhouse"
+CORE = ROOT / "distributions" / "suite_core"
 
+# Both builds resolve the pinned setuptools backend from the vendored wheelhouse
+# with no network access.
+_OFFLINE_INDEX = ["--offline", "--no-index", "--find-links", str(WHEELHOUSE)]
+
+# Two builds from equivalent normalized inputs produce equivalent artifacts once
+# timestamps are clamped with SOURCE_DATE_EPOCH and the file order is sorted.
 NORMALIZED_INPUTS = [
     "distributions/suite_core/suite_core/_generated_version.py",
     "distributions/suite_core/pyproject.toml",
 ]
 
-COUNTERCASE = "A build with SOURCE_DATE_EPOCH=0 vs 315532800 produces different timestamps in tar header (demonstrated via two sdist builds)"
+COUNTERCASE = "SOURCE_DATE_EPOCH=0 versus 315532800 yields different mtimes in the sdist tar header"
+
+
+def _build_sdist(out_dir: pathlib.Path, epoch: str) -> pathlib.Path | None:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    env = os.environ.copy()
+    env["SOURCE_DATE_EPOCH"] = epoch
+    result = subprocess.run(
+        ["uv", "build", "--sdist", *_OFFLINE_INDEX, "--out-dir", str(out_dir), str(CORE)],
+        env=env, capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        return None
+    tarballs = sorted(out_dir.glob("*.tar.gz"))
+    return tarballs[-1] if tarballs else None
 
 
 def two_equivalent_builds() -> tuple[bool, str]:
-    """Build sdist twice with same SOURCE_DATE_EPOCH and compare payload hashes."""
-    import subprocess, hashlib, tarfile, tempfile, pathlib, os
-    root = pathlib.Path(__file__).parents[1]
+    """Build the sdist twice with the same SOURCE_DATE_EPOCH; payloads must match."""
     with tempfile.TemporaryDirectory() as td:
-        out1 = pathlib.Path(td) / "out1"
-        out2 = pathlib.Path(td) / "out2"
-        out1.mkdir(); out2.mkdir()
-        env = os.environ.copy()
-        env["SOURCE_DATE_EPOCH"] = "315532800"
-        cmd1 = ["uv", "build", "--sdist", "--out-dir", str(out1), str(root / "distributions" / "suite_core")]
-        r1 = subprocess.run(cmd1, env=env, capture_output=True, text=True)
-        cmd2 = ["uv", "build", "--sdist", "--out-dir", str(out2), str(root / "distributions" / "suite_core")]
-        r2 = subprocess.run(cmd2, env=env, capture_output=True, text=True)
-        if r1.returncode != 0 or r2.returncode != 0:
-            return False, f"build failed {r1.stderr[:200]}"
-        s1 = next(out1.glob("*.tar.gz"))
-        s2 = next(out2.glob("*.tar.gz"))
-        return compare_artifacts(s1, s2), f"{s1.name} vs {s2.name} payload equal"
+        s1 = _build_sdist(pathlib.Path(td) / "out1", "315532800")
+        s2 = _build_sdist(pathlib.Path(td) / "out2", "315532800")
+        if s1 is None or s2 is None:
+            return False, "offline sdist build failed"
+        equal = compare_artifacts(s1, s2)
+        return equal, f"{s1.name} vs {s2.name} payload equal={equal}"
 
 
 def countercase_build() -> tuple[bool, str]:
-    """Countercase: different SOURCE_DATE_EPOCH yields different tar mtime."""
-    import subprocess, tarfile, tempfile, pathlib, os
-    root = pathlib.Path(__file__).parents[1]
+    """Countercase: a different SOURCE_DATE_EPOCH yields a different tar mtime."""
     with tempfile.TemporaryDirectory() as td:
-        out1 = pathlib.Path(td) / "out1"
-        out2 = pathlib.Path(td) / "out2"
-        out1.mkdir(); out2.mkdir()
-        env1 = os.environ.copy(); env1["SOURCE_DATE_EPOCH"] = "0"
-        env2 = os.environ.copy(); env2["SOURCE_DATE_EPOCH"] = "315532800"
-        subprocess.run(["uv", "build", "--sdist", "--out-dir", str(out1), str(root / "distributions" / "suite_core")], env=env1, capture_output=True)
-        subprocess.run(["uv", "build", "--sdist", "--out-dir", str(out2), str(root / "distributions" / "suite_core")], env=env2, capture_output=True)
-        s1 = next(out1.glob("*.tar.gz"))
-        s2 = next(out2.glob("*.tar.gz"))
+        s1 = _build_sdist(pathlib.Path(td) / "out1", "0")
+        s2 = _build_sdist(pathlib.Path(td) / "out2", "315532800")
+        if s1 is None or s2 is None:
+            return False, "offline sdist build failed"
         with tarfile.open(s1) as tf:
             m1 = tf.getmembers()[0].mtime
         with tarfile.open(s2) as tf:
@@ -60,25 +67,18 @@ def countercase_build() -> tuple[bool, str]:
 
 
 def compare_artifacts(artifact_a: pathlib.Path, artifact_b: pathlib.Path) -> bool:
-    """Compare ignoring timestamps: compare sorted namelist and file hashes."""
-    import tarfile
-    import hashlib
-
-    def tar_hashes(p: pathlib.Path):
-        with tarfile.open(p) as tf:
-            return sorted((m.name, hashlib.sha256(tf.extractfile(m).read()).hexdigest()) for m in tf.getmembers() if m.isfile())
+    """Compare two tarballs by sorted member name and content hash, ignoring order."""
+    def tar_hashes(path: pathlib.Path) -> list[tuple[str, str]]:
+        with tarfile.open(path) as tf:
+            return sorted(
+                (m.name, hashlib.sha256(tf.extractfile(m).read()).hexdigest())
+                for m in tf.getmembers() if m.isfile()
+            )
 
     try:
         return tar_hashes(artifact_a) == tar_hashes(artifact_b)
     except Exception:
         return False
-
-
-def countercase_documentation() -> str:
-    return (
-        "Countercase: building sdist with mtime 2020-01-01 vs 2026-01-01 produces different tar headers; "
-        "reproducible builds require SOURCE_DATE_EPOCH and sorted order"
-    )
 
 
 def environment_factors() -> list[str]:

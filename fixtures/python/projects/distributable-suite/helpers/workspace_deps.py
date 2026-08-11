@@ -1,33 +1,109 @@
-"""PKG-020 multi-project workspace and local dependencies."""
+"""PKG-020 multi-distribution workspace and local dependencies, resolved offline.
+
+``suite_workspace_beta`` depends on ``suite_workspace_alpha``, bound to the
+sibling workspace member via ``[tool.uv.sources] suite-workspace-alpha =
+{workspace = true}`` in the workspace root. Three offline paths are executed:
+
+- development: an editable install of both members, where beta imports alpha;
+- published: both members built to a wheel directory offline, then beta
+  installed from that directory so it pulls alpha by name;
+- uv workspace: ``uv sync --offline`` resolving the workspace from the vendored
+  wheelhouse.
+
+All builds resolve the pinned setuptools backend from the vendored wheelhouse
+with no network access.
+"""
 
 from __future__ import annotations
 
+import os
 import pathlib
+import subprocess
+import sys
+import tempfile
 
-# Workspace: workspace/ pyproject.toml defines members suite_workspace_alpha/beta via tool.uv.workspace
-# Beta depends on alpha via path: suite-workspace-alpha @ file:../suite_workspace_alpha (PEP 508 direct reference)
-# Workspace root: workspace/pyproject.toml with tool.uv.sources suite-workspace-alpha = {workspace=true}
-# Development: sibling import without install works when workspace root is on sys.path:
-#   sys.path.insert(0, "workspace/suite_workspace_alpha")
-#   import suite_workspace_alpha
-# Published: pip install offline from file path or built wheels via --find-links dist/
+ROOT = pathlib.Path(__file__).parents[1]
+WHEELHOUSE = ROOT / "wheelhouse"
+WORKSPACE = ROOT / "workspace"
+ALPHA = WORKSPACE / "suite_workspace_alpha"
+BETA = WORKSPACE / "suite_workspace_beta"
+_BIN = "Scripts" if sys.platform == "win32" else "bin"
+
+# A neutral cwd keeps the current directory from being importable as an empty
+# PEP 420 namespace package and masking a real import failure.
+_NEUTRAL_CWD = tempfile.gettempdir()
 
 
-def development_vs_published() -> dict[str, str]:
-    import pathlib, subprocess, sys, venv, tempfile
-    # Demonstrate development import without install
-    root = pathlib.Path(__file__).parents[1]
+def development_editable_offline() -> bool:
+    """Editable install of both members offline; beta imports alpha."""
     with tempfile.TemporaryDirectory() as td:
-        venv_path = pathlib.Path(td) / "venv"
-        subprocess.run([sys.executable, "-m", "venv", str(venv_path)], check=True)
-        # Development: sys.path insertion
-        # Published offline: build both then install beta which pulls alpha via file: URL
+        venv = pathlib.Path(td) / "venv"
+        subprocess.run([sys.executable, "-m", "venv", str(venv)], check=True)
+        py = venv / _BIN / "python"
+        install = subprocess.run(
+            [str(py), "-m", "pip", "install", "--no-index", "--find-links", str(WHEELHOUSE),
+             "--no-deps", "-e", str(ALPHA), "-e", str(BETA)],
+            capture_output=True, text=True,
+        )
+        if install.returncode != 0:
+            return False
+        check = subprocess.run(
+            [str(py), "-c", "import suite_workspace_beta, suite_workspace_alpha; print('ok')"],
+            capture_output=True, text=True, cwd=_NEUTRAL_CWD,
+        )
+        return check.returncode == 0 and "ok" in check.stdout
+
+
+def published_resolution_offline() -> bool:
+    """Build both members to a wheel dir offline, then install beta so it pulls alpha."""
+    with tempfile.TemporaryDirectory() as td:
+        dist = pathlib.Path(td) / "dist"
+        build = subprocess.run(
+            [sys.executable, "-m", "pip", "wheel", "--no-index", "--find-links", str(WHEELHOUSE),
+             "--no-deps", "--wheel-dir", str(dist), str(ALPHA), str(BETA)],
+            capture_output=True, text=True,
+        )
+        if build.returncode != 0:
+            return False
+        venv = pathlib.Path(td) / "venv"
+        subprocess.run([sys.executable, "-m", "venv", str(venv)], check=True)
+        py = venv / _BIN / "python"
+        install = subprocess.run(
+            [str(py), "-m", "pip", "install", "--no-index", "--find-links", str(dist),
+             "--find-links", str(WHEELHOUSE), "suite-workspace-beta"],
+            capture_output=True, text=True,
+        )
+        if install.returncode != 0:
+            return False
+        check = subprocess.run(
+            [str(py), "-c", "import suite_workspace_beta, suite_workspace_alpha; print('ok')"],
+            capture_output=True, text=True, cwd=_NEUTRAL_CWD,
+        )
+        return check.returncode == 0 and "ok" in check.stdout
+
+
+def uv_workspace_sync_offline() -> bool:
+    """uv resolves the workspace offline from the vendored wheelhouse.
+
+    The workspace is copied to a temp directory first so the generated
+    ``uv.lock`` and ``.venv`` never touch tracked source.
+    """
+    import shutil
+    with tempfile.TemporaryDirectory() as td:
+        work = pathlib.Path(td) / "workspace"
+        shutil.copytree(WORKSPACE, work, ignore=shutil.ignore_patterns(".venv", "uv.lock", "*.egg-info", "build", "dist"))
+        env = os.environ.copy()
+        env["UV_CACHE_DIR"] = str(pathlib.Path(td) / "cache")
+        result = subprocess.run(
+            ["uv", "sync", "--offline", "--no-index", "--find-links", str(WHEELHOUSE)],
+            cwd=str(work), env=env, capture_output=True, text=True,
+        )
+        return result.returncode == 0
+
+
+def demonstrate() -> dict[str, bool]:
     return {
-        "path_dependency": "suite-workspace-alpha @ file:../suite_workspace_alpha (workspace/suite_workspace_beta/pyproject.toml)",
-        "workspace_root": "workspace/pyproject.toml members=[suite_workspace_alpha, suite_workspace_beta]",
-        "development": "alpha importable via sys.path without install (helpers/workspace_deps.py dev check)",
-        "editable_combination": "pip install --no-index --find-links wheelhouse --no-deps -e workspace/suite_workspace_alpha -e workspace/suite_workspace_beta",
-        "published": "pip wheel --no-index --find-links wheelhouse workspace/suite_workspace_alpha workspace/suite_workspace_beta; pip install --no-index --find-links dist --find-links wheelhouse suite-workspace-beta (resolves path via built wheels)",
-        "legacy_requirements": "requirements.txt would list -e ./workspace/suite_workspace_alpha (legacy)",
-        "tool_rules": "uv workspace member rules via tool.uv.workspace differ from pip find-links",
+        "development_editable": development_editable_offline(),
+        "published_resolution": published_resolution_offline(),
+        "uv_workspace_sync": uv_workspace_sync_offline(),
     }
