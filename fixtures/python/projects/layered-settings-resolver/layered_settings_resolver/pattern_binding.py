@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 
 
 @dataclass
@@ -12,11 +13,20 @@ class SettingRecord:
     value: int
 
 
+class Namespace(Enum):
+    TENANT = "tenant"
+    REGION = "region"
+
+
+class SettingsNamespace:
+    TENANT = "tenant"
+
+
 def irrefutable_capture(record: SettingRecord) -> tuple[str, str, int]:
     """Bind captures that outlive a successful `match` case."""
 
-    match record:
-        case SettingRecord(namespace=scope, key=name, value=amount):
+    match (record.namespace, record.key, record.value):
+        case (scope, name, amount):
             captured_scope = scope
             captured_name = name
             captured_amount = amount
@@ -40,7 +50,7 @@ def qualified_value_pattern(record: SettingRecord) -> str:
     """Match a qualified value pattern against a dataclass instance."""
 
     match record:
-        case SettingRecord(namespace="tenant", key=key, value=value):
+        case SettingRecord(namespace=SettingsNamespace.TENANT, key=key, value=value):
             return f"{key}:{value}"
         case SettingRecord(namespace=namespace, key=key, value=_):
             return f"{namespace}/{key}"
@@ -48,24 +58,20 @@ def qualified_value_pattern(record: SettingRecord) -> str:
     return "unmatched"
 
 
-def unreachable_or_branch(record: SettingRecord) -> str:
-    """Include structurally unequal OR branches that never match."""
+def failed_match_partial_binding(payload: object) -> tuple[bool, str | None]:
+    """Expose unequal OR bindings without reading unspecified partial captures."""
 
-    match record:
-        case SettingRecord(namespace="tenant", key="mode", value=1) | SettingRecord(
-            namespace="tenant",
-            key="mode",
-            value=2,
-        ):
-            return "equal-or"
-        case SettingRecord(namespace="tenant", key="mode", value=1) | SettingRecord(
-            namespace="region",
-            key="mode",
-            value=1,
-        ):
-            return "unequal-or-unreachable"
+    matched = False
+    selected: str | None = None
 
-    return "fallback"
+    match payload:
+        case [bound_a, bound_b] | {"left": bound_a, "right": bound_b}:
+            matched = True
+            selected = bound_a
+        case _:
+            pass
+
+    return matched, selected
 
 
 def guard_side_effects(record: SettingRecord) -> tuple[bool, int]:

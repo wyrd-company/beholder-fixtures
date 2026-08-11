@@ -50,19 +50,33 @@ def convention_underscores() -> dict[str, str]:
 
 
 def nested_class_context_expression() -> str:
-    """Evaluate a nested class-body expression with mangled access."""
+    """Evaluate nested class mangling with each owning context."""
 
     class Outer:
-        __token = "outer"
+        __token = "outer-token"
 
         class Inner:
-            __token = "inner"
+            __token = "inner-token"
 
-            @classmethod
-            def combine(cls) -> str:
-                return cls._Outer__token
+            def read_inner(self) -> str:
+                return self.__token
 
-    return Outer.Inner.combine()
+            def read_outer(self) -> str:
+                return Outer._Outer__token
+
+    return f"{Outer.Inner().read_inner()}:{Outer.Inner().read_outer()}"
+
+
+def leading_underscore_class_mangling() -> str:
+    """Mangle a double-underscore name on a leading-underscore class."""
+
+    class _LeadingOuter:
+        __secret = "leading-secret"
+
+        def reveal(self) -> str:
+            return self.__secret
+
+    return _LeadingOuter().reveal()
 
 
 def reflection_bypass(instance: ManglingBase) -> str:

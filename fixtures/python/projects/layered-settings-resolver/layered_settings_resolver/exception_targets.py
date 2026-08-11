@@ -22,6 +22,15 @@ def handler_target_lifetime() -> tuple[str, str]:
     return observed[0], observed[1]
 
 
+def ordinary_block_scope() -> str:
+    """Contrast exception handlers with ordinary compound statements that share scope."""
+
+    if True:
+        block_binding = "inside-if"
+    after = block_binding
+    return after
+
+
 def exception_group_subgroup() -> list[str]:
     """Bind subgroups from an exception group handler."""
 

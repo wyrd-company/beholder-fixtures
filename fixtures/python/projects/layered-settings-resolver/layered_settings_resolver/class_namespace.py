@@ -2,13 +2,21 @@
 
 from __future__ import annotations
 
-from typing import ClassVar, Generic, TypeVar
-
-T = TypeVar("T")
+from typing import ClassVar
 
 
 class PreparedNamespaceMeta(type):
-    """Metaclass that prepares a namespace before class body execution completes."""
+    """Metaclass that prepares a namespace before class body execution."""
+
+    @classmethod
+    def __prepare__(
+        metacls,
+        name: str,
+        bases: tuple[type, ...],
+        **kwargs: object,
+    ) -> dict[str, object]:
+        prepared: dict[str, object] = {"prepared_marker": "metaclass-prepared"}
+        return prepared
 
     def __new__(
         mcs,
@@ -17,7 +25,7 @@ class PreparedNamespaceMeta(type):
         namespace: dict[str, object],
         **kwargs: object,
     ) -> type:
-        namespace["prepared_marker"] = "metaclass-prepared"
+        namespace["class_body_marker"] = "class-body-added"
         return super().__new__(mcs, name, bases, namespace)
 
 
@@ -38,7 +46,21 @@ class SettingsProfile(metaclass=PreparedNamespaceMeta):
         return cls.__dict__["computed"]
 
 
-class TypeScopedRegistry(Generic[T]):
+def method_lexical_boundary() -> str:
+    """Show a method bare name resolves past a class-body binding."""
+
+    tier = "enclosing-tier"
+
+    class BoundaryProfile:
+        tier = "class-tier"
+
+        def bare_tier(self) -> str:
+            return tier
+
+    return BoundaryProfile().bare_tier()
+
+
+class TypeScopedRegistry[T]:
     """Exercise type-parameter scope introduced in Python 3.12."""
 
     store: dict[str, T]

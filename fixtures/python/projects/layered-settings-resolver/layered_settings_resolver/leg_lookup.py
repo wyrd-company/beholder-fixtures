@@ -8,12 +8,13 @@ MODULE_DEFAULT = "module-layer"
 def read_four_levels(enclosing_value: str) -> dict[str, str]:
     """Read local, enclosing, global, and built-in bindings in one callable."""
 
-    local_value = "local-layer"
+    enclosing_marker = enclosing_value
 
     def inner() -> dict[str, str]:
+        local_marker = "local-layer"
         return {
-            "local": local_value,
-            "enclosing": enclosing_value,
+            "local": local_marker,
+            "enclosing": enclosing_marker,
             "global": MODULE_DEFAULT,
             "builtin": str.__name__,
         }
@@ -44,15 +45,21 @@ def compile_time_local_classification(flag: bool) -> str:
     return reader()
 
 
-def compile_time_unbound_local_probe() -> tuple[str, ...]:
-    """Expose compile-time local classification that would raise at runtime."""
+def compile_time_unbound_local_probe() -> tuple[tuple[str, ...], str]:
+    """Expose compile-time local classification and the runtime unbound read."""
 
     def inner() -> str:
         if False:
             token = "never-assigned"
         return token
 
-    return inner.__code__.co_varnames
+    try:
+        inner()
+        runtime = "no-error"
+    except UnboundLocalError:
+        runtime = "unbound-local"
+
+    return inner.__code__.co_varnames, runtime
 
 
 def class_scope_not_enclosing() -> str:

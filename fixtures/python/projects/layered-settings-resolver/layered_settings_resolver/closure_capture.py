@@ -10,7 +10,7 @@ def loop_late_binding(keys: list[str]) -> list[callable]:
 
     resolvers: list[callable] = []
     for key in keys:
-        resolvers.append(lambda current=key: current.upper())
+        resolvers.append(lambda: key.upper())
     return resolvers
 
 

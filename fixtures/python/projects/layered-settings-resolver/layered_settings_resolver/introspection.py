@@ -38,18 +38,27 @@ def closure_cells(function: callable) -> list[str]:
     return [cell.cell_contents for cell in function.__closure__]
 
 
-def frame_locals_snapshot() -> FrameType | None:
-    """Capture the current frame without retaining it beyond the call."""
+def frame_locals_snapshot() -> dict[str, object]:
+    """Exercise `locals()` snapshots versus `frame.f_locals` write-through."""
 
+    fast_counter = 0
+    locals_snapshot = dict(locals())
     frame = sys._getframe()
-    _ = frame.f_locals
-    return frame
+    frame_locals = frame.f_locals
+    frame_locals["fast_counter"] = 7
+    return {
+        "snapshot_before": locals_snapshot.get("fast_counter"),
+        "live_after_frame_write": fast_counter,
+        "frame_locals_after": frame_locals.get("fast_counter"),
+    }
 
 
-def optimized_locals_reader(items: list[int]) -> int:
-    """Exercise optimized locals in a tight loop."""
+def optimized_locals_reader(items: list[int]) -> dict[str, object]:
+    """Exercise optimized locals in a loop and snapshot them with `locals()`."""
 
     total = 0
+    snapshots: list[dict[str, object]] = []
     for item in items:
         total += item
-    return total
+        snapshots.append(dict(locals()))
+    return {"total": total, "snapshots": snapshots}

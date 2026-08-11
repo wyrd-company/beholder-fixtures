@@ -47,16 +47,24 @@ def generator_laziness(values: list[int]) -> Iterator[int]:
     return (item * multiplier for item in values)
 
 
-def class_body_lookup_failure() -> None:
-    """Show class-body locals are invisible to a comprehension iterable."""
+def class_body_lookup_failure() -> str:
+    """Handle nested comprehension lookup failure for a class local."""
 
-    class BodyLookup:
-        seed = "class-seed"
+    try:
+        class BodyLookup:
+            seed = "class-seed"
+            tokens = [
+                inner
+                for outer in ("a", "b")
+                for inner in (outer,)
+                if label == outer
+            ]
+            label = "class-label"
 
-        # The comprehension creates its own scope; `seed` resolves via class dict.
-        tokens = [token for token in (seed,)]
-
-    _ = BodyLookup.tokens
+        _ = BodyLookup.tokens
+        return "unexpected-success"
+    except NameError:
+        return "name-error"
 
 
 def forbidden_walrus_in_iterable() -> list[int]:

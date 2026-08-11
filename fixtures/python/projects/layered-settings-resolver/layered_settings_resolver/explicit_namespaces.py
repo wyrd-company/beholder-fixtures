@@ -19,29 +19,45 @@ def eval_in_mappings(expression: str, globals_map: dict[str, object], locals_map
 
 
 def function_locals_snapshot() -> dict[str, object]:
-    """Contrast function `locals()` write-through behavior under PEP 667."""
-
-    layer = "initial"
+    """Contrast optimized-scope `locals()` snapshots and unreliable mapping mutation."""
 
     def worker() -> dict[str, object]:
-        snapshot = dict(locals())
-        locals()["layer"] = "mutated"
-        return snapshot
+        fast_local = "initial"
+        first_snapshot = dict(locals())
+        live_view = locals()
+        try:
+            live_view["fast_local"] = "mutated"
+            mutation_visible = live_view.get("fast_local")
+        except Exception:
+            mutation_visible = "failed"
+        second_snapshot = dict(locals())
+        return {
+            "first_snapshot": first_snapshot.get("fast_local"),
+            "second_snapshot": second_snapshot.get("fast_local"),
+            "mutation_visible": mutation_visible,
+            "live_value": fast_local,
+        }
 
-    before = worker()
-    return {"before": before, "after": layer}
+    return worker()
 
 
 def closure_exec_support(free_value: str) -> str:
-    """Execute code that closes over a parameter name."""
+    """Execute compiled code with a free variable through the `closure` parameter."""
 
-    namespace: dict[str, object] = {"free_value": free_value}
+    result_holder: str | None = None
 
-    def runner() -> str:
-        exec("result = free_value.upper()", namespace)
-        return str(namespace["result"])
+    def make_runner() -> callable:
+        captured = free_value
 
-    return runner()
+        def runner() -> None:
+            nonlocal result_holder
+            result_holder = captured.upper()
+
+        return runner
+
+    runner = make_runner()
+    exec(runner.__code__, runner.__globals__, closure=runner.__closure__)
+    return result_holder or ""
 
 
 def untrusted_mapping_guard(user_code: str) -> MappingProxyType:
