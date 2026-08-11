@@ -80,35 +80,35 @@ def _rebuild_reduced(value: float, unit: str, protocol: int) -> ReducedMeasure:
     return ReducedMeasure(value, unit)
 
 
-def copy_cycle_and_alias_demo() -> tuple[bool, bool]:
-    """Copy and deep-copy a cyclic graph with shared aliases."""
+def copy_cycle_and_alias_demo() -> tuple[bool, bool, bool, bool]:
+    """Copy and deep-copy a graph containing both cycle and alias."""
 
     root = SharedAliasGroup(7.0)
     child = SharedAliasGroup(3.0)
-    root.children.append(child)
-    child.children.append(root)  # cycle
-    shared = root
+    root.children = [child, child]  # alias: same child twice
+    child.children.append(root)  # cycle back to root
     shallow = copy.copy(root)
     deep = copy.deepcopy(root)
-    # Shallow shares alias identity; deep restores cycle with distinct objects
-    shallow_alias = shallow.children[0].children[0] is shallow
-    deep_preserves_cycle = deep.children[0].children[0] is deep
-    # Shared alias explicitly preserved via two references
-    _ = shared
-    return shallow_alias, deep_preserves_cycle
+    shallow_alias = shallow.children[0] is shallow.children[1]
+    shallow_cycle = shallow.children[0].children[0] is shallow
+    deep_alias = deep.children[0] is deep.children[1]
+    deep_cycle = deep.children[0].children[0] is deep
+    return shallow_alias, shallow_cycle, deep_alias, deep_cycle
 
 
-def pickle_roundtrip_demo() -> tuple[float, int]:
-    """Round-trip an aliased graph through pickle and verify alias count."""
+def pickle_roundtrip_demo() -> tuple[float, bool, bool]:
+    """Round-trip a cyclic and aliased graph through pickle."""
 
     root = SharedAliasGroup(12.0)
     root.tag = "primary"
     child = SharedAliasGroup(2.0)
     root.children = [child, child]  # alias
+    child.children.append(root)  # cycle
     data = pickle.dumps(root, protocol=pickle.HIGHEST_PROTOCOL)
     restored: SharedAliasGroup = pickle.loads(data)
     alias_preserved = restored.children[0] is restored.children[1]
-    return restored.value, (1 if alias_preserved else 0)
+    cycle_preserved = restored.children[0].children[0] is restored
+    return restored.value, alias_preserved, cycle_preserved
 
 
 def pickle_protocol_versions_demo() -> list[int]:
@@ -122,11 +122,13 @@ def pickle_protocol_versions_demo() -> list[int]:
     return versions
 
 
-def local_and_lambda_pickle_failure_demo() -> tuple[str, str]:
+def local_and_lambda_pickle_failure_demo() -> tuple[str, str, str]:
     """Document local/lambda/resource pickle failures (not executed as untrusted loads).
 
     Local classes and lambdas cannot be pickled because their qualified name
-    is not importable. This is the expected valid-source counterexample.
+    is not importable; resources such as ``threading.Lock`` cannot be
+    pickled because they hold OS state. These are the expected valid-source
+    counterexamples.
     """
 
     try:
@@ -145,11 +147,19 @@ def local_and_lambda_pickle_failure_demo() -> tuple[str, str]:
     try:
         fn = lambda x: x + 1
         pickle.dumps(fn)
-        # Lambdas defined at module top-level are importable; locally defined ones may not be
         lambda_result = "pickled"
     except (AttributeError, pickle.PicklingError):
         lambda_result = "pickling-error"
-    return local_result, lambda_result
+
+    try:
+        import threading
+
+        lock = threading.Lock()
+        pickle.dumps(lock)
+        resource_result = "no-error"
+    except (AttributeError, pickle.PicklingError, TypeError, NotImplementedError):
+        resource_result = "pickling-error"
+    return local_result, lambda_result, resource_result
 
 
 def untrusted_load_prohibition_note() -> str:

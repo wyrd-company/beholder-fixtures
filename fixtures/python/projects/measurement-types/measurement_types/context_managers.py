@@ -61,7 +61,7 @@ class RaisingExitScope:
 
 
 class PartialSetupScope:
-    """``__enter__`` acquires then fails, requiring caller to handle."""
+    """``__enter__`` acquires then fails, requiring staged cleanup."""
 
     def __init__(self) -> None:
         self.acquired = False
@@ -77,6 +77,10 @@ class PartialSetupScope:
         tb: TracebackType | None,
     ) -> bool:
         return False
+
+    def release(self) -> None:
+        """Release the staged acquisition."""
+        self.acquired = False
 
 
 @contextlib.contextmanager
@@ -136,14 +140,18 @@ def exit_raises_replaces_demo() -> str:
 
 
 def partial_setup_cleanup_demo() -> str:
-    """Handle a failing ``__enter__``."""
+    """Handle a failing ``__enter__`` with explicit staged cleanup."""
 
     scope = PartialSetupScope()
     try:
         with scope:
             return "no-error"
     except RuntimeError as exc:
-        return f"{exc}:{scope.acquired}"
+        # ``__exit__`` is not called when ``__enter__`` raises, so the
+        # caller must release the acquisition explicitly.
+        if scope.acquired:
+            scope.release()
+        return f"{exc}:released:{not scope.acquired}"
 
 
 def exitstack_demo() -> list[str]:

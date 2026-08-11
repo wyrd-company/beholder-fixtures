@@ -104,18 +104,18 @@ class OrderingFailure:
 def chained_evaluation_demo() -> tuple[bool, int]:
     """Show that ``a < b < c`` evaluates middle operand once."""
 
-    counter = {"calls": 0}
+    counter = {"middle_evals": 0}
 
-    class CountingMeasure(Measure):
-        def __lt__(self, other: object) -> bool:
-            counter["calls"] += 1
-            return super().__lt__(other)
+    def middle() -> Measure:
+        counter["middle_evals"] += 1
+        return Measure(2)
 
-    a = CountingMeasure(1)
-    b = CountingMeasure(2)
-    c = CountingMeasure(3)
-    result = a < b < c
-    return result, counter["calls"]
+    a = Measure(1)
+    c = Measure(3)
+    # Chained comparison evaluates the middle-producing expression exactly once,
+    # then reuses its value for the second comparator.
+    result = a < middle() < c
+    return result, counter["middle_evals"]
 
 
 def notimplemented_versus_raise() -> tuple[str, str]:

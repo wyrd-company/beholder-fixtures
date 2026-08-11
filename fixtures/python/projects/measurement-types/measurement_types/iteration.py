@@ -45,16 +45,41 @@ def exhaustion_permanence() -> tuple[list[float], list[float]]:
     return first_pass, second_pass
 
 
-def bad_resuming_iterator() -> str:
-    """Show calling ``next`` after exhaustion raises ``StopIteration``."""
+class BadResumingIterator:
+    """Counterexample iterator that resumes after ``StopIteration`` (protocol violation)."""
 
-    it = OneShotIterator([5.0])
-    next(it)
+    def __init__(self) -> None:
+        self._state = 0
+
+    def __iter__(self) -> BadResumingIterator:
+        return self
+
+    def __next__(self) -> float:
+        if self._state == 0:
+            self._state = 1
+            return 1.0
+        if self._state == 1:
+            self._state = 2
+            raise StopIteration
+        if self._state == 2:
+            self._state = 3
+            return 99.0
+        raise StopIteration
+
+
+def bad_resuming_iterator() -> tuple[str, float]:
+    """Demonstrate a bad iterator that yields after an intervening ``StopIteration``."""
+
+    it = BadResumingIterator()
+    _first = next(it)
     try:
         next(it)
-        return "no-error"
+        exhausted = "no-stop"
     except StopIteration:
-        return "stop-iteration"
+        exhausted = "stop-iteration"
+    # Bad resumption violates the iterator protocol but is a valid-source counterexample.
+    resumed = next(it)
+    return exhausted, resumed
 
 
 def concurrent_iterations() -> tuple[list[float], list[float]]:
@@ -70,16 +95,16 @@ def concurrent_iterations() -> tuple[list[float], list[float]]:
 
 
 def mutation_during_iteration() -> list[float]:
-    """Appending during iteration does not affect the current snapshot iterator."""
+    """Live list iterator sees appended mutation during iteration."""
 
     series = ReIterableSeries([1.0, 2.0, 3.0])
-    # list snapshot via explicit iterator
+    # ``iter(series)`` is a live list iterator; appending during iteration is
+    # observed and the appended value is yielded later.
     it = iter(series)
     collected: list[float] = []
     for value in it:
         collected.append(value)
         if value == 1.0:
-            # Mutate underlying list through the container
             series._values.append(99.0)
     return collected
 

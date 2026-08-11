@@ -5,6 +5,13 @@ from __future__ import annotations
 from typing import Any
 
 
+class FallbackLeft:
+    """Left operand that defers via ``NotImplemented`` for reflected fallback coverage."""
+
+    def __add__(self, other: object) -> Any:
+        return NotImplemented
+
+
 class Reading:
     """Quantity supporting binary, reflected, and in-place operations."""
 
@@ -21,6 +28,10 @@ class Reading:
     def __radd__(self, other: object) -> Reading:
         if isinstance(other, (int, float)):
             return Reading(float(other) + self.value)
+        if isinstance(other, FallbackLeft):
+            # Reflected path that accepts the left fallback sentinel so the
+            # ``NotImplemented`` demonstration is executable.
+            return Reading(self.value + 10)
         return NotImplemented
 
     def __iadd__(self, other: object) -> Reading:
@@ -109,13 +120,10 @@ def subtype_reflection_priority() -> tuple[float, float]:
 def fallback_after_notimplemented() -> Reading:
     """Show fallback when left returns ``NotImplemented``."""
 
-    class LeftOnly:
-        def __add__(self, other: object) -> Any:
-            return NotImplemented
-
-    left = LeftOnly()
+    left = FallbackLeft()
     right = Reading(7)
-    # Python tries right.__radd__(left)
+    # ``FallbackLeft.__add__`` returns ``NotImplemented``, so Python tries
+    # ``Reading.__radd__`` which handles the sentinel and succeeds.
     result = left + right  # type: ignore[operator]
     assert isinstance(result, Reading)
     return result

@@ -59,7 +59,7 @@ class MeasurementSeries:
 
 
 class FallbackContainsSequence:
-    """Container without ``__contains__``; membership falls back to iteration then ``__getitem__``."""
+    """Container without ``__contains__``; membership falls back to iteration."""
 
     def __init__(self, values: list[float]) -> None:
         self._values = list(values)
@@ -72,6 +72,19 @@ class FallbackContainsSequence:
 
     def __iter__(self) -> Iterator[float]:
         return iter(self._values)
+
+
+class IndexFallbackSequence:
+    """Membership via indexing fallback: defines ``__getitem__`` but not ``__iter__`` or ``__contains__``."""
+
+    def __init__(self, values: list[float]) -> None:
+        self._values = list(values)
+
+    def __getitem__(self, index: int) -> float:
+        return self._values[index]
+
+    def __len__(self) -> int:
+        return len(self._values)
 
 
 class IndexOnlySequence:
@@ -136,12 +149,19 @@ def negative_and_slice_demo() -> dict[str, object]:
     }
 
 
-def contains_fallback_demo() -> tuple[bool, bool]:
-    """Show explicit ``__contains__`` versus iteration fallbacks."""
+def contains_fallback_demo() -> tuple[bool, bool, bool]:
+    """Show explicit ``__contains__``, iteration fallback, and indexing fallback."""
 
     explicit = MeasurementSeries([1.0, 2.0, 3.0])
-    fallback = FallbackContainsSequence([1.0, 2.0, 3.0])
-    return (2.0 in explicit), (2.0 in fallback)
+    iteration_fallback = FallbackContainsSequence([1.0, 2.0, 3.0])
+    # ``IndexFallbackSequence`` has no ``__contains__`` or ``__iter__``, so
+    # ``in`` falls back to sequential ``__getitem__`` indexing.
+    indexing_fallback = IndexFallbackSequence([1.0, 2.0, 3.0])
+    return (
+        2.0 in explicit,
+        2.0 in iteration_fallback,
+        2.0 in indexing_fallback,
+    )
 
 
 def extended_slice_assignment_demo() -> list[float]:

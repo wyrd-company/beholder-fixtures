@@ -1,4 +1,9 @@
-"""Pattern-matching protocols (PY-CAN-PROT-011)."""
+"""Pattern-matching protocols (PY-CAN-PROT-011).
+
+Note: mapping/sequence protocol call counts during pattern matching
+(e.g., ``__getitem__``, ``__iter__``, ``get``) are partly unspecified per
+PEP 634; a valid source must not assert a fixed number of protocol calls.
+"""
 
 from __future__ import annotations
 
@@ -116,17 +121,29 @@ def string_excluded_as_sequence(payload: object) -> str:
             return "other"
 
 
-def duplicate_mapping_key_demo() -> str:
-    """Exercise mapping pattern where duplicate key handling is defined by syntax.
+class DuplicateKeys:
+    """Qualified keys that resolve to the same mapping key value."""
 
-    Python grammar rejects a literal duplicate mapping key in a single pattern.
-    The closest runtime variant is two overlapping keys across an OR.
+    K1 = "dup"
+    K2 = "dup"
+
+
+def duplicate_mapping_key_demo() -> str:
+    """Exercise duplicate mapping keys via qualified constants.
+
+    Two qualified keys ``DuplicateKeys.K1`` and ``DuplicateKeys.K2`` both
+    resolve to ``"dup"``. Literal duplicate ``{"dup": a, "dup": b}``
+    is rejected at compile time (SyntaxError); the qualified form is
+    valid source that exercises the runtime duplicate-key handling which
+    raises ``ValueError`` when evaluated.
     """
 
-    payload = {"value": 7, "value2": 7}  # not duplicate; pattern uses one key
-
-    match payload:
-        case {"value": a} | {"value": a}:  # OR of same key
-            return f"or-value:{a}"
-        case _:
-            return "no-or"
+    payload = {"dup": 7, "other": 1}
+    try:
+        match payload:
+            case {DuplicateKeys.K1: a, DuplicateKeys.K2: b}:
+                return f"matched:{a},{b}"
+            case _:
+                return "no-match"
+    except ValueError as exc:
+        return f"value-error:{exc}"

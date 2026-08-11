@@ -32,6 +32,8 @@ from measurement_types.comparison import (
 )
 from measurement_types.container import (
     FallbackContainsSequence,
+    IndexFallbackSequence,
+    IndexOnlySequence,
     IndexValue,
     MeasurementMap,
     MeasurementSeries,
@@ -63,6 +65,7 @@ from measurement_types.copy_pickle import (
     untrusted_load_prohibition_note,
 )
 from measurement_types.iteration import (
+    BadResumingIterator,
     OneShotIterator,
     ReIterableSeries,
     bad_resuming_iterator,
@@ -83,16 +86,20 @@ from measurement_types.lookup_bypass import (
 )
 from measurement_types.numeric_conversion import (
     IndexLike,
+    IndexOnlyFallback,
     StrictIndex,
+    TruncatableMeasure,
     bool_subtype_demo,
     bytes_with_index_demo,
     conversion_fallback_demo,
+    deprecated_truncation_demo,
     operator_index_demo,
     range_with_index_demo,
     slice_with_index_demo,
     strict_return_type_demo,
 )
 from measurement_types.operators import (
+    FallbackLeft,
     PriorityReading as PriorityReadingOps,
     Reading,
     augmented_attribute_and_item,
@@ -103,7 +110,9 @@ from measurement_types.operators import (
 )
 from measurement_types.pattern_matching import (
     BoundedMeasure,
+    DuplicateKeys,
     Point,
+    Units,
     duplicate_mapping_key_demo,
     match_class,
     match_literal_and_or,
@@ -143,8 +152,14 @@ __all__ = [
     "BoundedMeasure",
     "ByteQuantity",
     "ConstructedViaMeta",
+    "BadResumingIterator",
+    "DuplicateKeys",
     "FallbackContainsSequence",
+    "FallbackLeft",
+    "IndexFallbackSequence",
     "IndexLike",
+    "IndexOnlyFallback",
+    "IndexOnlySequence",
     "IndexValue",
     "InstanceSpecial",
     "LabeledMeasure",
@@ -168,6 +183,8 @@ __all__ = [
     "ReIterableSeries",
     "SharedAliasGroup",
     "StrictIndex",
+    "TruncatableMeasure",
+    "Units",
     "SuppressingScope",
     "array_native_demo",
     "async_cancellation_cleanup_demo",
@@ -187,6 +204,7 @@ __all__ = [
     "contiguity_and_cast_errors",
     "conversion_before_formatting_demo",
     "conversion_fallback_demo",
+    "deprecated_truncation_demo",
     "duplicate_mapping_key_demo",
     "enter_result_differs_demo",
     "exhaustion_permanence",
