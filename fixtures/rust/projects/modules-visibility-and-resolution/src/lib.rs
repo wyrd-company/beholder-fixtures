@@ -9,6 +9,9 @@
 extern crate alloc;
 extern crate fixture_direct as renamed_dep;
 extern crate self as mvr_self;
+// Redundant modern extern crate (2024): extern prelude already provides `fixture_direct`; this is linted as unused_extern_crates.
+#[allow(unused_extern_crates)]
+extern crate fixture_direct;
 
 // RS-CAN-MOD-001: inline, name.rs, name/mod.rs, child-directory, #[path] modules with nested children.
 

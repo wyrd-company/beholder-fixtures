@@ -38,13 +38,26 @@ pub fn uses_reexported_transitive() -> fixture_direct::TransitiveType {
     fixture_direct::TransitiveType::new(14)
 }
 
-// Version skew: two versions of same logical crate via alias keys `skew_v1` / `skew_v2`.
+// Version skew: transitive version skew via local crates.
+// Root crate directly depends on fixture-skew 0.2.0 (skew_v2).
+// Transitive 0.1.0 is reached only via fixture_direct::TransitiveSkewType.
 pub fn skew_versions() -> (u32, u32) {
-    (skew_v1::SKEW_CONST, skew_v2::SKEW_CONST)
+    (fixture_direct::TRANSITIVE_SKEW_CONST, skew_v2::SKEW_CONST)
 }
 
-pub fn skew_types_hold_both() -> (skew_v1::SkewType, skew_v2::SkewType) {
-    (skew_v1::SkewType::new(), skew_v2::SkewType::new())
+pub fn skew_types_hold_both() -> (fixture_direct::TransitiveSkewType, skew_v2::SkewType) {
+    (
+        fixture_direct::TransitiveSkewType::new(),
+        skew_v2::SkewType::new(),
+    )
+}
+
+pub fn direct_skew_version() -> u32 {
+    skew_v2::SKEW_CONST
+}
+
+pub fn transitive_skew_version() -> u32 {
+    fixture_direct::TRANSITIVE_SKEW_CONST
 }
 
 // Macro_use legacy case is in `crates/edition2015`; here we use modern `use` import for direct's macro.

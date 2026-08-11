@@ -16,6 +16,15 @@ pub mod source_a {
         VariantB,
     }
 
+    pub struct Option(pub u32);
+
+    macro_rules! shared_macro {
+        () => {
+            100
+        };
+    }
+    pub(crate) use shared_macro;
+
     #[macro_export]
     macro_rules! colliding_macro_a {
         () => {
@@ -40,6 +49,15 @@ pub mod source_b {
         VariantB,
     }
 
+    pub struct Option(pub u32);
+
+    macro_rules! shared_macro {
+        () => {
+            200
+        };
+    }
+    pub(crate) use shared_macro;
+
     #[macro_export]
     macro_rules! colliding_macro_b {
         () => {
@@ -48,24 +66,19 @@ pub mod source_b {
     }
 }
 
-// Two colliding globs; only when the colliding name is used does ambiguity surface.
 pub mod glob_user_unused {
     use crate::glob_ambiguity::source_a::*;
     use crate::glob_ambiguity::source_b::*;
 
-    // Not using colliding names here: no ambiguity error while unused.
     pub fn non_colliding_use() -> u32 {
         42
     }
 }
 
-// Explicit shadowing resolves ambiguity: explicit import shadows globs.
 pub mod glob_user_shadowed {
     use crate::glob_ambiguity::source_a::*;
     use crate::glob_ambiguity::source_b::*;
 
-    // To demonstrate explicit shadowing, use qualified paths instead of ambiguous glob names.
-    // Separate helper for explicit type via fully qualified path.
     pub fn explicit_resolution_a() -> crate::glob_ambiguity::source_a::CollidingType {
         crate::glob_ambiguity::source_a::CollidingType { v: 1 }
     }
@@ -74,7 +87,6 @@ pub mod glob_user_shadowed {
         crate::glob_ambiguity::source_b::CollidingType { v: 2 }
     }
 
-    // Function collision resolved explicitly.
     pub fn colliding_fn_a() -> u32 {
         crate::glob_ambiguity::source_a::colliding_fn()
     }
@@ -83,19 +95,16 @@ pub mod glob_user_shadowed {
         crate::glob_ambiguity::source_b::colliding_fn()
     }
 
-    // Explicit import shadowing in a dedicated submodule.
     pub mod shadow_via_explicit {
+        use crate::glob_ambiguity::source_a::CollidingType as ExplicitType;
         use crate::glob_ambiguity::source_a::*;
         use crate::glob_ambiguity::source_b::*;
-        // Explicit import shadows glob ambiguity for this name.
-        use crate::glob_ambiguity::source_a::CollidingType as ExplicitType;
 
         pub fn uses_shadowed_type() -> ExplicitType {
             ExplicitType { v: 5 }
         }
     }
 
-    // Local definition shadowing in another dedicated submodule.
     pub mod shadow_via_local {
         use crate::glob_ambiguity::source_a::*;
         use crate::glob_ambiguity::source_b::*;
@@ -104,16 +113,13 @@ pub mod glob_user_shadowed {
             pub local: u32,
         }
 
-        // The local definition shadows the glob-imported `CollidingType`.
         pub fn uses_local_shadow() -> CollidingType {
             CollidingType { local: 5 }
         }
     }
 }
 
-// Public glob re-export.
 pub mod public_glob_exporter {
-    // Public glob re-export: downstream sees these names via this module.
     pub use crate::glob_ambiguity::source_a::*;
 
     pub fn exported_const_user() -> u32 {
@@ -121,33 +127,71 @@ pub mod public_glob_exporter {
     }
 }
 
-// Interaction with prelude: glob-imported `Option` vs prelude `Option` - local wins when shadowed.
-pub mod prelude_interaction {
-    use crate::glob_ambiguity::source_a::CollidingType as Option;
+pub mod prelude_glob_shadow {
+    use crate::glob_ambiguity::source_a::*;
 
-    // `Option` here refers to `CollidingType` locally shadowing `core::option::Option` prelude.
-    pub fn shadowed_prelude() -> Option {
-        Option { v: 10 }
+    pub fn shadowed_prelude_via_glob() -> Option {
+        Option(10)
+    }
+
+    pub fn std_option_still_accessible_via_path() -> std::option::Option<u32> {
+        None
     }
 }
 
-// Enum variant glob import ambiguity nuance.
-pub mod enum_glob {
+pub mod enum_glob_collision {
     pub use crate::glob_ambiguity::source_a::CollidingEnum::*;
-    // Variant `VariantA` now directly nameable.
 
     pub fn uses_imported_variant() -> crate::glob_ambiguity::source_a::CollidingEnum {
         VariantA
     }
+
+    pub fn explicit_variant_a() -> crate::glob_ambiguity::source_a::CollidingEnum {
+        crate::glob_ambiguity::source_a::CollidingEnum::VariantA
+    }
+
+    pub fn explicit_variant_b() -> crate::glob_ambiguity::source_b::CollidingEnum {
+        crate::glob_ambiguity::source_b::CollidingEnum::VariantB
+    }
+
+    pub mod via_b {
+        pub use crate::glob_ambiguity::source_b::CollidingEnum::*;
+
+        pub fn variant_b() -> crate::glob_ambiguity::source_b::CollidingEnum {
+            VariantB
+        }
+    }
+
+    // Documented collision: `use source_a::CollidingEnum::*; use source_b::CollidingEnum::*;` then `VariantA` ambiguous – must use qualified `source_a::...::VariantA`.
 }
 
-// Macro namespace glob behavior distinguished.
-pub mod macro_glob {
-    // Macros are in macro namespace; glob import may be separate.
-    use crate::colliding_macro_a;
+pub mod macro_glob_collision {
+    // `shared_macro` is `pub use` re-exported macro_rules in each source; glob import would make `shared_macro!()` ambiguous.
+    // Valid single-source glob:
+    use crate::glob_ambiguity::source_a::shared_macro;
 
-    pub fn macro_use() -> u32 {
-        colliding_macro_a!()
+    pub fn macro_via_a() -> u32 {
+        shared_macro!()
+    }
+
+    pub fn macro_a_explicit() -> u32 {
+        crate::glob_ambiguity::source_a::shared_macro!()
+    }
+
+    pub fn macro_b_explicit() -> u32 {
+        crate::glob_ambiguity::source_b::shared_macro!()
+    }
+
+    pub fn distinct_macros_via_crate() -> u32 {
+        crate::colliding_macro_a!() + crate::colliding_macro_b!()
+    }
+}
+
+pub mod prelude_interaction_alias {
+    use crate::glob_ambiguity::source_a::CollidingType as Option;
+
+    pub fn shadowed_prelude_alias() -> Option {
+        Option { v: 10 }
     }
 }
 
@@ -157,4 +201,5 @@ pub fn glob_summary() -> u32 {
         + glob_user_shadowed::explicit_resolution_a().v
         + glob_user_shadowed::explicit_resolution_b().v
         + public_glob_exporter::exported_const_user()
+        + prelude_glob_shadow::shadowed_prelude_via_glob().0
 }

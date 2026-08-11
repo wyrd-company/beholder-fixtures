@@ -45,9 +45,44 @@ pub mod shadow_demo {
     }
 }
 
-// Edition addition: example of an item added in a later edition/stdlib version.
-pub fn edition_addition_demo(opt: Option<u32>) -> bool {
+// Edition addition: `TryInto`/`TryFrom` added to prelude in Rust 2021 (edition 2021).
+// In edition 2024, `try_into` is available via prelude without import.
+// In edition 2015, explicit `use std::convert::TryInto;` is required (see crates/edition2015).
+pub fn edition_prelude_try_into(x: u8) -> u16 {
+    // `TryInto` in prelude since 2021, so `try_into` method available without `use`.
+    x.try_into().unwrap()
+}
+
+// Version addition contrast: `Option::is_some_and` is library version addition (1.70), not edition prelude.
+pub fn version_addition_is_some_and(opt: Option<u32>) -> bool {
     opt.is_some_and(|x| x > 0)
+}
+
+// Core prelude: `core::prelude` provides `Copy`, `Send`, `Sync`, `Option`, `Result`, etc., re-exported by `std` prelude.
+// Valid core-prelude use without `std::` prefix, demonstrated via explicit core path vs prelude unqualified.
+pub mod core_prelude_demo {
+    // `Option` and `Result` are in both `core` and `std` preludes; `core::mem::size_of` is core-specific.
+    pub fn core_option_via_prelude() -> Option<u32> {
+        None
+    }
+
+    pub fn core_explicit_vs_prelude() -> (Option<u32>, core::option::Option<u32>) {
+        (None, None)
+    }
+
+    // `Copy` is in core prelude – used without import.
+    pub fn core_prelude_copy<T: Copy>(x: T) -> T {
+        x
+    }
+
+    // Demonstrate `core::prelude::rust_2024` explicit import (core prelude items).
+    pub mod explicit_core_prelude {
+        use core::prelude::rust_2024::*;
+
+        pub fn via_explicit_core_prelude(x: Option<u32>) -> Option<u32> {
+            x
+        }
+    }
 }
 
 // Language prelude: `Copy`, `Send`, `Sync`, `Sized`, `Unpin`, `Fn*`, drop, etc.

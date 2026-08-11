@@ -28,5 +28,9 @@ pub fn direct_origin() -> &'static str {
     "fixture-direct 0.1.0"
 }
 
+pub use fixture_skew::SKEW_CONST as TRANSITIVE_SKEW_CONST;
+/// Transitive skew re-export: fixture-skew 0.1.0 via direct dep
+pub use fixture_skew::SkewType as TransitiveSkewType;
+
 /// Value used in glob and re-export tests.
 pub const DIRECT_CONST: u32 = 99;

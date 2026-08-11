@@ -1,6 +1,6 @@
 //! RS-CAN-MOD-007: pub use re-exports, renames, glob exports, re-exported dependency type.
 
-pub mod implementation {
+mod implementation {
     pub struct InternalType {
         pub value: u32,
     }
@@ -35,15 +35,18 @@ pub mod implementation {
     }
 }
 
-// Private containing module `implementation` holds public items; we bypass via public re-exports at crate root or public module.
+// Private containing module `implementation` holds public items; we bypass via public re-exports.
+// Original `crate::reexports::implementation::InternalType` is capped by private `implementation`.
 pub use crate::reexports::implementation::INTERNAL_CONST;
+#[doc(inline)]
 pub use crate::reexports::implementation::InternalType;
+#[doc(no_inline)]
 pub use crate::reexports::implementation::internal_fn;
 
 // Rename re-export.
 pub use crate::reexports::implementation::InternalType as RenamedType;
 
-// Glob export selected items.
+// Glob export selected items (still via private container, public re-export).
 pub use crate::reexports::implementation::*;
 
 // Dependency type re-export.

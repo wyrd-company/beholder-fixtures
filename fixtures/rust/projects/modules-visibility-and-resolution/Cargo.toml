@@ -25,9 +25,14 @@ private_interfaces = "allow"
 private_bounds = "allow"
 non_camel_case_types = "allow"
 non_upper_case_globals = "allow"
+non_snake_case = "allow"
 unused_labels = "allow"
 unused_variables = "allow"
 unused_assignments = "allow"
+confusable_idents = "allow"
+mixed_script_confusables = "allow"
+uncommon_codepoints = "allow"
+non_local_definitions = "allow"
 
 [workspace.lints.clippy]
 all = "warn"
@@ -50,9 +55,10 @@ path = "src/bin/mvr_bin.rs"
 [dependencies]
 # Direct dep provides fixture_direct crate (package fixture-direct)
 fixture-direct = { path = "crates/direct_dep" }
-# Version skew: same package name fixture-skew at two versions via aliases
-skew_v1 = { package = "fixture-skew", version = "0.1.0", path = "crates/skew_v1" }
+# Transitive version skew: root depends on 0.2.0 directly, direct_dep transitively brings 0.1.0
 skew_v2 = { package = "fixture-skew", version = "0.2.0", path = "crates/skew_v2" }
+# Cross-edition raw identifier: 2024 crate consumes keyword-named item from 2015 crate via raw identifier
+fixture-edition2015 = { path = "crates/edition2015" }
 
 [dev-dependencies]
 

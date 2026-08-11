@@ -100,6 +100,16 @@ pub fn qualified_path_demo() -> u32 {
     <PathRootDemo as PathTrait>::trait_fn()
 }
 
+pub fn associated_type_demo() -> <PathRootDemo as PathTrait>::Assoc {
+    42
+}
+
+pub type QualifiedAssocAlias = <PathRootDemo as PathTrait>::Assoc;
+
+pub fn uses_qualified_assoc(alias: QualifiedAssocAlias) -> QualifiedAssocAlias {
+    alias + 1
+}
+
 // `Self` constructor demonstration inside impl.
 pub fn self_constructor_demo() -> PathRootDemo {
     PathRootDemo::via_self(500)

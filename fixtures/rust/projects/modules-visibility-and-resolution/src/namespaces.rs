@@ -1,71 +1,106 @@
-//! RS-CAN-MOD-003: type, value, macro, lifetime, label namespaces resolved from shared spelling.
+// RS-CAN-MOD-003: type, value, macro, lifetime, label namespaces resolved from shared spelling.
 
-// Type namespace: struct named `alpha`.
-pub struct Alpha {
+// Shared spelling `demo` across type, value, macro, lifetime, label namespaces.
+// Type namespace: named-field struct `demo` (no value constructor, so value `demo` function can coexist).
+#[allow(non_camel_case_types)]
+pub struct demo {
     pub v: u32,
 }
 
-// Value namespace: function and const also named `alpha` (value namespace).
-pub fn alpha() -> u32 {
+// Value namespace: function `demo` and const `demo` would share value namespace with struct constructor if tuple.
+// But `demo` struct has named fields, so no constructor in value namespace; `demo()` is a distinct value binding.
+pub fn demo() -> u32 {
     1
 }
 
-pub const alpha_const: u32 = 2;
+// Additional value namespace const with distinct name to avoid value collision with `demo()`.
+// The shared spelling demonstration uses `demo` type vs `demo` function; const uses `DEMO_CONST`.
+pub const DEMO_VALUE: u32 = 2;
 
-// Unit struct with same spelling as function would collide in value namespace - demonstrate distinct forms:
-// Tuple struct creates value constructor in value namespace.
+// Value namespace collision illustration: tuple struct introduces constructor.
+// Tuple struct `Beta` creates type `Beta` and value constructor `Beta` (value namespace).
 pub struct Beta(pub u32);
 
-// Named-field struct does NOT create callable value constructor; its path is type-only.
+// Named-field struct `Gamma` has type `Gamma` but no value constructor.
 pub struct Gamma {
     pub x: u32,
 }
 
-// Macro namespace: macro_rules! also named `alpha` lives in macro namespace, separate from type/value.
+// Derive macro namespace variant: `Debug` is a derive macro (proc-macro derive).
+#[derive(Debug, Clone)]
+pub struct DemoDerive {
+    pub x: u32,
+}
+
+// Attribute macro variant: `inline` is an attribute (built-in attribute macro).
+#[inline]
+pub fn demo_inline_attr() -> u32 {
+    3
+}
+
+// Attribute with derive helper style: `allow` is a tool/attribute namespace variant.
+#[allow(dead_code)]
+pub fn demo_allow_attr() -> u32 {
+    4
+}
+
+// Bang macro namespace: same spelling `demo` as type/value, but in macro namespace.
 #[macro_export]
-macro_rules! alpha {
+macro_rules! demo {
     () => {
         99
     };
 }
 
-// Derive/attribute/bang macro distinctions are macro-namespace variants (documented as distinct).
-// Built-in derive macros live in same macro namespace but are resolved via attribute path.
+// Lifetime and label namespaces sharing same spelling `'demo`.
 
-// Lifetime namespace vs loop label namespace example:
-pub fn lifetime_and_label_demo<'alpha>(input: &'alpha str) -> &'alpha str {
-    // Lifetime `'alpha` is in lifetime namespace; loop label `'alpha` would be label namespace.
-    // Same spelling can appear as both lifetime and label without conflict.
-    let result = 'alpha: loop {
-        break 'alpha input;
+pub fn lifetime_and_label_demo<'demo>(input: &'demo str) -> &'demo str {
+    // Lifetime `'demo` in lifetime namespace; loop label `'demo` in label namespace – same spelling, distinct namespaces.
+    let result = 'demo: loop {
+        break 'demo input;
     };
     result
 }
 
-// Function demonstrating lifetime and label same spelling distinct namespaces:
 pub fn label_namespace_demo() -> u32 {
-    'alpha: for i in 0..3 {
+    'demo: for i in 0..3 {
         if i == 1 {
-            break 'alpha;
+            break 'demo;
         }
     }
     3
 }
 
-// Value namespace vs type namespace usage disambiguated by context:
+// Combined resolution of shared spelling `demo` across all five namespaces.
 pub fn namespace_resolution_demo() -> u32 {
-    // `Alpha` as type
-    let _typed: Alpha = Alpha { v: 5 };
-    // `alpha` as value (function)
-    let _valued = alpha();
-    // `alpha!` as macro
-    let _macroed = crate::alpha!();
-    // Lifetime usage
+    // `demo` as type (struct)
+    let typed: demo = demo { v: 5 };
+    // `demo` as value (function)
+    let valued = demo();
+    // `demo!` as macro (bang)
+    let macroed = crate::demo!();
+    // Lifetime `'demo`
     let s = "hello";
-    let _lifetimed = lifetime_and_label_demo(s);
-    let _labeled = label_namespace_demo();
-    _typed.v + _valued + _macroed + _labeled
+    let lifetimed = lifetime_and_label_demo(s);
+    let _ = lifetimed;
+    let labeled = label_namespace_demo();
+    // `#[derive(Debug)]` type `DemoDerive` and attribute `demo_inline_attr` demonstrate derive/attribute macro namespaces.
+    let _derived = DemoDerive { x: 1 };
+    let _attr = demo_inline_attr();
+    typed.v + valued + macroed + labeled + _derived.x + _attr
 }
 
-// Distinct type/value import interaction: importing can introduce bindings into multiple namespaces.
-// Example: `use crate::namespaces::Alpha;` imports type, while `use crate::namespaces::alpha;` imports value.
+// Import of same spelling into multiple namespaces: `use crate::namespaces::demo` brings type,
+// `use crate::namespaces::demo as _` would be trait/macro? But type vs value demonstration:
+// `Beta` imported brings both type and constructor value when globbed? The following shows multi-namespace import:
+pub mod import_demo {
+    use crate::namespaces::Beta;
+    use crate::namespaces::Gamma;
+
+    pub fn uses_multi_namespace() -> (Beta, Gamma) {
+        // `Beta` as type and as constructor value (tuple struct)
+        let b: Beta = Beta(10);
+        let g: Gamma = Gamma { x: 11 };
+        (b, g)
+    }
+}

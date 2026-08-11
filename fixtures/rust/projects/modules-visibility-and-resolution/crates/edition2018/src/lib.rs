@@ -17,3 +17,9 @@ pub fn edition2018_macro_via_use() -> u32 {
     use fixture_direct::direct_macro;
     direct_macro!()
 }
+
+// TryInto not in 2018 prelude either – explicit import required (vs 2021+ prelude).
+pub fn edition2018_try_into(x: u8) -> u16 {
+    use std::convert::TryInto;
+    x.try_into().unwrap()
+}

@@ -1,46 +1,61 @@
 // RS-CAN-MOD-014: intra-doc links to item, method, Self item, re-export, namespace-disambiguated entities.
 
-/// Demonstrates linking to an item [`crate::reexports::InternalType`].
+/// Link to item [`crate::reexports::InternalType`].
 pub struct LinkDemo {
     pub value: u32,
 }
 
 impl LinkDemo {
-    /// Links to method [`Self::linked_method`].
+    /// Link to method [`Self::linked_method`] via Self.
     pub fn linked_method(&self) -> u32 {
         self.value
     }
 
-    /// Links to Self item [`Self::linked_method`] via Self.
+    /// Link to Self item [`Self::linked_method`] explicitly via Self.
     pub fn via_self_link(&self) -> u32 {
         self.linked_method()
     }
 }
 
-/// Links to re-export [`crate::reexports::RenamedType`] and original [`crate::reexports::implementation::InternalType`].
+/// Link to re-export [`crate::reexports::RenamedType`] and original via public re-export [`crate::reexports::InternalType`] (original `implementation` is private, bypassed via `ReachableCapped` style re-export).
+/// Demonstrates `#[doc(inline)]` vs `#[doc(no_inline)]` presentation variants are in `src/reexports.rs`.
 pub fn link_to_reexport() -> crate::reexports::RenamedType {
     crate::reexports::RenamedType::new(1)
 }
 
-/// Namespace-disambiguated links: type [`LinkDemo`] vs value [`crate::namespaces::alpha`] vs macro [`crate::alpha!`].
+/// Namespace-disambiguated links for same spelling `demo` across type, value, and macro namespaces.
 ///
-/// - Type namespace: [`LinkDemo`]
-/// - Value namespace: [`crate::namespaces::alpha`]
-/// - Macro namespace: [`crate::alpha!`]
-pub fn namespace_links() -> u32 {
-    0
+/// - Type: [`struct@crate::namespaces::demo`] (struct `demo`)
+/// - Value: [`crate::namespaces::demo()`] (function `demo()`)
+/// - Macro: [`crate::demo!`] (bang macro `demo!` via `#[macro_export]`)
+///
+/// Each uses explicit disambiguator `struct@`, `()` or `!` for same identifier `demo`.
+pub fn namespace_disambiguated_links() -> u32 {
+    let t = crate::namespaces::demo { v: 1 };
+    let v = crate::namespaces::demo();
+    let m = crate::demo!();
+    t.v + v + m
 }
 
-/// Link to associated item via Self: [`LinkDemo::linked_method`] (same as `Self::linked_method` when in impl).
+/// Link to Self associated item from outside impl: [`LinkDemo::linked_method`].
 pub fn self_item_link_demo() -> u32 {
     let d = LinkDemo { value: 5 };
     d.linked_method()
 }
 
-/// Private item link (rustdoc can link but lint warns): private type not linked here to avoid warning.
+/// Private item link: [`crate::visibility_restricted::private_container::CappedPublic`] is `pub` but effective visibility is private via `mod private_container`; [`crate::visibility_restricted::CrateVisible`] (`pub(crate)`) is crate-restricted.
+/// Hidden item link: [`crate::intra_doc_links::HiddenDemo`] is `#[doc(hidden)]` but still linkable.
 /// Cross-module link: [`crate::glob_ambiguity::source_a::CollidingType`].
-pub fn cross_module_link() -> u32 {
+#[allow(rustdoc::private_intra_doc_links, rustdoc::broken_intra_doc_links)]
+pub fn private_and_hidden_links() -> u32 {
+    let _ = HiddenDemo { value: 2 };
     42
+}
+
+/// `#[doc(hidden)]` item – hidden from docs but linkable for RS-CAN-MOD-014.
+#[doc(hidden)]
+pub struct HiddenDemo {
+    pub value: u32,
 }
 
 /// Link to re-exported dependency type [`crate::reexports::ReexportedDirectType`].
@@ -48,6 +63,9 @@ pub fn dependency_reexport_link() -> crate::reexports::ReexportedDirectType {
     crate::reexports::ReexportedDirectType::new(10)
 }
 
-// Broken link counterexample is documented in `docs/counterexamples.md` and not present as a real link here,
-// because a broken `/// [`nonexistent::Item`]` would cause `cargo doc` warning/deny failure.
-// Valid contrast: this file's links all resolve.
+/// Cross-module link via glob re-export: [`crate::glob_ambiguity::source_a::CollidingEnum::VariantA`].
+pub fn cross_module_enum_link() -> crate::glob_ambiguity::source_a::CollidingEnum {
+    crate::glob_ambiguity::source_a::CollidingEnum::VariantA
+}
+
+// Broken link counterexample documented in `docs/counterexamples.md`, not present as failing link here.

@@ -49,24 +49,51 @@ pub fn guard_scope_demo(opt: Option<u32>) -> u32 {
     }
 }
 
+pub trait BodyLocalTrait {
+    fn body_method(&self) -> u32;
+}
+
+pub struct BodyLocalType(pub u32);
+
 // Nested items vs closure capture.
 pub fn nested_items_vs_closure() -> u32 {
     let outer_value = 10;
 
-    // Nested function cannot capture dynamic environment; it can only access constants or via parameters.
     fn nested_function(param: u32) -> u32 {
         param + 5
     }
 
     let _from_fn = nested_function(7);
 
-    // Closure CAN capture dynamic environment.
     let captured = outer_value;
     let closure = |x: u32| x + captured;
 
-    // Nested type and import inside function body.
     struct InnerType {
         v: u32,
+    }
+
+    // Nested impl for `InnerType` inside function body.
+    impl InnerType {
+        fn inner_method(&self) -> u32 {
+            self.v + 1
+        }
+    }
+
+    // Body-local trait impl – coherence is crate-global despite textual locality.
+    impl BodyLocalTrait for BodyLocalType {
+        fn body_method(&self) -> u32 {
+            self.0 + 100
+        }
+    }
+
+    trait LocalInnerTrait {
+        fn local_trait_fn(&self) -> u32;
+    }
+
+    impl LocalInnerTrait for InnerType {
+        fn local_trait_fn(&self) -> u32 {
+            self.v + 2
+        }
     }
 
     mod inner_body_mod {
@@ -77,11 +104,20 @@ pub fn nested_items_vs_closure() -> u32 {
 
     use crate::scopes_shadowing::forward_declared_fn as aliased_import;
 
-    let from_inner = InnerType { v: 20 }.v;
+    let inner = InnerType { v: 20 };
+    let from_inner = inner.inner_method();
+    let from_trait = inner.local_trait_fn();
     let from_mod = inner_body_mod::body_mod_fn();
     let from_import = aliased_import();
+    // Body-local impl for `BodyLocalType` is visible here and also outside the function (crate-global).
+    let body_local = BodyLocalType(5).body_method();
 
-    closure(3) + from_inner + from_mod + from_import
+    closure(3) + from_inner + from_trait + from_mod + from_import + body_local
+}
+
+pub fn body_local_impl_visible_outside() -> u32 {
+    // `BodyLocalTrait` impl for `BodyLocalType` was defined inside `nested_items_vs_closure`, yet visible here – coherence is not limited to textual scope.
+    BodyLocalType(10).body_method()
 }
 
 // Body-local import does not leak beyond function.

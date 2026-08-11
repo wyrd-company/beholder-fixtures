@@ -14,6 +14,8 @@ crate-type = ["rlib"]
 
 [dependencies]
 fixture-transitive = { path = "../transitive_dep" }
+# Transitive version skew: direct_dep brings fixture-skew 0.1.0 transitively
+fixture-skew = { package = "fixture-skew", version = "0.1.0", path = "../skew_v1" }
 
 [lints]
 workspace = true

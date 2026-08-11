@@ -6,6 +6,7 @@ version = 4
 name = "fixture-direct"
 version = "0.1.0"
 dependencies = [
+ "fixture-skew 0.1.0",
  "fixture-transitive",
 ]
 
@@ -47,6 +48,6 @@ name = "modules-visibility-and-resolution"
 version = "0.1.0"
 dependencies = [
  "fixture-direct",
- "fixture-skew 0.1.0",
+ "fixture-edition2015",
  "fixture-skew 0.2.0",
 ]

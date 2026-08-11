@@ -4,7 +4,9 @@
 use modules_visibility_and_resolution::visibility_restricted::{PubInRestrictedMod, PublicItem};
 
 use modules_visibility_and_resolution::reexports::ReexportedDirectType;
-use modules_visibility_and_resolution::visibility_fields::{MixedStruct, PublicEnum, VisibleTrait};
+use modules_visibility_and_resolution::visibility_fields::{
+    MixedStruct, NonExhaustiveEnum, PublicEnum, VisibleTrait,
+};
 
 pub fn downstream_can_access_public() -> u32 {
     let item = PublicItem { value: 10 };
@@ -35,4 +37,11 @@ pub fn downstream_matches_public_enum(variant: PublicEnum) -> u32 {
 
 pub fn downstream_uses_trait(item: &dyn VisibleTrait) -> u32 {
     item.visible_method()
+}
+
+pub fn downstream_matches_non_exhaustive(variant: NonExhaustiveEnum) -> u32 {
+    match variant {
+        NonExhaustiveEnum::Known(x) => x,
+        _ => 0,
+    }
 }
