@@ -41,6 +41,7 @@ pub fn fixture_overview() -> &'static str {
     // Unions.
     unions::safe_writes();
     let _ = unions::unsafe_reads();
+    let _ = unions::union_pattern_match();
 
     // Alias vs newtype.
     let _ = alias_newtype::alias_coherence_and_methods();

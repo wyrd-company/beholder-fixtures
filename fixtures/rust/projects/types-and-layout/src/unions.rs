@@ -62,8 +62,15 @@ pub fn c_union_example() -> u32 {
     unsafe { u.large }
 }
 
-pub fn pattern_restriction_note() {
-    // Union pattern restrictions and invalid bit patterns are documented in
-    // `docs/counterexamples.md`; valid usage goes through field access.
-    let _ = CopyUnion { as_u32: 1 };
+pub fn union_pattern_match() -> u32 {
+    // A valid union pattern binds exactly one field and requires an `unsafe`
+    // context. Multi-field and zero-field union patterns are rejected; those
+    // forms, and inactive/invalid-bit reads, are documented in
+    // `docs/counterexamples.md`.
+    let u = CopyUnion { as_u32: 1 };
+    unsafe {
+        match u {
+            CopyUnion { as_u32: value } => value,
+        }
+    }
 }
