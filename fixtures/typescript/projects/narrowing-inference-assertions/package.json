@@ -1,0 +1,14 @@
+{
+  "name": "@fixtures/narrowing-inference-assertions",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture library exercising control-flow narrowing, predicates, contextual typing, and assertions",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
+  }
+}
