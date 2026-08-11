@@ -4,9 +4,10 @@
 //   references: ground-rules
 // ---
 
-var sharedLedger = 0;
+(globalThis as { sharedLedger?: number }).sharedLedger = 0;
 
 function bumpSharedLedger(amount: number): number {
-  sharedLedger += amount;
-  return sharedLedger;
+  const ledgerHost = globalThis as { sharedLedger?: number };
+  ledgerHost.sharedLedger = (ledgerHost.sharedLedger ?? 0) + amount;
+  return ledgerHost.sharedLedger;
 }

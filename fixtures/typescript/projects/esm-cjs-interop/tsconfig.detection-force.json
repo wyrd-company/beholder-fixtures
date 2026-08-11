@@ -10,9 +10,10 @@
     "checkJs": true
   },
   "include": [
+    "src/detection/shared-scripts/**/*.ts",
     "src/detection/private-modules/**/*.ts",
     "src/detection/global-flip/**/*",
-    "src/detection/jsx-runtime/**/*.tsx",
+    "src/detection/jsx-runtime/**/*",
     "src/detection/package-type-esm/**/*",
     "src/detection/commonjs-indicator/**/*"
   ]

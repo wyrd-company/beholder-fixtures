@@ -1,8 +1,9 @@
-declare class DerivedReader {
-  baseLabel: string;
-  ownLabel: string;
-  describe(): string;
-  describeOwn(): string;
+interface PropertyBagExport {
+  ownMarker: string;
+  inheritedMarker: string;
+  readOwn(): string;
 }
 
-export = DerivedReader;
+declare const exportBag: PropertyBagExport;
+
+export = exportBag;

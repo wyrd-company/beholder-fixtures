@@ -4,12 +4,10 @@
 //   references: ground-rules
 // ---
 
-declare global {
-  interface WindowLike {
-    paneTitle: string;
-  }
-
-  var windowLike: WindowLike;
-}
-
 export {};
+
+declare global {
+  interface PaneGlobal {
+    paneRevision: number;
+  }
+}

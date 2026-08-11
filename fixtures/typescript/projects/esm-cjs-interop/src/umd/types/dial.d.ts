@@ -6,6 +6,8 @@
 
 export = Dial;
 
+export as namespace Dial;
+
 interface Dial {
   spin(): number;
 }

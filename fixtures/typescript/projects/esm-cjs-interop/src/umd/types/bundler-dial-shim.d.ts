@@ -4,8 +4,6 @@
 //   references: ground-rules
 // ---
 
-declare global {
-  interface WindowLike {
-    paneRevision: number;
-  }
-}
+declare const BundlerDial: {
+  spin(): number;
+};

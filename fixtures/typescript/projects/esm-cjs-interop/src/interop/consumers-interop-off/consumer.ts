@@ -7,7 +7,7 @@
 import measureSpan = require("../../../deps/callable-cjs/index.js");
 import * as recordNs from "../../../deps/object-cjs/index.js";
 import objectRecord = require("../../../deps/object-cjs/index.js");
-import DerivedReader = require("../../../deps/inherited-cjs/index.js");
+import propertyBagEquals = require("../../../deps/inherited-cjs/index.js");
 import * as fakeEsmNs from "../../../deps/fake-esm-cjs/index.js";
 import fakeEsmEquals = require("../../../deps/fake-esm-cjs/index.js");
 
@@ -23,9 +23,12 @@ export function readOwnViaEquals(): string {
   return objectRecord.readOwn();
 }
 
-export function describeInherited(): string {
-  const reader = new DerivedReader();
-  return `${reader.describe()}:${reader.describeOwn()}`;
+export function readOwnMarkerEquals(): string {
+  return propertyBagEquals.ownMarker;
+}
+
+export function readInheritedMarkerEquals(): string {
+  return propertyBagEquals.inheritedMarker;
 }
 
 export function readFakeEsmNamespace(): string {

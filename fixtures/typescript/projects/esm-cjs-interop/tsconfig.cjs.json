@@ -3,14 +3,12 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "dist/cjs",
-    "rootDir": "src",
+    "rootDir": ".",
     "module": "commonjs",
     "moduleResolution": "node10",
-    "verbatimModuleSyntax": false
+    "verbatimModuleSyntax": false,
+    "allowJs": true,
+    "checkJs": true
   },
-  "include": [
-    "src/export-equals/chronometer.cts",
-    "src/cycles/cjs/**/*.js",
-    "deps/**/*.js"
-  ]
+  "include": ["src/export-equals/chronometer.cts", "src/cycles/cjs/**/*.js"]
 }

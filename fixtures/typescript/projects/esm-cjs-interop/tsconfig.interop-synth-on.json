@@ -4,6 +4,8 @@
   "compilerOptions": {
     "outDir": "dist/interop-synth-on",
     "rootDir": ".",
+    "module": "commonjs",
+    "moduleResolution": "node10",
     "esModuleInterop": false,
     "allowSyntheticDefaultImports": true
   },

@@ -13,6 +13,7 @@
     "src/umd/types/**/*.d.ts",
     "src/umd/consumers/module-consumer.ts",
     "src/umd/consumers/script-consumer.ts",
-    "src/umd/consumers/umd-access-consumer.ts"
+    "src/umd/consumers/umd-access-consumer.ts",
+    "src/umd/consumers/bundler-global-consumer.ts"
   ]
 }

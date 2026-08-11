@@ -4,12 +4,13 @@
   "compilerOptions": {
     "outDir": "dist/interop-on",
     "rootDir": ".",
+    "module": "commonjs",
+    "moduleResolution": "node10",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
   },
   "include": [
     "src/interop/consumers-interop-on/**/*.ts",
-    "src/interop/native-esm-consumer.mts",
     "deps/**/*.js",
     "deps/**/*.d.ts"
   ]
