@@ -17,10 +17,12 @@
 ///   import coverage) become separate output chunks fetched with
 ///   `loadLibrary()`, letting dart2js split its compiled output into
 ///   code-splitting units.
-/// - **Module configuration**: `dart compile js` emits a single non-modular
-///   script by default; passing `--dart2js-args=--experimental-output-format=…`-
-///   class flags is how a build selects ES module output instead, a
-///   dart2js-specific compiler contract rather than a Dart-language one.
+/// - **Module configuration**: the pinned `dart compile js` (Dart 3.12.2)
+///   accepts no module-format flag — `dart compile js -h -v` lists only
+///   `-o`, `-m`/`--minify`, `-O<0-4>`, `--csp`, source-map, and diagnostic
+///   options — so this toolchain always emits exactly one non-modular
+///   script per entry point; selecting ES-module or AMD-module output is
+///   not a configuration this pinned SDK exposes.
 /// - **Minification**: `dart compile js -O2` (or higher) both tree-shakes
 ///   unreachable declarations more aggressively and renames symbols to
 ///   short synthetic identifiers; the resulting names are exactly the kind

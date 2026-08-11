@@ -11,29 +11,23 @@ library;
 /// boundary this creates.
 String unreachableGreeting() => 'never reached';
 
-/// Invoked only through the dynamic, string-keyed dispatch table in
-/// [dynamicEntryPoints] rather than through a direct Dart call site — the
-/// pattern `@pragma('vm:entry-point')` exists to support. An AOT tree
-/// shaker that traces only static call graphs would otherwise be free to
-/// discard a declaration reached solely through a runtime lookup (an
-/// embedder callback, a plugin host, or a reflection-driven dispatch
-/// table).
+/// Carries no Dart-source reference anywhere in this project: it is never
+/// torn off, called, or stored in a table this project's own code reads.
+/// `@pragma('vm:entry-point')` models the real case this pragma exists
+/// for — a declaration entered only from outside the Dart call graph
+/// entirely (an embedder, a native host, or generated binding code
+/// invoking it by name through the VM's C API) — so native AOT's tree
+/// shaker, which can only trace static Dart references, must be told
+/// explicitly to retain it. Without the pragma, native AOT would be free
+/// to discard it exactly like [unreachableGreeting]; this project takes
+/// no Dart call site to it, so that difference is not misrepresented as a
+/// dynamic Dart lookup this project does not actually perform.
 @pragma('vm:entry-point')
-String preservedForDynamicInvocation() => 'preserved for dynamic invocation';
+String preservedForExternalInvocation() => 'preserved for external invocation';
 
-/// A runtime-built dispatch table modeling invocation from outside this
-/// project's static call graph.
-final Map<String, String Function()> dynamicEntryPoints = {
-  'preserved': preservedForDynamicInvocation,
-};
-
-/// Behavior shared by every compiled target: looks up and invokes the
-/// preserved entry point through [dynamicEntryPoints], identically under
-/// VM JIT and native AOT.
+/// Behavior shared by every compiled target: identical arithmetic and
+/// string formatting under VM JIT and native AOT.
 String describeReachability() {
-  final entryPoint = dynamicEntryPoints['preserved'];
-  if (entryPoint == null) {
-    throw StateError('preserved entry point missing');
-  }
-  return entryPoint();
+  final squares = List.generate(5, (i) => i * i);
+  return 'reachability squares: ${squares.join(',')}';
 }
