@@ -13,6 +13,9 @@ tasks:
       - ./node_modules/.bin/tsc -p tsconfig.skip-lib-check-on.json
       - ./node_modules/.bin/tsc -p tsconfig.skip-lib-check-off.json
       - ./node_modules/.bin/tsc -p tsconfig.platform.json
+      - ./node_modules/.bin/tsc -p tsconfig.platform-browser-prod.json
+      - ./node_modules/.bin/tsc -p tsconfig.platform-server.json
+      - ./node_modules/.bin/tsc -p tsconfig.platform-native.json
 
   lint:
     desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)
@@ -27,6 +30,9 @@ tasks:
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.skip-lib-check-on.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.skip-lib-check-off.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.platform.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.platform-browser-prod.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.platform-server.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.platform-native.json
 
   test:
     desc: No fixture tests; succeeds when no test source is required

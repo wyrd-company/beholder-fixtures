@@ -5,6 +5,7 @@
   "type": "module",
   "description": "Peer type dependency",
   "peerDependencies": {
+    "@fixtures/transitive-dep": "1.0.0",
     "typescript": ">=5.0.0"
   }
 }

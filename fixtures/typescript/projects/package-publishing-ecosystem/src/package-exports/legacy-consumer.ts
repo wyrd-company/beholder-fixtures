@@ -13,5 +13,5 @@ export function describeLegacy(value: string): string {
 }
 
 export function mapLegacyToBeacon(value: string): MainBeacon {
-  return { id: legacyRead(value) };
+  return { id: legacyRead(value), v5: true };
 }

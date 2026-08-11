@@ -1,5 +1,5 @@
 {
-  "name": "@fixtures/sensitive-lib-v1",
+  "name": "@fixtures/sensitive-lib",
   "version": "1.0.0",
   "private": true,
   "type": "module",

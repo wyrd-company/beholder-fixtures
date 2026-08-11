@@ -9,8 +9,8 @@
   "types": "./dist-types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist-types/index.d.ts",
       "types@>=5.0": "./dist-types/index.v5.d.ts",
+      "types": "./dist-types/index.d.ts",
       "import": "./dist-esm/index.js",
       "require": "./dist-cjs/index.cjs",
       "default": "./dist-esm/index.js"
@@ -33,10 +33,14 @@
     },
     "./internal": null,
     "./bundle": {
-      "types": "./dist-types/bundle.d.mts",
-      "import": "./dist-esm/bundle.mjs",
-      "require": "./dist-cjs/bundle.cjs",
-      "default": "./dist-esm/bundle.mjs"
+      "import": {
+        "types": "./dist-types/bundle.d.mts",
+        "default": "./dist-esm/bundle.mjs"
+      },
+      "require": {
+        "types": "./dist-cjs/bundle.d.cts",
+        "default": "./dist-cjs/bundle.cjs"
+      }
     }
   }
 }
