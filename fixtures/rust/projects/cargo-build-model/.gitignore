@@ -6,3 +6,5 @@ resolver-fixtures/*/target
 virtual-workspace/target
 virtual-workspace/Cargo.lock
 resolver-fixtures/*/Cargo.lock
+crates/excluded-crate/target
+crates/excluded-crate/Cargo.lock

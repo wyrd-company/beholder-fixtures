@@ -9,22 +9,62 @@ tasks:
   build:
     desc: Build all fixture-owned crates in every declared build context (offline, non-mutating).
     cmds:
+      # Root workspace: every member (not just `default-members`), every declared profile/feature/target context.
+      - cargo build --offline --workspace
+      - cargo build --offline --workspace --release
+      - cargo build --offline --workspace --profile custom
+      - cargo build --offline --workspace --all-features
+      - cargo build --offline --workspace --no-default-features
+      - cargo build --offline --workspace --target x86_64-unknown-linux-gnu
+      # RS-CAN-PROJ-010: locked/frozen/ignore-rust-version invocation variants.
+      - cargo build --offline --workspace --locked
+      - cargo build --offline --workspace --frozen
+      - cargo build --offline --workspace --locked --ignore-rust-version
+      # RS-CAN-PROJ-006: distinct feature contexts beyond all/no-default.
+      - cargo build --offline -p feature-demo --features feat-b
+      - cargo build --offline -p feature-demo --features strong-forward
+      - cargo build --offline -p feature-demo --features weak-forward
+      - cargo build --offline -p feature-demo --features implicit-optional-dep
+      # RS-CAN-PROJ-004: `default-members` observed as Cargo's own default selection.
       - cargo build --offline
-      - cargo build --offline --release
-      - cargo build --offline --profile custom
-      - cargo build --offline --all-features
-      - cargo build --offline --no-default-features
+      # RS-CAN-PROJ-004: excluded workspace member, built directly (not part of any workspace).
+      - cargo build --offline --manifest-path crates/excluded-crate/Cargo.toml
+      # RS-CAN-PROJ-007: resolver 1/2/3, each alone (default) and with-sibling (dev-deps included).
       - cargo build --offline --manifest-path resolver-fixtures/resolver-v1/Cargo.toml
+      - cargo test --offline --manifest-path resolver-fixtures/resolver-v1/Cargo.toml --no-run
       - cargo build --offline --manifest-path resolver-fixtures/resolver-v2/Cargo.toml
+      - cargo test --offline --manifest-path resolver-fixtures/resolver-v2/Cargo.toml --no-run
       - cargo build --offline --manifest-path resolver-fixtures/resolver-v3/Cargo.toml
-      - cargo build --offline --manifest-path virtual-workspace/Cargo.toml
-      - cargo build --offline --target x86_64-unknown-linux-gnu
+      - cargo test --offline --manifest-path resolver-fixtures/resolver-v3/Cargo.toml --no-run
+      # RS-CAN-PROJ-004: virtual workspace (no root [package]).
+      - cargo build --offline --manifest-path virtual-workspace/Cargo.toml --workspace
+      # RS-CAN-PROJ-019: second invocation/config variant. `RUSTFLAGS` fully
+      # supersedes (not merges with) the checked-in config's `build.rustflags`
+      # and `target.<triple>.rustflags`, so only `extra_flag` is set here,
+      # while the default invocation above observes `cargo_config_flag` and
+      # `target_config_flag` from `.cargo/config.toml` alone.
+      - cmd: cargo build --offline -p cargo-build-model --lib
+        env:
+          RUSTFLAGS: "--cfg extra_flag"
 
   lint:
-    desc: Check formatting and clippy on fixture-owned crates (vendored source excluded).
+    desc: Check formatting and clippy on every fixture-owned crate (vendored/git-deps source excluded).
     cmds:
       - cargo fmt -- --check
+      - cargo fmt --manifest-path crates/excluded-crate/Cargo.toml -- --check
+      - cargo fmt --manifest-path resolver-fixtures/resolver-v1/Cargo.toml -- --check
+      - cargo fmt --manifest-path resolver-fixtures/resolver-v2/Cargo.toml -- --check
+      - cargo fmt --manifest-path resolver-fixtures/resolver-v3/Cargo.toml -- --check
+      # `cargo fmt --manifest-path` cannot discover targets in a virtual
+      # workspace (no root [package]); run from within its directory instead.
+      - cmd: cargo fmt -- --check
+        dir: virtual-workspace
       - cargo clippy --offline --workspace --all-targets
+      - cargo clippy --offline --manifest-path crates/excluded-crate/Cargo.toml --all-targets
+      - cargo clippy --offline --manifest-path resolver-fixtures/resolver-v1/Cargo.toml --all-targets
+      - cargo clippy --offline --manifest-path resolver-fixtures/resolver-v2/Cargo.toml --all-targets
+      - cargo clippy --offline --manifest-path resolver-fixtures/resolver-v3/Cargo.toml --all-targets
+      - cargo clippy --offline --manifest-path virtual-workspace/Cargo.toml --all-targets
 
   test:
     desc: Compile and run fixture tests (single planned unit test).
