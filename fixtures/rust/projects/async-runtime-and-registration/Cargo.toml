@@ -20,10 +20,11 @@ path = "src/bin/async_main.rs"
 default = []
 rt = ["tokio/rt"]
 rt-multi-thread = ["tokio/rt-multi-thread"]
-full-runtime = ["rt-multi-thread", "tokio/macros", "tokio/rt", "tracing/attributes"]
+elided = ["tracing/max_level_off"]
+full-runtime = ["rt-multi-thread"]
 
 [dependencies]
-tokio = { version = "=1.47.1", default-features = false, features = ["rt", "rt-multi-thread", "macros"] }
+tokio = { version = "=1.47.1", default-features = false, features = ["rt", "macros"] }
 tracing = { version = "=0.1.41", default-features = false, features = ["std", "attributes"] }
 inventory = { version = "=0.3.21" }
 

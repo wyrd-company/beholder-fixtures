@@ -17,9 +17,10 @@ use tokio::runtime::{Builder, Runtime};
 /// code graph can observe the attribute, the async body, and the wrapper
 /// relationship without requiring the binary to be the test subject.
 ///
-/// Compiled shape (documentation): the macro emits roughly
-/// `fn main() { Builder::new_multi_thread().enable_all().build().unwrap().block_on(async { ... }) }`
-/// with an additional hidden `mod` for the original async body.
+/// Compiled shape (documentation, pinned Tokio 1.47.1): the macro emits a
+/// synchronous `fn main()` containing a local `async move` body passed to
+/// `Builder::new_multi_thread().enable_all().build().unwrap().block_on`,
+/// with no hidden module.
 pub async fn entry_point_body() -> u32 {
     // Body that would be wrapped by `#[tokio::main]`.
     42
@@ -42,15 +43,28 @@ pub fn build_current_thread_runtime() -> Runtime {
 
 /// Build a multi-thread runtime gated by the `rt-multi-thread` feature.
 ///
-/// This function is valid in every declared context; the dependency-feature-
-/// gated context selects the multi-thread flavor via the crate feature
-/// `rt-multi-thread` / `full-runtime`. Both runtimes compile on the default
-/// host target; the feature gate only changes which flavor the test selects.
+/// The dependency-feature-gated context selects the multi-thread flavor via
+/// the crate feature `rt-multi-thread` / `full-runtime` which forwards to
+/// `tokio/rt-multi-thread`. The `#[cfg]` keeps each referenced `Builder`
+/// API valid in the context where it is compiled.
+#[cfg(feature = "rt-multi-thread")]
 pub fn build_multi_thread_runtime() -> Runtime {
     Builder::new_multi_thread()
         .enable_all()
         .build()
         .expect("multi-thread runtime builds")
+}
+
+#[cfg(not(feature = "rt-multi-thread"))]
+pub fn build_multi_thread_runtime() -> Runtime {
+    // Fallback that keeps the symbol present for the code graph in the
+    // default context where `rt-multi-thread` is not enabled. The fallback
+    // uses the always-available current-thread builder so the crate still
+    // compiles offline without the extra dependency feature.
+    Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("fallback runtime builds")
 }
 
 /// Demonstrates granular runtime feature gating and spawn requirements.
@@ -75,7 +89,9 @@ pub async fn spawn_demo() -> u32 {
 
 /// Whether the feature-gated multi-thread context is active.
 ///
-/// Compile-time probe used by `runtime_feature_summary`.
+/// Compile-time probe used by `runtime_feature_summary`. The flag reflects the
+/// crate feature `rt-multi-thread` / `full-runtime` which forwards to
+/// `tokio/rt-multi-thread` (visible in `cargo tree`).
 #[cfg(feature = "rt-multi-thread")]
 pub const RT_MULTI_THREAD_ENABLED: bool = true;
 #[cfg(not(feature = "rt-multi-thread"))]
@@ -100,12 +116,15 @@ pub fn runtime_feature_summary() -> String {
 
 /// The rewritten entry for tests — only exists under `cargo test`.
 ///
-/// The source is `#[tokio::test] async fn test_entry_async_adds()` in this
-/// module; the compiled shape is a synchronous `#[test] fn` that builds a
-/// runtime. This single planned test supplies the test-attribute portion of
+/// The source is `#[tokio::test] async fn test_entry_async_adds()` stacked
+/// with `#[tracing::instrument]` on the same item to demonstrate macro
+/// stacking; the compiled shape is a synchronous `#[test] fn` that builds a
+/// runtime and enters an `INFO` span (`tracing::span!(Level::INFO, …)`).
+/// This single planned test supplies the test-attribute portion of
 /// RS-CAN-ECO-003. The wrapper body only compiles under the test harness.
 #[cfg(test)]
-#[tokio::test]
+#[tracing::instrument]
+#[tokio::test(flavor = "current_thread")]
 async fn test_entry_async_adds() {
     // Body wrapped by `#[tokio::test]` — runs inside a runtime in the test
     // compilation. Source: `async fn`; compiled: generated `fn` + `Runtime::block_on`.
