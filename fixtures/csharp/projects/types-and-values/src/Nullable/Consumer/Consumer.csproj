@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Bakery.TypesAndValues.Nullable.Consumer</RootNamespace>
+    <AssemblyName>Bakery.TypesAndValues.Nullable.Consumer</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../AnnotatedApi/AnnotatedApi.csproj" />
+    <ProjectReference Include="../ObliviousLegacy/ObliviousLegacy.csproj" />
+    <ProjectReference Include="../AnnotationsOnly/AnnotationsOnly.csproj" />
+    <ProjectReference Include="../WarningsOnly/WarningsOnly.csproj" />
+    <ProjectReference Include="../DisabledScope/DisabledScope.csproj" />
+  </ItemGroup>
+
+</Project>

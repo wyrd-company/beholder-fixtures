@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Bakery.TypesAndValues.Nullable.ObliviousLegacy</RootNamespace>
+    <AssemblyName>Bakery.TypesAndValues.Nullable.ObliviousLegacy</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+</Project>
