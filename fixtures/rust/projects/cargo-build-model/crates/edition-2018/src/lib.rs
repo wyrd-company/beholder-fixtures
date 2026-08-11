@@ -11,10 +11,13 @@ pub fn edition_id() -> &'static str {
     "2018"
 }
 
-// 2018 edition: `async` and `await` are keywords, `try` not.
-// Leading `::` edition-2015 vs 2018+ difference documented in coverage.
-// 2018 removed `extern crate` requirement for std.
-pub fn edition_2018_feature() -> u32 {
-    let v = vec![1, 2, 3];
-    v.into_iter().sum()
+// RS-CAN-PROJ-016: edition-2018 "uniform paths" — a `use` import of an external
+// crate resolves directly by crate name since edition 2018, without an
+// `extern crate` declaration. Edition 2015 requires `extern crate edition_2015;`
+// first, or this `use` fails to resolve (`error[E0432]: unresolved import`; see
+// `crates/edition-2015` and `coverage.md` for the counterexample).
+use edition_2015::edition_id as edition_2015_id;
+
+pub fn uniform_path_demo() -> &'static str {
+    edition_2015_id()
 }

@@ -23,9 +23,15 @@ pub fn all_editions() -> Vec<&'static str> {
     ]
 }
 
-// 2024 edition sensitive: let chains (1.88+ with 2024), unsafe syntax changes.
+// RS-CAN-PROJ-016: edition-2024-sensitive construct — since edition 2024,
+// `extern` blocks must be written as `unsafe extern` (RFC 3484). Compiling
+// this block without `unsafe` under an earlier edition is a hard error
+// ("extern blocks must be unsafe"); see `coverage.md` for the counterexample.
+unsafe extern "C" {
+    fn abs(x: i32) -> i32;
+}
+
 #[allow(clippy::all)]
-pub fn edition_2024_specific() -> u32 {
-    let x = Some(5);
-    if let Some(v) = x { v } else { 0 }
+pub fn edition_2024_specific() -> i32 {
+    unsafe { abs(-7) }
 }
