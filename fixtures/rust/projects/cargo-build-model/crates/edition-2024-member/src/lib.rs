@@ -24,9 +24,10 @@ pub fn all_editions() -> Vec<&'static str> {
 }
 
 // RS-CAN-PROJ-016: edition-2024-sensitive construct — since edition 2024,
-// `extern` blocks must be written as `unsafe extern` (RFC 3484). Compiling
-// this block without `unsafe` under an earlier edition is a hard error
-// ("extern blocks must be unsafe"); see `coverage.md` for the counterexample.
+// `extern` blocks must be written as `unsafe extern` (RFC 3484). A plain
+// `extern "C"` block without `unsafe` compiles under edition 2021 but is
+// rejected under edition 2024 ("extern blocks must be unsafe"), so this 2024
+// crate uses the required `unsafe extern` form; see `coverage.md`.
 unsafe extern "C" {
     fn abs(x: i32) -> i32;
 }
