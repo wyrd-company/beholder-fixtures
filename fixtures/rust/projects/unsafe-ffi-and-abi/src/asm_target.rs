@@ -38,7 +38,6 @@ pub fn asm_with_sym(value: i32) -> i32 {
             in("edi") value,
             out("eax") _,
             clobber_abi("C"),
-            options(nostack),
         );
         value.wrapping_add(1)
     }
@@ -49,7 +48,7 @@ pub fn asm_with_sym(value: i32) -> i32 {
     helper_for_sym(value)
 }
 
-fn helper_for_sym(x: i32) -> i32 {
+extern "C" fn helper_for_sym(x: i32) -> i32 {
     x.wrapping_add(1)
 }
 
@@ -92,10 +91,9 @@ pub fn global_asm_addr() -> *const () {
 #[cfg(target_arch = "x86_64")]
 #[target_feature(enable = "sse2")]
 unsafe fn sse2_target_feature_fn(a: u64, b: u64) -> u64 {
-    // Inside SSE2-enabled region we may use an intrinsic or plain arithmetic.
-    // Use the SSE2 intrinsic `_mm_pause`-style behavior via a simple
-    // SSE2-compatible operation; the fixture keeps the body simple to remain
-    // valid on any x86_64 with SSE2 baseline.
+    // Inside SSE2-enabled region we may use an intrinsic. `_mm_pause` is an
+    // SSE2 intrinsic that hints to the CPU that we are in a spin loop.
+    core::arch::x86_64::_mm_pause();
     a.wrapping_add(b)
 }
 
@@ -116,13 +114,20 @@ pub fn target_feature_demo() -> u64 {
 
 /// Runtime feature detection before using an x86_64 intrinsic.
 /// On `x86_64` the detection probes for `sse2` at runtime, then calls the
-/// target-feature function; a fallback is used when the feature is absent.
+/// target-feature function and a direct intrinsic behind the same gate;
+/// a fallback is used when the feature is absent.
 pub fn intrinsic_with_runtime_detection(a: u64, b: u64) -> u64 {
     #[cfg(target_arch = "x86_64")]
     {
         if std::is_x86_feature_detected!("sse2") {
-            // SAFETY: `sse2` was detected at runtime.
-            unsafe { sse2_target_feature_fn(a, b) }
+            // SAFETY: `sse2` was detected at runtime. `_mm_pause` is an
+            // SSE2 intrinsic valid behind this gate; `sse2_target_feature_fn`
+            // is also `#[target_feature(enable = "sse2")]` and therefore
+            // requires the same runtime guarantee.
+            unsafe {
+                core::arch::x86_64::_mm_pause();
+                sse2_target_feature_fn(a, b)
+            }
         } else {
             a.wrapping_add(b)
         }

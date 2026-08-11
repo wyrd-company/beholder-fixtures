@@ -19,6 +19,7 @@ unsafe extern "C" {
 // Variadic foreign declaration (imported). The declaration itself is valid
 // fixture source; calling it with variadic arguments requires matching
 // the provided foreign definition's calling convention.
+#[allow(dead_code)]
 unsafe extern "C" {
     fn fixture_variadic_placeholder(count: i32, ...) -> i32;
 }
@@ -57,10 +58,10 @@ pub static EXPORTED_VALUE: i32 = 0x1234;
 
 /// Marker that the variadic declaration exists as valid fixture source.
 /// The valid fixture does not execute a UB-inducing mismatched variadic call;
-/// any such mismatch is documented in `docs/counterexamples.md`.
+/// the mismatched-foreign-declaration counterexample is documentation-only in
+/// `docs/counterexamples.md`, not bound to a local symbol.
 pub fn variadic_declaration_marker() -> bool {
-    // The declaration `fixture_variadic_placeholder` is present; we avoid
-    // calling it with a mismatched signature, which would be UB.
-    let _fn_ptr: unsafe extern "C" fn(i32, ...) -> i32 = fixture_variadic_placeholder;
+    // Valid variadic foreign declaration exists in the `unsafe extern "C"`
+    // block above; no local mismatched symbol is bound here.
     true
 }

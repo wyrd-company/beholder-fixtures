@@ -23,11 +23,3 @@ pub extern "C" fn fixture_renamed_source(x: i32) -> i32 {
 /// and keeps the crate non-trivial for offline builds.
 #[unsafe(no_mangle)]
 pub static PROVIDER_MARKER: u8 = 0xAA;
-
-/// Non-variadic definition backing the variadic declaration in the consumer
-/// crate. The linker resolves by symbol name; the valid fixture never calls
-/// with variadic arguments, so the ABI mismatch is not exercised.
-#[unsafe(no_mangle)]
-pub extern "C" fn fixture_variadic_placeholder(count: i32) -> i32 {
-    count
-}
