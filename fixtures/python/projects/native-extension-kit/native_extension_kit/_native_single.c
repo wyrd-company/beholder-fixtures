@@ -138,6 +138,71 @@ static PyObject *return_with_error_set(PyObject *self, PyObject *Py_UNUSED(ignor
     Py_RETURN_NONE;
 }
 
+/* ---- refcount-error variants: leak and over-decrement ---- */
+
+static PyObject *leak_reference(PyObject *self, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args, "O", &obj)) return NULL;
+    /* Leak: take a strong reference that is never released. The matching
+       Py_DECREF is structurally absent, so obj keeps one extra reference. */
+    Py_INCREF(obj);
+    Py_RETURN_NONE;
+}
+
+static PyObject *over_decrement(PyObject *self, PyObject *args) {
+    PyObject *obj;
+    if (!PyArg_ParseTuple(args, "O", &obj)) return NULL;
+    /* Over-decrement: release a reference this call never owned. Unpaired this
+       underflows the refcount and can free a live object, so callers must
+       isolate any invocation (see over_decrement_demo_isolated). */
+    Py_DECREF(obj);
+    Py_RETURN_NONE;
+}
+
+/* ---- automated exception translation vs manual pairing ----
+   raise_native_error above is the manual form: a hand-written PyErr_SetString
+   at each call site. The table and dispatcher below model what a binding
+   generator emits -- one generic translator that maps an internal error code
+   to a Python exception, so every call site shares a single automated path. */
+
+enum kit_error {
+    KIT_OK = 0,
+    KIT_RANGE = 1,
+    KIT_STATE = 2,
+    KIT_VALUE = 3
+};
+
+typedef struct {
+    enum kit_error code;
+    PyObject **exc_type;   /* address of a PyExc_* slot (link-time constant) */
+    const char *message;
+} kit_error_entry;
+
+static const kit_error_entry kit_error_table[] = {
+    {KIT_RANGE, &PyExc_IndexError, "automated: index out of range"},
+    {KIT_STATE, &PyExc_RuntimeError, "automated: invalid state"},
+    {KIT_VALUE, &PyExc_ValueError, "automated: bad value"}
+};
+
+static int automated_translate(enum kit_error code) {
+    /* Single generic dispatcher: no per-site PyErr_SetString. Returns -1 with a
+       Python exception set when the code maps to an entry, 0 otherwise. */
+    for (size_t i = 0; i < sizeof(kit_error_table) / sizeof(kit_error_table[0]); i++) {
+        if (kit_error_table[i].code == code) {
+            PyErr_SetString(*kit_error_table[i].exc_type, kit_error_table[i].message);
+            return -1;
+        }
+    }
+    return 0;
+}
+
+static PyObject *automated_binding_raise(PyObject *self, PyObject *args) {
+    long code;
+    if (!PyArg_ParseTuple(args, "l", &code)) return NULL;
+    if (automated_translate((enum kit_error)code) < 0) return NULL;
+    Py_RETURN_NONE;
+}
+
 static PyObject *blocking_work(PyObject *self, PyObject *args) {
     long millis;
     if (!PyArg_ParseTuple(args, "l", &millis)) return NULL;
@@ -167,6 +232,9 @@ static PyMethodDef single_methods[] = {
     {"raise_native_error", raise_native_error, METH_VARARGS, "Set ValueError and return NULL"},
     {"raise_without_error", raise_without_error, METH_NOARGS, "Return NULL without error (SystemError)"},
     {"return_with_error_set", return_with_error_set, METH_NOARGS, "Set error but return value (SystemError)"},
+    {"leak_reference", leak_reference, METH_VARARGS, "Take a strong reference and never release it (leak)"},
+    {"over_decrement", over_decrement, METH_VARARGS, "Release an unowned reference (over-decrement; isolate callers)"},
+    {"automated_binding_raise", automated_binding_raise, METH_VARARGS, "Raise via generated-style automated translator table"},
     {"blocking_work", blocking_work, METH_VARARGS, "Release GIL around blocking sleep"},
     {"call_python_while_detached_error", call_python_while_detached_error, METH_NOARGS, "Shows GIL reacquire before Python API"},
     {NULL, NULL, 0, NULL}

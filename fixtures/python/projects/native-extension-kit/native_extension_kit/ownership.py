@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import ctypes
 import subprocess
 import sys
 import textwrap
+from pathlib import Path
 
 try:
     from . import _native_single  # type: ignore[import-not-found]
@@ -68,70 +68,91 @@ def error_translation_demo() -> dict[str, object]:
 
 
 def leak_demo() -> dict[str, object]:
-    import sys
-
+    """Exercise the real leak structure: _native_single.c:leak_reference takes a
+    strong reference and never releases it, so the object's refcount rises by one
+    and stays there."""
+    if _native_single is None:
+        return {"available": False}
     obj = object()
     before = sys.getrefcount(obj)
-    ctypes.pythonapi.Py_IncRef(ctypes.py_object(obj))
-    after_inc = sys.getrefcount(obj)
-    # Leak would occur if we forgot the matching DecRef; we clean up correctly here
-    ctypes.pythonapi.Py_DecRef(ctypes.py_object(obj))
-    after_dec = sys.getrefcount(obj)
+    _native_single.leak_reference(obj)
+    after = sys.getrefcount(obj)
     return {
+        "available": True,
         "before": before,
-        "after_inc": after_inc,
-        "after_dec": after_dec,
-        "leak_if_missing_decref": after_inc - before,
-        "source": "ctypes.pythonapi.Py_IncRef without Py_DecRef leaks one reference",
+        "after": after,
+        "leaked": after - before,
+        "source": "_native_single.c:leak_reference — Py_INCREF with no matching Py_DECREF",
     }
 
 
 def over_decrement_demo_isolated() -> dict[str, object]:
+    """Exercise the real over-decrement structure in an isolated subprocess.
+    _native_single.c:over_decrement releases a reference it never owned; unpaired
+    this underflows the refcount and can free a live object, so the call is run in
+    a child process. The child inflates the target refcount first so the observed
+    effect is a deterministic single decrement, then restores balance before
+    exit."""
+    project_root = str(Path(__file__).resolve().parent.parent)
     code = textwrap.dedent("""\
         import ctypes, sys
+        from native_extension_kit import _native_single
         obj = object()
-        before = sys.getrefcount(obj)
-        # over-decrement: extra DecRef without matching IncRef would underflow refcount
-        # isolate in subprocess; we perform balanced IncRef/DecRef then one extra DecRef via pythonapi
-        # to demonstrate without crashing parent we simulate via checking refcount
+        # Inflate so a single unowned decrement neither underflows nor frees obj.
         ctypes.pythonapi.Py_IncRef(ctypes.py_object(obj))
-        ctypes.pythonapi.Py_DecRef(ctypes.py_object(obj))
-        # extra DecRef would be: ctypes.pythonapi.Py_DecRef(ctypes.py_object(obj))  # unsafe
-        print(f"balanced {before} -> {sys.getrefcount(obj)}")
-        print("over_decrement would be extra Py_DecRef")
+        ctypes.pythonapi.Py_IncRef(ctypes.py_object(obj))
+        before = sys.getrefcount(obj)
+        _native_single.over_decrement(obj)   # real unbalanced Py_DECREF in C
+        after = sys.getrefcount(obj)
+        # Restore the reference the over-decrement removed so shutdown is clean.
+        ctypes.pythonapi.Py_IncRef(ctypes.py_object(obj))
+        print(f"over_decrement {before} -> {after}")
     """)
-    proc = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, timeout=5)
+    proc = subprocess.run(
+        [sys.executable, "-c", code],
+        capture_output=True,
+        text=True,
+        timeout=5,
+        cwd=project_root,
+    )
     return {
         "isolated": True,
         "stdout": proc.stdout.strip(),
         "stderr": proc.stderr.strip(),
         "returncode": proc.returncode,
-        "note": "Extra Py_DecRef without IncRef underflows refcount and can crash; isolated via subprocess",
-        "source": "ctypes.pythonapi.Py_DecRef extra call",
+        "note": "Unpaired Py_DECREF underflows refcount and can crash; isolated via subprocess",
+        "source": "_native_single.c:over_decrement — Py_DECREF of an unowned reference",
     }
 
 
 def automated_binding_contrast_demo() -> dict[str, object]:
+    """Contrast manual per-site error setting with an automated translator.
+    _native_single.c:raise_native_error is the manual form (a hand-written
+    PyErr_SetString at the call site); _native_single.c:automated_translate is a
+    single table-driven dispatcher that any call site shares, modeling the
+    translation layer a binding generator emits. Both are native C structures."""
+    if _native_single is None:
+        return {"available": False}
     manual: dict[str, object] = {}
-    if _native_single is not None:
-        try:
-            _native_single.raise_native_error("manual c-api failure")
-        except ValueError as exc:
-            manual["manual_c_api"] = f"PyErr_SetString + NULL -> ValueError: {exc}"
-
-    def automated_translator(value: str) -> None:
-        if value == "fail":
-            raise ValueError("automated binding: C++ exception translated to ValueError")
+    try:
+        _native_single.raise_native_error("manual c-api failure")
+    except ValueError as exc:
+        manual["manual_c_api"] = f"PyErr_SetString + NULL -> ValueError: {exc}"
 
     automated: dict[str, object] = {}
     try:
-        automated_translator("fail")
+        _native_single.automated_binding_raise(3)  # KIT_VALUE -> ValueError
     except ValueError as exc:
-        automated["automated_binding"] = f"throw std::runtime_error -> ValueError: {exc}"
+        automated["automated_value"] = f"automated_translate(KIT_VALUE) -> ValueError: {exc}"
+    try:
+        _native_single.automated_binding_raise(1)  # KIT_RANGE -> IndexError
+    except IndexError as exc:
+        automated["automated_range"] = f"automated_translate(KIT_RANGE) -> IndexError: {exc}"
     return {
+        "available": True,
         "manual": manual,
         "automated": automated,
-        "contrast": "manual PyErr_SetString vs pybind11-style automatic exception translator",
+        "contrast": "manual per-site PyErr_SetString vs single table-driven automated translator",
     }
 
 
