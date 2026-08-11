@@ -1,0 +1,2 @@
+content-library resource data
+line-two

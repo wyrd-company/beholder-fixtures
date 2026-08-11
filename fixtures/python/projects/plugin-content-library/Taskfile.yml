@@ -1,0 +1,30 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Byte-compile all fixture-owned packages and compile the native extension.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - python3 -m compileall -q content_library flat_layout src_layout ns_alpha ns_beta ns_regular legacy_extra bytecode_src zip_src pth_space
+      - sh -c 'set -e; suffix=$(python3 -c "import sysconfig; print(sysconfig.get_config_var(\"EXT_SUFFIX\"))"); inc=$(python3-config --includes 2>/dev/null || python3 -c "import sysconfig; print(\"-I\"+sysconfig.get_config_var(\"INCLUDEPY\"))"); gcc -shared -fPIC content_library/_native_ext.c $inc -o "content_library/_native_ext${suffix}"; echo "built content_library/_native_ext${suffix}"'
+      - python3 -c "import pathlib, zipfile, shutil; src=pathlib.Path('zip_src'); zip_path=pathlib.Path('dist/content_pkg.zip'); zip_path.parent.mkdir(parents=True, exist_ok=True); z=zipfile.PyZipFile(str(zip_path), mode='w'); z.writepy(str(src / 'content_pkg')); z.write(str(src / 'content_pkg' / 'data.txt'), 'content_pkg/data.txt'); z.close(); print(f'built {zip_path}'); app_zip=pathlib.Path('dist/library_app.pyz'); tmp=pathlib.Path('dist/zipapp_staging'); shutil.rmtree(tmp, ignore_errors=True); tmp.mkdir(parents=True, exist_ok=True); shutil.copytree('zip_src/content_pkg', tmp / 'content_pkg'); (tmp / '__main__.py').write_text('from content_pkg.zipped_module import greet; print(greet())\n'); zf=zipfile.ZipFile(str(app_zip), mode='w'); zf.write(str(tmp / '__main__.py'), '__main__.py'); [zf.write(str(p), str(p.relative_to(tmp))) for p in (tmp / 'content_pkg').rglob('*') if p.is_file()]; zf.close(); print(f'built {app_zip}'); import zipfile as zf2; print(zf2.ZipFile(str(app_zip)).namelist())"
+
+  lint:
+    desc: Parse and byte-compile every fixture-owned source file.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - >-
+        find content_library flat_layout src_layout ns_alpha ns_beta ns_regular legacy_extra bytecode_src zip_src pth_space -type f -name '*.py' -print0 |
+        xargs -0 python3 -m py_compile
+
+  test:
+    desc: Succeed with no planned test files.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - ':'
+
+  generate:
+    desc: Generate the committed byte-compiled, source-less module representative.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - python3 generate_bytecode.py

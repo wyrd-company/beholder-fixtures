@@ -1,0 +1,6 @@
+[project]
+name = "plugin-content-library"
+version = "0.1.0"
+description = "Pluggable content library demonstrating Python import and module machinery"
+requires-python = ">=3.10"
+readme = "coverage.md"
