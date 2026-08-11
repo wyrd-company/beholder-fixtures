@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Friend.Producer.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Friend.Consumer" Key="$(FriendProducerPublicKey)" />
+  </ItemGroup>
+  <PropertyGroup>
+    <!-- PublicKey for Friend.Consumer when producer is strong-named -->
+    <FriendProducerPublicKey>002400000480000094000000060200000024000052534131000400000100010059261979cd569c01ded6c906bf000811e8c46ffce39f26f26b2965cb8f6a0fe93b9b7a8477e58d3e2da0e6be42747cbef8ffa17e07e0a9edff703c3899adc26ca38bd3fc5cc3e6a740b82ef66e2a106bf413ea33c48e14e974141fe0b6242a400bedc83ebefe9789d079a7884cd3ffa764abcc5facd472a02d6d669dce7aa0cd</FriendProducerPublicKey>
+  </PropertyGroup>
+</Project>

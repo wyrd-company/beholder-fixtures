@@ -1,0 +1,156 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.LibraryA", "src\Identity.LibraryA\Identity.LibraryA.csproj", "{11111111-1111-1111-1111-111111111101}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.LibraryB", "src\Identity.LibraryB\Identity.LibraryB.csproj", "{11111111-1111-1111-1111-111111111102}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.SignedLibrary", "src\Identity.SignedLibrary\Identity.SignedLibrary.csproj", "{11111111-1111-1111-1111-111111111103}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graph.Core", "src\Graph.Core\Graph.Core.csproj", "{22222222-2222-2222-2222-222222222201}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graph.Middle", "src\Graph.Middle\Graph.Middle.csproj", "{22222222-2222-2222-2222-222222222202}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Graph.App", "src\Graph.App\Graph.App.csproj", "{22222222-2222-2222-2222-222222222203}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friend.Producer", "src\Friend.Producer\Friend.Producer.csproj", "{33333333-3333-3333-3333-333333333301}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friend.Consumer", "src\Friend.Consumer\Friend.Consumer.csproj", "{33333333-3333-3333-3333-333333333302}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Friend.Stranger", "src\Friend.Stranger\Friend.Stranger.csproj", "{33333333-3333-3333-3333-333333333303}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alias.LibraryA", "src\Alias.LibraryA\Alias.LibraryA.csproj", "{44444444-4444-4444-4444-444444444401}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alias.LibraryB", "src\Alias.LibraryB\Alias.LibraryB.csproj", "{44444444-4444-4444-4444-444444444402}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alias.Consumer", "src\Alias.Consumer\Alias.Consumer.csproj", "{44444444-4444-4444-4444-444444444403}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forwarding.Definition", "src\Forwarding.Definition\Forwarding.Definition.csproj", "{55555555-5555-5555-5555-555555555501}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forwarding.Facade", "src\Forwarding.Facade\Forwarding.Facade.csproj", "{55555555-5555-5555-5555-555555555502}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forwarding.Consumer.Legacy", "src\Forwarding.Consumer.Legacy\Forwarding.Consumer.Legacy.csproj", "{55555555-5555-5555-5555-555555555503}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forwarding.Consumer.Current", "src\Forwarding.Consumer.Current\Forwarding.Consumer.Current.csproj", "{55555555-5555-5555-5555-555555555504}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReferenceAssembly.Producer", "src\ReferenceAssembly.Producer\ReferenceAssembly.Producer.csproj", "{66666666-6666-6666-6666-666666666601}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReferenceAssembly.Consumer", "src\ReferenceAssembly.Consumer\ReferenceAssembly.Consumer.csproj", "{66666666-6666-6666-6666-666666666602}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conflict.External", "src\Conflict.External\Conflict.External.csproj", "{77777777-7777-7777-7777-777777777701}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Conflict.Consumer", "src\Conflict.Consumer\Conflict.Consumer.csproj", "{77777777-7777-7777-7777-777777777702}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Versioned.Api.V1", "src\Versioned.Api.V1\Versioned.Api.V1.csproj", "{88888888-8888-8888-8888-888888888801}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Versioned.Api.V2", "src\Versioned.Api.V2\Versioned.Api.V2.csproj", "{88888888-8888-8888-8888-888888888802}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Versioned.Consumer.V1", "src\Versioned.Consumer.V1\Versioned.Consumer.V1.csproj", "{88888888-8888-8888-8888-888888888803}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Versioned.Consumer.V2", "src\Versioned.Consumer.V2\Versioned.Consumer.V2.csproj", "{88888888-8888-8888-8888-888888888804}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{11111111-1111-1111-1111-111111111101}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11111111-1111-1111-1111-111111111101}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11111111-1111-1111-1111-111111111102}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11111111-1111-1111-1111-111111111102}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11111111-1111-1111-1111-111111111103}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11111111-1111-1111-1111-111111111103}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22222222-2222-2222-2222-222222222201}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22222222-2222-2222-2222-222222222201}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22222222-2222-2222-2222-222222222202}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22222222-2222-2222-2222-222222222202}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22222222-2222-2222-2222-222222222203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22222222-2222-2222-2222-222222222203}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33333333-3333-3333-3333-333333333301}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33333333-3333-3333-3333-333333333301}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33333333-3333-3333-3333-333333333302}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33333333-3333-3333-3333-333333333302}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33333333-3333-3333-3333-333333333303}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33333333-3333-3333-3333-333333333303}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44444444-4444-4444-4444-444444444401}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44444444-4444-4444-4444-444444444401}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44444444-4444-4444-4444-444444444402}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44444444-4444-4444-4444-444444444402}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44444444-4444-4444-4444-444444444403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44444444-4444-4444-4444-444444444403}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55555555-5555-5555-5555-555555555501}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55555555-5555-5555-5555-555555555501}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55555555-5555-5555-5555-555555555502}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55555555-5555-5555-5555-555555555502}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55555555-5555-5555-5555-555555555503}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55555555-5555-5555-5555-555555555503}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55555555-5555-5555-5555-555555555504}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55555555-5555-5555-5555-555555555504}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66666666-6666-6666-6666-666666666601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66666666-6666-6666-6666-666666666601}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66666666-6666-6666-6666-666666666602}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66666666-6666-6666-6666-666666666602}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77777777-7777-7777-7777-777777777701}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77777777-7777-7777-7777-777777777701}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77777777-7777-7777-7777-777777777702}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77777777-7777-7777-7777-777777777702}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88888888-8888-8888-8888-888888888801}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88888888-8888-8888-8888-888888888801}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88888888-8888-8888-8888-888888888802}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88888888-8888-8888-8888-888888888802}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88888888-8888-8888-8888-888888888803}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88888888-8888-8888-8888-888888888803}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88888888-8888-8888-8888-888888888804}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88888888-8888-8888-8888-888888888804}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11111111-1111-1111-1111-111111111101}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11111111-1111-1111-1111-111111111101}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11111111-1111-1111-1111-111111111102}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11111111-1111-1111-1111-111111111102}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11111111-1111-1111-1111-111111111103}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11111111-1111-1111-1111-111111111103}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22222222-2222-2222-2222-222222222201}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22222222-2222-2222-2222-222222222201}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22222222-2222-2222-2222-222222222202}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22222222-2222-2222-2222-222222222202}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22222222-2222-2222-2222-222222222203}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22222222-2222-2222-2222-222222222203}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33333333-3333-3333-3333-333333333301}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33333333-3333-3333-3333-333333333301}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33333333-3333-3333-3333-333333333302}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33333333-3333-3333-3333-333333333302}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33333333-3333-3333-3333-333333333303}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33333333-3333-3333-3333-333333333303}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44444444-4444-4444-4444-444444444401}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44444444-4444-4444-4444-444444444401}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44444444-4444-4444-4444-444444444402}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44444444-4444-4444-4444-444444444402}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44444444-4444-4444-4444-444444444403}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44444444-4444-4444-4444-444444444403}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55555555-5555-5555-5555-555555555501}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55555555-5555-5555-5555-555555555501}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55555555-5555-5555-5555-555555555502}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55555555-5555-5555-5555-555555555502}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55555555-5555-5555-5555-555555555503}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55555555-5555-5555-5555-555555555503}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55555555-5555-5555-5555-555555555504}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55555555-5555-5555-5555-555555555504}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66666666-6666-6666-6666-666666666601}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66666666-6666-6666-6666-666666666601}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66666666-6666-6666-6666-666666666602}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66666666-6666-6666-6666-666666666602}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77777777-7777-7777-7777-777777777701}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77777777-7777-7777-7777-777777777701}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77777777-7777-7777-7777-777777777702}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77777777-7777-7777-7777-777777777702}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88888888-8888-8888-8888-888888888801}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88888888-8888-8888-8888-888888888801}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88888888-8888-8888-8888-888888888802}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88888888-8888-8888-8888-888888888802}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88888888-8888-8888-8888-888888888803}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88888888-8888-8888-8888-888888888803}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88888888-8888-8888-8888-888888888804}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88888888-8888-8888-8888-888888888804}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
