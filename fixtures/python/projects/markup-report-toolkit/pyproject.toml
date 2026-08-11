@@ -1,0 +1,6 @@
+[project]
+name = "markup-report-toolkit"
+version = "0.1.0"
+description = "Text and markup report toolkit exercising source encoding and Unicode identifiers, line structure, literals, expressions, and compilation"
+requires-python = ">=3.12"
+readme = "coverage.md"

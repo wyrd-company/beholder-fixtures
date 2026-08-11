@@ -1,0 +1,22 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Byte-compile all fixture-owned packages.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - python3 -m compileall -q markup_report_toolkit
+
+  lint:
+    desc: Parse and byte-compile every fixture-owned source file.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - >-
+        find markup_report_toolkit -type f -name '*.py' -print0 |
+        xargs -0 python3 -m py_compile
+
+  test:
+    desc: Succeed with no planned test files.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - ':'
