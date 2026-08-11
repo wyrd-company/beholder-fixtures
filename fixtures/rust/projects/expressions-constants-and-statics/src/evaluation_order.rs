@@ -103,7 +103,10 @@ fn place_with_log<'a>(label: &'static str, target: &'a mut i32) -> &'a mut i32 {
     target
 }
 
-/// Assignment order: place (assignee) evaluation with side effect ordered before RHS.
+/// Assignment order: for an ordinary `=` assignment Rust evaluates the assigned value (RHS)
+/// *before* the assignee place (LHS). Both operands log a side effect here, so the recorded
+/// order is `["rhs", "lhs"]`. This is the opposite of compound assignment (`+=`), which
+/// evaluates the place first — see `indexed_compound_assignment`.
 pub fn assignment_order() -> Vec<&'static str> {
     ORDER_LOG.with(|l| l.set(Vec::new()));
     let mut target: i32 = 0;
@@ -206,7 +209,7 @@ pub fn demonstrate() -> i32 {
     assert_eq!(call_order(), vec!["arg1", "arg2", "arg3"]);
     assert_eq!(method_order(), vec!["receiver", "m_arg1", "m_arg2"]);
     assert_eq!(binary_operand_order(), vec!["left", "right"]);
-    assert_eq!(assignment_order(), vec!["lhs", "rhs"]);
+    assert_eq!(assignment_order(), vec!["rhs", "lhs"]);
     let _ = short_circuit_conditions();
     let _ = overloaded_operator_order();
     let _ = indexed_compound_assignment();

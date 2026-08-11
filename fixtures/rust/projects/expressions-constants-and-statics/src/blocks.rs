@@ -121,33 +121,40 @@ impl std::ops::Deref for TempString {
     }
 }
 
-/// Tail temporary destruction: temporary created in block tail lives until end of block (edition 2024).
-/// Drop order of a local guard versus the tail temporary is observable and edition-sensitive.
+/// Tail temporary destruction: a temporary created in a block's tail expression has an
+/// edition-sensitive drop scope relative to that block's locals.
+///
+/// The tail temporary is *not* bound to a `let`, so no temporary lifetime extension applies:
+/// `TempString::new(..)` is a genuine tail-expression temporary. In edition 2024 the tail
+/// temporary is scoped to the block's tail and is dropped *before* the block's locals, so the
+/// log is `["tail_temp", "local"]`. In edition 2021 the tail temporary is extended to the end
+/// of the enclosing statement and is dropped *after* the block's locals, so the log is
+/// `["local", "tail_temp"]`. The 2021 companion crate demonstrates the contrast with identical
+/// code compiled under edition 2021.
 pub fn tail_temporary_scope() -> Vec<&'static str> {
     DROP_LOG.with(|l| l.borrow_mut().clear());
     let len = {
         let _local = TailGuard("local");
-        // Tail expression borrows a temporary `TempString`; in edition 2024 it lives until the
-        // end of this block, so its drop follows `_local`. In edition 2021 the tail temporary
-        // was destroyed earlier, which the 2021 companion crate demonstrates with identical code.
-        let s: &str = &TempString::new("harvest", "tail_temp");
-        s.len()
+        TempString::new("harvest", "tail_temp").len()
     };
     let _ = len;
     DROP_LOG.with(|l| l.borrow().clone())
 }
 
-/// 2024 tail-scope contrast: tail temporary outlives locals in 2024.
+/// Nested tail-scope (edition 2024): the inner block's tail temporary is dropped before the
+/// inner block's own local, producing `["plot_temp", "inner", "outer"]`. As above, the tail
+/// temporary is unbound so it is not lifetime-extended.
 pub fn tail_scope_2024_demo() -> Vec<&'static str> {
     DROP_LOG.with(|l| l.borrow_mut().clear());
-    {
+    let outer_len = {
         let _outer = TailGuard("outer");
-        let s: &str = {
+        let inner_len = {
             let _inner = TailGuard("inner");
-            &TempString::new("plot", "plot_temp")
+            TempString::new("plot", "plot_temp").len()
         };
-        let _ = s.len();
-    }
+        inner_len
+    };
+    let _ = outer_len;
     DROP_LOG.with(|l| l.borrow().clone())
 }
 

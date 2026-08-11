@@ -29,26 +29,35 @@ thread_local! {
 }
 
 struct IfLetScrutinee(&'static str);
+impl IfLetScrutinee {
+    /// Always yields `None`, so an `if let Some(_)` pattern over this value never matches and
+    /// the `else` branch runs. That is what exposes the scrutinee temporary's drop timing
+    /// relative to `else` under the edition-2024 rescoping.
+    fn lookup(&self) -> Option<i32> {
+        None
+    }
+}
 impl Drop for IfLetScrutinee {
     fn drop(&mut self) {
         IF_LET_LOG.with(|l| l.borrow_mut().push(self.0));
     }
 }
 
-/// Demonstrates `if let` temporary scope contrast: in edition 2024, temporaries created
-/// in the `if let` scrutinee are dropped after the then-branch, not immediately after
-/// the condition. The drop order of `Scrutinee("scrutinee")` versus the branch body
-/// is observable and differs from the 2021 companion with identical code.
+/// Demonstrates the edition-2024 `if let` scrutinee rescoping using a *nonmatching* pattern.
+///
+/// `IfLetScrutinee("scrutinee")` is a temporary whose `.lookup()` yields `None`, so the pattern
+/// `Some(_)` fails and the `else` branch runs. In edition 2024 the scrutinee temporary is
+/// dropped *before* the `else` branch, so the log is `["scrutinee", "else", "after"]`. In
+/// edition 2021 it is dropped *after* the whole `if let ... else`, so the log is
+/// `["else", "scrutinee", "after"]`. The 2021 companion crate compiles identical code to expose
+/// the contrast.
 pub fn if_let_temporary_scope() -> Vec<&'static str> {
     IF_LET_LOG.with(|l| l.borrow_mut().clear());
-    let result = if let Some(s) = Some(IfLetScrutinee("scrutinee")).as_ref() {
+    if let Some(_matched) = IfLetScrutinee("scrutinee").lookup() {
         IF_LET_LOG.with(|l| l.borrow_mut().push("then"));
-        Some(s.0.len())
     } else {
         IF_LET_LOG.with(|l| l.borrow_mut().push("else"));
-        None
-    };
-    let _ = result;
+    }
     IF_LET_LOG.with(|l| l.borrow_mut().push("after"));
     IF_LET_LOG.with(|l| l.borrow().clone())
 }
