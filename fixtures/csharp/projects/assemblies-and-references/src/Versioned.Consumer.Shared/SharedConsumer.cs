@@ -31,9 +31,12 @@ public sealed class SharedConsumer
 
     public string ConsumeVirtualDispatch()
     {
-        // WidgetBase.Describe() is virtual in V1 and non-virtual in V2: the emitted call
-        // instruction (callvirt vs call) and the returned literal both change on
-        // recompilation against the other producer version, though this call site does not.
+        // WidgetBase.Describe() is declared virtual in Versioned.Api.V1 and non-virtual in
+        // Versioned.Api.V2 -- a producer member-shape change. Recompiling this unchanged call
+        // against each producer binds to that version's Describe(), and the returned literal
+        // changes ("WidgetBase V1 virtual" vs "WidgetBase V2 non-virtual"), though this call
+        // site does not change. The producer's virtual-versus-non-virtual member shape and the
+        // observed return value are the recompilation-visible differences.
         WidgetBase w = new WidgetBase();
         return w.Describe();
     }

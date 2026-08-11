@@ -38,6 +38,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forwarding.Consumer.Current
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forwarding.Facade.PreMove", "src\Forwarding.Facade.PreMove\Forwarding.Facade.PreMove.csproj", "{55555555-5555-5555-5555-555555555505}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Forwarding.Composition", "src\Forwarding.Composition\Forwarding.Composition.csproj", "{55555555-5555-5555-5555-555555555506}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReferenceAssembly.Producer", "src\ReferenceAssembly.Producer\ReferenceAssembly.Producer.csproj", "{66666666-6666-6666-6666-666666666601}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReferenceAssembly.Consumer", "src\ReferenceAssembly.Consumer\ReferenceAssembly.Consumer.csproj", "{66666666-6666-6666-6666-666666666602}"
@@ -96,6 +98,8 @@ Global
 		{55555555-5555-5555-5555-555555555504}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55555555-5555-5555-5555-555555555505}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{55555555-5555-5555-5555-555555555505}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55555555-5555-5555-5555-555555555506}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55555555-5555-5555-5555-555555555506}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66666666-6666-6666-6666-666666666601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{66666666-6666-6666-6666-666666666601}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66666666-6666-6666-6666-666666666602}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -148,6 +152,8 @@ Global
 		{55555555-5555-5555-5555-555555555504}.Release|Any CPU.Build.0 = Release|Any CPU
 		{55555555-5555-5555-5555-555555555505}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55555555-5555-5555-5555-555555555505}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55555555-5555-5555-5555-555555555506}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55555555-5555-5555-5555-555555555506}.Release|Any CPU.Build.0 = Release|Any CPU
 		{66666666-6666-6666-6666-666666666601}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66666666-6666-6666-6666-666666666601}.Release|Any CPU.Build.0 = Release|Any CPU
 		{66666666-6666-6666-6666-666666666602}.Release|Any CPU.ActiveCfg = Release|Any CPU

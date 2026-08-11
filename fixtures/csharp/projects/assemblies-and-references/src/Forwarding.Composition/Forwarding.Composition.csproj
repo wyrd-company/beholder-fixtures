@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- The pre-move legacy binary (Forwarding.Consumer.Legacy) transitively references
+         Forwarding.Facade.PreMove, which emits a "Forwarding.Facade.dll" that DEFINES
+         RelocatedType. This composition must instead deploy the POST-move
+         "Forwarding.Facade.dll" (the TypeForwardedTo forwarder) so that the CLR follows
+         the forward at runtime. Disabling transitive project references keeps PreMove's
+         facade out of this output; the direct references below supply the post-move
+         facade and Forwarding.Definition explicitly. -->
+    <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- The unchanged pre-move binary under test. -->
+    <ProjectReference Include="..\Forwarding.Consumer.Legacy\Forwarding.Consumer.Legacy.csproj" />
+    <!-- Deploy the post-move forwarder and the relocation target next to the legacy binary,
+         replacing the pre-move facade the legacy binary was compiled against. -->
+    <ProjectReference Include="..\Forwarding.Facade\Forwarding.Facade.csproj" />
+    <ProjectReference Include="..\Forwarding.Definition\Forwarding.Definition.csproj" />
+  </ItemGroup>
+</Project>
