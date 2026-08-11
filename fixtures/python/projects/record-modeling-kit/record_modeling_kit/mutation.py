@@ -34,11 +34,14 @@ def patch_module_function_demo() -> tuple[int, int]:
 
 def class_patch_and_alias_demo() -> tuple[str, str]:
     svc = PatchableService()
-    bound_before = svc.action  # bound method captures function at access time
-    PatchableService.version = 2
+    bound_before = svc.action  # captures original function
+    orig = PatchableService.action
+    PatchableService.action = lambda self: "patched"  # type: ignore[method-assign, assignment]
     via_lookup = svc.action()
     via_old_bound = bound_before()
-    return via_old_bound, via_lookup  # both see new version? bound_before reads self.version live
+    # Restore original for idempotence.
+    PatchableService.action = orig  # type: ignore[method-assign, assignment]
+    return via_old_bound, via_lookup
 
 
 def qualified_vs_alias_demo() -> tuple[str, str]:

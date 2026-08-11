@@ -61,7 +61,7 @@ def inconsistent_hierarchy_demo() -> str:
         return f"inconsistent-mro:{exc}"
 
 
-def virtual_subclass_absent_demo() -> tuple[bool, bool, list[str]]:
+def virtual_subclass_absent_demo() -> tuple[bool, bool, bool, list[str]]:
     class VirtualBase(abc.ABC):
         @abc.abstractmethod
         def action(self) -> str: ...
@@ -74,9 +74,9 @@ def virtual_subclass_absent_demo() -> tuple[bool, bool, list[str]]:
     impl = VirtualImpl()
     is_virtual = isinstance(impl, VirtualBase)
     is_sub = issubclass(VirtualImpl, VirtualBase)
-    # Virtual subclass does not appear in MRO.
-    in_mro = VirtualImpl in VirtualBase.__mro__
-    return is_virtual, is_sub, [c.__name__ for c in VirtualBase.__mro__]
+    # Virtual subclass is absent from implementation MRO; registered base not in impl MRO.
+    absent_from_impl = VirtualBase not in VirtualImpl.__mro__
+    return is_virtual, is_sub, absent_from_impl, [c.__name__ for c in VirtualImpl.__mro__]
 
 
 def extension_layout_conflict_demo() -> str:

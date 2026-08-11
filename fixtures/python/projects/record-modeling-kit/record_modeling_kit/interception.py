@@ -119,3 +119,13 @@ def proxy_target_failure_demo() -> str:
         return "no-error"
     except AttributeError as exc:
         return f"proxy-missing:{exc}"
+
+
+def module_hook_contrast_demo() -> tuple[str, str]:
+    # Contrast instance interception (__getattribute__/__getattr__ on type) with module-level __getattr__ (PEP 562).
+    from record_modeling_kit.module_hook import module_getattr_demo
+
+    proxy = ForwardingProxy(RealTarget())
+    class_dynamic = proxy.dynamic_item  # type: ignore[attr-defined]  # type-level fallback
+    module_dynamic = module_getattr_demo()  # module-level fallback
+    return class_dynamic, module_dynamic

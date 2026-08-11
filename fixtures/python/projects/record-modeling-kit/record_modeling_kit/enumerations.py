@@ -102,19 +102,22 @@ def uniqueness_rejection_demo() -> str:
 
 
 def forbidden_member_extension_demo() -> str:
-    # Post-creation assignment does not create an enum member; it is a plain attribute.
-    # Demonstrate that the new name is not in __members__ and is not an enum instance.
+    # Forbidden: subclassing a member-bearing Enum with a new member is rejected.
     try:
-        Color.NEW_ATTR = 99  # type: ignore[attr-defined]
-        is_member = "NEW_ATTR" in Color.__members__
-        is_enum = isinstance(getattr(Color, "NEW_ATTR"), Color)
-        return f"extension-is-member:{is_member} is-enum:{is_enum} value={Color.NEW_ATTR}"  # type: ignore[attr-defined]
-    except AttributeError as exc:
+        class ExtendedColor(Color):  # type: ignore[misc]
+            NEW = 99  # type: ignore[assignment]
+
+        _ = ExtendedColor
+        return "no-error"
+    except TypeError as exc:
         return f"forbidden-extension:{exc}"
 
 
-def int_comparison_type_loss_demo() -> tuple[bool, type]:
-    # IntEnum is int, plain Enum is not.
+def int_comparison_type_loss_demo() -> tuple[bool, bool, int, type]:
+    # IntEnum comparison and arithmetic that loses enum type.
     plain_is_int = isinstance(Color.RED, int)
     intenum_is_int = isinstance(Priority.LOW, int)
-    return plain_is_int, type(Priority.LOW).__name__  # type: ignore[return-value]
+    # Operation result loses IntEnum type and becomes plain int.
+    result = Priority.HIGH + 1
+    is_plain_int = type(result) is int
+    return plain_is_int, intenum_is_int, result, type(result).__name__  # type: ignore[return-value]

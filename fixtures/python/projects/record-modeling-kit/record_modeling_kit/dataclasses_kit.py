@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import dataclasses
 from dataclasses import dataclass, field
-from typing import ClassVar, Final
+from typing import Any, ClassVar, Final
 
 
 # Basic dataclass with defaults, factories, ClassVar, InitVar.
@@ -145,8 +145,11 @@ def field_order_failure_demo() -> str:
         return f"field-order:{exc}"
 
 
-def descriptor_default_demo() -> str:
+def descriptor_default_demo() -> tuple[str, str, bool]:
     class DescDefault:
+        def __set_name__(self, owner: type, name: str) -> None:
+            self.attr = name
+
         def __get__(self, instance: object | None, owner: type | None = None) -> str:
             if instance is None:
                 return "desc-class"
@@ -155,17 +158,28 @@ def descriptor_default_demo() -> str:
     @dataclass
     class WithDesc:
         name: str = field(default="from-field")
-        # Field with descriptor-like default probe.
-        probe: str = "value"
+        probe: Any = field(default=DescDefault())  # type: ignore[type-var]
 
     obj = WithDesc()
-    return obj.probe
+    is_desc = isinstance(WithDesc.__dataclass_fields__["probe"].default, DescDefault)
+    via_class = WithDesc.__dict__["probe"] if "probe" in WithDesc.__dict__ else "no-class-attr"
+    # Field default is descriptor instance; verify its type and that instance stores it.
+    return f"default-is-desc:{is_desc}", f"field-default-type:{type(WithDesc.__dataclass_fields__['probe'].default).__name__}", isinstance(obj.probe, DescDefault)
 
 
 def post_init_demo() -> BaseItem:
     return BaseItem("post", extra="added")
 
 
-def replacement_under_slots_demo() -> str:
-    # Slots dataclass replaces class with new type that has __slots__.
-    return type(SlottedItem).__name__
+def replacement_under_slots_demo() -> tuple[bool, bool, bool]:
+    # Slots dataclass replaces the class object; preserve pre-decoration identity and contrast.
+    class Raw:
+        x: int
+        y: int
+
+    raw = Raw
+    raw_has_slots = hasattr(raw, "__slots__")
+    converted = dataclass(slots=True)(Raw)
+    converted_has_slots = hasattr(converted, "__slots__")
+    is_replacement = raw is not converted
+    return is_replacement, raw_has_slots, converted_has_slots

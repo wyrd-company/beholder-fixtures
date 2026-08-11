@@ -112,6 +112,46 @@ def cycle_demo() -> bool:
     return ref_a() is None
 
 
-def resurrection_note() -> str:
-    # __del__ resurrection is not relied upon; we demonstrate non-timing check.
-    return "finalizer-cannot-resurrect-checked-via-ref-is-none"
+resurrected_store: list[Any] = []
+
+
+class Resurrectable:
+    def __del__(self) -> None:
+        # Resurrection: re-anchor self in global store.
+        resurrected_store.append(self)
+
+
+def resurrection_demo() -> tuple[bool, bool]:
+    resurrected_store.clear()
+    obj = Resurrectable()
+    ref = weakref.ref(obj)
+    del obj
+    gc.collect()
+    # Non-timing check: object was resurrected via __del__ (store non-empty) even though original ref cleared.
+    was_resurrected = len(resurrected_store) == 1
+    still_alive_via_store = resurrected_store[0] is not None if was_resurrected else False
+    # Clean up resurrected reference for future runs.
+    resurrected_store.clear()
+    gc.collect()
+    return was_resurrected, still_alive_via_store
+
+
+def finalizer_shutdown_demo() -> tuple[bool, bool]:
+    events: list[str] = []
+    obj = WeakRefDemo("shutdown")
+    fin = weakref.finalize(obj, lambda: events.append("finalized"))
+    # Explicitly configure shutdown behavior: finalize at interpreter exit vs immediate.
+    fin.atexit = False
+    atexit_false = fin.atexit is False
+    fin.atexit = True
+    atexit_true = fin.atexit is True
+    # Trigger immediate finalization via deletion (non-timing).
+    del obj
+    gc.collect()
+    was_finalized = len(events) == 1
+    return atexit_true and atexit_false, was_finalized
+
+
+def resurrection_note() -> tuple[bool, bool]:
+    # Backward alias for coverage; delegates to resurrection_demo.
+    return resurrection_demo()

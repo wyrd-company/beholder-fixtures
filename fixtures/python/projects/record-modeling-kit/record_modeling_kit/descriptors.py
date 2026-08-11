@@ -46,10 +46,6 @@ class CachedDescriptor:
             instance.__dict__[self.cache_name] = f"computed-{self.name}"
         return instance.__dict__[self.cache_name]
 
-    # No __set__ => non-data descriptor; instance dict wins.
-    def __delete__(self, instance: object) -> None:
-        instance.__dict__.pop(self.cache_name, None)
-
 
 class DescriptorOwner:
     count = ValidatingDescriptor()
@@ -95,14 +91,19 @@ def reuse_demo() -> bool:
     return OwnerA.shared is OwnerB.shared
 
 
+class OwnerWithFallback:
+    count = ValidatingDescriptor()
+
+    def __getattr__(self, name: str) -> str:
+        if name == "count":
+            return "fallback-via-getattr"
+        raise AttributeError(name)
+
+
 def attribute_error_fallback_demo() -> str:
-    obj = DescriptorOwner()
-    try:
-        _ = obj.count
-        return "no-error"
-    except AttributeError:
-        # Fallback to __getattr__ would occur if defined; here we just signal.
-        return "attribute-error-fallback"
+    # Descriptor raises AttributeError -> owner __getattr__ provides fallback via normal lookup.
+    obj = OwnerWithFallback()
+    return obj.count  # type: ignore[return-value]
 
 
 # Functions, slots, and properties as descriptor contrasts.

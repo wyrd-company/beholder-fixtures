@@ -94,13 +94,20 @@ def concrete_subclass_demo() -> str:
     return sink.written[0]
 
 
-def virtual_subclass_demo() -> tuple[bool, bool, bool]:
-    inst = NetworkSink()
+def virtual_subclass_demo() -> tuple[bool, bool, bool, bool]:
+    # Registered virtual subclass is recognized by isinstance/issubclass but does not inherit base members.
+    class MinimalVirtual:
+        pass
+
+    DataSink.register(MinimalVirtual)
+    inst = MinimalVirtual()
     is_virtual_instance = isinstance(inst, DataSink)
-    is_virtual_sub = issubclass(NetworkSink, DataSink)
-    # Virtual subclass does not inherit DataSink members via MRO.
-    has_write_in_mro = any("write" in B.__dict__ for B in NetworkSink.__mro__ if B is not DataSink)
-    return is_virtual_instance, is_virtual_sub, has_write_in_mro
+    is_virtual_sub = issubclass(MinimalVirtual, DataSink)
+    # Virtual base absent from implementation MRO.
+    absent_from_mro = DataSink not in MinimalVirtual.__mro__
+    # Member not inherited: instance lacks DataSink.write/name/kind.
+    has_write = hasattr(inst, "write")
+    return is_virtual_instance, is_virtual_sub, absent_from_mro, has_write
 
 
 def subclasshook_demo() -> tuple[bool, bool]:
