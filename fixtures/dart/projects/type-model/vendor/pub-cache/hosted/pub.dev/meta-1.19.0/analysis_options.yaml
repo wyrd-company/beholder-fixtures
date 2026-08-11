@@ -1,0 +1,6 @@
+linter:
+  rules:
+    - flutter_style_todos
+    - lines_longer_than_80_chars
+    - prefer_single_quotes
+    - unnecessary_ignore

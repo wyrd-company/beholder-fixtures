@@ -5,7 +5,13 @@
 /// extension methods. The JavaScript-interop variant of this item is owned
 /// by `platforms-and-interop`; this library covers static distinction and
 /// runtime erasure only.
+///
+/// This project otherwise uses SDK libraries only; it vendors a pinned
+/// `package:meta` (see `pubspec.yaml`) solely for the `@redeclare`
+/// annotation below.
 library;
+
+import 'package:meta/meta.dart';
 
 /// A primitive-representation extension type with a named constructor,
 /// members, an operator, and a static member.
@@ -41,16 +47,12 @@ class RawLog {
 
 /// `implements` a class interface whose representation type (`RawLog`) is
 /// itself the implemented type, so unredeclared members ([summary],
-/// [entries]) forward transparently to the representation object.
-///
-/// The `@redeclare` annotation that normally marks [add] as a deliberate
-/// replacement of a forwarded member (rather than an accidental signature
-/// mismatch) comes from `package:meta`, outside this project's declared
-/// "SDK libraries only" dependency scope; the redeclare mechanism itself —
-/// overriding a member that would otherwise forward to the representation
-/// object — needs no annotation to take effect and is fully exercised
-/// below.
+/// [entries]) forward transparently to the representation object. [add]
+/// deliberately replaces the forwarded member instead, marked `@redeclare`
+/// to record that replacement as intentional rather than an accidental
+/// signature mismatch.
 extension type Log(RawLog raw) implements RawLog {
+  @redeclare
   void add(String entry) => raw.add('[logged] $entry');
 }
 

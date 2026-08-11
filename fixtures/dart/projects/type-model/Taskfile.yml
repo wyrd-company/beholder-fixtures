@@ -7,11 +7,14 @@ version: '3'
 
 vars:
   BUILD_DIR: '{{.TASKFILE_DIR}}/build'
+  PUB_CACHE: '{{.TASKFILE_DIR}}/vendor/pub-cache'
 
 tasks:
   build:
     desc: Resolve offline, analyze, and compile the declared entry points.
     dir: '{{.TASKFILE_DIR}}'
+    env:
+      PUB_CACHE: '{{.PUB_CACHE}}'
     cmds:
       - dart pub get --offline
       - dart analyze
@@ -26,6 +29,8 @@ tasks:
   lint:
     desc: Check dart format and run dart analyze.
     dir: '{{.TASKFILE_DIR}}'
+    env:
+      PUB_CACHE: '{{.PUB_CACHE}}'
     cmds:
       - dart format --output=none --set-exit-if-changed .
       - dart analyze
