@@ -1,0 +1,29 @@
+[package]
+name = "traits-and-dispatch"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for Rust trait system and dispatch"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace]
+members = ["crates/trait_downstream"]
+resolver = "3"
+
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(fixture_cfg)"] }
+
+[workspace.lints.clippy]
+all = "warn"
+
+[lib]
+name = "traits_and_dispatch"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[dependencies]
+trait_downstream = { path = "crates/trait_downstream" }
+
+[lints]
+workspace = true
