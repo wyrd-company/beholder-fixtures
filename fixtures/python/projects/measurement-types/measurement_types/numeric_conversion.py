@@ -76,53 +76,65 @@ class IndexOnlyFallback:
 
 
 class TruncatableMeasure:
-    """Measure exposing the deprecated truncation path via ``__trunc__``."""
+    """Measure exposing only ``__trunc__``.
+
+    ``math.trunc`` calls ``__trunc__`` directly; that is the supported
+    truncation protocol. ``int()`` no longer falls back to ``__trunc__``: the
+    delegation of ``int()`` to ``__trunc__`` was deprecated in Python 3.11 and
+    removed in 3.14, so ``int()`` on a ``__trunc__``-only object raises
+    ``TypeError``. Neither ``__int__`` nor ``__index__`` is defined here, so no
+    other conversion protocol can mask that removal.
+    """
 
     def __init__(self, value: float) -> None:
         self.value = value
 
-    def __int__(self) -> int:
-        return int(self.value)
-
-    def __index__(self) -> int:
-        return int(self.value) + 10
-
     def __trunc__(self) -> int:
-        return int(self.value) + 100
+        return int(self.value)
 
 
 def conversion_fallback_demo() -> tuple[int, int, int]:
-    """Exercise conversion fallback from ``__int__`` to ``__index__``.
+    """Contrast ``int()`` conversion fallback with the direct index protocol.
 
-    ``IndexOnlyFallback`` implements only ``__index__``. ``int()`` and
-    ``operator.index`` fall back to ``__index__`` when ``__int__`` is absent,
-    distinct from the direct ``obj.__index__()`` call on ``IndexLike`` which
-    implements both and would otherwise be confused with fallback.
+    ``IndexOnlyFallback`` implements only ``__index__``. Because it has no
+    ``__int__``, ``int()`` falls back to ``__index__`` -- this is the conversion
+    fallback. ``operator.index`` is not a fallback: it invokes ``__index__``
+    directly and unconditionally, so it serves as the exact-index contrast. An
+    explicit ``IndexLike.__index__()`` call is a third, direct form.
     """
 
     import operator
 
     fallback_obj = IndexOnlyFallback()
-    # ``int`` falls back to ``__index__`` when ``__int__`` is missing.
-    fallback_via_int = int(fallback_obj)  # uses __index__
-    fallback_via_index = operator.index(fallback_obj)
-    direct = IndexLike(index_value=3, int_value=9).__index__()
-    return fallback_via_int, fallback_via_index, direct
+    # ``int`` has no ``__int__`` to call, so it falls back to ``__index__``.
+    fallback_via_int = int(fallback_obj)
+    # ``operator.index`` always calls ``__index__`` directly -- not a fallback.
+    direct_via_index = operator.index(fallback_obj)
+    # Explicit dunder call on an object that defines both conversions.
+    direct_explicit = IndexLike(index_value=3, int_value=9).__index__()
+    return fallback_via_int, direct_via_index, direct_explicit
 
 
-def deprecated_truncation_demo() -> tuple[int, int, int]:
-    """Demonstrate the deprecated truncation path ``__trunc__``.
+def deprecated_truncation_demo() -> tuple[int, str]:
+    """Contrast supported ``math.trunc`` with the removed ``int`` -> ``__trunc__`` fallback.
 
-    ``math.trunc`` and ``operator.trunc`` prefer ``__trunc__`` over
-    ``__int__``/``__index__``, representing the historical truncation
-    route. ``TruncatableMeasure`` exposes all three for comparison.
+    ``math.trunc`` invokes ``__trunc__`` directly and remains supported.
+    Historically ``int()`` fell back to ``__trunc__`` when ``__int__`` and
+    ``__index__`` were absent; that delegation was deprecated in Python 3.11 and
+    removed in 3.14. On 3.14 ``int()`` of a ``__trunc__``-only object therefore
+    raises ``TypeError`` -- there is no ``operator.trunc`` counterpart, and
+    ``math.trunc`` is the only remaining direct route to ``__trunc__``.
     """
 
     import math
-    import operator
 
     obj = TruncatableMeasure(3.7)
-    return math.trunc(obj), operator.index(obj), int(obj)
+    supported = math.trunc(obj)  # -> 3, via __trunc__
+    try:
+        removed_fallback: str = str(int(obj))
+    except TypeError:
+        removed_fallback = "type-error"
+    return supported, removed_fallback
 
 
 def strict_return_type_demo() -> str:
