@@ -60,7 +60,39 @@ public static class PlatformAbiLatitude
     public static string DescribeFilesystemCaseAndNewlineLatitude()
     {
         var newline = Environment.NewLine;
-        return $"newline-length={newline.Length} newline-is-lf={newline == "\n"} alt-separator={Path.AltDirectorySeparatorChar}";
+
+        // Filesystem case-folding is host-determined: on a case-insensitive
+        // volume a case-toggled spelling of an existing directory still
+        // resolves, on a case-sensitive one it does not. The result is
+        // parameterized by the running platform's filesystem and never
+        // asserted as a portable constant.
+        var baseDir = AppContext.BaseDirectory
+            .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        var toggled = ToggleAsciiLetterCase(baseDir);
+        var caseFolds = !string.Equals(toggled, baseDir, StringComparison.Ordinal)
+            && Directory.Exists(toggled);
+
+        return $"newline-length={newline.Length} newline-is-lf={newline == "\n"} "
+            + $"alt-separator={Path.AltDirectorySeparatorChar} filesystem-case-folds={caseFolds}";
+    }
+
+    private static string ToggleAsciiLetterCase(string value)
+    {
+        var chars = value.ToCharArray();
+        for (var i = 0; i < chars.Length; i++)
+        {
+            var c = chars[i];
+            if (char.IsAsciiLetterUpper(c))
+            {
+                chars[i] = char.ToLowerInvariant(c);
+            }
+            else if (char.IsAsciiLetterLower(c))
+            {
+                chars[i] = char.ToUpperInvariant(c);
+            }
+        }
+
+        return new string(chars);
     }
 
     public static string DescribeMemoryReorderingLatitude()
