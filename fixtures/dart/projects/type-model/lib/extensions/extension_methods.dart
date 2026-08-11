@@ -85,15 +85,26 @@ String describeExtensions() {
   // at the tear-off site.
   final int Function() doubler = 5.doubled;
 
-  // `dynamic` bypass: extension methods are resolved statically, so a
-  // `dynamic`-typed receiver bypasses extension lookup entirely. Casting
-  // back to the extension's `on` type before calling avoids the bypass.
+  // `dynamic` bypass: extension methods are resolved statically against the
+  // receiver's static type, so a `dynamic`-typed receiver bypasses
+  // extension lookup entirely — the call is instead dispatched as an
+  // ordinary dynamic member access against `int`, which has no `doubled`
+  // member, so it throws.
   dynamic dynValue = 5;
-  final viaExplicitAfterCast = NumberOps(dynValue as int).doubled();
+  var dynamicBypassObserved = false;
+  try {
+    dynValue.doubled();
+  } on NoSuchMethodError {
+    dynamicBypassObserved = true;
+  }
+
+  // Explicit extension application forces static resolution despite the
+  // dynamic receiver, avoiding the bypass.
+  final viaExplicitApplication = NumberOps(dynValue as int).doubled();
 
   return 'doubled=${5.doubled()} shout=${'hi'.shout()} '
       'tripled=${5.tripled()} largest=${<int>[3, 9, 4].largest} '
-      'nullGreeting=${maybeNull.greet()} valueGreeting=${'Bob'.greet()} '
+      'nullGreeting=${maybeNull.greet()} valueGreeting=${'traveler'.greet()} '
       'vectorSum=${Vector2Ops(const Vector2(1, 2)) + const Vector2(3, 4)} '
       'vectorNeg=${-const Vector2(1, 2)} '
       'vectorMagSq=${const Vector2(3, 4).magnitudeSquared} '
@@ -102,6 +113,7 @@ String describeExtensions() {
       'explicitGreet=${GreeterExt(greeter).greet()} '
       'mostSpecific=${5.describeSpecificity()} '
       'tornOffDoubler=${doubler()} '
-      'dynamicBypassAvoided=$viaExplicitAfterCast '
+      'dynamicBypassObserved=$dynamicBypassObserved '
+      'dynamicBypassAvoidedByExplicitApplication=$viaExplicitApplication '
       'prefixedExplicit=${boundary.BoundaryOps(3).quadrupled()}';
 }

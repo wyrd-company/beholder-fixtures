@@ -30,9 +30,11 @@ String describeRecords() {
 
   final generic = duplicate<String>('twice');
 
-  // Structural subtyping: any record with a matching shape is assignable
-  // regardless of where it was produced.
-  final ({int x, int y}) reassigned = named;
+  // Structural subtyping: record types are covariant per field, so a record
+  // whose field types are proper subtypes of a wider record type's field
+  // types (`int` vs `num` here) is itself a subtype of that wider type,
+  // with no explicit conversion.
+  final ({num x, num y}) widened = named;
 
   // Synthetic getters: field names/positions become getters on the record.
   final positionalGetter = positional.$1;
@@ -49,7 +51,7 @@ String describeRecords() {
   return 'positional=$positional named=$named singleton=$singleton '
       'nested=$nested constPair=$constPair destructured=($a,$b) '
       'namedDestructured=(x:$x,y:$y) generic=$generic '
-      'reassigned=$reassigned positionalGetter=$positionalGetter '
+      'widened=$widened positionalGetter=$positionalGetter '
       'namedGetter=$namedGetter equalRecords=$equalRecords '
       'orderIndependentEquality=$orderIndependentEquality';
 }

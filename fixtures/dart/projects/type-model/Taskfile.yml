@@ -32,7 +32,7 @@ tasks:
     env:
       PUB_CACHE: '{{.PUB_CACHE}}'
     cmds:
-      - dart format --output=none --set-exit-if-changed .
+      - dart format --output=none --set-exit-if-changed bin lib
       - dart analyze
 
   test:

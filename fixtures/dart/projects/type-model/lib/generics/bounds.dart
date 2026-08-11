@@ -72,6 +72,11 @@ class Repository<T> {
 
   T? firstOrNull() => _items.isEmpty ? null : _items.first;
 
+  /// A generic method: `R` is this method's own type parameter, distinct
+  /// from the enclosing class's `T`.
+  List<R> mapTo<R>(R Function(T item) transform) =>
+      _items.map(transform).toList();
+
   factory Repository.of(Iterable<T> items) {
     final repo = Repository<T>();
     for (final item in items) {
@@ -99,6 +104,7 @@ String describeBounds() {
   raw.add('anything');
 
   final repo = Repository<int>.of(<int>[1, 2, 3]);
+  final mapped = repo.mapTo<String>((item) => 'item-$item');
 
   return 'numeric=${numeric.value} anyBox=${anyBox.value} '
       'paired=(${paired.primary},${paired.secondary}) '
@@ -106,5 +112,5 @@ String describeBounds() {
       'trackedCount=${tracker.trackedCount} '
       'explicitIdentity=$explicitIdentity inferredIdentity=$inferredIdentity '
       'rawRepoFirst=${raw.firstOrNull()} repoOfFirst=${repo.firstOrNull()} '
-      'summary=${<int>[1, 2, 3].summarize()}';
+      'mapped=$mapped summary=${<int>[1, 2, 3].summarize()}';
 }

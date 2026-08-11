@@ -6,9 +6,9 @@
 /// this library's inferred top-level types.
 library;
 
-/// Downward inference: the empty list literal infers `<int>` from the
-/// declared context.
-final List<int> downwardList = <int>[];
+/// Downward inference: the empty list literal has no explicit type
+/// argument, so it infers `<int>` from the declared `List<int>` context.
+final List<int> downwardList = [];
 
 /// Upward inference: the type is inferred purely from the initializer.
 var upwardInferredTopLevel = 'inferred-as-string';

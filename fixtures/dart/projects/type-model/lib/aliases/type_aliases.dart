@@ -3,8 +3,10 @@
 /// bounds, a record alias, and constructor access through an alias.
 library;
 
-// Legacy function typedef syntax.
-typedef LegacyPredicate = bool Function(int value);
+// Legacy function typedef syntax: the return type, alias name, and
+// parameter list are written directly, with no `=` and no `Function`
+// keyword.
+typedef bool LegacyPredicate(int value);
 
 // Modern function-type alias (functionally identical, current syntax).
 typedef ModernPredicate = bool Function(int value);
