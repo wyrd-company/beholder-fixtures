@@ -1,0 +1,11 @@
+[package]
+name = "edition-2018"
+version = "0.1.0"
+edition = "2018"
+rust-version = "1.85"
+description = "Edition 2018 member for closure capture precision contrast"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lints]
+workspace = true

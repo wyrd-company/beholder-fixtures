@@ -1,0 +1,38 @@
+[package]
+name = "ownership-and-borrowing"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Fixture for Rust ownership and borrowing"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace]
+members = [
+    "crates/edition-2018",
+    "crates/edition-2021",
+]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Shared fixture description"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[workspace.lints.rust]
+unused = "warn"
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(doc)", "cfg(doctest)"] }
+
+[workspace.lints.clippy]
+all = "warn"
+
+[lib]
+name = "ownership_and_borrowing"
+path = "src/lib.rs"
+crate-type = ["rlib"]
+
+[lints]
+workspace = true

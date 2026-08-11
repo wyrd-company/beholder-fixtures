@@ -1,0 +1,11 @@
+[package]
+name = "edition-2021"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+description = "Edition 2021 member for closure capture, temporary scopes, and match ergonomics contrasts"
+license = "MIT"
+authors = ["Wyrd Company"]
+
+[lints]
+workspace = true
