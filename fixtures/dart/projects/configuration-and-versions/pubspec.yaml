@@ -1,0 +1,9 @@
+name: configuration_and_versions
+description: >-
+  Fixture package demonstrating SDK pinning, per-library language versions,
+  compile-time environment values, and assertion configuration.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.12.2 <4.0.0'

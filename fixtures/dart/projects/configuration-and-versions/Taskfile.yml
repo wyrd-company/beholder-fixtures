@@ -1,0 +1,53 @@
+# ---
+# relationships:
+#   references:
+#     - coverage
+# ---
+version: '3'
+
+vars:
+  BUILD_DIR: '{{.TASKFILE_DIR}}/build'
+  DEFINE_FLAGS: -DFIXTURE_STRING=alpha -DFIXTURE_INT=3 -DFIXTURE_BOOL=true -DDEPLOY_MODE=compiled
+  JS_DEFINE_FLAGS: -DFIXTURE_STRING=compiled-value -DFIXTURE_INT=3 -DFIXTURE_BOOL=true -DDEPLOY_MODE=compiled
+
+tasks:
+  build:
+    desc: Resolve offline, analyze, and compile every declared entry point.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dart pub get --offline
+      - dart analyze
+      - mkdir -p {{.BUILD_DIR}}
+      - dart run --enable-asserts {{.DEFINE_FLAGS}} bin/vm_main.dart --expect-asserts
+      - dart run --no-enable-asserts {{.DEFINE_FLAGS}} bin/vm_main.dart
+      - >-
+        dart compile exe
+        -o {{.BUILD_DIR}}/native_aot_main
+        {{.DEFINE_FLAGS}}
+        bin/native_aot_main.dart
+      - '{{.BUILD_DIR}}/native_aot_main'
+      - >-
+        dart compile exe
+        --enable-asserts
+        -o {{.BUILD_DIR}}/native_aot_assert
+        {{.DEFINE_FLAGS}}
+        bin/native_aot_main.dart
+      - '{{.BUILD_DIR}}/native_aot_assert'
+      - >-
+        dart compile js
+        {{.JS_DEFINE_FLAGS}}
+        -o {{.BUILD_DIR}}/js_main.js
+        bin/js_main.dart
+
+  lint:
+    desc: Check dart format and run dart analyze.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dart format --output=none --set-exit-if-changed .
+      - dart analyze
+
+  test:
+    desc: Succeed with no planned test files.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - ':'
