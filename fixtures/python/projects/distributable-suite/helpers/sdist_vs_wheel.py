@@ -31,8 +31,46 @@ def inspect_sdist_and_wheel(sdist: pathlib.Path, wheel: pathlib.Path) -> dict:
     return result
 
 
+def build_sdist_offline() -> pathlib.Path | None:
+    """Build sdist offline via uv build --sdist."""
+    import subprocess, pathlib
+    root = pathlib.Path(__file__).parents[1]
+    out = root / "dist"
+    out.mkdir(exist_ok=True)
+    result = subprocess.run(
+        ["uv", "build", "--sdist", "--out-dir", str(out), str(root / "distributions" / "suite_core")],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        return None
+    candidates = sorted(out.glob("*.tar.gz"))
+    return candidates[-1] if candidates else None
+
+
+def build_wheel_from_sdist_offline(sdist: pathlib.Path) -> pathlib.Path | None:
+    """Build wheel from sdist offline."""
+    import subprocess, pathlib
+    root = pathlib.Path(__file__).parents[1]
+    out = root / "dist"
+    # Record existing wheels to identify new one
+    before = set(out.glob("*.whl"))
+    result = subprocess.run(
+        ["uv", "build", "--wheel", "--out-dir", str(out), str(sdist)],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        return None
+    after = set(out.glob("*.whl"))
+    new = sorted(after - before)
+    if new:
+        return new[0]
+    # Fallback: filter by core name
+    candidates = sorted(out.glob("*suite_core*.whl"))
+    return candidates[-1] if candidates else None
+
+
 def wheel_from_tree_vs_sdist_note() -> str:
-    return "wheel-from-tree and wheel-from-sdist should contain equivalent payload; timestamps/order may differ"
+    return "wheel-from-tree and wheel-from-sdist should contain equivalent payload; timestamps/order may differ; verified via sdist_vs_wheel helpers"
 
 
 def missing_input_note() -> str:

@@ -1,0 +1,3 @@
+"""Underscore portion."""
+
+VALUE = "underscore"

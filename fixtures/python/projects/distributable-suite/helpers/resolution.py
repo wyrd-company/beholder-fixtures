@@ -18,11 +18,56 @@ CONFLICT_REQUIREMENTS = ["distributable-suite-core==1.4.2", "requests==2.25.0"]
 
 
 def uv_resolution_commands() -> dict[str, list[str]]:
-    base = ["uv", "pip", "compile", "--no-index", "--find-links", "wheelhouse", "--find-links", "candidate_set"]
+    base_satisfiable = [
+        "uv", "pip", "compile",
+        "--offline", "--no-index",
+        "--find-links", "wheelhouse",
+        "--find-links", "candidate_set/satisfiable",
+        "--find-links", "dist",
+    ]
+    base_conflict = [
+        "uv", "pip", "compile",
+        "--offline", "--no-index",
+        "--find-links", "wheelhouse",
+        "--find-links", "candidate_set/conflict",
+        "--find-links", "dist",
+    ]
     return {
-        "satisfiable": base + ["--offline", "-o", "satisfiable-lock.txt"] + SATISFIABLE_REQUIREMENTS,
-        "conflict": base + ["--offline", "-o", "conflict-lock.txt"] + CONFLICT_REQUIREMENTS,
+        "satisfiable": base_satisfiable + ["--output-file", "/tmp/satisfiable.txt", "candidate_set/requirements-satisfiable.txt"],
+        "conflict": base_conflict + ["--output-file", "/tmp/conflict.txt", "candidate_set/requirements-conflict.txt"],
     }
+
+
+def offline_satisfiable_demo() -> bool:
+    """Run satisfiable branch offline via uv; expects exit 0."""
+    import subprocess, pathlib
+    root = pathlib.Path(__file__).parents[1]
+    cmd = [
+        "uv", "pip", "compile", "--offline", "--no-index",
+        "--find-links", str(root / "wheelhouse"),
+        "--find-links", str(root / "candidate_set" / "satisfiable"),
+        "--find-links", str(root / "dist"),
+        "--output-file", "/tmp/satisfiable.txt",
+        str(root / "candidate_set" / "requirements-satisfiable.txt"),
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    return result.returncode == 0
+
+
+def offline_conflict_demo() -> bool:
+    """Run conflict branch offline; expects non-zero with diagnostics."""
+    import subprocess, pathlib
+    root = pathlib.Path(__file__).parents[1]
+    cmd = [
+        "uv", "pip", "compile", "--offline", "--no-index",
+        "--find-links", str(root / "wheelhouse"),
+        "--find-links", str(root / "candidate_set" / "conflict"),
+        "--find-links", str(root / "dist"),
+        "--output-file", "/tmp/conflict.txt",
+        str(root / "candidate_set" / "requirements-conflict.txt"),
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    return result.returncode != 0 and "No solution" in (result.stderr + result.stdout)
 
 
 def frontend_diagnostics_note() -> str:

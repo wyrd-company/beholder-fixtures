@@ -1,0 +1,11 @@
+[project]
+name = "suite-workspace-root"
+version = "0.2.0"
+description = "Workspace root for offline path dependency demo"
+requires-python = ">=3.10"
+
+[tool.uv.workspace]
+members = ["suite_workspace_alpha", "suite_workspace_beta"]
+
+[tool.uv.sources]
+suite-workspace-alpha = { workspace = true }

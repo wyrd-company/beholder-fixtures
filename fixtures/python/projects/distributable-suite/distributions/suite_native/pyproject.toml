@@ -8,7 +8,7 @@ version = "1.4.2"
 description = "Native extension representative for distributable-suite"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = "MIT"
 authors = [{name = "Wyrd Company"}]
 
 [tool.setuptools]

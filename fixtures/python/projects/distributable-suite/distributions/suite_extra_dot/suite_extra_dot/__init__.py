@@ -1,0 +1,3 @@
+"""Dot portion."""
+
+VALUE = "dot"

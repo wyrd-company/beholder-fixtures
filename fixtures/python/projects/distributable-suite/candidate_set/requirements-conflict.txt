@@ -1,0 +1,2 @@
+distributable-suite-core==1.4.2
+requests==2.25.0

@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools==84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "distributable.suite.another"
+version = "0.1.0"
+description = "Dot-spelled distribution for normalization demo"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+
+[tool.setuptools]
+packages = ["suite_extra_dot"]
