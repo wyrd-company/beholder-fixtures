@@ -1,0 +1,9 @@
+name: type_model
+description: >-
+  Fixture library modeling a generic domain through Dart's nominal and
+  structural type system, generics, variance, and override checking.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.12.2 <4.0.0'
