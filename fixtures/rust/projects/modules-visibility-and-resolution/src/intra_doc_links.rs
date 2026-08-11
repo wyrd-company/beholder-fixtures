@@ -43,13 +43,30 @@ pub fn self_item_link_demo() -> u32 {
     d.linked_method()
 }
 
-/// Private item link: [`crate::visibility_restricted::private_container::CappedPublic`] is `pub` but effective visibility is private via `mod private_container`; [`crate::visibility_restricted::CrateVisible`] (`pub(crate)`) is crate-restricted.
-/// Hidden item link: [`crate::intra_doc_links::HiddenDemo`] is `#[doc(hidden)]` but still linkable.
-/// Cross-module link: [`crate::glob_ambiguity::source_a::CollidingType`].
-#[allow(rustdoc::private_intra_doc_links, rustdoc::broken_intra_doc_links)]
-pub fn private_and_hidden_links() -> u32 {
+/// Hidden item link: [`HiddenDemo`] carries `#[doc(hidden)]`, yet an intra-doc
+/// link to it resolves in the standard documentation build — a hidden item is
+/// still a nameable path target, only omitted from the rendered index.
+pub fn hidden_item_link() -> u32 {
     let _ = HiddenDemo { value: 2 };
     42
+}
+
+/// Restricted-visibility intra-doc links that resolve in the crate's
+/// `--document-private-items` documentation build (see `Taskfile.yml`):
+///
+/// - [`crate::visibility_restricted::CrateVisible`] — a `pub(crate)` item.
+/// - [`crate::visibility_restricted::sibling_a::SiblingCrateVisible`] — a
+///   `pub(crate)` item in a sibling module.
+/// - [`crate::visibility_restricted::ReachableCapped`] — the public re-export
+///   through which the effectively-private `CappedPublic` (nested in the private
+///   `private_container` module, so unnameable by its own path) is reached.
+///
+/// This function is itself private, so these links are checked only in the
+/// private-items documentation build and never trigger `private_intra_doc_links`.
+/// No broken-link lint is suppressed; the private-items build denies both
+/// `broken_intra_doc_links` and `private_intra_doc_links`.
+fn restricted_visibility_links() -> u32 {
+    0
 }
 
 /// `#[doc(hidden)]` item – hidden from docs but linkable for RS-CAN-MOD-014.

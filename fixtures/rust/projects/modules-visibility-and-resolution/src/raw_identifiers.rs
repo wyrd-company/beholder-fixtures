@@ -49,11 +49,18 @@ pub fn unicode_identifier_demo() -> u32 {
     Δ
 }
 
-// Normalization-equivalent spelling: `café` composed (U+00E9) normalizes same as decomposed `e` + U+0301.
-// Rust normalizes identifiers via NFKC, so `café` (composed) and `cafe\u{0301}` (decomposed) are same identifier – defining both would be duplicate.
-// Valid single form:
-pub fn café_composed() -> u32 {
+// Normalization equivalence (RS-CAN-MOD-013): Rust normalizes identifiers to NFC,
+// so one name written in two Unicode forms resolves to a single item. This
+// definition uses the composed form `é` (U+00E9).
+pub fn café_normalized() -> u32 {
     77
+}
+
+// The call below writes the SAME identifier with the decomposed form
+// (`e` + U+0301 combining acute); it normalizes to the composed name above and
+// resolves to the one definition, so no second item exists.
+pub fn normalization_equivalent_call() -> u32 {
+    café_normalized()
 }
 
 // Confusable identifiers – visually similar but distinct codepoints.
@@ -88,7 +95,7 @@ pub fn call_raw_identifiers() -> u32 {
         + naïve_café()
         + unicode_identifier_demo()
         + old
-        + café_composed()
+        + normalization_equivalent_call()
         + confusable_demo()
         + uncommon_codepoint_demo()
 }

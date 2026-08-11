@@ -140,12 +140,15 @@ pub mod prelude_glob_shadow {
 }
 
 pub mod enum_glob_collision {
-    pub use crate::glob_ambiguity::source_a::CollidingEnum::*;
+    // Both enums' variants enter this single scope by glob, so the shared
+    // spellings `VariantA` and `VariantB` are ambiguous here. The ambiguity is
+    // unused: nothing names a variant unqualified in this module, so it compiles.
+    // Naming `VariantA` unqualified would be `error[E0659]: VariantA is ambiguous`
+    // (counterexample recorded in `docs/counterexamples.md`).
+    use crate::glob_ambiguity::source_a::CollidingEnum::*;
+    use crate::glob_ambiguity::source_b::CollidingEnum::*;
 
-    pub fn uses_imported_variant() -> crate::glob_ambiguity::source_a::CollidingEnum {
-        VariantA
-    }
-
+    // Resolve the ambiguity by fully qualified path instead of the glob name.
     pub fn explicit_variant_a() -> crate::glob_ambiguity::source_a::CollidingEnum {
         crate::glob_ambiguity::source_a::CollidingEnum::VariantA
     }
@@ -154,15 +157,18 @@ pub mod enum_glob_collision {
         crate::glob_ambiguity::source_b::CollidingEnum::VariantB
     }
 
-    pub mod via_b {
-        pub use crate::glob_ambiguity::source_b::CollidingEnum::*;
+    // Explicit single-name import shadows the ambiguous glob: a non-glob `use`
+    // outranks a glob import, so `VariantA` resolves unambiguously to `source_a`
+    // in this child even though both variant globs are also in scope.
+    pub mod shadow_variant_via_explicit {
+        use crate::glob_ambiguity::source_a::CollidingEnum::VariantA;
+        use crate::glob_ambiguity::source_a::CollidingEnum::*;
+        use crate::glob_ambiguity::source_b::CollidingEnum::*;
 
-        pub fn variant_b() -> crate::glob_ambiguity::source_b::CollidingEnum {
-            VariantB
+        pub fn uses_shadowed_variant() -> crate::glob_ambiguity::source_a::CollidingEnum {
+            VariantA
         }
     }
-
-    // Documented collision: `use source_a::CollidingEnum::*; use source_b::CollidingEnum::*;` then `VariantA` ambiguous – must use qualified `source_a::...::VariantA`.
 }
 
 pub mod macro_glob_collision {

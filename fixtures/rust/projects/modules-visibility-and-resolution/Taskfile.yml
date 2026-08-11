@@ -13,8 +13,9 @@ tasks:
       - cargo build --offline --manifest-path crates/skew_v2/Cargo.toml
       - cargo build --offline --manifest-path crates/edition2015/Cargo.toml
       - cargo build --offline --manifest-path crates/edition2018/Cargo.toml
-      - cargo doc --offline --workspace --no-deps
-      - cargo doc --offline --manifest-path crates/skew_v2/Cargo.toml --no-deps
+      - RUSTDOCFLAGS="-D rustdoc::broken_intra_doc_links" cargo doc --offline --workspace --no-deps
+      - RUSTDOCFLAGS="--document-private-items -D rustdoc::broken_intra_doc_links -D rustdoc::private_intra_doc_links" cargo doc --offline -p modules-visibility-and-resolution --no-deps
+      - RUSTDOCFLAGS="-D rustdoc::broken_intra_doc_links" cargo doc --offline --manifest-path crates/skew_v2/Cargo.toml --no-deps
       - cargo build --offline --target x86_64-unknown-linux-gnu
 
   lint:
