@@ -30,7 +30,8 @@ export type LegacyOptionalTuple = [string, number?];
 export function legacyOptionalTuple(
   tuple: LegacyOptionalTuple,
 ): number | string {
-  return tuple[0];
+  const second = tuple[1];
+  return second === undefined ? tuple[0] : second;
 }
 
 export function legacyUndefinedWrite(profile: LegacyProfile): LegacyProfile {

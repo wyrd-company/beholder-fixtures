@@ -28,8 +28,9 @@ export function propagateAny(value: any): any {
   return nested?.token;
 }
 
-export function evolvingAny(seed: any): number {
-  let total = seed;
+export function evolvingAny(): number {
+  let total;
+  total = 1;
   total = total + 1;
   total = total.toFixed(0);
   return Number(total);

@@ -47,10 +47,8 @@ export function nestedMutation(ledger: NestedLedger): void {
   ledger.revision += 1;
 }
 
-export function runtimeMutationThroughAlias(
-  ledger: MutableLedger,
-  alias: MutableLedger,
-): void {
+export function runtimeMutationThroughAlias(ledger: MutableLedger): void {
+  const alias: MutableLedger = ledger;
   alias.entries.push("via-alias");
   ledger.revision = alias.revision + 1;
 }
@@ -67,9 +65,7 @@ export class GetterHost implements GetterOnly {
   }
 }
 
-export function readonlyArrayVariance(
-  source: readonly string[],
-): readonly string[] {
+export function readonlyArrayVariance(source: string[]): readonly string[] {
   return source;
 }
 

@@ -8,7 +8,11 @@ export class EmitterHost implements EventEmitter {
   }
 }
 
-export function bivariantMethod(host: EventEmitter): EventEmitter {
+export interface NarrowEventHost {
+  handle(event: "click" | "hover"): void;
+}
+
+export function bivariantMethod(host: NarrowEventHost): EventEmitter {
   return host;
 }
 

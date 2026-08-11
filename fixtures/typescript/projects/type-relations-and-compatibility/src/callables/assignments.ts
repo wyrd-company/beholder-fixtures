@@ -73,6 +73,10 @@ export function voidReturnSource(): number {
   return 1;
 }
 
+export function assignVoidReturn(): VoidReturnTarget {
+  return voidReturnSource;
+}
+
 export interface MutableGenericContainer<T> {
   value: T;
   onChange: (next: T) => void;

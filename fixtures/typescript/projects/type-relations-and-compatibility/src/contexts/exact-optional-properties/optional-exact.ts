@@ -54,6 +54,18 @@ export interface ExactOptionalNote {
   subtitle?: string;
 }
 
+export function exactOptionalMember(): {
+  withSubtitle: ExactOptionalNote;
+  withoutSubtitle: ExactOptionalNote;
+} {
+  const withSubtitle: ExactOptionalNote = {
+    title: "north",
+    subtitle: "detail",
+  };
+  const withoutSubtitle: ExactOptionalNote = { title: "south" };
+  return { withSubtitle, withoutSubtitle };
+}
+
 export function exactExplicitUndefinedWrite(
   profile: ExactOptionalWithUndefined,
 ): ExactOptionalWithUndefined {

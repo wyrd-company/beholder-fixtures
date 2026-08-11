@@ -27,7 +27,7 @@ export function spreadBypass(extra: {
   height: number;
   tint: string;
 }): Panel {
-  const { tint: _tint, ...panel } = extra;
+  const panel: Panel = { ...extra };
   return panel;
 }
 
