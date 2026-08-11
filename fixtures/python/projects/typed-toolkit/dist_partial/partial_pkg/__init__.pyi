@@ -1,3 +1,0 @@
-partial_value: int
-
-def partial_func(x: int) -> str: ...

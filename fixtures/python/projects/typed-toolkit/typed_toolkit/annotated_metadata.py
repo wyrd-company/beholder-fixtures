@@ -64,15 +64,17 @@ def extras_stripped_unless_requested_demo() -> dict[str, object]:
     }
 
 
-# --- Alias boundary variant: non-flattening alias ----------------------------
-# ``TypeAlias`` prevents flattening; nesting an alias via ``TypeAlias`` keeps
-# the inner ``Annotated`` boundary intact.  Without ``TypeAlias``, the alias
-# would flatten.
+# --- Alias boundary variant: non-flattening PEP 695 TypeAliasType -------------
+# A PEP 695 ``type`` statement creates a genuine ``TypeAliasType`` object rather
+# than an ordinary runtime assignment.  Nesting one alias inside ``Annotated``
+# keeps the inner alias as a distinct boundary: ``AliasedQuantity.__value__`` is
+# ``Annotated[Quantity, Range(0, 500)]`` whose first argument is the ``Quantity``
+# alias object, not the flattened ``int``.  An ordinary assignment alias would
+# instead flatten to ``Annotated[int, Unit("kg"), Range(0, 500)]`` -- the boundary
+# lost.  Inspect ``__value__`` to observe the preserved alias boundary.
 
-from typing import TypeAlias
-
-Quantity: TypeAlias = Annotated[int, Unit("kg")]
-AliasedQuantity: TypeAlias = Annotated[Quantity, Range(0, 500)]
+type Quantity = Annotated[int, Unit("kg")]
+type AliasedQuantity = Annotated[Quantity, Range(0, 500)]
 
 
 class AliasedHolder:
@@ -81,22 +83,27 @@ class AliasedHolder:
 
 
 def alias_flattening_demo() -> dict[str, object]:
-    hints_direct = get_type_hints(AliasedHolder, include_extras=True)
-    # ``Quantity`` preserves its Unit metadata; ``AliasedQuantity`` preserves
-    # both Unit and Range without flattening the inner alias away.
+    # Resolving the holder's annotations yields the ``TypeAliasType`` objects
+    # themselves -- the alias boundary survives at the class level too.
+    hints = get_type_hints(AliasedHolder, include_extras=True)
+    outer = get_args(AliasedQuantity.__value__)
+    inner = get_args(Quantity.__value__)
     return {
-        "direct_args": get_args(hints_direct["direct"])[1:],
-        "wrapped_args": get_args(hints_direct["wrapped"])[1:],
-        "direct_is_annotated": get_origin(hints_direct["direct"]) is Annotated,
-        "wrapped_is_annotated": get_origin(hints_direct["wrapped"]) is Annotated,
+        "direct_resolves_to_alias": hints["direct"] is Quantity,
+        "wrapped_resolves_to_alias": hints["wrapped"] is AliasedQuantity,
+        "wrapped_value_args": outer,
+        "wrapped_first_is_quantity": outer[0] is Quantity,
+        "wrapped_first_is_int": outer[0] is int,
+        "quantity_value_args": inner,
     }
 
 
 def alias_boundary_preserved() -> bool:
-    hints = get_type_hints(AliasedHolder, include_extras=True)
-    direct_meta = list(get_args(hints["direct"])[1:])
-    wrapped_meta = list(get_args(hints["wrapped"])[1:])
-    return any(m == Unit("kg") for m in direct_meta) and any(m == Range(0, 500) for m in wrapped_meta)
+    # Non-flattening proof: the outer alias value keeps the inner ``Quantity``
+    # alias as its first argument instead of collapsing to ``int``.
+    outer = get_args(AliasedQuantity.__value__)
+    inner = get_args(Quantity.__value__)
+    return outer[0] is Quantity and outer[0] is not int and inner[0] is int
 
 
 # --- Order-sensitive equality variant -----------------------------------------

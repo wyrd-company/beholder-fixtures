@@ -1,0 +1,6 @@
+[project]
+name = "typed-toolkit-partial-stubs"
+version = "0.1.0"
+description = "Partial stub-only overlay for the typed-toolkit-partial runtime distribution"
+requires-python = ">=3.10"
+readme = "README.md"

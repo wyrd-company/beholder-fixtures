@@ -5,14 +5,14 @@ tasks:
     desc: Byte-compile all fixture-owned packages.
     dir: '{{.TASKFILE_DIR}}'
     cmds:
-      - python3 -m compileall -q typed_toolkit dist_marker_present dist_marker_absent dist_partial dist_extension
+      - python3 -m compileall -q typed_toolkit dist_marker_present dist_marker_absent dist_partial_runtime dist_partial_stubs dist_extension
 
   lint:
     desc: Parse and byte-compile every fixture-owned source file.
     dir: '{{.TASKFILE_DIR}}'
     cmds:
       - >-
-        find typed_toolkit dist_marker_present dist_marker_absent dist_partial dist_stub_only dist_extension -type f \( -name '*.py' -o -name '*.pyi' \) -print0 |
+        find typed_toolkit dist_marker_present dist_marker_absent dist_partial_runtime dist_partial_stubs dist_stub_only dist_extension -type f \( -name '*.py' -o -name '*.pyi' \) -print0 |
         xargs -0 python3 -m py_compile
 
   test:
