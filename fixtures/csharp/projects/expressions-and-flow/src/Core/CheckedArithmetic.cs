@@ -1,3 +1,5 @@
+using ExpressionsFlow.CheckedShared;
+
 namespace ExpressionsFlow.Core;
 
 public readonly struct CheckedCounter
@@ -31,8 +33,16 @@ public readonly struct CheckedCounter
 
 public static class CheckedArithmetic
 {
-    // Constant overflow is compile-time error when checked, diagnsotic:
-    //   const int bad = checked(int.MaxValue + 1); // CS0220 overflow
+    // Constant checked and unchecked arithmetic/conversion
+    public const int ConstCheckedSum = checked(10 + 20);
+    public const int ConstUncheckedWrap = unchecked(int.MaxValue + 1);
+    public const int ConstCheckedConversion = checked((int)123L);
+    public const int ConstUncheckedConversion = unchecked((int)4294967296L);
+    public const int ConstCheckedAdd = checked(100 + 200);
+    public const int ConstUncheckedAdd = unchecked(int.MaxValue + 10);
+
+    public static int UseConsts() => ConstCheckedSum + ConstUncheckedWrap + ConstCheckedConversion + ConstUncheckedConversion;
+
     public static int ConstantCheckedOverflow()
     {
         checked
@@ -90,6 +100,15 @@ public static class CheckedArithmetic
         }
     }
 
+    // Constant operations exercised live
+    public static int CheckedConstOperation() => checked(10 + 20);
+
+    public static int UncheckedConstOperation() => unchecked(int.MaxValue + 1);
+
+    public static int CheckedConstConversionLive() => checked((int)123L);
+
+    public static int UncheckedConstConversionLive() => unchecked((int)4294967296L);
+
     // Decimal versus floating behavior: decimal overflow always throws; floating wraps to infinity
     public static decimal DecimalChecked(decimal a, decimal b) => checked(a + b);
 
@@ -112,8 +131,29 @@ public static class CheckedArithmetic
         }
     }
 
-    // Dependency body retains compiled semantics even when called from checked context.
-    // The callee's body was compiled as written (unchecked by default unless checked block).
+    // Dependency body retaining separately compiled semantics: call helper compiled in checked-project
+    public static int CallCheckedDependency(int a, int b)
+    {
+        // CheckedSharedOps.CheckedAdd is compiled with CheckForOverflowUnderflow=true,
+        // so it throws on overflow even when caller is unchecked.
+        return CheckedSharedOps.CheckedAdd(a, b);
+    }
+
+    public static int CallCheckedDependencyViaCheckedContext(int a, int b)
+    {
+        checked
+        {
+            return CheckedSharedOps.CheckedAdd(a, b);
+        }
+    }
+
+    public static int CallUncheckedDependencyFromChecked()
+    {
+        // CheckedSharedOps.UncheckedOverride is compiled with local unchecked override inside checked project,
+        // so it wraps even though its project is checked.
+        return CheckedSharedOps.UncheckedOverride(int.MaxValue, 1);
+    }
+
     private static int UncheckedHelper(int a, int b) => unchecked(a + b);
 
     public static int CallUncheckedHelperChecked(int a, int b)

@@ -1,34 +1,26 @@
 namespace ExpressionsFlow.CSharp13;
 
+public sealed class IndexHost
+{
+    public List<int> Items { get; } = new() { 10, 20, 30, 40 };
+}
+
 public static class ImplicitIndex
 {
-    // Implicit index initializer (C# 13): allows index-from-end in collection initializer context
-    public static Dictionary<string, int> DictionaryWithIndex()
+    // C# 13 implicit index access inside object initializer: nested member initializer with index-from-end
+    public static IndexHost HostWithImplicitIndex()
     {
-        return new Dictionary<string, int>
-        {
-            ["alpha"] = 1,
-            ["beta"] = 2,
-        };
+        return new IndexHost { Items = { [^1] = 99, [^2] = 88 } };
     }
 
-    // C# 13 also permits ^ in initializer index expressions with suitable collection
-    public static List<int> ListWithFromEnd()
+    public static IndexHost HostSingle()
     {
-        var list = new List<int> { 10, 20, 30 };
-        list[^1] = 99;
-        list[^2] = 88;
-        return list;
+        return new IndexHost { Items = { [^1] = 42 } };
     }
 
-    public static Dictionary<string, int> WithImplicitFromEnd()
+    public static int ReadImplicit()
     {
-        var items = new List<int> { 1, 2, 3, 4 };
-        items[^1] = 40;
-        return new Dictionary<string, int>
-        {
-            ["first"] = items[0],
-            ["last"] = items[^1],
-        };
+        var host = HostWithImplicitIndex();
+        return host.Items[^1];
     }
 }

@@ -14,8 +14,14 @@ public ref struct InventoryInterpolatedStringHandler
         _ = formattedCount;
     }
 
-    // Overload with receiver/arguments forwarding could capture additional state;
-    // this minimal handler demonstrates conditional Append and forwarded literal length.
+    public InventoryInterpolatedStringHandler(int literalLength, int formattedCount, string label, out bool shouldAppend)
+    {
+        shouldAppend = label.Length > 0;
+        _builder = new System.Text.StringBuilder(literalLength);
+        _ = formattedCount;
+        _builder.Append($"[{label}]");
+    }
+
     public void AppendLiteral(string s) => _builder.Append(s);
 
     public void AppendFormatted<T>(T value) => _builder.Append(value?.ToString());
@@ -47,22 +53,42 @@ public ref struct InventoryInterpolatedStringHandler
         _builder.Append(text);
     }
 
-    public bool AppendIfAvailable(string label, int count)
-    {
-        if (count > 0)
-        {
-            _builder.Append(label);
-            _builder.Append(':');
-            _builder.Append(count);
-            return true;
-        }
-
-        return false;
-    }
-
     public string ToStringAndClear() => _builder.ToString();
 
     public override string ToString() => _builder.ToString();
+}
+
+[InterpolatedStringHandler]
+public ref struct ConditionalHandler
+{
+    private readonly System.Text.StringBuilder _builder;
+    private readonly bool _shouldAppend;
+
+    public ConditionalHandler(int literalLength, int formattedCount, bool condition, out bool shouldAppend)
+    {
+        shouldAppend = condition;
+        _shouldAppend = shouldAppend;
+        _builder = new System.Text.StringBuilder(literalLength);
+        _ = formattedCount;
+    }
+
+    public void AppendLiteral(string s)
+    {
+        if (_shouldAppend)
+        {
+            _builder.Append(s);
+        }
+    }
+
+    public void AppendFormatted<T>(T value)
+    {
+        if (_shouldAppend)
+        {
+            _builder.Append(value?.ToString());
+        }
+    }
+
+    public string ToStringAndClear() => _builder.ToString();
 }
 
 public static class Interpolation
@@ -95,7 +121,18 @@ public static class Interpolation
 
     public static string CultureSpecific(double value) => FormattableString.Invariant($"{value:F1}");
 
-    // Skipped hole evaluation: argument not evaluated when handler conditionally skips
+    // Handler with forwarded receiver/arguments: compiler forwards label and controls construction via out shouldAppend
+    public static string HandlerWithForwarded(string label, int count)
+    {
+        return FormatForwarded(label, $"catalog:{label}:{count}");
+    }
+
+    private static string FormatForwarded(string label, [InterpolatedStringHandlerArgument("label")] InventoryInterpolatedStringHandler handler)
+    {
+        return handler.ToStringAndClear();
+    }
+
+    // Conditional handler: holes are skipped when condition is false via out shouldAppend protocol
     private static int _holeEvals;
 
     private static int CountedHole()
@@ -104,28 +141,34 @@ public static class Interpolation
         return 99;
     }
 
-    public static string HandlerWithForwarded(string label, int count)
+    public static string ConditionalWithHandler(bool condition, int value)
     {
-        // Forwarded receiver/arguments would be a logger/span; here we show handler with literal length.
-        // The handler's AppendIfAvailable demonstrates conditional append.
-        InventoryInterpolatedStringHandler handler = new(10, 2);
-        handler.AppendLiteral("catalog:");
-        handler.AppendFormatted(label);
-        handler.AppendIfAvailable("count", count);
+        return FormatConditional(condition, $"value:{value}");
+    }
+
+    public static int ConditionalHoleCount(bool condition)
+    {
+        _holeEvals = 0;
+        FormatConditional(condition, $"value:{CountedHole()}");
+        return _holeEvals;
+    }
+
+    private static string FormatConditional(bool condition, [InterpolatedStringHandlerArgument("condition")] ConditionalHandler handler)
+    {
         return handler.ToStringAndClear();
     }
 
-    public static void HandlerOverload(InventoryInterpolatedStringHandler handler) => _ = handler.ToString();
+    // String versus handler overload set: same method name, different parameter type
+    public static void Process(string text) => _ = text.Length;
 
-    public static void StringOverload(string text) => _ = text.Length;
+    public static void Process(InventoryInterpolatedStringHandler handler) => _ = handler.ToStringAndClear();
 
-    // String versus handler overload choice
     public static void OverloadChoice(string label)
     {
-        // Prefers string overload when passed as string interpolation without handler target
-        StringOverload($"label:{label}");
-        // Prefers handler overload when target is handler
-        HandlerOverload($"label:{label}");
+        // Handler overload is selected for interpolated string argument without cast
+        Process($"label:{label}");
+        // String overload is selected when explicitly cast to string
+        Process((string)$"label:{label}");
     }
 
     // Ref-struct lifetime: handler is ref struct and cannot be boxed or captured
@@ -138,7 +181,7 @@ public static class Interpolation
         return handler.ToStringAndClear();
     }
 
-    // Skipped hole: evaluation count shows hole evaluated only when interpolated.
+    // Kept hole evaluation for non-handler path (always evaluates)
     public static int HoleEvaluationCount()
     {
         _holeEvals = 0;

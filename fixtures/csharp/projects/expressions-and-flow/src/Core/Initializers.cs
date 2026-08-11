@@ -25,6 +25,11 @@ public sealed class CatalogEntry
     }
 }
 
+public sealed class EntryHost
+{
+    public CatalogEntry Inner { get; set; } = new CatalogEntry("host-inner");
+}
+
 public sealed class AddCollection : System.Collections.Generic.IEnumerable<int>
 {
     private readonly List<int> _items = new();
@@ -66,6 +71,8 @@ public record struct PointRecord(int X, int Y);
 
 public static class Initializers
 {
+    public static readonly List<string> InitOrderLog = new();
+
     // Object initializer with required/init members, constructor-before-initializer order
     public static CatalogEntry ObjectInitializer()
     {
@@ -78,39 +85,36 @@ public static class Initializers
     {
         var entry = new CatalogEntry { Label = "root" };
         entry.Nested = new CatalogEntry { Label = "child" };
-        var container = new CatalogEntry { Label = "parent" };
-        container.Tags.Add("alpha");
-        var nestedCollectionInit = new CatalogEntry
-        {
-            Label = "outer",
-            Nested = new CatalogEntry { Label = "inner", Count = 2 },
-        };
-        _ = container;
-        _ = nestedCollectionInit;
+        _ = entry;
         return entry;
     }
 
-    // Alternative valid nested initializer where Nested is initialized before nested member init
+    // Correct nested member-initializer syntax: member is initialized before initializer, then mutated via Inner = { }
     public static CatalogEntry NestedMemberInitializer()
     {
-        return new CatalogEntry
-        {
-            Label = "outer",
-            Nested = new CatalogEntry { Label = "inner", Count = 2 },
-        };
+        var host = new EntryHost();
+        var entry = new EntryHost { Inner = { Tags = { "mutated" } } };
+        // Inner was already initialized via Host's default; the initializer mutates Inner.Tags rather than replacing Inner
+        _ = host;
+        InitOrderLog.Add($"NestedMember:{entry.Inner.Label}:{entry.Inner.Tags.Count}");
+        return entry.Inner;
+    }
+
+    // Alternative host with Tags collection nested initializer
+    public static CatalogEntry NestedCollectionMutation()
+    {
+        return new CatalogEntry { Label = "outer", Tags = { "alpha", "beta" } };
     }
 
     // Collection initializer with Add overloads including extension Add
     public static AddCollection CollectionInitializer()
     {
-        return new AddCollection { 1, 2, 3, "4" };
+        return new AddCollection { { 1, 2 }, 3, "4" };
     }
 
     public static AddCollection MixedAddShapes()
     {
-        // Uses Add(int), Add(int,int) is not reachable from collection initializer syntax,
-        // but Add via extension with string is demonstrated above.
-        return new AddCollection { 10, 20 };
+        return new AddCollection { { 10, 20 }, 30 };
     }
 
     // Dictionary index setters
@@ -167,18 +171,57 @@ public static class Initializers
         return new CatalogEntry("ctor-label") { Count = 99 };
     }
 
-    // Partial object after exception: if initializer throws, object may be partially initialized.
+    // Partial object after exception: later initializer assignment throws, earlier assignments already applied
     public static CatalogEntry? PartialAfterException()
     {
+        InitOrderLog.Clear();
+        CatalogEntry? observed = null;
         try
         {
-            return new CatalogEntry { Label = ThrowingLabel() };
+            observed = new CatalogEntry { Label = LogLabel("pre"), Count = ThrowingCount() };
+        }
+        catch (InvalidOperationException ex)
+        {
+            InitOrderLog.Add($"caught:{ex.Message}");
+        }
+
+        // InitOrderLog contains "Label:pre" proving constructor and first initializer ran before Count threw;
+        // observed remains null because assignment never completed, but construction is observable via log.
+        // For a retained object shape, return a second object that preserves the first property:
+        if (InitOrderLog.Contains("Label:pre"))
+        {
+            return new CatalogEntry { Label = "recovered", Count = 0 };
+        }
+
+        return observed;
+    }
+
+    // Retained partial shape: outer object already assigned before later nested initializer throws
+    public static EntryHost? PartialNestedRetained()
+    {
+        InitOrderLog.Clear();
+        var host = new EntryHost { Inner = { Tags = { "before" } } };
+        try
+        {
+            // This initializer mutates existing Inner; if the later assignment throws, host.Inner.Tags already reflects earlier mutation
+            host = new EntryHost { Inner = { Tags = { ThrowingLabel() } } };
         }
         catch (InvalidOperationException)
         {
-            return null;
+            // host still refers to first successfully created EntryHost with Inner.Tags.Count = 1
+            InitOrderLog.Add($"retained:{host.Inner.Tags.Count}");
         }
+
+        return host;
     }
+
+    private static string LogLabel(string value)
+    {
+        InitOrderLog.Add($"Label:{value}");
+        return value;
+    }
+
+    private static int ThrowingCount() => throw new InvalidOperationException("init failure");
 
     private static string ThrowingLabel() => throw new InvalidOperationException("init failure");
 
@@ -207,6 +250,9 @@ public static class InitializerExercises
         var f = Initializers.WithStruct();
         var g = Initializers.ConstructorBeforeInitializer();
         var h = Initializers.IndexFromEndInInitializer();
-        return a.Count + b.Count + c.Items.Count + d.Count + e.Count + f.Y + g.Count + h;
+        var i = Initializers.NestedCollectionMutation();
+        _ = Initializers.PartialAfterException();
+        _ = Initializers.PartialNestedRetained();
+        return a.Count + b.Count + c.Items.Count + d.Count + e.Count + f.Y + g.Count + h + i.Tags.Count;
     }
 }

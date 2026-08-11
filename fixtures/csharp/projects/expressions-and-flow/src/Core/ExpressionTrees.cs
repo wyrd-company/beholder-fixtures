@@ -15,16 +15,27 @@ public static class ExpressionTrees
         return x => x * factor;
     }
 
-    // Quoted nested lambda (lambda inside expression tree)
-    public static Expression<Func<int, Func<int, int>>> QuotedNested()
+    // Quoted nested lambda: inner expected type is Expression, so Roslyn emits Quote node
+    public static Expression<Func<int, Expression<Func<int, int>>>> QuotedNested()
     {
-        return x => (int y) => x + y;
+        return x => y => x + y;
+    }
+
+    public static Expression<Func<int, Expression<Func<int, int>>>> QuotedNestedWithCapture(int outer)
+    {
+        return x => y => x + y + outer;
     }
 
     // Inspection
     public static string Inspect(Expression<Func<int, int>> expr)
     {
         return expr.Body.NodeType.ToString();
+    }
+
+    public static string InspectQuote(Expression<Func<int, Expression<Func<int, int>>>> expr)
+    {
+        var body = (UnaryExpression)expr.Body;
+        return body.NodeType.ToString();
     }
 
     // Compile and invoke
@@ -65,6 +76,15 @@ public static class ExpressionTrees
     {
         var expr = AddExpression(addend);
         return CompileAndRun(expr, input);
+    }
+
+    public static int ExecuteQuoted(int outer, int inner)
+    {
+        var expr = QuotedNested();
+        var outerFn = expr.Compile();
+        var innerExpr = outerFn(outer);
+        var innerFn = innerExpr.Compile();
+        return innerFn(inner);
     }
 
     // Unsupported statement, async, dynamic, optional/named/ref, conditional-access, pattern, tuple

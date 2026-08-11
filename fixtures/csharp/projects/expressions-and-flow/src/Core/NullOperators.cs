@@ -9,6 +9,14 @@ public sealed class Container
     public string Describe() => Label ?? "empty";
 }
 
+public static class ContainerExtensions
+{
+    public static string DescribeExtension(this Container container) =>
+        $"ext:{container.Label ?? "empty"}";
+
+    public static int TagCount(this Container container) => container.Tags.Count;
+}
+
 public static class NullOperators
 {
     // ?? and ??= with short-circuit and side effects
@@ -30,26 +38,22 @@ public static class NullOperators
 
     public static string? ConditionalAccess(Container? container) => container?.Label;
 
-    public static string? ConditionalElementAccess(Container? container, int index)
-    {
-        // ?[] conditional element access
-        var list = container?.Tags;
-        if (list is null || index < 0 || index >= list.Count)
-        {
-            return null;
-        }
+    public static string? ConditionalElementAccess(Container? container, int index) =>
+        container?.Tags?[index];
 
-        return list[index];
-    }
+    public static string? ConditionalElementAccessSafe(Container? container, int index) =>
+        container?.Tags?[index] ?? "none";
 
-    public static int ChainedConditionalAccess(Container? a, Container? b) =>
-        (a?.Label ?? b?.Label)?.Length ?? -1;
+    // Chained versus parenthesized conditional access: parentheses terminate one chain and change subsequent access
+#pragma warning disable CS8602
+    public static int? ChainedConditional(Container? container) => container?.Label.Length;
+#pragma warning restore CS8602
 
-    public static int ParenthesizedConditionalAccess(Container? a)
-    {
-        // (a?.Label) ?.Length demonstrates parenthesized conditional access
-        return (a?.Label)?.Length ?? -1;
-    }
+    public static int? ParenthesizedConditional(Container? container) => (container?.Label)?.Length;
+
+    public static string? ChainedAccess(Container? container) => container?.Label?.ToUpperInvariant();
+
+    public static string? ParenthesizedAccess(Container? container) => (container?.Label)?.ToUpperInvariant();
 
     // Extension and ref member interaction via conditional access on extension-like pattern:
     // For a generic receiver, ?. still short-circuits.
@@ -105,8 +109,12 @@ public static class NullOperators
         return input.Length;
     }
 
+    // Extension interaction via conditional access
     public static int ConditionalAccessExtension(Container? container) =>
-        container?.Describe()?.Length ?? 0;
+        container?.DescribeExtension()?.Length ?? 0;
+
+    public static int ExtensionTagCount(Container? container) =>
+        container?.TagCount() ?? -1;
 
     // ! preserves reference identity: object.ReferenceEquals after forgiving
     public static bool ForgivingIdentity(string? input)

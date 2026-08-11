@@ -8,6 +8,27 @@ public sealed record CrateItem(string Label, int Weight) : CatalogItem(Label);
 
 public sealed record PointItem(int X, int Y);
 
+public sealed class SideEffectItem
+{
+    private string _label;
+    private int _reads;
+
+    public SideEffectItem(string label) => _label = label;
+
+    public string Label
+    {
+        get
+        {
+            _reads++;
+            return _label;
+        }
+
+        set => _label = value;
+    }
+
+    public int Reads => _reads;
+}
+
 public static class PatternMatching
 {
     // Declaration pattern
@@ -43,8 +64,23 @@ public static class PatternMatching
     // Property pattern
     public static bool IsLargeBook(CatalogItem item) => item is BookItem { Pages: > 300, Author.Length: > 3 };
 
+    // Side-effecting property pattern
+    public static bool IsSideEffectMatch(SideEffectItem item) => item is { Label: "stock" };
+
+    public static bool IsSideEffectLength(SideEffectItem item) => item is { Label.Length: > 3 };
+
     // Positional pattern via Deconstruct
     public static bool IsOrigin(PointItem point) => point is (0, 0);
+
+    // Custom Deconstruct binding: TaggedPoint positional pattern
+    public static bool IsTaggedOrigin(TaggedPoint point) => point is (0, 0);
+
+    public static string DescribeTagged(TaggedPoint point) => point switch
+    {
+        (0, 0) => "origin",
+        (1, var y) => $"x1 y{y}",
+        _ => "other",
+    };
 
     // Recursive pattern (nested property + positional)
     public static bool IsAuthoredBook(CatalogItem item) => item is BookItem { Author: var author, Pages: > 100 } && author.StartsWith("A");
@@ -68,7 +104,19 @@ public static class PatternMatching
 
     public static bool IsNonNullPattern(object? input) => input is not null;
 
-    // Guard (when) and side-effecting property evaluation
+    // Span-string constant pattern
+    public static bool IsSpanConstant(ReadOnlySpan<char> span) => span is "stock";
+
+    public static bool IsSpanHello(Span<char> span) => span is "hello";
+
+    public static string ClassifySpan(ReadOnlySpan<char> span) => span switch
+    {
+        "hello" => "greeting",
+        "stock" => "inventory",
+        _ => "other",
+    };
+
+    // Guard (when) and side-effecting property evaluation via guard plus property pattern
     private static int _guardEvaluations;
 
     public static string GuardedBook(CatalogItem item) => item switch
@@ -88,11 +136,8 @@ public static class PatternMatching
     // Nullable narrowing
     public static int NullableNarrowing(int? value) => value is int v ? v : -1;
 
-    // Span string pattern via string? Demonstrates constant and type narrowing on span-accessible string
+    // Span length via string pattern (kept) plus new span constant pattern above
     public static bool IsSpanLength(string? text) => text is string { Length: > 0 };
-
-    // Custom Deconstruct and list shape binding is demonstrated via PointItem.Deconstruct below
-    // and evaluated in positional and property patterns above.
 
     // And/or variable restrictions: a variable declared inside an 'or' branch is not definite outside.
     // Valid form declares outside or uses var pattern to capture.
