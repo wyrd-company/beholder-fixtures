@@ -1,0 +1,53 @@
+builders:
+  tool_summary_builder:
+    import: "package:toolshed_catalog/src/builders.dart"
+    builder_factories: [ "toolSummaryBuilder" ]
+    build_extensions: { ".dart": [ ".g.dart" ] }
+    auto_apply: root_package
+    build_to: source
+
+  crate_manifest_builder:
+    import: "package:toolshed_catalog/src/builders.dart"
+    builder_factories: [ "crateManifestBuilder" ]
+    build_extensions: { ".dart": [ ".crate.g.dart" ] }
+    auto_apply: root_package
+    build_to: source
+
+  # First stage of the DART-CAN-BUILD-003 asset graph: consumes the non-Dart
+  # bench_catalog.catalog.json input. `build_to: cache` keeps its output out
+  # of lib/ and out of source control; it exists only to feed
+  # catalog_data_builder below. `targets.$default` narrows it to the catalog
+  # directory with `generate_for`.
+  catalog_index_builder:
+    import: "package:toolshed_catalog/src/builders.dart"
+    builder_factories: [ "catalogIndexBuilder" ]
+    build_extensions: { ".catalog.json": [ ".catalog.index.json" ] }
+    auto_apply: root_package
+    build_to: cache
+
+  # Second, transitive stage: its input extension is catalog_index_builder's
+  # output extension, not a source-file extension, so build_runner can only
+  # schedule it after that builder runs. Its committed `.catalog.g.dart`
+  # output is the config-driven generator output required by
+  # DART-CAN-BUILD-003's asset-graph coverage.
+  catalog_data_builder:
+    import: "package:toolshed_catalog/src/builders.dart"
+    builder_factories: [ "catalogDataBuilder" ]
+    build_extensions: { ".catalog.index.json": [ ".catalog.g.dart" ] }
+    auto_apply: root_package
+    build_to: source
+
+targets:
+  $default:
+    builders:
+      # DART-CAN-BUILD-003's `generate_for` narrowing: only the catalog
+      # directory's `.catalog.json` inputs feed this builder. A leading `:`
+      # targets a builder defined by this same package.
+      :catalog_index_builder:
+        generate_for:
+          - lib/src/catalog/*.catalog.json
+      # DART-CAN-BUILD-003's builder option: when false, generated tool
+      # descriptions omit each tool's product code.
+      :catalog_data_builder:
+        options:
+          include_codes: true

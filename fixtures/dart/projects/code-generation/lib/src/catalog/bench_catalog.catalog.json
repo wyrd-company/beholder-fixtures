@@ -1,0 +1,8 @@
+{
+  "crateId": "bench-1",
+  "tools": [
+    { "name": "bench vise", "code": "VSE-02" },
+    { "name": "torque wrench", "code": "TRQ-14" },
+    { "name": "feeler gauge", "code": "FLR-07" }
+  ]
+}

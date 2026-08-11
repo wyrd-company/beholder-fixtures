@@ -1,0 +1,50 @@
+# ---
+# relationships:
+#   references:
+#     - coverage
+# ---
+version: '3'
+
+vars:
+  PUB_CACHE: '{{.TASKFILE_DIR}}/vendor/pub-cache'
+
+tasks:
+  generate:
+    desc: >-
+      Invoke the generators and overwrite committed generated source. The
+      only task permitted to write generated source; build, lint, and test
+      never call it.
+    dir: '{{.TASKFILE_DIR}}'
+    env:
+      PUB_CACHE: '{{.PUB_CACHE}}'
+    cmds:
+      - dart pub get --offline
+      - dart run build_runner build --delete-conflicting-outputs
+      - dart run ffigen --config ffigen.yaml
+      - dart format lib bin
+
+  build:
+    desc: Resolve offline, analyze, and run the declared entry point.
+    dir: '{{.TASKFILE_DIR}}'
+    env:
+      PUB_CACHE: '{{.PUB_CACHE}}'
+    cmds:
+      - dart pub get --offline
+      - dart analyze
+      - dart run bin/catalog_main.dart
+
+  lint:
+    desc: Check dart format and run dart analyze.
+    dir: '{{.TASKFILE_DIR}}'
+    env:
+      PUB_CACHE: '{{.PUB_CACHE}}'
+    cmds:
+      - dart pub get --offline
+      - dart format --output=none --set-exit-if-changed lib bin
+      - dart analyze
+
+  test:
+    desc: Succeed with no planned test files.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - ':'
