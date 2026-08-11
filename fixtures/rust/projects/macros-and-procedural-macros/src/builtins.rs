@@ -28,12 +28,9 @@ pub fn formatting_demo() -> String {
     format!("{formatted}:{}", args)
 }
 
-// cfg! boolean (retain ill-typed branch demonstration)
+// cfg! boolean (does not remove code; both branches remain type-checked)
 pub fn cfg_demo() -> bool {
-    // cfg! returns bool, does not remove code
     let is_unix = cfg!(unix);
-    // Demonstrate that cfg! retains ill-typed branch behind cfg that would be invalid if executed differently
-    // The branch is still type-checked but not causing error because both branches are valid syntax
     let _unused = if cfg!(unix) { 1u32 } else { 2u32 };
     is_unix || !is_unix
 }

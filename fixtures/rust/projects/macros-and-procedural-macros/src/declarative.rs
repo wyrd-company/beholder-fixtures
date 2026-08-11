@@ -119,20 +119,22 @@ pub fn output_kinds_demo() -> u32 {
 }
 
 // Cross-edition fragment grammar differences (2015 expr, 2021 pat_param, 2024 expr_2021)
-// 2024 edition: expr vs expr_2021 distinction (RFC macro fragment 2024)
-// This crate is edition 2024, so expr handles 2024 follow-set
+// 2024 edition: `expr` includes new syntax, `expr_2021` captures the 2021 fragment grammar
 #[macro_export]
-macro_rules! expr_2024_wrapper {
+macro_rules! expr_2024_demo {
     ($e:expr) => {
         $e
     };
+}
+#[macro_export]
+macro_rules! expr_2021_demo {
     ($e:expr_2021) => {
         $e
     };
 }
 
 pub fn expr_2024_demo() -> u32 {
-    expr_2024_wrapper!(1 + 2)
+    expr_2024_demo!(1 + 2) + expr_2021_demo!(1 + 2)
 }
 
 // Counterexamples (invalid, not compiled) documented in docs/counterexamples.md:

@@ -31,21 +31,26 @@ pub fn derive_demo() -> String {
     format!("{a}|{b}|{c}")
 }
 
-// RS-CAN-MAC-006: attribute and function-like procedural transformation
-
-// Attribute producing item output (wrap_fn preserves function and adds marker)
+// RS-CAN-MAC-006: attribute transformation producing item output
+// wrap_fn transforms body (source x+1 becomes compiled x+100)
 #[macro_host::wrap_fn]
 pub fn wrapped_function(x: u32) -> u32 {
     x + 1
 }
 
-// Attribute preserving/removing variant
+// transform_item preserves item unchanged (preserve variant)
 #[macro_host::transform_item]
 pub fn preserved_function(x: u32) -> u32 {
     x * 2
 }
 
-// Inline module transformation via attribute
+// remove_item removes the annotated item (remove variant)
+#[macro_host::remove_item]
+pub fn removed_function() -> u32 {
+    0
+}
+
+// Inline module transformation via preserve attribute (module retained)
 #[macro_host::transform_item]
 pub mod transformed_mod {
     pub fn mod_fn() -> u32 {

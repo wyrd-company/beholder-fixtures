@@ -6,14 +6,13 @@ decl_provider::define_family!(AlphaItem, BetaItem, GammaItem);
 // Procedural item generation via macro_host
 macro_host::make_item!(ProcGeneratedStruct);
 
-// Procedural concat_idents demonstration
+// Procedural concat_idents demonstration - stable identifier concatenation
 macro_host::make_item!(Hello);
 macro_host::make_item!(World);
+macro_host::make_item!(HelloWorld);
+type ViaConcat = macro_host::concat_idents!(Hello, World);
 pub fn concat_demo() -> u32 {
-    // concat_idents!(Hello, World) would produce `HelloWorld` identifier
-    // We generate HelloWorld via separate make_item to show companion without needing nightly concat_idents
-    macro_host::make_item!(HelloWorld);
-    let hw = HelloWorld { value: 7 };
+    let hw: ViaConcat = ViaConcat { value: 7 };
     hw.get()
 }
 

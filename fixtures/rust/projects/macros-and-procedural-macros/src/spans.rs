@@ -1,25 +1,27 @@
 //! RS-CAN-MAC-007: procedural spans and hygiene.
 
-// Demonstrate span-carrying generated identifiers and caller resolution distinction
-// without depending on diagnostic coordinates.
+pub const MIXED_SITE_OUTER_VALUE: u32 = 200;
 
-// Call-site span: identifier resolves as if written at call site
+// Call-site span: `call_site_value` with Span::call_site() resolves to caller's local binding
 pub fn call_site_demo() -> u32 {
     let call_site_value = 10u32;
-    // macro expands to `call_site_value` with Span::call_site(), resolving to above binding
     let resolved = macro_host::call_site_ident!();
-    resolved + 5 // 10 + 5 = 15
+    resolved + 5
 }
 
-// Mixed-site span: hygienic define does not collide with caller binding
+// Mixed-site span: `MIXED_SITE_OUTER_VALUE` with Span::mixed_site() resolves to outer item (200)
 pub fn mixed_site_demo() -> u32 {
-    let mixed_site_value = 20u32;
-    // hygienic_define generates `let __hygienic_generated = 1u32;` with mixed_site hygiene
+    let via_mixed = macro_host::mixed_site_ident!();
     macro_host::hygienic_define!();
-    // Caller defines same name but hygienic distinction prevents collision (both coexist via hygiene)
-    // Use caller binding plus generated binding (generated is hygienic, caller shadows but both valid)
     let __hygienic_generated = 2u32;
-    mixed_site_value + __hygienic_generated
+    via_mixed + __hygienic_generated
+}
+
+// Hygienic define: `__hygienic_generated` with Span::mixed_site() is hygienic, caller binding distinct
+pub fn hygienic_binding_demo() -> u32 {
+    macro_host::hygienic_define!();
+    let __hygienic_generated = 10u32;
+    __hygienic_generated + 1
 }
 
 // Demonstrate that absolute paths with call_site still resolve correctly downstream
@@ -35,5 +37,5 @@ pub mod downstream {
 // Counterexample: generating duplicate identifier with call_site would collide (documented)
 
 pub fn spans_summary() -> u32 {
-    call_site_demo() + mixed_site_demo()
+    call_site_demo() + mixed_site_demo() + hygienic_binding_demo()
 }

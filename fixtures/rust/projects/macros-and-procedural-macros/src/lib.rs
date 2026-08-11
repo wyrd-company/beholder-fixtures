@@ -54,7 +54,7 @@ pub fn fixture_summary() -> &'static str {
 }
 
 // RS-CAN-PROJ-018: generated test main coverage via libtest harness
-// This is the single planned test target; its existence proves libtest-generated main.
+// Single planned test target whose existence proves libtest-generated main.
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -62,11 +62,5 @@ mod tests {
     #[test]
     fn generated_main_smoke() {
         assert_eq!(fixture_summary(), "macros-and-procedural-macros");
-    }
-
-    #[test]
-    fn test_harness_collects() {
-        // Another test to show harness collects multiple #[test] items
-        assert_eq!(2 + 2, 4);
     }
 }

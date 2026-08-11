@@ -1,12 +1,12 @@
 #![allow(dead_code)]
 
 // RS-CAN-MAC-001: edition 2021 fragment grammar pat vs pat_param
-// Since 1.88/2021, `pat` excludes leading `|`; `pat_param` includes it
+// `pat` allows top-level or-pattern `A | B`, `pat_param` is used where leading `|` is not part of the param
 #[macro_export]
 macro_rules! pat_2021_demo {
     ($p:pat) => {
-        match Some(10u32) {
-            Some($p) => 1u32,
+        match 10u32 {
+            $p => 1u32,
             _ => 0u32,
         }
     };
@@ -14,12 +14,10 @@ macro_rules! pat_2021_demo {
 
 #[macro_export]
 macro_rules! pat_param_2021_demo {
-    ($p:pat_param) => {
-        match Some(10u32) {
-            Some($p) => 1u32,
-            _ => 0u32,
-        }
-    };
+    ($p:pat_param) => {{
+        let $p = 10u32;
+        1u32
+    }};
 }
 
 pub fn edition_id() -> &'static str {
@@ -27,7 +25,7 @@ pub fn edition_id() -> &'static str {
 }
 
 pub fn pat_demo() -> u32 {
-    pat_2021_demo!(x)
+    pat_2021_demo!(0 | 1)
 }
 
 pub fn pat_param_demo() -> u32 {

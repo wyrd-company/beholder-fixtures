@@ -22,13 +22,6 @@ macro_rules! bind_caller {
     };
 }
 
-// Reference invocation-site item via explicit metavar (caller provides identifier)
-macro_rules! reference_caller {
-    ($var:ident) => {
-        $var + 10
-    };
-}
-
 // $crate through downstream re-export
 #[macro_export]
 macro_rules! crate_helper_call {
@@ -40,6 +33,13 @@ macro_rules! crate_helper_call {
 macro_rules! crate_const_call {
     () => {
         $crate::hygiene::helper::HELPER_CONST
+    };
+}
+
+// Invocation-site item resolution (item vs local hygiene)
+macro_rules! use_invocation_item {
+    () => {
+        INVOCATION_ITEM + 1
     };
 }
 
@@ -55,8 +55,8 @@ pub fn explicit_ident_demo() -> u32 {
 }
 
 pub fn invocation_site_demo() -> u32 {
-    let caller_item = 5u32;
-    reference_caller!(caller_item)
+    const INVOCATION_ITEM: u32 = 5;
+    use_invocation_item!()
 }
 
 pub fn crate_helper_demo() -> u32 {
@@ -67,10 +67,15 @@ pub fn crate_const_demo() -> u32 {
     crate_const_call!()
 }
 
-// Downstream re-export usage: $crate still resolves to defining crate
+// Downstream re-export: decl_provider's $crate still points to decl_provider
 pub mod downstream {
+    pub use decl_provider::crate_helper_macro as reexported_crate_macro;
+    pub use decl_provider::hygiene_demo as reexported_hygiene;
     pub fn via_downstream() -> u32 {
-        crate::crate_helper_call!()
+        reexported_hygiene!(use_crate_helper)
+    }
+    pub fn via_downstream_macro() -> u32 {
+        reexported_crate_macro!()
     }
 }
 
@@ -91,5 +96,6 @@ pub fn hygiene_summary() -> u32 {
         + crate_helper_demo()
         + crate_const_demo()
         + downstream::via_downstream()
+        + downstream::via_downstream_macro()
         + provider_hygiene_demo()
 }
