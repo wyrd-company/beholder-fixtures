@@ -26,6 +26,9 @@
     "src/legacy/**/*",
     "src/augmentation/consumer-without.ts",
     "src/triple-slash/directive-no-default-lib.ts",
-    "src/triple-slash/generated-marker.ts"
+    "src/triple-slash/no-resolve-host.ts",
+    "src/globals/global-script-reader.ts",
+    "src/namespaces/script-atlas-a.ts",
+    "src/namespaces/script-atlas-b.ts"
   ]
 }

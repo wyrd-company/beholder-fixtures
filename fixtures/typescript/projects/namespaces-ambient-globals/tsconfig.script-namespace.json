@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "none",
+    "strict": true,
+    "outFile": "dist-legacy/script-atlas-concat.js",
+    "skipLibCheck": true
+  },
+  "files": [
+    "src/namespaces/script-atlas-a.ts",
+    "src/namespaces/script-atlas-b.ts"
+  ]
+}

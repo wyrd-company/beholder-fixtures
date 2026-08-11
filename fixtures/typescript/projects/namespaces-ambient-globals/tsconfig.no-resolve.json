@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "noEmit": true,
+    "noResolve": true,
+    "skipLibCheck": true,
+    "typeRoots": ["./src/triple-slash/custom-types"]
+  },
+  "files": [
+    "src/triple-slash/no-resolve-lib.d.ts",
+    "src/triple-slash/no-resolve-host.ts"
+  ]
+}

@@ -4,19 +4,21 @@ tasks:
   build:
     desc: Type-check and emit in default and legacy concatenation contexts
     cmds:
-      - ./node_modules/.bin/tsc -p tsconfig.pregen.json
       - ./node_modules/.bin/tsc -p tsconfig.json
       - ./node_modules/.bin/tsc -p tsconfig.without-augment.json
+      - ./node_modules/.bin/tsc -p tsconfig.script-namespace.json
       - ./node_modules/.bin/tsc -p tsconfig.legacy-amd.json
       - ./node_modules/.bin/tsc -p tsconfig.legacy-system.json
 
   lint:
     desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)
     cmds:
-      - ./node_modules/.bin/prettier --check "src/**/*" "Taskfile.yml" "tsconfig*.json" "coverage.md" "package.json"
+      - ./node_modules/.bin/prettier --check "src/**/*" "pregen/**/*" "Taskfile.yml" "tsconfig*.json" "coverage.md" "package.json"
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.without-augment.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-default-lib.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-resolve.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.script-namespace.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.legacy-amd.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.legacy-system.json
 

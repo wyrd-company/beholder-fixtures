@@ -5,6 +5,8 @@
 //     - reports/typescript/synthesis/checklist
 // ---
 
+/// <reference path="./global-script-reader.ts" />
+
 export function readHostGlobals(): {
   counter: number;
   mutable: string;
@@ -16,8 +18,9 @@ export function readHostGlobals(): {
   paneRevision: number;
   describe: string;
   fixtureTag: string;
+  importedMarker: HostMarkerToken;
 } {
-  const counter = HostCounter;
+  const scriptGlobals = readHostGlobalsFromScript();
   const mutable = HostMutable;
   const frozen = HostFrozen;
   const greeting = hostGreeting("pane");
@@ -29,7 +32,7 @@ export function readHostGlobals(): {
   const fixtureTag = import.meta.hostFixtureTag;
 
   return {
-    counter,
+    counter: scriptGlobals.counter,
     mutable,
     frozen,
     greeting,
@@ -39,5 +42,6 @@ export function readHostGlobals(): {
     paneRevision,
     describe,
     fixtureTag,
+    importedMarker: scriptGlobals.importedMarker,
   };
 }

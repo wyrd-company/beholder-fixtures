@@ -5,12 +5,16 @@
     "module": "amd",
     "strict": true,
     "outFile": "dist-legacy/concat-amd.js",
-    "rootDir": "src/legacy/amd",
+    "rootDir": "src",
     "skipLibCheck": true
   },
   "files": [
     "src/legacy/amd/part-first.ts",
     "src/legacy/amd/part-second.ts",
+    "src/legacy/amd/module-first.ts",
+    "src/legacy/amd/module-second.ts",
+    "src/namespaces/script-atlas-a.ts",
+    "src/namespaces/script-atlas-b.ts",
     "src/legacy/amd/entry.ts"
   ]
 }

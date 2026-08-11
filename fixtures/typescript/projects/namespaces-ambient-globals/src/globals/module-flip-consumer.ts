@@ -5,8 +5,14 @@
 //     - reports/typescript/synthesis/checklist
 // ---
 
-export function readHostFromModule(): HostMode {
-  return HostMode.Active;
+import type { HostFlipSentinel } from "./host-flip-sentinel.js";
+
+export function readModuleScopedHostCounter(): number {
+  return ModuleScopedHostCounter;
+}
+
+export function readModuleFlipMarker(): ModuleFlipMarker {
+  return { sentinel: "module-flipped" as HostFlipSentinel };
 }
 
 declare global {

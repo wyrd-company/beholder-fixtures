@@ -27,6 +27,10 @@ declare namespace HostShelf {
   export type Slot = { id: string };
 }
 
+declare const HostImportedMarker: import("./host-marker-module.js").HostMarkerToken;
+
+type HostMarkerToken = import("./host-marker-module.js").HostMarkerToken;
+
 declare interface HostBeacon {
   ping(): string;
 }
