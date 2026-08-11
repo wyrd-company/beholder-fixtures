@@ -1,0 +1,28 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Compile every declared build context without restoring from the network.
+    cmds:
+      - dotnet build SourceAndBinding.sln -c Release --no-restore
+      - dotnet build src/Core/Core.csproj --no-restore -c Release
+      - dotnet build src/Extensions/Extensions.csproj --no-restore -c Release
+      - dotnet build src/App/App.csproj --no-restore -c Release
+      - dotnet build src/Library/Library.csproj --no-restore -c Release
+      - dotnet build src/TopLevelApp/TopLevelApp.csproj --no-restore -c Release
+      - dotnet build src/NoImplicit/NoImplicit.csproj --no-restore -c Release
+      - dotnet build contexts/csharp10/CSharp10.csproj --no-restore -c Release
+      - dotnet build contexts/csharp11/CSharp11.csproj --no-restore -c Release
+      - dotnet build contexts/csharp12/CSharp12.csproj --no-restore -c Release
+      - dotnet build contexts/csharp13/CSharp13.csproj --no-restore -c Release
+
+  lint:
+    desc: Verify formatting and analyzer warnings for fixture-owned source.
+    cmds:
+      - dotnet format SourceAndBinding.sln --verify-no-changes --no-restore
+      - dotnet build SourceAndBinding.sln -c Release --no-restore /p:TreatWarningsAsErrors=true
+
+  test:
+    desc: Succeed when a project has no test source.
+    cmds:
+      - echo "No test source"
