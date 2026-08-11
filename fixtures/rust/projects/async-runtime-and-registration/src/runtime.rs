@@ -17,19 +17,29 @@ use tokio::runtime::{Builder, Runtime};
 /// code graph can observe the attribute, the async body, and the wrapper
 /// relationship without requiring the binary to be the test subject.
 ///
-/// Compiled shape (documentation, pinned Tokio 1.47.1): the macro emits a
-/// synchronous `fn main()` containing a local `async move` body passed to
-/// `Builder::new_multi_thread().enable_all().build().unwrap().block_on`,
-/// with no hidden module.
+/// Compiled shape (documentation, pinned Tokio 1.47.1 via tokio-macros 2.5.0):
+/// the macro emits a synchronous `fn main()` that binds `let body = async { … }`
+/// and returns
+/// `Builder::new_current_thread().enable_all().build().expect("Failed building the Runtime").block_on(body)`,
+/// with no hidden module. The attribute pins `flavor = "current_thread"`, so the
+/// compiled runtime is current-thread in every context; the multi-thread flavor
+/// is a separate feature variant (see `build_multi_thread_runtime`).
 pub async fn entry_point_body() -> u32 {
     // Body that would be wrapped by `#[tokio::main]`.
     42
 }
 
-/// Manually expanded equivalent of `#[tokio::main] async fn main()`.
-/// Demonstrates the compiled semantic shape beside the attribute source.
+/// Manually expanded equivalent of
+/// `#[tokio::main(flavor = "current_thread")] async fn main()`.
+///
+/// Demonstrates the compiled semantic shape beside the attribute source: a
+/// synchronous `fn` that builds a current-thread runtime and blocks on the async
+/// body. It builds via `build_current_thread_runtime` so it matches the pinned
+/// `current_thread` attribute in every context. The multi-thread builder is a
+/// *separate* feature variant (`build_multi_thread_runtime`), not this manual
+/// equivalent.
 pub fn manual_runtime_entry() -> u32 {
-    let rt = build_multi_thread_runtime();
+    let rt = build_current_thread_runtime();
     rt.block_on(entry_point_body())
 }
 

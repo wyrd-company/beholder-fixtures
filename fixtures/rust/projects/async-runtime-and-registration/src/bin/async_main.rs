@@ -2,10 +2,13 @@
 //!
 //! Source: `#[tokio::main] async fn main()` (stacked with `#[tracing::instrument]`
 //! on the same item to demonstrate macro stacking).
-//! Compiled (pinned Tokio 1.47.1): synchronous `fn main()` containing a local
-//! `async move` body passed to `Builder::new_multi_thread().enable_all().build().unwrap().block_on`,
-//! with no hidden module; the tracing wrapper creates an `INFO` span around
-//! the body.
+//! Compiled (pinned Tokio 1.47.1 via tokio-macros 2.5.0): synchronous `fn main()`
+//! that binds `let body = async { … }` and returns
+//! `Builder::new_current_thread().enable_all().build().expect("Failed building the Runtime").block_on(body)`,
+//! with no hidden module; the tracing wrapper creates an `INFO` span around the
+//! body. The `current_thread` flavor is pinned so the default context (which does
+//! not enable `tokio/rt-multi-thread`) compiles; multi-thread is a separate
+//! feature variant.
 
 #[tracing::instrument]
 #[tokio::main(flavor = "current_thread")]

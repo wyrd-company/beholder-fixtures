@@ -55,10 +55,13 @@ async fn stacked_async_instrumented_inner(value: i32) -> i32 {
 /// Public wrapper that exposes the stacked item for the code graph without
 /// requiring the caller to be inside the generated runtime entry.
 pub async fn stacked_async_instrumented(value: i32) -> i32 {
-    // The stacked attribute pair is compiled on `stacked_async_instrumented_inner`;
-    // this wrapper calls the already-rewritten synchronous entry via a manual
-    // block_on to keep the symbol graph while preserving the single generated
-    // entry point.
+    // The stacked attribute pair (`#[tracing::instrument]` then
+    // `#[tokio::main(flavor = "current_thread")]`) is compiled on
+    // `stacked_async_instrumented_inner`, rewriting it into a *synchronous* `fn`
+    // whose generated body builds a current-thread runtime and `block_on`s the
+    // tracing-instrumented future. This wrapper simply calls that already-rewritten
+    // synchronous item directly — there is no manual `block_on` here — so the
+    // public symbol graph exposes the stacked demonstration.
     stacked_async_instrumented_inner(value)
 }
 
