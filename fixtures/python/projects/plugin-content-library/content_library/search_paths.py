@@ -100,31 +100,43 @@ def working_directory_demo() -> dict[str, object]:
 
 
 def pythonpath_demo() -> dict[str, object]:
-    """PYTHONPATH resolution via sys.path entry (simulates PYTHONPATH env)."""
-    import importlib
+    """PYTHONPATH resolution in a child interpreter that reads the env var.
+
+    ``PYTHONPATH`` is read once, at interpreter startup, and prepended to
+    ``sys.path`` after the script/``-c`` entry.  It cannot be exercised by
+    mutating the caller's own ``sys.path``; it needs a fresh child process.
+    ``pp_mod`` lives only in ``search_extras/pythonpath_candidate`` and is not
+    otherwise reachable from the project root, so the child fails without
+    ``PYTHONPATH`` and resolves ``pp_mod`` from it when set.
+    """
     import os
+    import subprocess
 
     project = pathlib.Path(__file__).parent.parent
     candidate_dir = project / "search_extras" / "pythonpath_candidate"
-    # Simulate PYTHONPATH by inserting the directory; real PYTHONPATH is env var
-    # read at interpreter startup and prepended to sys.path.
-    sys.path.insert(0, str(candidate_dir))
-    # Also demonstrate via subprocess with PYTHONPATH env set.
-    env_value = os.environ.get("PYTHONPATH", "")
-    try:
-        sys.modules.pop("pp_mod", None)
-        importlib.invalidate_caches()
-        mod = importlib.import_module("pp_mod")
-        return {
-            "value": mod.VALUE,  # type: ignore
-            "path_used": str(candidate_dir),
-            "pythonpath_env": env_value or "<not-set>",
-        }
-    finally:
-        if str(candidate_dir) in sys.path:
-            sys.path.remove(str(candidate_dir))
-        sys.modules.pop("pp_mod", None)
-        importlib.invalidate_caches()
+    child = "import pp_mod; print(pp_mod.VALUE); print(pp_mod.__file__)"
+
+    base_env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
+    without = subprocess.run(
+        [sys.executable, "-c", child],
+        capture_output=True, text=True, cwd=str(project), env=base_env,
+    )
+    with_env = dict(base_env)
+    with_env["PYTHONPATH"] = str(candidate_dir)
+    with_pythonpath = subprocess.run(
+        [sys.executable, "-c", child],
+        capture_output=True, text=True, cwd=str(project), env=with_env,
+    )
+    resolved = with_pythonpath.stdout.strip().splitlines()
+    without_err = without.stderr.strip().splitlines()
+    return {
+        "pythonpath_env": str(candidate_dir),
+        "without_pythonpath_rc": without.returncode,
+        "without_pythonpath_error": without_err[-1] if without_err else "",
+        "with_pythonpath_rc": with_pythonpath.returncode,
+        "value": resolved[0] if resolved else "",
+        "resolved_file": resolved[1] if len(resolved) > 1 else "",
+    }
 
 
 def venv_or_editable_pth_demo() -> dict[str, object]:

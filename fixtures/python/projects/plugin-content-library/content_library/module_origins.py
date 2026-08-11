@@ -114,50 +114,155 @@ def extension_origin() -> dict[str, object]:
     }
 
 
+def _pyc_flags(data: bytes) -> int | None:
+    """Return the PEP 552 bit field from a ``.pyc`` header, or ``None``."""
+    if len(data) < 8:
+        return None
+    return int.from_bytes(data[4:8], "little")
+
+
+def _describe_flags(flags: int | None) -> str | None:
+    """Map a ``.pyc`` bit field to its invalidation kind (PEP 552)."""
+    if flags is None:
+        return None
+    if flags == 0:
+        return "timestamp"
+    if flags == 1:
+        return "unchecked-hash"
+    if flags == 3:
+        return "checked-hash"
+    return f"flags={flags}"
+
+
 def bytecode_invalidation_demo() -> dict[str, object]:
-    """Demonstrate bytecode magic and actual invalidation (PEP 552)."""
+    """Instantiate the real PEP 552 invalidation variants and read them back.
+
+    Rather than labelling the invalidation modes, this compiles a source file
+    under each mode and reads the resulting ``.pyc`` header, so the timestamp,
+    unchecked-hash, and checked-hash variants are actual artifacts (flags 0, 1,
+    3).  Compilation happens in a temporary directory and mutates no tracked
+    source.
+    """
     import py_compile
+    import tempfile
 
     project = pathlib.Path(__file__).parent
     pyc = project / "generated_bytecode" / "bytecode_only.pyc"
-    # Real default on this interpreter; CPython 3.14 reports TIMESTAMP.
     try:
         default_mode = py_compile._get_default_invalidation_mode()  # type: ignore[attr-defined]
     except AttributeError:
         default_mode = py_compile.PycInvalidationMode.TIMESTAMP  # type: ignore
 
-    # Inspect actual committed pyc header flags (0 = timestamp, 1 = unchecked hash, 3 = checked hash per PEP 552).
-    header_flags = None
-    header_desc = None
-    if pyc.exists():
-        data = pyc.read_bytes()
-        if len(data) >= 8:
-            import struct
+    committed_flags = _pyc_flags(pyc.read_bytes()) if pyc.exists() else None
 
-            flags = int.from_bytes(data[4:8], "little")
-            header_flags = flags
-            if flags == 0:
-                header_desc = "timestamp"
-            elif flags & 1:
-                header_desc = "hash-based"
-            else:
-                header_desc = f"flags={flags}"
+    variants: dict[str, dict[str, object]] = {}
+    with tempfile.TemporaryDirectory() as tmp:
+        src = pathlib.Path(tmp) / "invalidation_src.py"
+        src.write_text("VALUE = 'invalidation-source'\n")
+        for name, mode in [
+            ("timestamp", py_compile.PycInvalidationMode.TIMESTAMP),
+            ("unchecked_hash", py_compile.PycInvalidationMode.UNCHECKED_HASH),
+            ("checked_hash", py_compile.PycInvalidationMode.CHECKED_HASH),
+        ]:
+            out = pathlib.Path(tmp) / f"{name}.pyc"
+            py_compile.compile(str(src), cfile=str(out), invalidation_mode=mode)
+            data = out.read_bytes()
+            flags = _pyc_flags(data)
+            variants[name] = {
+                "flags": flags,
+                "kind": _describe_flags(flags),
+                # Timestamp header stores mtime+size in bytes 8:16; the hash
+                # headers store the 8-byte source hash in the same field.
+                "header_field": data[8:16].hex(),
+            }
 
     return {
         "magic_number": importlib.util.MAGIC_NUMBER.hex(),
         "cache_tag": sys.implementation.cache_tag,
-        "bytecode_invalidation_modes": ["timestamp", "hash (checked/unchecked)"],
         "py_compile_default": str(default_mode).split(".")[-1],
         "py_compile_default_repr": repr(default_mode),
         "committed_pyc": str(pyc),
-        "committed_pyc_flags": header_flags,
-        "committed_pyc_invalidation": header_desc,
-        "stale_cache_note": "stale cache: .pyc mtime/size mismatch (timestamp) or hash mismatch (hash) causes regeneration",
+        "committed_pyc_flags": committed_flags,
+        "committed_pyc_invalidation": _describe_flags(committed_flags),
+        "invalidation_variants": variants,
     }
 
 
-def stale_cache_demo() -> str:
-    return "stale cache: .pyc newer than .py or hash mismatch causes regeneration or Sourceless fallback"
+def stale_cache_demo() -> dict[str, object]:
+    """Demonstrate real stale-cache detection under both invalidation modes.
+
+    Timestamp mode: moving the source mtime past the cached ``.pyc`` makes the
+    machinery recompile on the next import.  Checked-hash mode: changing the
+    source *content* while restoring its mtime defeats the timestamp check, but
+    the checked-hash header still forces recompilation from the new source.
+    Both run in temporary directories and mutate no tracked source.
+    """
+    import os
+    import tempfile
+    import time
+    import py_compile
+
+    timestamp_result: dict[str, object] = {}
+    with tempfile.TemporaryDirectory() as tmp:
+        tmpp = pathlib.Path(tmp)
+        src = tmpp / "stale_ts_mod.py"
+        src.write_text("VALUE = 'original'\n")
+        cache = pathlib.Path(importlib.util.cache_from_source(str(src)))
+        sys.path.insert(0, str(tmpp))
+        try:
+            importlib.invalidate_caches()
+            before = importlib.import_module("stale_ts_mod").VALUE  # type: ignore[attr-defined]
+            first_mtime = cache.stat().st_mtime_ns
+            src.write_text("VALUE = 'updated'\n")
+            future = time.time() + 10
+            os.utime(src, (future, future))
+            sys.modules.pop("stale_ts_mod", None)
+            importlib.invalidate_caches()
+            after = importlib.import_module("stale_ts_mod").VALUE  # type: ignore[attr-defined]
+            timestamp_result = {
+                "before": before,
+                "after": after,
+                "recompiled": cache.stat().st_mtime_ns != first_mtime,
+            }
+        finally:
+            if str(tmpp) in sys.path:
+                sys.path.remove(str(tmpp))
+            sys.modules.pop("stale_ts_mod", None)
+            importlib.invalidate_caches()
+
+    hash_result: dict[str, object] = {}
+    with tempfile.TemporaryDirectory() as tmp:
+        tmpp = pathlib.Path(tmp)
+        src = tmpp / "stale_hash_mod.py"
+        src.write_text("VALUE = 'hash-original'\n")
+        original_stat = src.stat()
+        py_compile.compile(
+            str(src), invalidation_mode=py_compile.PycInvalidationMode.CHECKED_HASH
+        )
+        sys.path.insert(0, str(tmpp))
+        try:
+            importlib.invalidate_caches()
+            before = importlib.import_module("stale_hash_mod").VALUE  # type: ignore[attr-defined]
+            src.write_text("VALUE = 'hash-updated'\n")
+            os.utime(src, (original_stat.st_atime, original_stat.st_mtime))
+            sys.modules.pop("stale_hash_mod", None)
+            importlib.invalidate_caches()
+            after = importlib.import_module("stale_hash_mod").VALUE  # type: ignore[attr-defined]
+            hash_result = {
+                "before": before,
+                "after": after,
+                "detected_via_hash": after == "hash-updated",
+            }
+        finally:
+            if str(tmpp) in sys.path:
+                sys.path.remove(str(tmpp))
+            sys.modules.pop("stale_hash_mod", None)
+            importlib.invalidate_caches()
+
+    return {
+        "timestamp_invalidation": timestamp_result,
+        "checked_hash_invalidation": hash_result,
+    }
 
 
 def missing_file_demo() -> str:

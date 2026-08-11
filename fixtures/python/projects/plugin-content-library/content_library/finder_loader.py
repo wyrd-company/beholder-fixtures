@@ -13,9 +13,9 @@ Covers:
 
 from __future__ import annotations
 
+import importlib
 import importlib.abc
 import importlib.machinery
-import importlib.util
 import sys
 import types
 
@@ -88,26 +88,39 @@ def uninstall_finder() -> None:
 
 
 def malformed_spec_demo() -> str:
-    """Create a genuinely malformed spec/loader whose execution fails."""
+    """Drive the import machinery with a genuinely malformed spec.
 
-    class MalformedLoader(importlib.abc.Loader):
-        def create_module(self, spec):  # type: ignore[override]
-            return None
+    A spec whose ``loader`` is ``None`` while it is *not* a namespace package
+    (``submodule_search_locations`` is ``None``) is malformed.  The failure is
+    not a loader that chooses to raise: the import machinery itself detects the
+    missing loader in ``_bootstrap._load_unlocked`` and raises
+    ``ImportError('missing loader')`` when it tries to load the module.  A
+    temporary meta-path finder hands that malformed spec to the real import
+    operation so the failure arises naturally from ``import_module``.  A
+    top-level name is used so no parent-package resolution precedes the
+    malformed spec.
+    """
 
-        def exec_module(self, module):  # type: ignore[override]
-            raise ImportError("malformed loader: exec_module failed")
+    name = "malformed_plugin"
 
-    spec = importlib.machinery.ModuleSpec(
-        "synthetic_plugin.malformed", MalformedLoader(), origin="synthetic://malformed"
-    )
+    class MalformedSpecFinder(importlib.abc.MetaPathFinder):
+        def find_spec(self, fullname, path, target=None):  # type: ignore[override]
+            if fullname != name:
+                return None
+            # loader=None with no submodule_search_locations => malformed spec.
+            return importlib.machinery.ModuleSpec(fullname, None, origin="synthetic://malformed")
+
+    finder = MalformedSpecFinder()
+    sys.meta_path.insert(0, finder)
     try:
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)  # type: ignore[attr-defined]
-        return f"unexpected:{mod}"
-    except (ValueError, ImportError) as exc:
+        mod = importlib.import_module(name)
+        return f"unexpected:{mod!r}"
+    except ImportError as exc:
         return f"malformed-spec:{exc.__class__.__name__}: {exc}"
-    except Exception as exc:  # pragma: no cover
-        return f"malformed-spec-other:{exc.__class__.__name__}: {exc}"
+    finally:
+        if finder in sys.meta_path:
+            sys.meta_path.remove(finder)
+        sys.modules.pop(name, None)
 
 
 def loader_varieties() -> dict[str, str]:
