@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "strict": true,
+    "declaration": true,
+    "outDir": "dist/old",
+    "rootDir": "src",
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/target/syntax-lowering.ts",
+    "src/target/class-fields.ts",
+    "src/common/**/*"
+  ]
+}

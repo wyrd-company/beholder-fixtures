@@ -1,0 +1,64 @@
+version: "3"
+
+tasks:
+  build:
+    desc: Type-check and emit in every declared compilation context
+    cmds:
+      - ./node_modules/.bin/tsc -p tsconfig.json
+      - ./node_modules/.bin/tsc -p tsconfig.old.json
+      - ./node_modules/.bin/tsc -p tsconfig.modern.json
+      - ./node_modules/.bin/tsc -p tsconfig.explicit-lib.json
+      - ./node_modules/.bin/tsc -p tsconfig.no-lib.json
+      - ./node_modules/.bin/tsc -p tsconfig.dom-worker.json
+      - ./node_modules/.bin/tsc -p tsconfig.lib-replacement.json
+      - ./node_modules/.bin/tsc -p tsconfig.skip-default-lib-check.json
+      - ./node_modules/.bin/tsc -p tsconfig.reference-lib.json
+      - ./node_modules/.bin/tsc -p tsconfig.strict.json
+      - ./node_modules/.bin/tsc -p tsconfig.strict-overridden.json
+      - ./node_modules/.bin/tsc -p tsconfig.exact-optional.json
+      - ./node_modules/.bin/tsc -p tsconfig.unchecked-index.json
+      - ./node_modules/.bin/tsc -p tsconfig.no-property-access.json
+      - ./node_modules/.bin/tsc -p tsconfig.no-implicit-override.json
+      - ./node_modules/.bin/tsc -p tsconfig.unused-locals.json
+      - ./node_modules/.bin/tsc -p tsconfig.unused-params.json
+      - ./node_modules/.bin/tsc -p tsconfig.no-implicit-returns.json
+      - ./node_modules/.bin/tsc -p tsconfig.no-fallthrough.json
+      - ./node_modules/.bin/tsc -p tsconfig.allow-unreachable.json
+      - ./node_modules/.bin/tsc -p tsconfig.isolated-modules.json
+      - ./node_modules/.bin/tsc -p tsconfig.isolated-declarations.json
+      - ./node_modules/.bin/tsc -p tsconfig.emit-declaration-only.json
+      - ./node_modules/.bin/tsc -p tsconfig.no-emit.json --noEmit
+
+  lint:
+    desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)
+    cmds:
+      - ./node_modules/.bin/prettier --check "src/**/*" "Taskfile.yml" "tsconfig*.json" "coverage.md" "package.json"
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.old.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.modern.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.explicit-lib.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-lib.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.dom-worker.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.lib-replacement.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.skip-default-lib-check.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.reference-lib.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.strict.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.strict-overridden.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.exact-optional.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.unchecked-index.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-property-access.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-implicit-override.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.unused-locals.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.unused-params.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-implicit-returns.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-fallthrough.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.allow-unreachable.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.isolated-modules.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.isolated-declarations.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.emit-declaration-only.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-emit.json
+
+  test:
+    desc: No fixture tests; succeeds when no test source is required
+    cmds:
+      - echo "no tests"

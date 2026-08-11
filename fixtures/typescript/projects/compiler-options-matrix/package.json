@@ -1,0 +1,14 @@
+{
+  "name": "@fixtures/compiler-options-matrix",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fixture library compiled under contrasting effective-option sets for target, library, strictness, safety, and emit decoupling",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "devDependencies": {
+    "prettier": "3.6.2",
+    "typescript": "5.9.3"
+  }
+}
