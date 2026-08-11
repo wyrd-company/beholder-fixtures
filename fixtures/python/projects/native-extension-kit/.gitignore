@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.abi3.so
+dist/
+.mypy_cache/

@@ -1,0 +1,10 @@
+[project]
+name = "native-extension-kit"
+version = "0.1.0"
+description = "Native-acceleration kit with C extension, limited-API, ctypes, generated modules and zip application"
+requires-python = ">=3.10"
+readme = "coverage.md"
+
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"

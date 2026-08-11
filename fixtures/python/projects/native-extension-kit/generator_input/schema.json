@@ -1,0 +1,24 @@
+{
+  "generator": "native-extension-kit",
+  "version": "1.0.0",
+  "provenance": "generator_input/schema.json",
+  "models": [
+    {
+      "name": "SampleRecord",
+      "fields": {
+        "label": "str",
+        "value": "int",
+        "active": "bool"
+      },
+      "doc": "Sample record generated from retained input."
+    },
+    {
+      "name": "TaggedItem",
+      "fields": {
+        "tag": "str",
+        "count": "int"
+      },
+      "doc": "Tagged item generated from retained input."
+    }
+  ]
+}
