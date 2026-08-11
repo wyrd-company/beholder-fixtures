@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>Workshop.LowLevel</RootNamespace>
+    <AssemblyName>Workshop.LowLevel</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Native companion library built from committed C source before managed build. -->
+    <None Include="..\..\native\nativeutils.c" Link="native\nativeutils.c" Visible="false" />
+  </ItemGroup>
+
+</Project>

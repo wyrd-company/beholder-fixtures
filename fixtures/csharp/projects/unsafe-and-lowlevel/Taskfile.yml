@@ -1,0 +1,45 @@
+version: '3'
+
+tasks:
+  build-native:
+    desc: Build the native companion shared library from committed C source.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - |
+        set -e
+        CC=""
+        if command -v clang >/dev/null 2>&1; then CC=clang;
+        elif command -v gcc >/dev/null 2>&1; then CC=gcc;
+        else echo "No clang or gcc found" >&2; exit 1; fi
+        echo "Building native library with $CC"
+        mkdir -p src/UnsafeAndLowlevel/runtimes/linux-x64/native
+        $CC -shared -fPIC -O2 -o src/UnsafeAndLowlevel/libnativeutils.so native/nativeutils.c
+        $CC -shared -fPIC -O2 -o src/UnsafeAndLowlevel/runtimes/linux-x64/native/libnativeutils.so native/nativeutils.c
+
+  build:
+    desc: Compile all fixture projects in every declared build context without restoring from the network.
+    dir: '{{.TASKFILE_DIR}}'
+    deps: [build-native]
+    cmds:
+      - dotnet build UnsafeAndLowlevel.sln -c Release
+      - |
+        set -e
+        for dir in src/UnsafeAndLowlevel/bin/Release/net10.0 src/UnsafeAndLowlevel/bin/Debug/net10.0; do
+          if [ -d "$dir" ]; then
+            cp -f src/UnsafeAndLowlevel/libnativeutils.so "$dir/" 2>/dev/null || true
+            cp -f src/UnsafeAndLowlevel/runtimes/linux-x64/native/libnativeutils.so "$dir/" 2>/dev/null || true
+          fi
+        done
+
+  lint:
+    desc: Verify formatting and analyzer warnings for fixture-owned source.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dotnet format UnsafeAndLowlevel.sln --verify-no-changes
+      - dotnet build UnsafeAndLowlevel.sln -c Release --no-restore /p:TreatWarningsAsErrors=true
+
+  test:
+    desc: Succeed when a project has no test source.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - echo "No test source"
