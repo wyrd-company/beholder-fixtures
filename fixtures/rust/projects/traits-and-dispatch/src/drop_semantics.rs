@@ -36,14 +36,31 @@ pub struct Copyable(pub i32);
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct NonCopy(pub String);
 
-#[derive(Debug, Clone)]
-pub struct Cloneable(pub String);
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DerivedCloneDemo(pub String);
 
-impl Cloneable {
-    pub fn manual_clone(&self) -> Self {
+/// Manual `Clone` implementation on a contrasting type.
+pub struct ManualCloneDemo(pub String);
+
+impl Clone for ManualCloneDemo {
+    fn clone(&self) -> Self {
         Self(self.0.clone())
     }
 }
+
+impl std::fmt::Debug for ManualCloneDemo {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("ManualCloneDemo").field(&self.0).finish()
+    }
+}
+
+impl PartialEq for ManualCloneDemo {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl Eq for ManualCloneDemo {}
 
 /// Helper without Drop to demonstrate partial moves.
 pub struct MoveDemo {
@@ -101,9 +118,13 @@ pub fn drop_summary() -> String {
     let cloned = moved.clone();
     let _use_moved_and_clone = format!("{} {}", moved.0, cloned.0);
 
-    // Manual versus derived Clone comparison for Cloneable.
-    let original = Cloneable("world".to_owned());
-    let derived = original.clone();
-    let manual = original.manual_clone();
-    format!("{}|{}", derived.0, manual.0)
+    // Manual versus derived Clone exercised beside each other.
+    let derived = DerivedCloneDemo("world".to_owned());
+    let derived_cloned = derived.clone();
+    let manual = ManualCloneDemo("world".to_owned());
+    let manual_cloned = manual.clone();
+    format!(
+        "{}|{}|{}|{}",
+        derived.0, derived_cloned.0, manual.0, manual_cloned.0
+    )
 }

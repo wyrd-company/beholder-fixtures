@@ -22,8 +22,5 @@ name = "traits_and_dispatch"
 path = "src/lib.rs"
 crate-type = ["rlib"]
 
-[dependencies]
-trait_downstream = { path = "crates/trait_downstream" }
-
 [lints]
 workspace = true

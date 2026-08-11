@@ -1,5 +1,7 @@
 //! RS-CAN-TRAIT-010 — operator, index, deref, and formatting traits invoked only through syntax.
 
+#![allow(clippy::non_canonical_partial_ord_impl)]
+
 use std::ops::{Add, AddAssign, Deref, DerefMut, Index, IndexMut};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -20,7 +22,7 @@ impl AddAssign for Count {
 
 impl PartialOrd for Count {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
+        Some(self.0.cmp(&other.0))
     }
 }
 

@@ -48,18 +48,25 @@ which default body executes.
 
 ## Consuming dyn method (RS-CAN-TRAIT-005)
 
-A method taking `self` by value is not dyn-compatible unless `Self: Sized` is required:
+A consuming method on a trait object is rejected even when the trait itself is dyn-safe via `Self: Sized`:
 
 ```rust,ignore
-trait NotDyn {
-    fn consume(self) -> i32; // without `where Self: Sized` the trait is not dyn-compatible
+trait NeedsSized {
+    fn consume(self) -> i32 where Self: Sized;
+    fn borrow(&self) -> i32;
 }
-fn takes_dyn(obj: &dyn NotDyn) {} // error: trait is not dyn-safe
+fn demo(obj: &dyn NeedsSized) {
+    let _ = obj.borrow(); // ok
+    // obj.consume(); // error: cannot call consuming method on trait object due to `Self: Sized`
+}
+fn boxed_demo(obj: Box<dyn NeedsSized>) {
+    // obj.consume(); // error: same — consuming method requires `Self: Sized`
+}
 ```
 
 Valid contrast: `ReceiverTrait::consume(self) where Self: Sized` and
 `boxed(self: Box<Self>) where Self: Sized` in `src/receivers.rs`; the remaining
-`&self`/`&mut self`/`Pin<&mut Self>` methods are dyn-compatible.
+`&self`/`&mut self`/`Pin<&mut Self>` methods are dyn-compatible and callable through `&dyn ReceiverTrait`.
 
 ## `Copy + Drop` rejection (RS-CAN-TRAIT-012)
 

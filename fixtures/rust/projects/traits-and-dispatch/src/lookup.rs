@@ -42,6 +42,7 @@ impl Mid {
 }
 
 /// Outer layer dereferences to Mid, forming a chain Outer -> Mid -> Leaf.
+/// `shared_name` on Outer shadows `Mid::shared_name` and `Leaf::shared_name`.
 pub struct Outer(pub Mid);
 
 impl Deref for Outer {
@@ -54,6 +55,12 @@ impl Deref for Outer {
 impl Outer {
     pub fn outer_method(&self) -> i32 {
         self.0.0.value + 2
+    }
+
+    /// Wrapper shadowing: this inherent `shared_name` shadows the
+    /// dereferenced `Mid::shared_name` and `Leaf::shared_name`.
+    pub fn shared_name(&self) -> &'static str {
+        "outer"
     }
 }
 
@@ -74,39 +81,69 @@ impl Greet for &Leaf {
     }
 }
 
-/// Demonstrates &self vs &mut self candidate ordering: &self candidate
-/// is considered earlier than &mut self, so immutable borrow wins when both viable.
-pub trait MutChoice {
-    fn choose(&self) -> &'static str;
-    fn choose_mut(&mut self) -> &'static str;
+/// Same-name `pick` with shared vs mutable receivers to demonstrate
+/// candidate ordering: `&self` is tried before `&mut self`.
+pub trait SharedPick {
+    fn pick(&self) -> &'static str;
 }
 
-impl MutChoice for Leaf {
-    fn choose(&self) -> &'static str {
+pub trait MutPick {
+    fn pick(&mut self) -> &'static str;
+}
+
+impl SharedPick for Leaf {
+    fn pick(&self) -> &'static str {
         "shared"
     }
-    fn choose_mut(&mut self) -> &'static str {
+}
+
+impl MutPick for Leaf {
+    fn pick(&mut self) -> &'static str {
         "mut"
     }
 }
 
 /// Unsizing demonstration: array coerced to slice, slice method dispatched.
-pub fn lookup_summary() -> (i32, i32, i32, String, String, &'static str, usize) {
+pub fn lookup_summary() -> (
+    i32,
+    i32,
+    i32,
+    &'static str,
+    String,
+    String,
+    &'static str,
+    usize,
+) {
     let outer = Outer(Mid(Leaf { value: 5 }));
     let via_deref_leaf = outer.leaf_method();
     let via_deref_mid = outer.mid_method();
     let via_deref_outer = outer.outer_method();
-    // Autoderef + autoref: methods taking &self can be called on owned Outer via autoref.
-    // The chain Outer -> Mid -> Leaf allows leaf_method through deref.
-    // Shadowing: Outer's inherent shadowing if same name existed is not used here; we demonstrate via explicit chain.
-    let greet_leaf = Leaf { value: 1 }.greet();
-    let leaf_val = Leaf { value: 1 };
-    let leaf_ref: &Leaf = &leaf_val;
-    let greet_ref = leaf_ref.greet();
+    // Wrapper shadowing: Outer's `shared_name` shadows Mid and Leaf.
+    let shadowed = outer.shared_name();
 
-    // &self vs &mut self: calling on mutable leaf with immutable context selects shared.
-    let leaf_mut = Leaf { value: 2 };
-    let choice = leaf_mut.choose();
+    // T vs &T: distinct impls for `Leaf` and `&Leaf`.
+    let leaf_val = Leaf { value: 1 };
+    let greet_leaf = <Leaf as Greet>::greet(&leaf_val);
+    let leaf_ref: &Leaf = &Leaf { value: 2 };
+    let greet_ref = <&Leaf as Greet>::greet(&leaf_ref);
+
+    // Shared vs mutable candidate ordering: both `SharedPick::pick(&self)`
+    // and `MutPick::pick(&mut self)` are in scope, same name `pick`.
+    // With a mutable leaf, `&self` candidate is considered before `&mut self`,
+    // so the shared version wins.
+    let mut leaf_mut = Leaf { value: 2 };
+    let shared_pick = {
+        use crate::lookup::{MutPick, SharedPick};
+        // `MutPick` is in scope to make the `&mut self` candidate available,
+        // but `SharedPick` wins due to autoref ordering.
+        let _mut_candidate = MutPick::pick(&mut leaf_mut);
+        let picked = SharedPick::pick(&leaf_mut);
+        // The bare `pick` call demonstrates the ordering: it selects `SharedPick`.
+        let bare = leaf_mut.pick();
+        assert_eq!(bare, "shared");
+        let _ = _mut_candidate;
+        picked
+    };
 
     // Unsizing: [i32; 3] dereferences/unsize to &[i32] for slice method `len`.
     let arr = [1, 2, 3];
@@ -119,9 +156,10 @@ pub fn lookup_summary() -> (i32, i32, i32, String, String, &'static str, usize) 
         via_deref_leaf,
         via_deref_mid,
         via_deref_outer,
+        shadowed,
         greet_leaf,
         greet_ref,
-        choice,
+        shared_pick,
         arr_len,
     )
 }

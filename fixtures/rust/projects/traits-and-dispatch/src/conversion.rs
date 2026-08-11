@@ -25,6 +25,12 @@ impl std::fmt::Display for ConversionError {
 
 impl std::error::Error for ConversionError {}
 
+impl From<ParseIntError> for ConversionError {
+    fn from(err: ParseIntError) -> Self {
+        Self(err.to_string())
+    }
+}
+
 impl TryFrom<i64> for CheckedId {
     type Error = ConversionError;
     fn try_from(value: i64) -> Result<Self, Self::Error> {
@@ -57,18 +63,24 @@ where
     CheckedId::try_from(value)
 }
 
-/// `?` error conversion via From: ParseIntError converts through propagated function.
+/// `?` error conversion via `From`: `ParseIntError` converts to `ConversionError` through `?`.
 pub fn parse_and_validate(input: &str) -> Result<CheckedId, ConversionError> {
-    let parsed: i64 = input
-        .parse()
-        .map_err(|e: ParseIntError| ConversionError(e.to_string()))?;
+    let parsed: i64 = input.parse()?;
     CheckedId::try_from(parsed)
 }
 
-/// Additional `?` demonstration with TryFrom and From error conversion.
+/// `?` propagates same error type; combined with above, demonstrates both
+/// same-type propagation and `From` conversion.
 pub fn try_from_with_question(value: i64) -> Result<CheckedId, ConversionError> {
     let id = CheckedId::try_from(value)?;
     Ok(id)
+}
+
+/// Additional `?` conversion bridging `ParseIntError` into `ConversionError`
+/// while also using `TryFrom` fallible conversion.
+pub fn parse_via_try_from(input: String) -> Result<CheckedId, ConversionError> {
+    let parsed: i64 = input.parse()?;
+    CheckedId::try_from(parsed)
 }
 
 pub fn conversion_summary() -> String {
@@ -78,7 +90,8 @@ pub fn conversion_summary() -> String {
     let d = CheckedId::try_from(42_i64).unwrap();
     let e = try_from_with_question(5).unwrap();
     let f = parse_and_validate("7").unwrap();
+    let g = parse_via_try_from("8".to_owned()).unwrap();
     // Invalid implicit conversion counterexample is preserved in docs:
     // `let _id: UserId = 10_u32;` is rejected — explicit From/Into required.
-    format!("{a:?}|{b:?}|{c:?}|{d:?}|{e:?}|{f:?}")
+    format!("{a:?}|{b:?}|{c:?}|{d:?}|{e:?}|{f:?}|{g:?}")
 }
