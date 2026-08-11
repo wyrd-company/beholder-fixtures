@@ -1,0 +1,9 @@
+name: functions_and_dispatch
+description: >-
+  Fixture package demonstrating function kinds, function types and
+  tear-offs, dynamic invocation, entry points, and symbols.
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: '>=3.12.2 <4.0.0'

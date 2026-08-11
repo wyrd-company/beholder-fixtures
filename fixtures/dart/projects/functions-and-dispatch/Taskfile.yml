@@ -1,0 +1,38 @@
+# ---
+# relationships:
+#   references:
+#     - coverage
+# ---
+version: '3'
+
+vars:
+  BUILD_DIR: '{{.TASKFILE_DIR}}/build'
+
+tasks:
+  build:
+    desc: Resolve offline, analyze, and compile every declared entry point.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dart pub get --offline
+      - dart analyze
+      - mkdir -p {{.BUILD_DIR}}
+      - dart run bin/vm_main.dart
+      - dart run bin/vm_async_main.dart
+      - >-
+        dart compile exe
+        -o {{.BUILD_DIR}}/native_aot_main
+        bin/native_aot_main.dart
+      - '{{.BUILD_DIR}}/native_aot_main'
+
+  lint:
+    desc: Check dart format and run dart analyze.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - dart format --output=none --set-exit-if-changed .
+      - dart analyze
+
+  test:
+    desc: Succeed with no planned test files.
+    dir: '{{.TASKFILE_DIR}}'
+    cmds:
+      - ':'
