@@ -73,6 +73,8 @@ def demo_propagation() -> dict[str, object]:
     child = logging.getLogger("diagnostics_toolkit.prop.child")
     prev_parent_handlers = list(parent.handlers)
     prev_child_handlers = list(child.handlers)
+    prev_parent_level = parent.level
+    prev_child_level = child.level
     prev_propagate = child.propagate
     stream_parent = io.StringIO()
     stream_child = io.StringIO()
@@ -103,6 +105,8 @@ def demo_propagation() -> dict[str, object]:
     finally:
         parent.handlers = prev_parent_handlers
         child.handlers = prev_child_handlers
+        parent.setLevel(prev_parent_level)
+        child.setLevel(prev_child_level)
         child.propagate = prev_propagate
 
 
@@ -112,11 +116,13 @@ def demo_filter_and_extra() -> dict[str, object]:
     logger = logging.getLogger("diagnostics_toolkit.filter_demo")
     prev_handlers = list(logger.handlers)
     prev_level = logger.level
+    prev_filters = list(logger.filters)
     stream = io.StringIO()
     try:
         logger.handlers = [_make_memory_handler(stream)]
         logger.setLevel(logging.DEBUG)
-        logger.addFilter(ToolkitFilter())
+        toolkit_filter = ToolkitFilter()
+        logger.addFilter(toolkit_filter)
         logger.info("allow this message")
         logger.info("deny this other")
         logger.info("allow with extra", extra={"request_id": "REQ-123"})
@@ -142,9 +148,11 @@ def demo_filter_and_extra() -> dict[str, object]:
     finally:
         logger.handlers = prev_handlers
         logger.setLevel(prev_level)
-        # Remove filter if added
+        # Restore prior filter set, removing only fixture-owned filter
         for f in list(logger.filters):
             logger.removeFilter(f)
+        for f in prev_filters:
+            logger.addFilter(f)
 
 
 def demo_deferred_formatting() -> dict[str, object]:

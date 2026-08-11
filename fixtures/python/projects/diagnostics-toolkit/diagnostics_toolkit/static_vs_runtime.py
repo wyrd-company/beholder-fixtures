@@ -41,23 +41,60 @@ def checker_negative_overload(value: str) -> str: ...
 
 
 def checker_negative_overload(value: int | str) -> int | str:
-    """Overload stubs plus implementation – missing overload would be checker error."""
+    """Overload stubs plus implementation – checker-valid overload."""
 
     if isinstance(value, int):
         return value * 2
     return value.upper()
 
 
+# Checker-negative overload: implementation return type incompatible with stubs.
+# A checker would flag the return type, but runtime executes without error.
+@overload
+def checker_negative_overload_mismatch(value: int) -> int: ...  # type: ignore[no-redef]
+
+
+@overload
+def checker_negative_overload_mismatch(value: str) -> str: ...  # type: ignore[no-redef]
+
+
+def checker_negative_overload_mismatch(value: int | str) -> float:  # type: ignore[no-redef]
+    """Checker-negative overload – impl returns float for both, mismatching stubs."""
+
+    if isinstance(value, int):
+        return float(value * 2)
+    return float(len(value))  # type: ignore[arg-type]  # returns float, checker expects str
+
+
 def checker_negative_exhaustiveness_demo(value: str) -> str:
-    """Match without full exhaustiveness – checker would warn, runtime falls through."""
+    """Match with wildcard – exhaustive, checker-valid."""
 
     match value:
         case "alpha":
             return "A"
         case "beta":
             return "B"
-        case _:  # checker exhaustiveness would still want explicit wildcard handling
+        case _:  # wildcard makes this exhaustive
             return "other"
+
+
+# Checker-negative exhaustiveness: finite literal union without wildcard.
+# Checker would warn that "pending" is not handled; runtime falls through returning None.
+from typing import Literal
+
+StatusLiteral = Literal["open", "closed", "pending"]
+
+
+def checker_negative_exhaustiveness_missing(status: StatusLiteral) -> str | None:  # type: ignore[return]
+    """Checker-negative exhaustiveness – missing "pending" without wildcard."""
+
+    match status:
+        case "open":
+            return "O"
+        case "closed":
+            return "C"
+        # missing "pending" – checker would report non-exhaustive
+    return None
 
 
 def checker_negative_any_escape(value: Any) -> int:
@@ -157,7 +194,10 @@ def all_static_vs_runtime_demos() -> dict[str, object]:
         "checker_override": CheckerNegativeOverride().handle(21),
         "checker_overload_int": checker_negative_overload(21),
         "checker_overload_str": checker_negative_overload("hi"),
+        "checker_overload_mismatch": checker_negative_overload_mismatch(21),
+        "checker_overload_mismatch_str": checker_negative_overload_mismatch("hi"),
         "checker_exhaustiveness": checker_negative_exhaustiveness_demo("gamma"),
+        "checker_exhaustiveness_missing": checker_negative_exhaustiveness_missing("open"),
         "checker_any_escape": checker_negative_any_escape("not-an-int"),
         "runtime_type": runtime_negative_assignment(),
         "runtime_overload": runtime_negative_overload_mismatch(),

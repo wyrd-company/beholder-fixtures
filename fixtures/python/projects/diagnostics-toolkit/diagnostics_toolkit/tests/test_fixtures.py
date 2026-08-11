@@ -44,3 +44,27 @@ class TestFixturesAndCleanups(unittest.TestCase):
         # Demonstrate that addCleanup runs even if test fails partway.
         self.addCleanup(lambda: self.per_test.append("cleanup-ran"))
         self.assertTrue(True)
+
+    def test_isolated_partial_setup_cleanup_observed(self) -> None:
+        """Isolated suite: setUp registers cleanup then fails; assert cleanup ran."""
+
+        cleanup_log: list[str] = []
+
+        class FailingSetupWithCleanup(unittest.TestCase):
+            def setUp(self) -> None:  # noqa: N802
+                self.addCleanup(lambda: cleanup_log.append("cleanup-ran"))
+                cleanup_log.append("setup-ran")
+                raise RuntimeError("setup failure demo")
+
+            def test_dummy(self) -> None:
+                self.fail("should not run")
+
+        suite = unittest.TestLoader().loadTestsFromTestCase(FailingSetupWithCleanup)
+        result = unittest.TestResult()
+        suite.run(result)
+        # Setup failure is reported as error; test count is 1, errors 1
+        self.assertEqual(result.testsRun, 1)
+        self.assertEqual(len(result.errors), 1)
+        # Cleanup must have run even after partial setup failure
+        self.assertIn("cleanup-ran", cleanup_log)
+        self.assertIn("setup-ran", cleanup_log)

@@ -70,25 +70,34 @@ def tracing_demo() -> dict[str, object]:
 # ---------------------------------------------------------------------------
 
 
+def _sample_with_c_call() -> int:
+    return len([1, 2, 3, 4])
+
+
 def profiling_demo() -> dict[str, object]:
-    """Observe call/return via sys.setprofile."""
+    """Observe call/return/c_call via sys.setprofile."""
 
     events: list[tuple[str, str]] = []
 
     def profiler(frame: FrameType, event: str, arg: Any) -> None:
-        if frame.f_code.co_name in {"_sample_target", "_sample_generator"}:
-            events.append((event, frame.f_code.co_name))
+        name = frame.f_code.co_name
+        if name in {"_sample_target", "_sample_generator", "_sample_with_c_call", "profiling_demo"}:
+            events.append((event, name))
+        elif event == "c_call":
+            # Capture c_call even if caller filter misses; still record
+            events.append((event, name))
 
     prev = sys.getprofile()
     try:
         sys.setprofile(profiler)
         _sample_target(2)
-        _sample_target(2)
+        _sample_with_c_call()
+        len([1, 2, 3])  # explicit C builtin c_call in profiling_demo frame
     finally:
         sys.setprofile(prev)
 
     restored = sys.getprofile() is prev
-    return {"events": events, "restored": restored, "has_c_call": any(e[0] in {"call", "c_call"} for e in events)}
+    return {"events": events, "restored": restored, "has_c_call": any(e[0] == "c_call" for e in events)}
 
 
 # ---------------------------------------------------------------------------
