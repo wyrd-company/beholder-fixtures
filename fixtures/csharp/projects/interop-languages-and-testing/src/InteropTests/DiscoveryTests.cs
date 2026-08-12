@@ -48,15 +48,24 @@ public sealed class DiscoveryTests : IClassFixture<SampleFixture>, IDisposable
         Assert.Equal(42, _fixture.Seed);
     }
 
-    [Fact]
-    public void Fact_consumer_still_callable_directly_contrasted_with_runner()
+    // Unattributed, test-shaped probe — NOT discovered by xUnit (no [Fact]/[Theory])
+    // Used to contrast explicit direct invocation with framework-mediated discovery.
+    private sealed class UnattributedProbe
     {
-        // Direct call (explicit invocation) versus framework-mediated discovery:
-        // this assertion exercises the same consumer logic that the other tests
-        // reach only when the VSTest host discovers and invokes them via
-        // xunit.runner.visualstudio + Microsoft.NET.Test.Sdk.
-        var result = CatalogConsumer.ConsumeFunctional();
-        Assert.Equal(6, result);
+        public void Probe_without_attribute()
+        {
+            // Test-shaped: contains an assertion, but no attribute so runner never discovers it.
+            Assert.Equal(6, CatalogConsumer.ConsumeFunctional());
+        }
+    }
+
+    [Fact]
+    public void Fact_direct_invocation_of_unattributed_test_shape()
+    {
+        // Contrast: explicit, direct invocation of an unattributed test-shaped method.
+        // This path is NOT framework-discovered; the runner discovers only the
+        // surrounding [Fact], which then calls the probe directly via `new`.
+        new UnattributedProbe().Probe_without_attribute();
     }
 
     public void Dispose()

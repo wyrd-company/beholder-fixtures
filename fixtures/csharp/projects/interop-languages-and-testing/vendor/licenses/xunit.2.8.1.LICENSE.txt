@@ -1,11 +1,18 @@
-Package: xunit.2.8.1
-Source: nuget.org (https://api.nuget.org/v3-flatcontainer/xunit.2.8.1/1/xunit.2.8.1.nupkg) and SDK library-packs for FSharp.Core
+Package: xunit 2.8.1
+PackageId: xunit
+Version: 2.8.1
+Source: https://api.nuget.org/v3-flatcontainer/xunit/2.8.1/xunit.2.8.1.nupkg
 License: Apache-2.0
 LicenseUrl: https://licenses.nuget.org/Apache-2.0
-ProjectUrl: https://github.com/xunit/xunit (license https://raw.githubusercontent.com/xunit/xunit/master/license.txt)
+ProjectUrl: https://github.com/xunit/xunit
 Copyright: Copyright (C) .NET Foundation
+LocalLicense: vendor/licenses/Apache-2.0.txt
+VendoredPackage: vendor/packages/xunit.2.8.1.nupkg
 
 This file records provenance for offline restore. The original .nupkg in vendor/packages
-contains the authoritative .nuspec license metadata. For MIT packages, license text is
-the standard MIT license at https://licenses.nuget.org/Apache-2.0. For Apache-2.0, see https://www.apache.org/licenses/LICENSE-2.0.
-ThirdPartyNotices where present are preserved as separate files or in the original package.
+contains the authoritative .nuspec license metadata. The applicable license text is
+vendored locally at vendor/licenses/Apache-2.0.txt (MIT: vendor/licenses/MIT.txt, Apache-2.0: vendor/licenses/Apache-2.0.txt).
+ThirdPartyNotices where present are preserved as separate files or in the original package
+(e.g., vendor/licenses/microsoft.codecoverage.17.11.1.ThirdPartyNotices.txt).
+
+Flat-container provenance verified: https://api.nuget.org/v3-flatcontainer/xunit/2.8.1/xunit.2.8.1.nupkg

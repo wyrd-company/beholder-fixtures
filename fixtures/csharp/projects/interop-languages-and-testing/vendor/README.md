@@ -42,10 +42,13 @@ The stable xUnit **v2** line is used intentionally; xUnit v3 and
 ## Licenses and notices
 
 Per-package license records are in `vendor/licenses/*.LICENSE.txt` (derived
-from the `.nuspec` `<license>` and `<licenseUrl>` fields). The authoritative
-license text for MIT is https://licenses.nuget.org/MIT and for Apache-2.0 is
-https://www.apache.org/licenses/LICENSE-2.0. The original `LICENSE.md` from
-`Newtonsoft.Json` and `ThirdPartyNotices.txt` from `Microsoft.CodeCoverage` /
+from the `.nuspec` `<license>` and `<licenseUrl>` fields). The applicable
+license texts are vendored locally at `vendor/licenses/MIT.txt` (MIT) and
+`vendor/licenses/Apache-2.0.txt` (Apache-2.0). The original `LICENSE.md` from
+`Newtonsoft.Json` and `ThirdPartyNotices.txt` from `Microsoft.CodeCoverage` and
 `Microsoft.TestPlatform.TestHost` are preserved as
-`newtonsoft.json.13.0.1.LICENSE.md` and
-`microsoft.codecoverage.17.11.1.ThirdPartyNotices.txt` (and equivalent).
+`newtonsoft.json.13.0.1.LICENSE.md`,
+`microsoft.codecoverage.17.11.1.ThirdPartyNotices.txt`, and
+`microsoft.testplatform.testhost.17.11.1.ThirdPartyNotices.txt`.
+The per-package records map each package to its `LocalLicense` file and
+`VendoredPackage`, with flat-container provenance verified.

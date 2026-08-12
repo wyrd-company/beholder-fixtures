@@ -1,11 +1,18 @@
-Package: microsoft.testplatform.testhost.17.11.1
-Source: nuget.org (https://api.nuget.org/v3-flatcontainer/microsoft.testplatform.testhost.17.11.1/1/microsoft.testplatform.testhost.17.11.1.nupkg) and SDK library-packs for FSharp.Core
+Package: microsoft.testplatform.testhost 17.11.1
+PackageId: microsoft.testplatform.testhost
+Version: 17.11.1
+Source: https://api.nuget.org/v3-flatcontainer/microsoft.testplatform.testhost/17.11.1/microsoft.testplatform.testhost.17.11.1.nupkg
 License: MIT
 LicenseUrl: https://licenses.nuget.org/MIT
 ProjectUrl: https://github.com/microsoft/vstest
 Copyright: © Microsoft Corporation. All rights reserved.
+LocalLicense: vendor/licenses/MIT.txt
+VendoredPackage: vendor/packages/microsoft.testplatform.testhost.17.11.1.nupkg
 
 This file records provenance for offline restore. The original .nupkg in vendor/packages
-contains the authoritative .nuspec license metadata. For MIT packages, license text is
-the standard MIT license at https://licenses.nuget.org/MIT. For Apache-2.0, see https://www.apache.org/licenses/LICENSE-2.0.
-ThirdPartyNotices where present are preserved as separate files or in the original package.
+contains the authoritative .nuspec license metadata. The applicable license text is
+vendored locally at vendor/licenses/MIT.txt (MIT: vendor/licenses/MIT.txt, Apache-2.0: vendor/licenses/Apache-2.0.txt).
+ThirdPartyNotices where present are preserved as separate files or in the original package
+(e.g., vendor/licenses/microsoft.codecoverage.17.11.1.ThirdPartyNotices.txt).
+
+Flat-container provenance verified: https://api.nuget.org/v3-flatcontainer/microsoft.testplatform.testhost/17.11.1/microsoft.testplatform.testhost.17.11.1.nupkg
