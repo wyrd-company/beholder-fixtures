@@ -145,10 +145,14 @@ Valid contrast: `src/patterns.rs` `let_else_pattern` uses `let Some(value) = opt
 
 ## Borrow rejected by destruction order / Phantom drop check (RS-CAN-OWN-010)
 
-`Owning<T>` reaches its `T` through an ownership-opaque raw pointer; `PhantomData<T>`
-is what makes the compiler treat it as owning a `T`. Under its `Drop` impl, drop-check
-then requires any data borrowed by that owned `T` to strictly outlive the wrapper.
-Reversing the declaration order so the borrowed data drops first is rejected:
+`Owning<T>` (raw `*mut T` + `PhantomData<T>` + freeing `Drop`) together express
+owning a `T` through ownership-opaque raw-pointer/PhantomData/Drop graph
+relationships; the combination, not `PhantomData` alone, participates in
+drop-check. Under this combined owning `Drop`, the compiler requires any data
+borrowed by that owned `T` to strictly outlive the wrapper (fixture is
+sufficient for code-graph coverage and does not isolate `PhantomData` as sole
+cause — see Bob determination). Reversing the declaration order so the
+borrowed data drops first is rejected:
 
 ```rust
 let owning;                              // declared first -> dropped last
@@ -160,9 +164,10 @@ owning = Owning::new(Observer(&subject));
 
 Valid contrast: `src/destructuring_assignment.rs` `owning_vs_nonowning` declares `subject`
 before the `Owning<Observer>` that owns an `Observer` borrowing it, so `subject` strictly
-outlives the wrapper. `Owning<T>` (`*mut T` + `PhantomData<T>` + a `Drop` that frees the
-allocation) owns its `T`; `NonOwning<'a, T>` (`*const T` + `PhantomData<&'a T>` + `Drop`)
-merely borrows and imposes no such strict-outlives obligation on the value it references.
+outlives the wrapper. The combined `Owning` raw-pointer/PhantomData/Drop owns its `T`
+while `NonOwning` raw-pointer/PhantomData/Drop borrows, imposing no such strict-outlives
+obligation on the value it references — both are code-graph relationships, not
+`PhantomData` in isolation.
 
 ## Illegal destructuring assignment pattern (RS-CAN-OWN-010)
 

@@ -113,15 +113,19 @@ pub fn evaluation_drop_order() -> i32 {
 
 /// Generic wrappers with and without suitable phantom ownership under `Drop`.
 ///
-/// Both wrappers store an ownership-opaque raw pointer, so the pointer field
-/// itself says nothing about ownership. The `PhantomData` — and only the
-/// `PhantomData` — supplies the ownership relationship the compiler reasons
-/// about.
+/// Both wrappers store an ownership-opaque raw pointer (`*mut T` / `*const T`)
+/// combined with `PhantomData` and a `Drop` impl to express ownership and
+/// drop-check relationships as a combined code-graph signal. The raw pointer
+/// alone is opaque; `PhantomData` and `Drop` together complete the
+/// ownership/drop-check relationships demonstrated. The fixture is sufficient
+/// for code-graph coverage and does not isolate `PhantomData` as the sole
+/// cause of the compiler lifetime constraint (see Bob determination).
 
-/// Owning wrapper: owns a heap-allocated `T` reached through a raw pointer.
-/// `PhantomData<T>` marks the type as *owning* a `T`, so drop-check and
-/// `T`-outlives reasoning treat it as though a `T` were stored inline; the
-/// `Drop` impl reclaims the allocation, so the ownership claim is real.
+/// Owning wrapper: owns a heap-allocated `T` reached through an ownership-
+/// opaque raw pointer combined with `PhantomData<T>` and a `Drop` that frees
+/// the allocation. Together the raw pointer, phantom, and `Drop` express an
+/// owning relationship for drop-check and outlives reasoning; the `Drop` that
+/// reclaims the allocation makes the ownership claim real.
 pub struct Owning<T> {
     ptr: *mut T,
     _owns: PhantomData<T>,
@@ -147,10 +151,11 @@ impl<T> Drop for Owning<T> {
     }
 }
 
-/// Non-owning wrapper: refers to a `T` it does not own, through the same kind
-/// of ownership-opaque raw pointer. `PhantomData<&'a T>` marks it as merely
-/// *borrowing* a `T` for `'a` (imposing `T: 'a` and shared-borrow variance)
-/// without claiming ownership; its `Drop` reclaims nothing.
+/// Non-owning wrapper: refers to a `T` it does not own through the same kind
+/// of ownership-opaque raw pointer combined with `PhantomData<&'a T>` and a
+/// trivial `Drop`. Together the raw pointer, phantom borrow, and `Drop`
+/// express a borrowing relationship that imposes `T: 'a` and shared-borrow
+/// variance without claiming ownership or freeing the allocation.
 pub struct NonOwning<'a, T> {
     ptr: *const T,
     _borrows: PhantomData<&'a T>,
@@ -173,13 +178,17 @@ impl<'a, T> Drop for NonOwning<'a, T> {
     fn drop(&mut self) {}
 }
 
-/// Instantiate the phantom-ownership contrast on a lifetime-bearing type. The
-/// owned `Observer` borrows `subject` and reads it during its own `Drop`, so
-/// `Owning<Observer>` owning that `Observer` forces drop-check to require
-/// `subject` to strictly outlive the wrapper. The declaration order below
-/// satisfies that requirement; the reversed order is rejected (E0597, see
-/// `docs/counterexamples.md`). `NonOwning` owns nothing, so no such
-/// strict-outlives obligation arises for the value it merely borrows.
+/// Instantiate the combined ownership/drop-check contrast on a lifetime-
+/// bearing type. The `Observer` borrows `subject` and reads it during its own
+/// `Drop`; `Owning<Observer>` (raw `*mut T` + `PhantomData<T>` + freeing `Drop`)
+/// together express ownership that forces drop-check to require `subject` to
+/// strictly outlive the wrapper, while `NonOwning` (raw `*const T` +
+/// `PhantomData<&'a T>` + `Drop`) borrows and imposes no such owning
+/// obligation. The declaration order below satisfies the combined
+/// relationship; the reversed order is rejected (E0597, see
+/// `docs/counterexamples.md`). The fixture demonstrates the combined
+/// raw-pointer/PhantomData/Drop graph relationships, not `PhantomData` in
+/// isolation.
 pub fn owning_vs_nonowning() -> usize {
     struct Observer<'a>(&'a str);
     impl<'a> Drop for Observer<'a> {
