@@ -105,8 +105,7 @@ fn place_with_log<'a>(label: &'static str, target: &'a mut i32) -> &'a mut i32 {
 
 /// Assignment order: for an ordinary `=` assignment Rust evaluates the assigned value (RHS)
 /// *before* the assignee place (LHS). Both operands log a side effect here, so the recorded
-/// order is `["rhs", "lhs"]`. This is the opposite of compound assignment (`+=`), which
-/// evaluates the place first — see `indexed_compound_assignment`.
+/// order is `["rhs", "lhs"]`.
 pub fn assignment_order() -> Vec<&'static str> {
     ORDER_LOG.with(|l| l.set(Vec::new()));
     let mut target: i32 = 0;
