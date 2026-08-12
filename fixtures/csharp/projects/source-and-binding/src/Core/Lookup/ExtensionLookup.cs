@@ -67,10 +67,20 @@ public static class ExtensionLookupSurface
         _ = viaDelegate("a b c");
     }
 
-    public static void ViaExtensionAdd()
+    public static ExtensibleBag ViaExtensionAdd()
     {
+        // ExtensibleBag declares no instance Add. The collection-initializer binds
+        // each element through the extension Add, and the direct call form resolves
+        // to the same extension. Extension-mediated Add participates in lookup.
+        var bag = new ExtensibleBag { 1, 2 };
+        bag.Add(3);
+
+        // Extension AddRange participates on ICollection<T>, which has no instance
+        // AddRange, while List<T>'s instance Add is used inside the extension.
         System.Collections.Generic.ICollection<int> collection = new List<int> { 1, 2 };
-        collection.AddRange(new[] { 3, 4 }); // extension AddRange via CollectionOps on ICollection<T>.
+        collection.AddRange(new[] { 3, 4 });
+
+        return bag;
     }
 }
 

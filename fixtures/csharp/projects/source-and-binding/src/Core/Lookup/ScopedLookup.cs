@@ -81,7 +81,9 @@ public class ScopedLookup : ScopedLookupBase
         return $"{viaThis}:{viaBase}:{viaGlobal}";
     }
 
-    public string CloserUsingScope()
+    // Namespace-qualified resolution of the two same-named Widget types. The
+    // closer-using-scope win is demonstrated in CloserUsingScope.cs.
+    public string QualifiedWidgetResolution()
     {
         string viaA = DemoA.Widget.Describe();
         string viaB = DemoB.Widget.Describe();
