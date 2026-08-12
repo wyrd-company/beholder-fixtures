@@ -77,6 +77,20 @@ public sealed class DualDisposable : IDisposable, IAsyncDisposable
     }
 }
 
+public readonly struct ReadonlyStructResource : IDisposable
+{
+    private readonly Action<string> _log;
+    private readonly string _name;
+
+    public ReadonlyStructResource(string name, Action<string> log)
+    {
+        _name = name;
+        _log = log;
+    }
+
+    public void Dispose() => _log($"dispose-readonly-struct:{_name}");
+}
+
 public static class DisposalCatalog
 {
     public static void UsingStatement(Action<string> log)
@@ -207,6 +221,36 @@ public static class DisposalCatalog
     {
         using var d = new DualDisposable(log);
         log("body-sync");
+    }
+
+    public static void ReadonlyStructUsing(Action<string> log)
+    {
+        using var r = new ReadonlyStructResource("readonly-struct", log);
+        log("body-readonly-struct");
+    }
+
+    public static void ReadonlyVariableRestriction(Action<string> log)
+    {
+        using var resource = new TrackingResource("readonly-var", log);
+        log("body-readonly");
+    }
+
+    public static void DynamicUsing(Action<string> log)
+    {
+        dynamic resource = new TrackingResource("dynamic", log);
+        using (resource)
+        {
+            log("body-dynamic");
+        }
+    }
+
+    public static void DynamicNullUsing(Action<string> log)
+    {
+        dynamic resource = null!;
+        using (resource)
+        {
+            log("body-dynamic-null");
+        }
     }
 
     public static void ScopeDifference(Action<string> log)

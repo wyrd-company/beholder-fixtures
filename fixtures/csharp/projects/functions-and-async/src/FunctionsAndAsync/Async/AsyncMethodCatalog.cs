@@ -109,6 +109,28 @@ public static class AsyncMethodCatalog
         return after;
     }
 
+    public static async Task<int> SpanNotCrossingSuspension(int[] buffer)
+    {
+        Span<int> span = buffer;
+        int sum = 0;
+        for (int i = 0; i < span.Length; i++)
+        {
+            sum += span[i];
+        }
+
+        await Task.Delay(1);
+        return sum;
+    }
+
+    public static async Task<int> RefLocalNotCrossingSuspension(int value)
+    {
+        int local = value * 2;
+        ref int r = ref local;
+        int before = r + 1;
+        await Task.Delay(1);
+        return before;
+    }
+
     public static Task<int> AsyncEntryPointLike(string[] args)
     {
         return SimpleTaskOfT(args.Length);
