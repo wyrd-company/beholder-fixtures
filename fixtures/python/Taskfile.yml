@@ -1,0 +1,61 @@
+# ---
+# relationships:
+#   implements: ground-rules
+# ---
+
+version: '3'
+
+tasks:
+  build:
+    desc: Build all Python fixture projects
+    cmds:
+      - task --dir projects/plugin-content-library build
+      - task --dir projects/layered-settings-resolver build
+      - task --dir projects/async-task-toolkit build
+      - task --dir projects/record-modeling-kit build
+      - task --dir projects/measurement-types build
+      - task --dir projects/typed-toolkit build
+      - task --dir projects/job-runner build
+      - task --dir projects/markup-report-toolkit build
+      - task --dir projects/dispatch-framework build
+      - task --dir projects/distributable-suite build
+      - task --dir projects/native-extension-kit build
+      - task --dir projects/portability-layer build
+      - task --dir projects/diagnostics-toolkit build
+      - task --dir projects/feature-integration-suite build
+
+  lint:
+    desc: Lint all Python fixture projects
+    cmds:
+      - task --dir projects/plugin-content-library lint
+      - task --dir projects/layered-settings-resolver lint
+      - task --dir projects/async-task-toolkit lint
+      - task --dir projects/record-modeling-kit lint
+      - task --dir projects/measurement-types lint
+      - task --dir projects/typed-toolkit lint
+      - task --dir projects/job-runner lint
+      - task --dir projects/markup-report-toolkit lint
+      - task --dir projects/dispatch-framework lint
+      - task --dir projects/distributable-suite lint
+      - task --dir projects/native-extension-kit lint
+      - task --dir projects/portability-layer lint
+      - task --dir projects/diagnostics-toolkit lint
+      - task --dir projects/feature-integration-suite lint
+
+  test:
+    desc: Test all Python fixture projects
+    cmds:
+      - task --dir projects/plugin-content-library test
+      - task --dir projects/layered-settings-resolver test
+      - task --dir projects/async-task-toolkit test
+      - task --dir projects/record-modeling-kit test
+      - task --dir projects/measurement-types test
+      - task --dir projects/typed-toolkit test
+      - task --dir projects/job-runner test
+      - task --dir projects/markup-report-toolkit test
+      - task --dir projects/dispatch-framework test
+      - task --dir projects/distributable-suite test
+      - task --dir projects/native-extension-kit test
+      - task --dir projects/portability-layer test
+      - task --dir projects/diagnostics-toolkit test
+      - task --dir projects/feature-integration-suite test
