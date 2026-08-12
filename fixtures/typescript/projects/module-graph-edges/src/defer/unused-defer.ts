@@ -12,6 +12,5 @@ export function describeUnused(): string {
   return "unused-defer-present";
 }
 
-// Keep binding alive for graph but not accessed — the existence of the
-// import defer itself is the corpus content, not its usage.
-void UnusedNs;
+// The deferred import itself retains the module-graph edge; no member access
+// is required and none is performed, satisfying the "unused" variant.

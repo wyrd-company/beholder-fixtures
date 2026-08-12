@@ -18,10 +18,9 @@ export * from "./sources/beta.js";
 
 // Two star sources exposing same name — explicit local export resolves ambiguity
 // Both alpha and beta export `sharedName`; barrel provides explicit resolution.
+// This explicit `sharedName` also demonstrates local-export precedence over the same
+// name provided by `export *` from alpha/beta — the local binding wins.
 export const sharedName = "resolved-harbor";
-
-// Explicit local export precedence: local `coveValue` above vs star
-export const coveValueResolved = "explicit-cove";
 
 // Identical origin reached twice through two star re-exports
 export * from "./sources/common-a.js";
@@ -32,7 +31,8 @@ export * from "./sources/common-b.js";
 // importing default from barrel must be explicit.
 
 // CommonJS re-export source — re-export without local binding
-export { cjsHarbor, cjsBeacon } from "./sources/cjs-source.js";
+// `cjs-commonjs/cjs-source.js` is an actual CommonJS boundary via nearest package.json type:commonjs
+export { cjsHarbor, cjsBeacon } from "./sources/cjs-commonjs/cjs-source.js";
 
 // Re-export without local binding (no intermediate import)
 export { HarborSkiff } from "../bindings/origins.js";

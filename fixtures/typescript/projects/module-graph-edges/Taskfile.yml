@@ -9,6 +9,10 @@ tasks:
       - ./node_modules/.bin/tsc -p tsconfig.attributes.json
       - ./node_modules/.bin/tsc -p tsconfig.no-unchecked.json
       - ./node_modules/.bin/tsc -p tsconfig.defer.json
+      - mkdir -p dist/barrel/sources/cjs-commonjs && cp src/barrel/sources/cjs-commonjs/package.json dist/barrel/sources/cjs-commonjs/package.json
+      - mkdir -p dist-attributes/barrel/sources/cjs-commonjs && cp src/barrel/sources/cjs-commonjs/package.json dist-attributes/barrel/sources/cjs-commonjs/package.json
+      - mkdir -p dist-verbatim/barrel/sources/cjs-commonjs && cp src/barrel/sources/cjs-commonjs/package.json dist-verbatim/barrel/sources/cjs-commonjs/package.json
+      - mkdir -p dist-no-unchecked/barrel/sources/cjs-commonjs && cp src/barrel/sources/cjs-commonjs/package.json dist-no-unchecked/barrel/sources/cjs-commonjs/package.json
 
   lint:
     desc: Check formatting with prettier and tsc no-emit over fixture sources (vendored source excluded, no tracked source mutated)
