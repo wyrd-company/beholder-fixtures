@@ -6,7 +6,7 @@
     <MSBuildWarningsAsMessages>MSB3277</MSBuildWarningsAsMessages>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.CodeAnalysis" HintPath="/usr/lib/dotnet/sdk/10.0.110/Roslyn/bincore/Microsoft.CodeAnalysis.dll" PrivateAssets="all" />
-    <Reference Include="Microsoft.CodeAnalysis.CSharp" HintPath="/usr/lib/dotnet/sdk/10.0.110/Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll" PrivateAssets="all" />
+    <Reference Include="Microsoft.CodeAnalysis" HintPath="$(MSBuildToolsPath)/Roslyn/bincore/Microsoft.CodeAnalysis.dll" PrivateAssets="all" />
+    <Reference Include="Microsoft.CodeAnalysis.CSharp" HintPath="$(MSBuildToolsPath)/Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll" PrivateAssets="all" />
   </ItemGroup>
 </Project>

@@ -4,7 +4,7 @@ tasks:
   build:
     desc: Compile every declared build context without restoring from the network.
     cmds:
-      - dotnet restore SourceAndBinding.sln --ignore-failed-sources
+      - dotnet restore --configfile nuget.config SourceAndBinding.sln
       - dotnet build SourceAndBinding.sln -c Release --no-restore
       - dotnet build src/Core.Generator/Core.Generator.csproj --no-restore -c Release
       - dotnet build src/Core/Core.csproj --no-restore -c Release
@@ -21,7 +21,7 @@ tasks:
   lint:
     desc: Verify formatting and analyzer warnings for fixture-owned source.
     cmds:
-      - dotnet restore SourceAndBinding.sln --ignore-failed-sources
+      - dotnet restore --configfile nuget.config SourceAndBinding.sln
       - dotnet format SourceAndBinding.sln --verify-no-changes --no-restore
       - dotnet build SourceAndBinding.sln -c Release --no-restore /p:TreatWarningsAsErrors=true
 
