@@ -7,7 +7,36 @@ tasks:
     cmds:
       - dotnet restore RoslynComponents.sln --configfile nuget.config
       - dotnet build RoslynComponents.sln -c Release --no-restore -p:WarningsNotAsErrors=RCAN001
-      - 'dotnet build src/Consumer/Consumer.csproj -c Release --no-restore --no-incremental || echo "strict boundary: StrictArea/BoundaryViolation.cs RCAN001 error (fail) vs RelaxedArea/BoundaryViolation.cs suppressed (pass) — same source shape"'
+      # CS-CAN-102 same-source boundary. src/PolicyBoundary/BoundaryViolation.cs is
+      # one physical source compiled under two configurations. Relaxed suppresses
+      # RCAN001 and must build cleanly; Strict promotes RCAN001 to an error and must
+      # fail on that same source. The probe below proves the Strict failure is
+      # exactly RCAN001 and rejects any unrelated failure. It builds only the
+      # separate PolicyBoundary project, so the solution build's outputs above are
+      # never cleaned, removed, or rebuilt.
+      - dotnet build src/PolicyBoundary/PolicyBoundary.csproj -c Relaxed --no-restore
+      - cmd: |
+          set -u
+          log="$(mktemp)"
+          trap 'rm -f "$log"' EXIT
+          if dotnet build src/PolicyBoundary/PolicyBoundary.csproj -c Strict --no-restore >"$log" 2>&1; then
+            echo "BOUNDARY PROBE FAILED: Strict configuration built successfully; RCAN001 was expected to fail this same source."
+            cat "$log"
+            exit 1
+          fi
+          total_errors="$(grep -Ec ': error ' "$log" || true)"
+          rcan_errors="$(grep -Ec ': error RCAN001' "$log" || true)"
+          if [ "$rcan_errors" -eq 0 ]; then
+            echo "BOUNDARY PROBE FAILED: Strict build failed for a reason other than the expected RCAN001 error."
+            cat "$log"
+            exit 1
+          fi
+          if [ "$total_errors" -ne "$rcan_errors" ]; then
+            echo "BOUNDARY PROBE FAILED: Strict build produced $total_errors errors but only $rcan_errors are RCAN001; an unrelated error is present."
+            grep -E ': error ' "$log"
+            exit 1
+          fi
+          echo "BOUNDARY PROBE: same source src/PolicyBoundary/BoundaryViolation.cs builds under Relaxed and fails solely with RCAN001 under Strict ($rcan_errors RCAN001 error(s), $total_errors total)."
 
   lint:
     desc: Verify formatting and analyzer warnings for fixture-owned source (vendored code excluded).

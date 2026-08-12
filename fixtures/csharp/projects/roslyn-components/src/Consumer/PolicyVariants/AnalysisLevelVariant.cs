@@ -12,7 +12,8 @@ namespace Fixture.Roslyn.Policy;
 // Combined variants demonstrated together in the consumer build:
 // - nullable enable (default) plus #nullable enable/disable per file
 // - WarningLevel 4 plus AnalysisLevel latest
-// - .editorconfig severity (RCAN001 = warning, promoted to error in StrictArea)
+// - .editorconfig severity (RCAN001 = warning; promoted to error by build
+//   configuration in the PolicyBoundary project)
 // - globalconfig build_property (GeneratorProvenance / CatalogPrefix)
 // - NoWarn CS0436 at project level
 // - pragma disable/restore (PragmaSuppressed.cs)

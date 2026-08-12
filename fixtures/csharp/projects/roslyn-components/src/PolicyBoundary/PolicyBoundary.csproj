@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- CS-CAN-102: one physical source (BoundaryViolation.cs) compiled under two
+       policy configurations. The Strict configuration promotes the CS-CAN-016
+       analyzer's RCAN001 naming diagnostic to a build error, so the same source
+       fails to build. The Relaxed configuration silences RCAN001, so the same
+       source builds cleanly. Same source, opposite outcome, selected purely by
+       build configuration. This project is intentionally kept out of the default
+       solution build path for the failing case: only the explicit `-c Strict`
+       invocation exercises the failure, so the required solution build is never
+       affected by it. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <Configurations>Debug;Release;Strict;Relaxed</Configurations>
+  </PropertyGroup>
+
+  <!-- Strict policy: promote RCAN001 to an error. Building this configuration fails. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Strict'">
+    <WarningsAsErrors>$(WarningsAsErrors);RCAN001</WarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- Relaxed policy: suppress RCAN001 entirely. Building this configuration passes. -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Relaxed'">
+    <NoWarn>$(NoWarn);RCAN001</NoWarn>
+  </PropertyGroup>
+
+  <!-- CS-CAN-016 analyzer supplies RCAN001; referenced as an analyzer only. -->
+  <ItemGroup>
+    <ProjectReference Include="..\Analyzer\Analyzer.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>

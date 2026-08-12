@@ -14,8 +14,11 @@ namespace Fixture.Roslyn;
 // documented rather than demonstrated as invalid source.
 public static class DiagnosticPrecedence
 {
-    public const string StrictPath = "PolicyVariants/StrictArea";
-    public const string RelaxedPath = "PolicyVariants/RelaxedArea";
+    // Same-source pass/fail is demonstrated by configuration in the dedicated
+    // PolicyBoundary project: the Strict configuration promotes RCAN001 to an
+    // error, the Relaxed configuration suppresses it.
+    public const string StrictConfiguration = "PolicyBoundary (Strict)";
+    public const string RelaxedConfiguration = "PolicyBoundary (Relaxed)";
     public const string AnalyzerId = "RCAN001";
     public const string SuppressorId = "RCSUP001";
     public const string GeneratorDiagnosticId = "RCGEN001";

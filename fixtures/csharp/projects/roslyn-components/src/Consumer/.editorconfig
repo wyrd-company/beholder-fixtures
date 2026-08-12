@@ -4,16 +4,9 @@ root = true
 dotnet_analyzer_diagnostic.category-RoslynComponents.Naming.severity = warning
 dotnet_diagnostic.RCAN001.severity = warning
 
-# CS-CAN-102: per-path settings - StrictArea promotes RCAN001 to error, RelaxedArea silences it.
-[PolicyVariants/StrictArea/**.cs]
-dotnet_diagnostic.RCAN001.severity = error
-
-[PolicyVariants/RelaxedArea/**.cs]
-dotnet_diagnostic.RCAN001.severity = none
-
-# CS-CAN-102: generated-code treatment for the Generated folder
-[PolicyVariants/RelaxedArea/**.cs]
-dotnet_diagnostic.CA1822.severity = none
+# CS-CAN-102: same-source promotion/demotion by build configuration lives in the
+# dedicated PolicyBoundary project (src/PolicyBoundary), not in a per-path rule
+# here, so one physical source can pass or fail purely by configuration.
 
 [PolicyVariants/**.cs]
 dotnet_diagnostic.CA1822.severity = none
