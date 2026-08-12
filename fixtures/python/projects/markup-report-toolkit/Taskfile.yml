@@ -2,18 +2,18 @@ version: '3'
 
 tasks:
   build:
-    desc: Byte-compile all fixture-owned packages.
+    desc: Byte-compile all fixture-owned packages in default, -O, and -OO contexts (offline, non-mutating via pycache prefix).
     dir: '{{.TASKFILE_DIR}}'
     cmds:
-      - python3 -m compileall -q markup_report_toolkit
+      - PYTHONPYCACHEPREFIX=/tmp/markup-report-toolkit-pycache-default python3 -m compileall -q markup_report_toolkit
+      - PYTHONPYCACHEPREFIX=/tmp/markup-report-toolkit-pycache-O python3 -O -m compileall -q markup_report_toolkit
+      - PYTHONPYCACHEPREFIX=/tmp/markup-report-toolkit-pycache-OO python3 -OO -m compileall -q markup_report_toolkit
 
   lint:
-    desc: Parse and byte-compile every fixture-owned source file.
+    desc: Parse and byte-compile every fixture-owned source file (offline, non-mutating via pycache prefix).
     dir: '{{.TASKFILE_DIR}}'
     cmds:
-      - >-
-        find markup_report_toolkit -type f -name '*.py' -print0 |
-        xargs -0 python3 -m py_compile
+      - PYTHONPYCACHEPREFIX=/tmp/markup-report-toolkit-lint find markup_report_toolkit -type f -name '*.py' -print0 | xargs -0 env PYTHONPYCACHEPREFIX=/tmp/markup-report-toolkit-lint python3 -m py_compile
 
   test:
     desc: Succeed with no planned test files.

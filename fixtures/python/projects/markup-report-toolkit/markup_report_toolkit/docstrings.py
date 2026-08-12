@@ -39,7 +39,16 @@ def render_report(title: str, sections: list[ReportSection]) -> str:
     return "\n".join(parts)
 
 
-# Additional documentation string — not a docstring (assigned to variable)
+# Additional documentation string syntax: string literal immediately after docstring (not assigned)
+def section_with_additional(title: str) -> str:
+    """Section docstring: primary documentation."""
+    """Additional documentation string immediately after docstring — extra literal, not __doc__."""
+    return title
+
+additional_string_holder = section_with_additional.__doc__  # should be primary docstring only
+additional_extra_literal = "extra"  # placeholder to keep variable; real additional is the bare string above
+
+# Legacy assigned variable contrast (assigned string is not additional-docstring syntax)
 extra_documentation = """Additional documentation string stored as variable, not as __doc__."""
 # It is not treated as docstring because it is not the first statement in module/class/function
 
@@ -97,11 +106,24 @@ _normal_doc_sample = render_report.__doc__
 optimized_minus_o_retains = True  # Python -O retains docstrings
 optimized_minus_oo_strips = True  # Python -OO strips docstrings (assertions + docstrings)
 
-# Demonstrate inspect cleaning
+# Demonstrate inspect cleaning on multiline indented docstring
 import inspect
 
-cleaned_doc = inspect.cleandoc(ReportSection.__doc__ or "")
-# inspect.cleandoc removes common indentation
+class MultilineIndentedDoc:
+    """First summary line.
+
+    Second paragraph indented by four spaces.
+        Third line further indented by eight spaces.
+    Dedented back to four.
+    """
+
+multiline_raw_doc = MultilineIndentedDoc.__doc__
+cleaned_doc = inspect.cleandoc(multiline_raw_doc or "")
+cleaned_multiline_doc = inspect.cleandoc(MultilineIndentedDoc.__doc__ or "")
+# inspect.cleandoc removes common leading whitespace from all non-blank lines
+
+# Also keep one-line cleaning for contrast — but main locator is multiline
+one_line_cleaned = inspect.cleandoc(ReportSection.__doc__ or "")
 
 # Demonstrate that extra_documentation is not accessible as __doc__
 extra_is_not_doc = extra_documentation != __doc__
@@ -111,6 +133,8 @@ __all__ = [
     "render_report",
     "decorated_function",
     "with_doctest_example",
+    "section_with_additional",
+    "MultilineIndentedDoc",
     "_check_docstring_in_subprocess",
     "extra_documentation",
 ]

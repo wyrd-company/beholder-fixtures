@@ -11,16 +11,26 @@ import asyncio
 allow_top_level_await = ast.PyCF_ALLOW_TOP_LEVEL_AWAIT
 
 # Top-level await source — valid only with the flag
-await_source = "await asyncio.sleep(0)"
+await_source = "await asyncio.sleep(0)\nexecuted_via_compiled = 42"
 
 # Compile with flag — succeeds as coroutine-like top-level
 compiled_with_flag = compile(
     await_source, "<await-top>", "exec", flags=allow_top_level_await
 )
 # The resulting code object is a coroutine-type when top-level await is allowed
-is_coroutine_flag_set = bool(compiled_with_flag.co_flags & 0x80)  # CO_COROUTINE flag check placeholder
-# More robust: check that co_flags includes CO_COROUTINE (0x80) or inspect via asyncio
+is_coroutine_flag_set = bool(compiled_with_flag.co_flags & 0x80)  # CO_COROUTINE
 _has_await = True
+
+# Execute the flagged compiled code object under controlled loop ownership and record result
+import types
+
+_compiled_flag_globals: dict[str, object] = {"asyncio": asyncio}
+_compiled_flag_coro = types.FunctionType(compiled_with_flag, _compiled_flag_globals)()  # type: ignore[arg-type]
+# Verify it is a coroutine and run it
+is_top_level_coro = asyncio.iscoroutine(_compiled_flag_coro)
+asyncio.run(_compiled_flag_coro)
+compiled_top_level_executed_result = _compiled_flag_globals.get("executed_via_compiled")
+compiled_top_level_executed_ok = compiled_top_level_executed_result == 42
 
 # Contrast: ordinary module compilation without flag rejects top-level await
 ordinary_rejects = False
@@ -48,6 +58,7 @@ async def _run_top_level() -> str:
     return "await-completed"
 
 top_level_result = asyncio.run(_run_top_level())
+# Keep separate from compiled execution above; both prove coroutine behavior
 
 # Top-level await is not importable as ordinary module source; it requires
 # the flag. Ordinary ``exec(compile(...))`` without flag fails as shown above.

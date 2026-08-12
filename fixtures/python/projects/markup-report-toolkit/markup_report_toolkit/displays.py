@@ -40,14 +40,61 @@ call_kwargs = {"a": 1, "b": 2}
 # Call with ** merging — duplicate would raise TypeError at runtime, not syntax
 merged_kwargs_call = {**{"a": 1}, **{"b": 2}}
 
-# Unhashable key would be TypeError at runtime — excluded as runtime failure, not fixture syntax
-# Keep valid hashable keys above.
+# Duplicate-call: valid call source that raises TypeError at runtime (multiple values for same keyword)
+def _expect_two(a: int, b: int) -> int:
+    return a + b
+
+try:
+    _expect_two(a=1, **{"a": 2})  # type: ignore[arg-type]
+    duplicate_call_raises = False
+except TypeError:
+    duplicate_call_raises = True
+
+try:
+    dict(a=1, **{"a": 2})  # type: ignore[arg-type]
+    duplicate_call_dict_raises = False
+except TypeError:
+    duplicate_call_dict_raises = True
+
+# Unhashable key: valid display source that raises TypeError at runtime
+try:
+    unhashable_display = {[1, 2]: "bad"}  # type: ignore[dict-item]
+    unhashable_key_raises = False
+except TypeError:
+    unhashable_display = {}
+    unhashable_key_raises = True
+
+try:
+    _tmp: dict[Any, Any] = {}
+    _tmp[[1, 2]] = 1  # type: ignore[index]
+    unhashable_item_raises = False
+except TypeError:
+    unhashable_item_raises = True
+else:
+    unhashable_item_raises = False
+
+# Keep valid hashable keys above; unhashable cases are guarded runtime failures.
 
 # Set order is unspecified — demonstrate that display order is source order but set iteration not guaranteed sorted
 set_insertion_order = {3, 1, 2}
 
 # Comprehension key-before-value nuance: dict comprehension value may reference key
 dict_comprehension = {k: k * 2 for k in [1, 2, 3]}
+
+# Key-before-value evaluation order in dict comprehension: key side effect before value per iteration
+_dict_comp_log: list[str] = []
+
+def _kc(v: int) -> int:
+    _dict_comp_log.append(f"k:{v}")
+    return v
+
+def _vc(v: int) -> int:
+    _dict_comp_log.append(f"v:{v}")
+    return v * 10
+
+_dict_comp_log.clear()
+dict_comp_key_before_value = {_kc(k): _vc(k) for k in [1, 2]}
+key_before_value_order = list(_dict_comp_log)  # ["k:1","v:1","k:2","v:2"] key before value
 
 # Side-effect order — left-to-right evaluation of display elements
 _side_effect_log: list[str] = []

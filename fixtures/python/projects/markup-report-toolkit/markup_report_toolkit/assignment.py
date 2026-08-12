@@ -108,8 +108,49 @@ class Overlap:
 ov = Overlap()
 ov.attr, lst[0] = 99, 88
 
-# Arity failures are invalid source and excluded; we keep matching arities.
+# Arity failures: valid unpacking source that raises ValueError at runtime (not invalid syntax)
+try:
+    a_arity, b_arity = [1, 2, 3]  # type: ignore[misc]
+    arity_too_many = False
+except ValueError:
+    arity_too_many = True
+
+try:
+    x1, y1, z1 = [1, 2]  # type: ignore[misc]
+    arity_too_few = False
+except ValueError:
+    arity_too_few = True
+
+try:
+    a2, (b2, c2) = [1, [2]]  # type: ignore[misc]
+    nested_arity_fails = False
+except ValueError:
+    nested_arity_fails = True
+
 # Valid starred handles variable length: correctly matched cases above.
+
+# Assignment versus pattern contrast: unpacking assignment vs match-case pattern
+def assignment_vs_pattern(items: list[int]) -> dict[str, object]:
+    # Assignment unpacking binds unconditionally (or raises)
+    assigned_a, assigned_b = items[:2] if len(items) >= 2 else (None, None)
+    # Pattern matching binds only on successful match; uses different syntax
+    match items:
+        case [p, q]:
+            pattern_p, pattern_q = p, q
+            pattern_matched = True
+        case [p]:
+            pattern_p, pattern_q = p, None
+            pattern_matched = True
+        case _:
+            pattern_p, pattern_q = None, None
+            pattern_matched = False
+    return {
+        "assigned": (assigned_a, assigned_b),
+        "pattern": (pattern_p, pattern_q),
+        "pattern_matched": pattern_matched,
+    }
+
+assignment_pattern_contrast = assignment_vs_pattern([10, 20])
 
 __all__ = [
     "nested_a",

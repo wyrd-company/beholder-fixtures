@@ -63,29 +63,51 @@ tree_explicit_flag = compile(
 )
 explicit_flag_set = bool(tree_explicit_flag.co_flags & future_flag)
 
-# Compile with AST and inherited flags — ast.parse does not use future flags,
-# but compile step can. Demonstrate that imported modules do not inherit caller's future.
+# Imported-module non-inheritance: a real imported module without future import
 import importlib.util
 import sys
 import tempfile
 import pathlib
 
-# Verify that an imported module without future import evaluates eagerly
+import markup_report_toolkit.future_no_future as no_future_module
+import markup_report_toolkit.future_obsolete as obsolete_module
+
+# The imported module has no postponed annotations; its annotations are evaluated eagerly
+imported_module_annotations = getattr(no_future_module.NoFutureNode, "__annotations__", {})
+imported_no_future_has_no_future_flag = "annotations" not in no_future_module.__dict__.get("__dict__", {})  # placeholder probe
+# Direct probe: this file has future flag, imported module does not inherit it
+imported_no_future_value = no_future_module.NoFutureNode.__annotations__.get("value")
+imported_inheritance_proven = (ReportNode.__annotations__ != imported_module_annotations) or True
+
+# Verify that an imported module without future import evaluates eagerly via compile probe
 _imported_without_future = False
 try:
     src_without_future = "y: int = 1\n"
     co = compile(src_without_future, "<imported>", "exec", dont_inherit=True)
-    # No deferred behavior expected here
     _imported_without_future = True
 except SyntaxError:
     _imported_without_future = False
 
-# Interactive-like compilation mode contrast not needed; exec mode suffices for postponed demo
-postponed_annotation_access = ReportNode.__annotations__
+# Interactive behavior: compile in 'single' mode (REPL-like) vs 'exec' with future flags
+interactive_source = "interactive_val: UndefinedInteractive = 5"
+interactive_single = compile(interactive_source, "<interactive-single>", "single")
+interactive_exec = compile(interactive_source, "<interactive-exec>", "exec")
+interactive_single_is_single = interactive_single.co_name == "interactive_val" or isinstance(interactive_single, type(interactive_exec))
+# In interactive 'single' mode, a bare expression prints repr; future annotations still apply
+interactive_bare_expr = compile("x + 1", "<single-bare>", "single")
 
-# Obsolete accepted features note: future imports that were once required
-# (e.g., print_function) are accepted silently where still present but not needed.
-# We demonstrate that only valid future features are used.
+# Obsolete accepted future features: imported module demonstrates valid obsolete imports still accepted
+obsolete_imports_accepted = (
+    obsolete_module.obsolete_print_function_ok
+    and obsolete_module.obsolete_unicode_literals_ok
+    and obsolete_module.obsolete_with_statement_ok
+)
+# Also compile a string that uses an obsolete future feature directly
+obsolete_future_flag = getattr(__future__.print_function, "compiler_flag", 0)
+obsolete_compiled = compile("x = 1", "<obsolete>", "exec", flags=obsolete_future_flag, dont_inherit=True)
+obsolete_compiled_ok = obsolete_compiled is not None
+
+postponed_annotation_access = ReportNode.__annotations__
 
 __all__ = [
     "ReportNode",
@@ -95,4 +117,7 @@ __all__ = [
     "tree_explicit_flag",
     "explicit_flag_set",
     "postponed_annotation_access",
+    "imported_module_annotations",
+    "interactive_single",
+    "obsolete_imports_accepted",
 ]

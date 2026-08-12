@@ -122,6 +122,29 @@ target_eval_order = list(_eval_log)  # ["val", "tgt", "set:1"] — right side fi
 # Precedence vs order note: * has higher precedence but evaluation still left-to-right
 _precedence_vs_order = "precedence determines grouping; evaluation is left-to-right"
 
+# Optimizer-preserves-effects: compiled/optimized source retains observable operand effects
+_optimizer_log: list[str] = []
+
+def _opt_side(value: int, label: str) -> int:
+    _optimizer_log.append(label)
+    return value
+
+_opt_source_expr = "_opt_side(1, 'o1') + _opt_side(2, 'o2') * _opt_side(3, 'o3')"
+_opt_code = compile(_opt_source_expr, "<opt-expr>", "eval")
+_opt_code_opt2 = compile(_opt_source_expr, "<opt-expr-opt2>", "eval", optimize=2)
+
+_optimizer_log.clear()
+opt_result = eval(_opt_code)
+opt_order_default = list(_optimizer_log)
+
+_optimizer_log.clear()
+opt_result_opt2 = eval(_opt_code_opt2)
+opt_order_optimized = list(_optimizer_log)
+
+optimizer_preserves_effects = (opt_order_default == opt_order_optimized == ["o1", "o2", "o3"])
+# Also demonstrate that compile with optimize does not reorder or eliminate side-effect calls
+
+
 __all__ = [
     "arith_order",
     "call_order",

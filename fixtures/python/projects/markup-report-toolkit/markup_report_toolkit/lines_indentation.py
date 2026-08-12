@@ -67,9 +67,16 @@ explicit_with_indent = 1 + \
     3
 
 # Form-feed as whitespace (U+000C) — valid between tokens
-formfeed_example = "before" + "\f" + "after"  # literal form-feed inside string
-# Actual form-feed character as whitespace (isolated)
-explicit_formfeed_ws = 10 + 20  # \f is allowed as whitespace; we keep ASCII spaces
+formfeed_example = "before" + "\f" + "after"  # literal form-feed inside string (contrast)
+# Actual form-feed character as whitespace: U+000C between + and 20
+formfeed_ws = 10 + 20
+formfeed_ws_value = formfeed_ws  # 30, proves form-feed counted as whitespace
+# Mixed form-feed and newline implicit joining
+formfeed_implicit = [
+    1,
+    2,
+    3,
+]
 
 # Comments and blank lines as separate valid lines
 

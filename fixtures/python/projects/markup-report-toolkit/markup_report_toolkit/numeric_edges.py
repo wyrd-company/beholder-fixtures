@@ -61,7 +61,19 @@ parens_exponent = (-2)**2  # 4
 right_associative = 2**3**2  # 2**(3**2) = 512
 mixed_exponent = -2**3**2  # -(2**(3**2)) = -512
 
-# Decimal/fraction contrast is stdlib-specific; keep numeric literal core
+# Decimal and Fraction contrast vs float: valid-source structures for code-graph evaluation
+import decimal
+import fractions
+
+decimal_one_tenth = decimal.Decimal("0.1")
+decimal_two_tenths = decimal.Decimal("0.2")
+decimal_sum = decimal_one_tenth + decimal_two_tenths  # Decimal("0.3") exact
+float_sum = 0.1 + 0.2  # 0.30000000000000004 — not exact
+decimal_vs_float_exactness = (decimal_sum == decimal.Decimal("0.3")) and (float_sum != 0.3)
+fraction_half = fractions.Fraction(1, 2)
+fraction_third = fractions.Fraction(1, 3)
+fraction_sum = fraction_half + fraction_third  # 5/6 exact
+fraction_vs_float = (fraction_sum == fractions.Fraction(5, 6)) and (float(1/2 + 1/3) != 5/6)
 decimal_contrast_note = "decimal.Decimal preserves exact decimal; float does not"
 
 # Leading-zero failure is excluded as invalid source; valid literals above have no leading zeros

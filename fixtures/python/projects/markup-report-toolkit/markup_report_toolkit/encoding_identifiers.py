@@ -7,6 +7,13 @@ but distinct identifiers. A byte-order-mark module is provided separately
 as ``bom_module.py`` encoded with UTF-8-SIG.
 """
 
+import pathlib
+import unicodedata
+
+from markup_report_toolkit.bom_module import Δbom as Δbom_cross
+from markup_report_toolkit.bom_module import données as données_cross
+from markup_report_toolkit.bom_module import résumé_bom as résumé_bom_cross
+
 # Non-ASCII identifiers across modules: report title, author, section
 répport = "quarterly-overview"
 # Use genuine non-ASCII bindings
@@ -53,8 +60,15 @@ o_latin = "latin o"
 ο_greek = "greek omicron U+03BF"
 confusable_greek_distinct = (o_latin != ο_greek)
 
-# Filesystem normalization note: Python source identity is NFKC-normalized,
-# while filesystem may use NFC or NFD. This module's filename is NFC.
+# Filesystem normalization contrast: Python identifiers use NFKC, filesystem may use NFC/NFD.
+# This source file name is NFC; the identifier "café" is NFKC-normalized via the parser.
+filesystem_nfc_form = unicodedata.normalize("NFC", "café")
+filesystem_nfd_form = unicodedata.normalize("NFD", "café")
+identifier_nfkc_form = unicodedata.normalize("NFKC", "café")
+ligature_nfkc_form = unicodedata.normalize("NFKC", "ﬁ")
+filesystem_nfc_vs_nfd_differs = filesystem_nfc_form != filesystem_nfd_form  # NFC vs NFD differ on disk
+filesystem_vs_identifier_normalization = filesystem_nfc_form == identifier_nfkc_form  # NFC equals NFKC for this sample
+path_with_unicode = pathlib.Path(__file__).name  # NFC filename observed via pathlib
 filesystem_normalization_note = "NFC filename vs NFKC identifier normalization"
 
 # Explicit encoding cookie is valid only at top of file (first or second line).
@@ -75,6 +89,12 @@ class RapportÉlément:
         return self.κείμενο
 
 
+# Cross-module non-ASCII usage: imported from bom_module
+cross_module_données = données_cross
+cross_module_résumé_bom = résumé_bom_cross
+cross_module_Δbom = Δbom_cross
+cross_module_combined = f"{données_cross}-{résumé_bom_cross}:{Δbom_cross}"
+
 # Re-exported values demonstrating cross-module Unicode identifiers
 __all__ = [
     "titre",
@@ -87,4 +107,8 @@ __all__ = [
     "nfkc_same_object",
     "confusable_distinct",
     "filesystem_normalization_note",
+    "filesystem_nfc_form",
+    "identifier_nfkc_form",
+    "cross_module_données",
+    "cross_module_combined",
 ]
