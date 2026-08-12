@@ -3,14 +3,9 @@
 from __future__ import annotations
 
 import inspect
-from typing import Annotated, get_args, get_origin, get_type_hints
+from typing import Annotated, dataclass_transform, get_args, get_origin, get_type_hints
 
-# Field specifier for dataclass_transform contract (runtime drift example).
-try:
-    from dispatch_framework.models import Field as _ModelField
-except Exception:
-    _ModelField = object  # fallback for import order during static analysis
-Field = _ModelField  # type: ignore[assignment]
+from dispatch_framework.models import Field
 
 # Minimal container: providers keyed by type, with scope and cycle detection.
 
@@ -187,31 +182,43 @@ def cycle_demo() -> str:
         return str(exc)
 
 
-# Static transform contract and runtime drift variant.
-try:
-    from typing import dataclass_transform  # type: ignore[attr-defined]
-except ImportError:
-    from typing_extensions import dataclass_transform  # type: ignore[no-redef, import-not-found]
+# Static-transform contract and runtime-drift variant (PEP 681).
+# The marker is applied to a real base class: a static type checker synthesizes a
+# dataclass-style __init__ from each subclass's Field specifiers. At runtime the
+# base provides a permissive __init__ that accepts any keyword, so the runtime
+# shape drifts from the statically declared field set.
+@dataclass_transform(field_specifiers=(Field,))
+class TransformedModel:
+    """Base treated as dataclass-like by a checker, permissive at runtime."""
+
+    def __init__(self, **kwargs: object) -> None:
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
 
-@dataclass_transform(field_specifiers=(Field,))  # type: ignore[name-defined]
-def define_catalog_model(name: str, *, title: Field, count: Field) -> type:  # type: ignore[no-untyped-def]
-    # Static checker treats this as a dataclass-like factory generating __init__(title, count).
-    # Runtime shape is built via ModelMeta registry, not dataclass fields, demonstrating drift.
-    from dispatch_framework.models import CatalogRecord
-
-    return CatalogRecord
+class CatalogInput(TransformedModel):
+    # A checker synthesizes __init__(self, *, title: str = ..., count: int = ...)
+    # from these Field specifiers; the runtime __init__ ignores that contract.
+    title: str = Field(str, default="")
+    count: int = Field(int, default=0)
 
 
 def static_transform_runtime_drift_demo() -> tuple[str, list[str], list[str]]:
-    # Static transform expects __init__ with title/count from decorator contract.
-    # Runtime drift: actual CatalogRecord fields come from ModelMeta._fields, not dataclass.
-    from dispatch_framework.models import CatalogRecord as CR
+    """Contrast the synthesized static __init__ with permissive runtime construction.
 
-    static_params = ["title", "count"]
-    runtime_fields = sorted(CR._fields.keys())
-    drift = "match" if static_params == runtime_fields else "drift:static-vs-runtime"
-    return drift, static_params, runtime_fields
+    A checker's synthesized ``CatalogInput.__init__`` declares only ``title`` and
+    ``count`` from the Field specifiers. At runtime the permissive base
+    ``__init__`` also accepts a keyword the static contract forbids, so the
+    instance carries a field the checker never declared — genuine
+    static-versus-runtime drift.
+    """
+    static_fields = sorted(
+        name for name, value in vars(CatalogInput).items() if isinstance(value, Field)
+    )
+    instance = CatalogInput(title="widget", count=3, note="runtime-only")
+    runtime_only = sorted(k for k in vars(instance) if not k.startswith("_"))
+    drift = "drift:static-vs-runtime" if runtime_only else "match"
+    return drift, static_fields, runtime_only
 
 
 # Static transform / runtime drift comment: runtime inspects real hints, static checker may differ.

@@ -80,15 +80,8 @@ def _combine_int(first: int, second: object) -> str:
     return f"int-first:{first}+{second!r}"
 
 
-# Ambiguous ABCs variant: two incomparable ABCs registered, exercising ambiguity resolution.
-class AmbiguousA(cabc.Hashable):
-    pass
-
-
-class AmbiguousB(cabc.Sized):
-    pass
-
-
+# Extra abstract-base registrations: an instance of a registered ABC dispatches
+# to the ABC handler when no concrete registration is more specific.
 @format_value.register(cabc.Hashable)
 def _format_hashable(value: cabc.Hashable) -> str:
     return f"hashable:{hash(value) % 1000}"
@@ -99,25 +92,51 @@ def _format_sized(value: cabc.Sized) -> str:
     return f"sized:{len(value)}"
 
 
-# A type implementing both Hashable and Sized at same level exercises ambiguous lookup.
-# With both ABCs registered, dispatch picks the first most-specific in MRO; explicit Dual registration resolves it.
 def ambiguous_abc_pair() -> tuple[object, str]:
-    class Dual(cabc.Hashable, cabc.Sized):
-        def __hash__(self) -> int:  # type: ignore[override]
-            return 1
+    """Show genuine implicit-ABC ambiguity and its explicit resolution.
 
-        def __len__(self) -> int:
-            return 2
+    ``Iterable`` and ``Container`` are unrelated ABCs — neither is a structural
+    subclass of the other. A class defining ``__iter__`` and ``__contains__`` is
+    a *virtual* subclass of both without inheriting either, so it appears in the
+    dispatch MRO under both with equal specificity. ``functools`` refuses to
+    guess and raises ``RuntimeError("Ambiguous dispatch: ...")`` until the
+    concrete class is registered explicitly.
 
-    inst = Dual()
-    before = format_value.dispatch(type(inst)).__name__
+    A dedicated dispatcher keeps the ambiguity isolated from ``format_value``.
+    """
 
-    @format_value.register(Dual)
-    def _format_dual(value: Dual) -> str:  # type: ignore[no-redef]
-        return f"dual:{len(value)}:{hash(value)}"
+    @singledispatch
+    def classify(value: object) -> str:
+        return "default"
 
-    after = format_value.dispatch(type(inst)).__name__
-    # Restore ambiguity demo by leaving Dual registered (graph sees explicit resolution).
+    @classify.register(cabc.Iterable)
+    def _classify_iterable(value: cabc.Iterable) -> str:
+        return "iterable"
+
+    @classify.register(cabc.Container)
+    def _classify_container(value: cabc.Container) -> str:
+        return "container"
+
+    class IterableContainer:
+        def __iter__(self) -> "object":
+            return iter(())
+
+        def __contains__(self, item: object) -> bool:
+            return False
+
+    inst = IterableContainer()
+    try:
+        classify.dispatch(type(inst))
+    except RuntimeError as exc:
+        before = f"ambiguous:{type(exc).__name__}"
+    else:
+        before = "resolved"
+
+    @classify.register(IterableContainer)
+    def _classify_both(value: IterableContainer) -> str:  # type: ignore[no-redef]
+        return "both"
+
+    after = classify.dispatch(type(inst)).__name__
     return inst, f"{before}->{after}"
 
 

@@ -10,13 +10,13 @@ tasks:
       - python3 -m compileall -q dispatch_framework
 
   lint:
-    desc: Parse and byte-compile every fixture-owned source file.
+    desc: Parse and byte-compile every fixture-owned source and stub file.
     dir: '{{.TASKFILE_DIR}}'
     env:
       PYTHONPYCACHEPREFIX: /tmp/dispatch-framework-pyc-lint
     cmds:
       - >-
-        find dispatch_framework -type f -name '*.py' -print0 |
+        find dispatch_framework -type f \( -name '*.py' -o -name '*.pyi' \) -print0 |
         xargs -0 python3 -m py_compile
 
   test:
