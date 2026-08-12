@@ -1,0 +1,55 @@
+# ---
+# relationships:
+#   implements: ground-rules
+# ---
+
+version: '3'
+
+tasks:
+  build:
+    desc: Build all Dart fixture projects
+    cmds:
+      - task --dir projects/analysis-and-docs build
+      - task --dir projects/async-and-isolates build
+      - task --dir projects/code-generation build
+      - task --dir projects/configuration-and-versions build
+      - task --dir projects/construction-and-constants build
+      - task --dir projects/functions-and-dispatch build
+      - task --dir projects/libraries-and-visibility build
+      - task --dir projects/null-safety-flow-patterns build
+      - task --dir projects/packages-and-workspace build
+      - task --dir projects/platforms-and-interop build
+      - task --dir projects/primitive-values build
+      - task --dir projects/type-model build
+
+  lint:
+    desc: Lint all Dart fixture projects
+    cmds:
+      - task --dir projects/analysis-and-docs lint
+      - task --dir projects/async-and-isolates lint
+      - task --dir projects/code-generation lint
+      - task --dir projects/configuration-and-versions lint
+      - task --dir projects/construction-and-constants lint
+      - task --dir projects/functions-and-dispatch lint
+      - task --dir projects/libraries-and-visibility lint
+      - task --dir projects/null-safety-flow-patterns lint
+      - task --dir projects/packages-and-workspace lint
+      - task --dir projects/platforms-and-interop lint
+      - task --dir projects/primitive-values lint
+      - task --dir projects/type-model lint
+
+  test:
+    desc: Test all Dart fixture projects
+    cmds:
+      - task --dir projects/analysis-and-docs test
+      - task --dir projects/async-and-isolates test
+      - task --dir projects/code-generation test
+      - task --dir projects/configuration-and-versions test
+      - task --dir projects/construction-and-constants test
+      - task --dir projects/functions-and-dispatch test
+      - task --dir projects/libraries-and-visibility test
+      - task --dir projects/null-safety-flow-patterns test
+      - task --dir projects/packages-and-workspace test
+      - task --dir projects/platforms-and-interop test
+      - task --dir projects/primitive-values test
+      - task --dir projects/type-model test
