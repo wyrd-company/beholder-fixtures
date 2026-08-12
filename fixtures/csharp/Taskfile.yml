@@ -1,0 +1,61 @@
+# ---
+# relationships:
+#   implements: ground-rules
+# ---
+
+version: '3'
+
+tasks:
+  build:
+    desc: Build all C# fixture projects
+    cmds:
+      - task --dir projects/assemblies-and-references build
+      - task --dir projects/attributes-and-metadata build
+      - task --dir projects/deployment-and-platform build
+      - task --dir projects/expressions-and-flow build
+      - task --dir projects/framework-and-builtin-generators build
+      - task --dir projects/functions-and-async build
+      - task --dir projects/generics-and-dispatch build
+      - task --dir projects/interop-languages-and-testing build
+      - task --dir projects/members-and-operators build
+      - task --dir projects/packages-and-build build
+      - task --dir projects/roslyn-components build
+      - task --dir projects/source-and-binding build
+      - task --dir projects/types-and-values build
+      - task --dir projects/unsafe-and-lowlevel build
+
+  lint:
+    desc: Lint all C# fixture projects
+    cmds:
+      - task --dir projects/assemblies-and-references lint
+      - task --dir projects/attributes-and-metadata lint
+      - task --dir projects/deployment-and-platform lint
+      - task --dir projects/expressions-and-flow lint
+      - task --dir projects/framework-and-builtin-generators lint
+      - task --dir projects/functions-and-async lint
+      - task --dir projects/generics-and-dispatch lint
+      - task --dir projects/interop-languages-and-testing lint
+      - task --dir projects/members-and-operators lint
+      - task --dir projects/packages-and-build lint
+      - task --dir projects/roslyn-components lint
+      - task --dir projects/source-and-binding lint
+      - task --dir projects/types-and-values lint
+      - task --dir projects/unsafe-and-lowlevel lint
+
+  test:
+    desc: Test all C# fixture projects
+    cmds:
+      - task --dir projects/assemblies-and-references test
+      - task --dir projects/attributes-and-metadata test
+      - task --dir projects/deployment-and-platform test
+      - task --dir projects/expressions-and-flow test
+      - task --dir projects/framework-and-builtin-generators test
+      - task --dir projects/functions-and-async test
+      - task --dir projects/generics-and-dispatch test
+      - task --dir projects/interop-languages-and-testing test
+      - task --dir projects/members-and-operators test
+      - task --dir projects/packages-and-build test
+      - task --dir projects/roslyn-components test
+      - task --dir projects/source-and-binding test
+      - task --dir projects/types-and-values test
+      - task --dir projects/unsafe-and-lowlevel test
