@@ -108,7 +108,7 @@ export function readReadonlyIndex(
   return value;
 }
 
-// Array and tuple indexing with safe handling for noUncheckedIndexedAccess.
+// Array indexing gains undefined under noUncheckedIndexedAccess; fixed tuple positions remain definite.
 export function readArrayElement(
   arr: string[],
   index: number,
@@ -119,10 +119,10 @@ export function readArrayElement(
 
 export function readTupleElements(
   tuple: [string, number, boolean],
-): [string | undefined, number | undefined, boolean | undefined] {
-  const first: string | undefined = tuple[0];
-  const second: number | undefined = tuple[1];
-  const third: boolean | undefined = tuple[2];
+): [string, number, boolean] {
+  const first: string = tuple[0];
+  const second: number = tuple[1];
+  const third: boolean = tuple[2];
   return [first, second, third];
 }
 

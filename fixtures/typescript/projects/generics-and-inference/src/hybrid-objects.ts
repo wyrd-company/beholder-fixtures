@@ -53,14 +53,18 @@ export const statefulCounter: StatefulCallable = Object.assign(
   },
 ) as StatefulCallable;
 
-export const callConstructExample: CallAndConstruct = Object.assign(
-  function callFn(value: string): string {
-    return `call:${value}`;
-  },
-  {
-    prototype: {},
-  },
-) as unknown as CallAndConstruct;
+export const callConstructExample: CallAndConstruct = function (
+  this: unknown,
+  value: string,
+): string | { instanceId: string; value: string } {
+  if (new.target) {
+    const self = this as { instanceId: string; value: string };
+    self.instanceId = `id-${value}`;
+    self.value = value;
+    return self;
+  }
+  return `call:${value}`;
+} as unknown as CallAndConstruct;
 
 // Provide construct behavior via class for the generic hybrid.
 export class GenericHybridImpl<T> {
@@ -84,23 +88,29 @@ export class GenericHybridImpl<T> {
 }
 
 // Abstract construct signature.
-export interface AbstractConstruct {
-  new (id: string): { id: string };
-}
+export type AbstractConstruct = abstract new (id: string) => { id: string };
 
 export abstract class AbstractBase {
   constructor(public id: string) {}
 }
 
-// Demonstrating abstract construct signature via assignment.
-export const AbstractFactory: AbstractConstruct =
-  AbstractBase as unknown as AbstractConstruct;
+export class ConcreteBase extends AbstractBase {}
+
+// Demonstrating abstract construct signature via assignment — concrete class satisfies abstract construct.
+export const AbstractFactory: AbstractConstruct = ConcreteBase;
+
+export type ConcreteConstruct = new (id: string) => { id: string };
 
 export function createAbstractInstance(
   factory: AbstractConstruct,
   id: string,
 ): { id: string } {
-  return new factory(id);
+  const concrete = factory as unknown as ConcreteConstruct;
+  return new concrete(id);
+}
+
+export function createConcreteInstance(id: string): { id: string } {
+  return new ConcreteBase(id);
 }
 
 // Constructor this — constructor returns this.

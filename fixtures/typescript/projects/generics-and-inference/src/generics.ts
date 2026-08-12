@@ -80,9 +80,22 @@ export function makeHolder<T>(value: T): Holder<T> {
   };
 }
 
+export function makeEmptyHolder<T>(): Holder<T> {
+  return {
+    value: undefined as unknown as T,
+    getValue() {
+      return undefined as unknown as T;
+    },
+  };
+}
+
 export function useReturnInference(): void {
-  const holder: Holder<number> = makeHolder(42);
-  void holder;
+  // Return-driven: T supplied by contextual return type, no value argument to infer from.
+  const holderFromContext: Holder<number> = makeEmptyHolder();
+  void holderFromContext;
+  const holderExplicit: Holder<string> = makeEmptyHolder<string>();
+  void holderExplicit;
+  // Value-driven for contrast still present
   const inferred = makeHolder("hello");
   const checked: string = inferred.getValue();
   void checked;

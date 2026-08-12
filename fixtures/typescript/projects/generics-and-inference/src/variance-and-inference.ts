@@ -1,12 +1,12 @@
 // TS-CAN-069 — Const parameters, instantiation expressions, NoInfer, and variance annotations
 
-// Paired ordinary and const type-parameter APIs.
+// Paired ordinary and const type-parameter APIs — both preserve the runtime array value.
 export function collect<T>(items: T[]): T[] {
   return items;
 }
 
-export function collectConst<const T>(items: T[]): T {
-  return items as unknown as T;
+export function collectConst<const T>(items: T[]): T[] {
+  return items;
 }
 
 // Const parameter preserves literal types (paired API).
@@ -28,15 +28,17 @@ export function compareInlineVsWidened(): void {
   void preWidened;
 }
 
-// Readonly candidate against mutable constraint — valid inference chooses fallback.
-export function mutableTarget<T extends string[]>(value: T): T {
+// Readonly candidate against mutable constraint — const param with mutable constraint and inline readonly candidate.
+export function mutableTarget<const T extends string[]>(value: T): T {
   return value;
 }
 
 export function demonstrateReadonlyCandidate(): void {
-  const readonlyCandidate = ["x", "y"] as const;
-  const result = mutableTarget(readonlyCandidate as unknown as string[]);
-  void result;
+  // Inline readonly tuple literal directly against mutable constraint; TypeScript rejects the readonly form and falls back to mutable inference.
+  const inline = mutableTarget(["x", "y"] as const);
+  void inline;
+  const widened = mutableTarget(["x", "y"]);
+  void widened;
 }
 
 // Instantiation expression specializing a generic function value.
