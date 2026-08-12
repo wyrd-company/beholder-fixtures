@@ -88,6 +88,47 @@ def posix_signal_set() -> list[str]:
     return names
 
 
+def wakeup_descriptor_demo() -> dict[str, str]:
+    """Bounded set_wakeup_fd use that restores prior descriptor (POSIX)."""
+    import os
+
+    r_fd, w_fd = os.pipe()
+    try:
+        os.set_blocking(w_fd, False)
+    except OSError:
+        pass
+    old_fd = -1
+    old_handler = signal.getsignal(signal.SIGUSR1)
+    restored = "unknown"
+    try:
+        signal.signal(signal.SIGUSR1, lambda s, f: None)
+        old_fd = signal.set_wakeup_fd(w_fd, warn_on_full_buffer=False)
+        signal.raise_signal(signal.SIGUSR1)
+        restored = "true"
+    finally:
+        try:
+            signal.signal(signal.SIGUSR1, old_handler)
+        except Exception:
+            pass
+
+        try:
+            signal.set_wakeup_fd(old_fd, warn_on_full_buffer=False)
+        except Exception:
+            try:
+                signal.set_wakeup_fd(-1, warn_on_full_buffer=False)
+            except Exception:
+                pass
+        try:
+            os.close(r_fd)
+        except OSError:
+            pass
+        try:
+            os.close(w_fd)
+        except OSError:
+            pass
+    return {"wakeup_fd_set": restored, "old_fd": str(old_fd)}
+
+
 def wakeup_descriptor_note() -> str:
     """Wakeup fd integrates signals with event loop (signal.set_wakeup_fd)."""
     return "wakeup-fd-via-signal.set_wakeup_fd"

@@ -51,14 +51,24 @@ def use_after_binding() -> dict[str, object]:
     }
 
 
-# Import-time reference before definition would be NameError; guard by defining first.
-# Demonstrate that reference before binding is invalid, so we defer use to function.
-def deferred_reference_demo(flag: bool) -> str:
-    if flag:
-        late_value = "late-bound"
-    else:
-        late_value = "alternative"
-    return late_value
+# Module definition-order relation: reference before binding caught, use after binding.
+try:
+    _early_probe = future_public_job  # noqa: F821 — reference before definition
+    early_binding_result = "unexpected-bound"
+except NameError:
+    early_binding_result = "caught-before-binding"
+
+future_public_job = "defined-after-probe"
+
+
+def deferred_reference_demo() -> dict[str, str]:
+    """Deferred module-name reference: caught before binding, valid after binding."""
+    return {"before": early_binding_result, "after": future_public_job}
+
+
+def deferred_reference_relation() -> dict[str, str]:
+    """Alias for coverage locator stability."""
+    return deferred_reference_demo()
 
 
 # Separate-file syntax gating note: all live files parse under selected interpreter.

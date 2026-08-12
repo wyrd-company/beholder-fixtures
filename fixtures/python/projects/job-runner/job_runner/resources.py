@@ -140,6 +140,36 @@ def weak_finalizer() -> list[str]:
     return log
 
 
+_resurrected: list[object] = []
+
+
+class ResurrectingJob:
+    """Valid resurrection variant: __del__ retains self without timing assertion."""
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    def __del__(self) -> None:
+        try:
+            _resurrected.append(self)
+        except Exception:
+            pass
+
+
+def resurrection_variant() -> dict[str, object]:
+    """Retain self during finalization and release without asserting timing."""
+    _resurrected.clear()
+    job = ResurrectingJob("resurrected-job")
+    job_id = id(job)
+    del job
+    gc.collect()
+    resurrected_now = len(_resurrected) == 1 and id(_resurrected[0]) == job_id
+    # Release without asserting collection order or exact timing
+    _resurrected.clear()
+    gc.collect()
+    return {"resurrected": resurrected_now, "released": len(_resurrected) == 0}
+
+
 def resurrection_note() -> str:
     """Resurrection inside __del__ keeps object alive one more cycle."""
 

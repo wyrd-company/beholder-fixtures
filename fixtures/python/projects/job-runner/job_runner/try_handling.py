@@ -32,16 +32,17 @@ def matched_handler(value: int) -> str:
 
 
 def unmatched_handler(value: int) -> str:
-    """Unmatched except propagates; caller can observe it."""
+    """Matched ValueError is caught; TypeError propagates as truly unmatched."""
     try:
-        if value < 0:
-            raise TypeError("type-failure")
+        if value == 1:
+            raise ValueError("value-bad")
+        if value == 2:
+            raise TypeError("type-bad")
     except ValueError:
-        return "wrong-handler"
-    except TypeError:
-        return "matched-type"
+        return "matched-value"
     else:
-        return "else"
+        return "else-no-exception"
+    # TypeError is not caught here and propagates to caller as unmatched variant
     return "done"
 
 

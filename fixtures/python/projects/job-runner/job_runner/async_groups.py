@@ -73,22 +73,43 @@ async def cleanup_raise_demo() -> str:
     return outcome
 
 
-async def inactive_group_note() -> str:
-    """TaskGroup is inactive after exit; creating tasks after exit is error."""
+async def inactive_group_note() -> dict[str, str]:
+    """Exercise inactive TaskGroup task-creation failure path."""
     tg = asyncio.TaskGroup()
-    return "inactive-group-raises-on-create-task-after-exit"
+    async with tg:
+        tg.create_task(asyncio.sleep(0))
+    outcome = "no-error"
+    try:
+        tg.create_task(asyncio.sleep(0))
+    except RuntimeError as exc:
+        outcome = type(exc).__name__
+    except BaseException as exc:  # noqa: BLE001
+        outcome = type(exc).__name__
+    return {"inactive_error": outcome}
 
 
-async def cancellation_count_evolution() -> str:
-    """Cancellation counts evolve as siblings are cancelled and cleaned up."""
-    outcome = "no-group"
+async def cancellation_count_evolution() -> dict[str, object]:
+    """Observe Task.cancelling() counts without asserting exact values."""
+    cancelling_counts: list[int] = []
+
+    async def cancellable_job() -> None:
+        try:
+            await asyncio.sleep(0.05)
+        except asyncio.CancelledError:
+            try:
+                cancelling_counts.append(asyncio.current_task().cancelling())  # type: ignore[union-attr]
+            except AttributeError:
+                cancelling_counts.append(-1)
+            raise
+
+    outcome: dict[str, object] = {"group": "no-group"}
     try:
         async with asyncio.TaskGroup() as tg:
             tg.create_task(_sibling_job("fail1", 0.01, should_fail=True))
-            tg.create_task(_sibling_job("fail2", 0.02, should_fail=True))
-            tg.create_task(_sibling_job("ok", 0.05))
+            tg.create_task(cancellable_job())
+            tg.create_task(cancellable_job())
     except* BaseException as eg:
-        outcome = f"group-size-{len(eg.exceptions)}"
+        outcome = {"group_size": len(eg.exceptions), "cancelling_counts": cancelling_counts}
     return outcome
 
 

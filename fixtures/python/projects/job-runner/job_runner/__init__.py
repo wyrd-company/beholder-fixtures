@@ -26,6 +26,10 @@ from job_runner.chaining import (
 from job_runner.conditional_defs import (
     JobPolicy,
     concurrency_backend,
+    deferred_reference_demo,
+    deferred_reference_relation,
+    early_binding_result,
+    future_public_job,
     job_policy,
     job_retries,
     platform_label,
@@ -79,7 +83,9 @@ from job_runner.iteration_order import (
     unordered_set_iteration,
 )
 from job_runner.multiprocessing_jobs import (
+    failing_top_worker,
     platform_default_variance_note,
+    propagated_error_demo,
     run_with_fork,
     run_with_forkserver,
     run_with_spawn,
@@ -87,8 +93,10 @@ from job_runner.multiprocessing_jobs import (
 )
 from job_runner.resources import (
     ManagedResource,
+    ResurrectingJob,
     cyclic_finalization_order,
     reference_cycle_and_collection,
+    resurrection_variant,
     weak_finalizer,
     with_vs_deletion,
 )
@@ -97,6 +105,7 @@ from job_runner.signal_handling import (
     interruption_boundary,
     posix_signal_set,
     restore_after_use_demo,
+    wakeup_descriptor_demo,
 )
 from job_runner.threading_jobs import (
     capture_thread_failure,
@@ -198,6 +207,15 @@ __all__ = [
     "use_after_binding",
     "weak_finalizer",
     "with_vs_deletion",
+    "ResurrectingJob",
+    "deferred_reference_demo",
+    "deferred_reference_relation",
+    "early_binding_result",
+    "failing_top_worker",
+    "future_public_job",
+    "propagated_error_demo",
+    "resurrection_variant",
+    "wakeup_descriptor_demo",
     "cancellation_count_evolution",
     "cleanup_raise_demo",
     "inactive_group_note",

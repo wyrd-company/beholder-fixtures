@@ -99,17 +99,26 @@ def reraising_name_vs_bare() -> dict[str, str]:
     return {"bare": via_bare(), "name": via_name()}
 
 
-def traceback_mutation() -> str:
-    """Traceback grows as exception propagates through handlers."""
+def traceback_mutation() -> dict[str, object]:
+    """Mutate an active traceback then reraise and observe the mutation."""
     try:
+        raise ValueError("original-site")
+    except ValueError as exc:
+        original_tb = exc.__traceback__
         try:
-            raise ValueError("level-1")
-        except ValueError as e:
-            raise RuntimeError("level-2") from e
-    except RuntimeError as exc:
-        tb_lines = traceback.format_exception(type(exc), exc, exc.__traceback__)
-        return "".join(tb_lines)[:200]
-    return ""
+            raise ValueError("mutation-site")
+        except ValueError as inner:
+            mutated_tb = inner.__traceback__
+        exc.__traceback__ = mutated_tb
+        try:
+            raise
+        except ValueError as reraised:
+            return {
+                "mutated": reraised.__traceback__ is mutated_tb,
+                "not_original": reraised.__traceback__ is not original_tb,
+                "has_traceback": reraised.__traceback__ is not None,
+            }
+    return {}
 
 
 def exception_in_handler() -> str:

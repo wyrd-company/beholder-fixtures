@@ -63,16 +63,26 @@ def merge_failures() -> str:
     return f"merged-{len(group.exceptions)}"
 
 
-def derived_group() -> str:
-    """Derived ExceptionGroup subclass is caught by base except* as well."""
-    class JobExceptionGroup(BaseExceptionGroup):
-        pass
+def derived_group() -> dict[str, object]:
+    """Derived group preserves subtype through split via derive."""
 
-    outcome = "unhandled"
+    class JobExceptionGroup(BaseExceptionGroup):
+        def derive(self, excs):  # type: ignore[override]
+            return JobExceptionGroup(self.message, excs)
+
+    outcome: dict[str, object] = {"handled": "unhandled"}
     try:
-        raise JobExceptionGroup("derived", [ValueError("v"), ValueError("v2")])
+        raise JobExceptionGroup("derived", [ValueError("v"), ValueError("v2"), TypeError("t")])
     except* ValueError as eg:
-        outcome = f"derived-caught-{len(eg.exceptions)}"
+        outcome["handled"] = f"derived-caught-{len(eg.exceptions)}"
+        outcome["subgroup_is_derived"] = isinstance(eg, JobExceptionGroup)
+        # subgroup/split also preserve subtype via derive
+        _, rest = eg.split(TypeError)
+        outcome["split_rest"] = rest is None
+        value_sub = JobExceptionGroup("derived", [ValueError("v")]).subgroup(ValueError)
+        outcome["subgroup_method_is_derived"] = isinstance(value_sub, JobExceptionGroup)
+    except* TypeError as te:
+        outcome["type_handled"] = len(te.exceptions)
     return outcome
 
 

@@ -75,16 +75,17 @@ def fork_with_threads_hazard_note() -> str:
     return "fork-with-threads-hazard-prefer-spawn"
 
 
+def failing_top_worker(payload: int) -> int:
+    """Importable top-level worker that fails for propagated-error variant."""
+    raise ValueError(f"worker-error-{payload}")
+
+
 def propagated_error_demo() -> str:
-    """Worker exception propagates to parent via Pool."""
+    """Worker exception propagates to parent via spawn pool using importable worker."""
     try:
         ctx = multiprocessing.get_context("spawn")
-        def _failing_worker(x: int) -> int:
-            raise ValueError("worker-error")
-
-        # Use top-level wrapper to propagate
         with ctx.Pool(processes=1) as pool:
-            pool.map(_failing_worker, [1])  # type: ignore[arg-type]
+            pool.map(failing_top_worker, [1])
     except Exception as exc:  # noqa: BLE001
         return type(exc).__name__
     return "no-error"
