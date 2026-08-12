@@ -2,17 +2,26 @@ Package: xunit.abstractions 2.0.3
 PackageId: xunit.abstractions
 Version: 2.0.3
 Source: https://api.nuget.org/v3-flatcontainer/xunit.abstractions/2.0.3/xunit.abstractions.2.0.3.nupkg
-License: Apache-2.0
-LicenseUrl: https://licenses.nuget.org/Apache-2.0
+License: (none — .nuspec declares no <license> SPDX expression element)
+LicenseUrl: https://raw.githubusercontent.com/xunit/xunit/master/license.txt
 ProjectUrl: https://github.com/xunit/xunit
 Copyright: -
-LocalLicense: vendor/licenses/Apache-2.0.txt
+LocalLicense: vendor/licenses/Apache-2.0.txt (derived — see below)
 VendoredPackage: vendor/packages/xunit.abstractions.2.0.3.nupkg
 
-This file records provenance for offline restore. The original .nupkg in vendor/packages
-contains the authoritative .nuspec license metadata. The applicable license text is
-vendored locally at vendor/licenses/Apache-2.0.txt (MIT: vendor/licenses/MIT.txt, Apache-2.0: vendor/licenses/Apache-2.0.txt).
-ThirdPartyNotices where present are preserved as separate files or in the original package
-(e.g., vendor/licenses/microsoft.codecoverage.17.11.1.ThirdPartyNotices.txt).
+Actual nuspec license metadata (preserved verbatim): this package's .nuspec contains no
+<license> SPDX expression element, and its only license reference is the legacy field
+<licenseUrl>https://raw.githubusercontent.com/xunit/xunit/master/license.txt</licenseUrl>,
+which points at the shared xUnit.net project license file. That raw-GitHub URL is a moving
+pointer and is not fetched offline. The .nupkg embeds no license file.
+
+Applicable local license (derived, not asserted as this package's own SPDX): the licenseUrl
+targets the xUnit.net project license. Every sibling xUnit package vendored here — xunit
+2.8.1, xunit.core 2.8.1, xunit.assert 2.8.1, xunit.extensibility.core 2.8.1,
+xunit.extensibility.execution 2.8.1, xunit.analyzers 1.14.0, and
+xunit.runner.visualstudio 2.8.1 — declares <license type="expression">Apache-2.0</license>
+in its own .nuspec, so the applicable license for this same-project package is Apache-2.0,
+whose text is vendored locally at vendor/licenses/Apache-2.0.txt. This mapping is derived
+from sibling package metadata, not from an SPDX element in this package's own nuspec.
 
 Flat-container provenance verified: https://api.nuget.org/v3-flatcontainer/xunit.abstractions/2.0.3/xunit.abstractions.2.0.3.nupkg

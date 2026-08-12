@@ -10,8 +10,10 @@ LocalLicense: vendor/licenses/MIT.txt
 VendoredPackage: vendor/packages/FSharp.Core.10.0.110.nupkg
 
 This file records provenance for offline restore. The original .nupkg in vendor/packages
-contains the authoritative .nuspec license metadata. The applicable license text is
-vendored locally at vendor/licenses/MIT.txt (MIT: vendor/licenses/MIT.txt, Apache-2.0: vendor/licenses/Apache-2.0.txt).
+contains the authoritative .nuspec license metadata. This package declares its license as
+the SPDX expression `MIT` and embeds no license file; the applicable MIT license text is
+vendored locally as the canonical template at vendor/licenses/MIT.txt, and this package's
+specific copyright holder is the Copyright value above, taken verbatim from the .nuspec.
 ThirdPartyNotices where present are preserved as separate files or in the original package
 (e.g., vendor/licenses/microsoft.codecoverage.17.11.1.ThirdPartyNotices.txt).
 
