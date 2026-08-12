@@ -29,8 +29,10 @@ where
 }
 
 /// Ordinary closure that returns an async block (contrast with an async closure).
-pub fn closure_returning_async_block(captured: i32) -> impl Fn() -> future::ReturnFuture {
-    move || future::ReturnFuture::from(captured + 5)
+pub fn closure_returning_async_block(
+    captured: i32,
+) -> impl Fn() -> std::pin::Pin<Box<dyn std::future::Future<Output = i32>>> {
+    move || Box::pin(async move { captured + 5 })
 }
 
 mod future {
@@ -96,6 +98,11 @@ pub fn async_closure_demo() {
     let ordinary = closure_returning_async_block(7);
     let ordinary_result = crate::support::block_on(ordinary());
     assert_eq!(ordinary_result, 12);
+
+    // Named custom future variant preserved (opaque future via ReturnFuture).
+    let custom = future::ReturnFuture::from(42);
+    let custom_result = crate::support::block_on(custom);
+    assert_eq!(custom_result, 42);
 
     // Direct async closure literals driven without a helper bound.
     // An async closure is not itself a `Future`; it must be called to obtain one.

@@ -25,18 +25,23 @@ counterexample preserved beside the valid demonstration referenced.
 ```rust,ignore
 // Escaping a raw pointer to pinned data and later moving through it violates
 // the pin contract and is never executed.
-// let mut not_unpinned = NotUnpinned::new(1);
-// let pinned = Box::pin(not_unpinned);
-// let raw: *mut NotUnpinned = unsafe { Pin::into_inner_unchecked(pinned) as *mut _ };
-// unsafe { std::ptr::write(raw, NotUnpinned::new(2)); } // UB: moves pinned value
+// let pinned = Box::pin(NotUnpinned::new(1));
+// let raw: *mut NotUnpinned = Box::into_raw(unsafe { Pin::into_inner_unchecked(pinned) });
+// unsafe { std::ptr::write(raw, NotUnpinned::new(2)); } // UB: overwrites pinned value out of place
+// unsafe { let _ = Box::from_raw(raw); }
 ```
 
 ## RS-CAN-ASYNC-004 — lending future escape, move capture
 
 ```rust,ignore
 // Lending future escaping the closure's borrow is rejected.
-// let lending = async |x: &i32| x + 1;
-// let fut = lending(&42).await; // borrow escapes if stored beyond call
+// let closure = async |x: &String| x.len();
+// let fut;
+// {
+//     let owned = String::from("ephemeral");
+//     fut = closure(&owned);
+// } // error: `owned` does not live long enough
+// fut.await;
 // `async move` captures by value; subsequent use after move is rejected.
 // let s = String::from("moved");
 // let consuming = async move || s;
