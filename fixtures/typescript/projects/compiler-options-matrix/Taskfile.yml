@@ -15,6 +15,13 @@ tasks:
       - ./node_modules/.bin/tsc -p tsconfig.reference-lib.json
       - ./node_modules/.bin/tsc -p tsconfig.strict.json
       - ./node_modules/.bin/tsc -p tsconfig.strict-overridden.json
+      - ./node_modules/.bin/tsc -p tsconfig.catch-any.json
+      - ./node_modules/.bin/tsc -p tsconfig.always-strict-true.json
+      - ./node_modules/.bin/tsc -p tsconfig.always-strict-false.json
+      - ./node_modules/.bin/tsc -p tsconfig.no-implicit-any-off.json
+      - ./node_modules/.bin/tsc -p tsconfig.strict-bind-off.json
+      - ./node_modules/.bin/tsc -p tsconfig.no-implicit-this-off.json
+      - ./node_modules/.bin/tsc -p tsconfig.strict-property-init-off.json
       - ./node_modules/.bin/tsc -p tsconfig.exact-optional.json
       - ./node_modules/.bin/tsc -p tsconfig.unchecked-index.json
       - ./node_modules/.bin/tsc -p tsconfig.no-property-access.json
@@ -44,6 +51,13 @@ tasks:
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.reference-lib.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.strict.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.strict-overridden.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.catch-any.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.always-strict-true.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.always-strict-false.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-implicit-any-off.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.strict-bind-off.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-implicit-this-off.json
+      - ./node_modules/.bin/tsc --noEmit -p tsconfig.strict-property-init-off.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.exact-optional.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.unchecked-index.json
       - ./node_modules/.bin/tsc --noEmit -p tsconfig.no-property-access.json

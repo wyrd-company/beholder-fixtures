@@ -22,5 +22,14 @@
     "src/isolated/**/*",
     "src/emit/**/*"
   ],
-  "exclude": ["src/lib/**/*"]
+  "exclude": [
+    "src/lib/**/*",
+    "src/strict/no-implicit-any-off.ts",
+    "src/strict/strict-bind-off.ts",
+    "src/strict/no-implicit-this-off.ts",
+    "src/strict/strict-property-init-off.ts",
+    "src/strict/overridden-null.ts",
+    "src/strict/overridden-init.ts",
+    "src/strict/always-strict-script.ts"
+  ]
 }

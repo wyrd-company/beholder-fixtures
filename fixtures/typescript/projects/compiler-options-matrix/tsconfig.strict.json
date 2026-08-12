@@ -12,5 +12,14 @@
     "esModuleInterop": true,
     "skipLibCheck": true
   },
-  "include": ["src/strict/**/*", "src/common/**/*"]
+  "include": ["src/strict/**/*", "src/common/**/*"],
+  "exclude": [
+    "src/strict/overridden-null.ts",
+    "src/strict/overridden-init.ts",
+    "src/strict/no-implicit-any-off.ts",
+    "src/strict/strict-bind-off.ts",
+    "src/strict/no-implicit-this-off.ts",
+    "src/strict/strict-property-init-off.ts",
+    "src/strict/always-strict-script.ts"
+  ]
 }

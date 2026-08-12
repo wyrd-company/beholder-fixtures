@@ -10,7 +10,7 @@
     "outDir": "dist/skip-default-lib-check",
     "rootDir": "src",
     "esModuleInterop": true,
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "skipDefaultLibCheck": true
   },
   "include": ["src/lib/skip-default-lib-check-consumer.ts", "src/common/**/*"]

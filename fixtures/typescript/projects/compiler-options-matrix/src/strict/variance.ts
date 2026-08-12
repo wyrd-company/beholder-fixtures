@@ -9,28 +9,32 @@ export interface FunctionHost {
   handle: (payload: string) => void;
 }
 
-export function provideStringHandler(handler: (value: string) => void): void {
-  handler("sample");
-}
+type NarrowPayload = "a";
+type BroadPayload = string | number;
 
-export function provideUnionHandler(handler: (value: "a" | "b") => void): void {
-  handler("a");
-}
+declare const narrowHandler: (payload: NarrowPayload) => void;
+declare const broadHandler: (payload: BroadPayload) => void;
+declare const exactHandler: (payload: string) => void;
 
-// Valid assignments that remain valid under strictFunctionTypes true:
-// - Method host can accept a handler with narrower payload via bivariance.
-export const methodHost: MethodHost = {
-  handle(payload: string) {
-    void payload;
-  },
+// Method host is bivariant: accepts narrower payload handler.
+export const methodHostWithNarrow: MethodHost = {
+  handle: narrowHandler,
 };
 
-// Function-property host requires contravariant-compatible assignment.
-// This explicit string handler satisfies contravariance.
-export const functionHost: FunctionHost = {
-  handle: (payload: string) => {
-    void payload;
-  },
+// Method host also accepts exact handler.
+export const methodHostWithExact: MethodHost = {
+  handle: exactHandler,
+};
+
+// Function-property host is contravariant under strictFunctionTypes:
+// it accepts broader payload handler (string | number) but not narrower.
+// Broad assignment is valid; narrow would be an error if assigned to FunctionHost.
+export const functionHostWithBroad: FunctionHost = {
+  handle: broadHandler,
+};
+
+export const functionHostWithExact: FunctionHost = {
+  handle: exactHandler,
 };
 
 export function acceptsMethodHost(host: MethodHost): void {

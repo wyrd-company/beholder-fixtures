@@ -5,11 +5,11 @@
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "strict": true,
+    "noLib": true,
     "declaration": true,
     "outDir": "dist/no-lib",
     "rootDir": "src",
-    "esModuleInterop": true,
     "skipLibCheck": true
   },
-  "include": ["src/lib/no-lib-consumer.ts"]
+  "include": ["src/lib/no-lib-consumer.ts", "src/lib/no-lib-globals.d.ts"]
 }

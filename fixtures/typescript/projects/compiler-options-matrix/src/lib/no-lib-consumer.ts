@@ -1,23 +1,14 @@
-/// <reference no-default-lib="true"/>
-/// <reference lib="es5" />
-/// <reference lib="es2015.collection" />
-/// <reference lib="es2015.iterable" />
-/// <reference lib="es2022" />
-/// <reference lib="dom" />
-
-// noLib: project has noLib true and supplies needed libs via per-file references.
-// Only the referenced libs are available; default lib set is not injected.
-
-export function createElementWithText(tag: string, text: string): Element {
-  const element = document.createElement(tag);
-  element.textContent = text;
-  return element;
-}
-
-export function sumValues(values: number[]): number {
-  return values.reduce((sum, value) => sum + value, 0);
-}
+// noLib: this file is compiled with noLib true and uses only fixture-owned
+// minimal globals from no-lib-globals.d.ts. No bundled lib is loaded.
 
 export function describeNoLibToken(token: string): string {
   return `no-lib:${token}`;
+}
+
+export function sumNoLibValues(values: Array<number>): number {
+  return values.length;
+}
+
+export function formatNoLibLabel(label: String): String {
+  return label;
 }
