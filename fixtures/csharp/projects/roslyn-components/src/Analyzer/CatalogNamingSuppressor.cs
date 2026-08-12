@@ -35,14 +35,40 @@ public sealed class CatalogNamingSuppressor : DiagnosticSuppressor
                 continue;
             }
 
-            // Inspect the source text of the file for the suppression marker.
-            // A production suppressor would resolve the symbol via the semantic model;
-            // for this fixture the text check demonstrates the precedence hook
-            // while keeping the analyzer assembly netstandard2.0-clean.
-            var text = tree.GetText(context.CancellationToken).ToString();
-            if (text.Contains("SuppressCatalogNaming") || text.Contains("GeneratedCode"))
+            var root = tree.GetRoot(context.CancellationToken);
+            var node = root.FindNode(diagnostic.Location.SourceSpan);
+            var model = context.GetSemanticModel(tree);
+            var declared = node as Microsoft.CodeAnalysis.CSharp.Syntax.TypeDeclarationSyntax;
+            Microsoft.CodeAnalysis.ISymbol? symbol = null;
+            if (declared != null)
             {
-                context.ReportSuppression(Suppression.Create(Descriptor, diagnostic));
+                symbol = model.GetDeclaredSymbol(declared, context.CancellationToken);
+            }
+            else
+            {
+                symbol = model.GetSymbolInfo(node, context.CancellationToken).Symbol
+                    ?? model.GetDeclaredSymbol(node, context.CancellationToken);
+            }
+
+            if (symbol is null)
+            {
+                continue;
+            }
+
+            var target = symbol is Microsoft.CodeAnalysis.INamedTypeSymbol nt ? (Microsoft.CodeAnalysis.ISymbol)nt : symbol;
+            if (target is Microsoft.CodeAnalysis.INamedTypeSymbol named)
+            {
+                target = named;
+            }
+
+            foreach (var attr in target.GetAttributes())
+            {
+                var name = attr.AttributeClass?.Name;
+                if (name == "SuppressCatalogNamingAttribute" || name == "GeneratedCodeAttribute")
+                {
+                    context.ReportSuppression(Suppression.Create(Descriptor, diagnostic));
+                    break;
+                }
             }
         }
     }

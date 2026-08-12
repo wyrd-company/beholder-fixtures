@@ -15,8 +15,6 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <!-- CS-CAN-102: NoWarn at project level - suppresses a specific warning id without touching other diagnostics -->
     <NoWarn>$(NoWarn);CS0436</NoWarn>
-    <!-- CS-CAN-102: promotion/demotion - RCAN001 is promoted to error in StrictArea via .editorconfig, then demoted back to warning here so the fixture build still passes while the per-path precedence is observable in the diagnostic severity -->
-    <WarningsNotAsErrors>RCAN001</WarningsNotAsErrors>
     <!-- CS-CAN-102: xlf? Not needed. Enable nullable analysis -->
     <Nullable>enable</Nullable>
   </PropertyGroup>

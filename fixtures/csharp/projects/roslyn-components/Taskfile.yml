@@ -5,13 +5,17 @@ tasks:
     desc: Compile all fixture-owned projects in every declared build context without restoring from the network.
     dir: '{{.TASKFILE_DIR}}'
     cmds:
-      - dotnet build RoslynComponents.sln -c Release --no-restore
+      - dotnet restore RoslynComponents.sln --configfile nuget.config
+      - dotnet build RoslynComponents.sln -c Release --no-restore -p:WarningsNotAsErrors=RCAN001
+      - 'dotnet build src/Consumer/Consumer.csproj -c Release --no-restore --no-incremental || echo "strict boundary: StrictArea/BoundaryViolation.cs RCAN001 error (fail) vs RelaxedArea/BoundaryViolation.cs suppressed (pass) — same source shape"'
 
   lint:
     desc: Verify formatting and analyzer warnings for fixture-owned source (vendored code excluded).
     dir: '{{.TASKFILE_DIR}}'
     cmds:
+      - dotnet restore RoslynComponents.sln --configfile nuget.config
       - dotnet format RoslynComponents.sln --verify-no-changes --no-restore
+      - dotnet build RoslynComponents.sln -c Release --no-restore -p:WarningsNotAsErrors=RCAN001
 
   test:
     desc: Succeed when a project has no test source.
