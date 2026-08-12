@@ -12,13 +12,10 @@ namespace SourceBinding.Core.Nested
     }
 }
 
-namespace SourceBinding.Core.Nested.ContainerHostNested
-{
-    public sealed class NestedViaNamespace
-    {
-        public static string Describe() => "namespace path Nested";
-    }
-}
+// Same-named namespace/nested-type contrast is split across assemblies:
+// Core provides SourceBinding.Core.Nested.ContainerHost.Nested via nested type (above),
+// Extensions provides the same qualified name via namespace path
+// (see src/Extensions/NestedContainerHost/NestedViaNamespace.cs).
 
 namespace SourceBinding.Core.Nested
 {
@@ -64,5 +61,34 @@ namespace SourceBinding.Core.Nested
             var nested = typeof(Outer<int>.Inner<string>);
             return nested.FullName ?? "unknown";
         }
+    }
+
+    // Inaccessible container: private nested type is not accessible outside OuterWithPrivate.
+    public class OuterWithPrivate
+    {
+        private sealed class PrivateInner
+        {
+            public static string Describe() => "private inner";
+        }
+
+        public static string ViaReflection()
+        {
+            var type = typeof(PrivateInner);
+            return type.Name;
+        }
+    }
+
+    // Effective exposure: public nested type inside private container has effective private accessibility.
+    public class EffectiveExposureHost
+    {
+        private sealed class HiddenContainer
+        {
+            public sealed class VisibleInner
+            {
+                public static string Describe() => "visible via hidden";
+            }
+        }
+
+        public static Type GetExposedType() => typeof(HiddenContainer.VisibleInner);
     }
 }

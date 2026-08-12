@@ -6,16 +6,23 @@ public partial class PartialDemo13
 
     public partial int this[int index] { get; set; }
 
-    partial void LegacyHook();
+    partial void LegacyHook(int value);
 
     public partial void ExtendedHook(int value);
 
     private string _label = string.Empty;
     private int[] _data = new int[4];
+    private static int _counter;
+
+    private static int ProduceSideEffect()
+    {
+        _counter++;
+        return _counter;
+    }
 
     public void Trigger()
     {
-        LegacyHook();
+        LegacyHook(ProduceSideEffect());
         ExtendedHook(7);
         _ = Label;
         _ = this[0];

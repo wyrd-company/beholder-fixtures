@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <MSBuildWarningsAsMessages>MSB3277</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CodeAnalysis" HintPath="/usr/lib/dotnet/sdk/10.0.110/Roslyn/bincore/Microsoft.CodeAnalysis.dll" PrivateAssets="all" />
+    <Reference Include="Microsoft.CodeAnalysis.CSharp" HintPath="/usr/lib/dotnet/sdk/10.0.110/Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

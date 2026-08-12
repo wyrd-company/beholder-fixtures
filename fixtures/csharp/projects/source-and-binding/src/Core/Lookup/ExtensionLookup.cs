@@ -1,13 +1,13 @@
-using SourceBinding.Extensions.StringOps;
 using SourceBinding.Extensions.CollectionOps;
+using SourceBinding.Extensions.Competitive;
 using SourceBinding.Extensions.RefOps;
-// Note: CompetingA vs CompetingB drives import-based binding; only one is imported per file.
+using SourceBinding.Extensions.StringOps;
 
 namespace SourceBinding.Core.Lookup;
 
 public class ExtensionTarget
 {
-    // Instance member that wins over extension.
+    // Instance member that wins over extension (different receiver, not competitive).
     public int WordCount() => 42;
 }
 
@@ -15,10 +15,11 @@ public static class ExtensionLookupSurface
 {
     public static int InstanceWins()
     {
-        var target = new ExtensionTarget();
-        int viaExtension = "hello world".WordCount(); // extension.
-        int viaInstance = target.WordCount(); // instance wins.
-        return viaExtension + viaInstance;
+        var competitive = new CompetitiveReceiver();
+        int viaInstance = competitive.GetValue(); // instance wins over extension.
+        int viaExtension = "hello world".WordCount(); // extension for string.
+        int viaTargetInstance = new ExtensionTarget().WordCount();
+        return viaInstance + viaExtension + viaTargetInstance;
     }
 
     public static int ViaGenericAndInterface()
@@ -42,10 +43,12 @@ public static class ExtensionLookupSurface
     public static int ViaNullReceiver()
     {
         string? maybeNull = null;
-        // Null receiver is allowed; extension handles null.
-        int length = maybeNull?.WordCount() ?? -1;
-        int viaStatic = SourceBinding.Extensions.StringOps.StringExtensions.WordCount(maybeNull ?? string.Empty);
-        return length + viaStatic;
+        // Direct null receiver invocation (no conditional) – extension handles null.
+        int direct = maybeNull!.WordCount();
+        string? nullString = null;
+        int viaDirectNull = nullString.WordCount();
+        int viaStatic = SourceBinding.Extensions.StringOps.StringExtensions.WordCount(string.Empty);
+        return direct + viaDirectNull + viaStatic;
     }
 
     public static int ViaStaticCall()
@@ -66,8 +69,8 @@ public static class ExtensionLookupSurface
 
     public static void ViaExtensionAdd()
     {
-        List<int> list = new List<int> { 1, 2 };
-        list.AddRange(new[] { 3, 4 }); // extension AddRange via CollectionOps.
+        System.Collections.Generic.ICollection<int> collection = new List<int> { 1, 2 };
+        collection.AddRange(new[] { 3, 4 }); // extension AddRange via CollectionOps on ICollection<T>.
     }
 }
 

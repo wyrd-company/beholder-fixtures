@@ -1,74 +1,110 @@
 using System;
 using System.Collections.Generic;
-using SysMath = System.Math;
+using DemoA;
+using DemoB;
 
 namespace SourceBinding.Core.Lookup;
 
 public class ScopedLookupBase
 {
-    protected string Value => "base";
-    protected static string StaticValue => "base-static";
+    protected int shared = 1;
+#pragma warning disable CS0414
+    private int hidden = 99;
+#pragma warning restore CS0414
+    protected static int StaticValue => 10;
 }
 
 public class ScopedLookup : ScopedLookupBase
 {
-    private new string Value => "derived-member";
+    private new int shared = 2;
+    public int hidden = 100;
 
-    private string _value = "field";
-
-    public string DemonstrateShadowing(string value)
+    // Parameter shadows field (same spelling 'shared').
+    public int ParamShadowsField(int shared)
     {
-        string Value = value; // Parameter 'value' and local 'Value' with colliding name; local shadows parameter via distinct casing/lookup.
-
-        // Local shadows member.
-        string result = Value; // binds to local, not this.Value.
-
-        // Qualification to select winner.
-        string viaThis = this.Value; // derived member.
-        string viaBase = base.Value; // base member.
-        string viaGlobal = global::SourceBinding.Core.Lookup.ScopedLookupBase.StaticValue;
-
-        // Type parameter shadowing.
-        return $"{result}:{viaThis}:{viaBase}:{viaGlobal}:{_value}";
+        int viaParam = shared;
+        int viaField = this.shared;
+        int viaBase = base.shared;
+        return viaParam + viaField + viaBase;
     }
 
-    public void TypeParameterShadow<T>()
+    // Local shadows field (same spelling 'shared').
+    public int LocalShadowsField()
     {
-        T shadow = default!;
-        _ = shadow;
+        int sharedLocal = 5;
+        _ = sharedLocal;
+        int shared = 10;
+        int viaLocal = shared;
+        int viaField = this.shared;
+        return viaLocal + viaField;
     }
 
-    public void NamespaceAndImportCollision()
+    // Type parameter shadowing: method type param shadows class type param.
+#pragma warning disable CS0693
+    public class GenericOuter<T>
     {
-        // Closer using scope via alias SysMath shadows System.Math.
-        double viaAlias = SysMath.Abs(-3.0);
-        double viaFull = System.Math.Abs(-4.0);
-        _ = viaAlias;
-        _ = viaFull;
+        private T outerValue = default!;
 
-        // Contextual var: 'var' as type versus identifier.
-        var var = 5; // 'var' used as variable name with inferred type.
-        int varTyped = var + 1;
-        _ = varTyped;
+        public void TypeParamShadow<TInner>(TInner innerValue)
+        {
+            TInner local = innerValue;
+            _ = local;
+            _ = outerValue;
+        }
+
+        public void SameNameTypeParam<T>(T value)
+        {
+            T local = value;
+            _ = local;
+        }
+    }
+#pragma warning restore CS0693
+
+    public sealed class Item
+    {
+        public static string Describe() => "nested Item";
     }
 
-    public void InaccessibleCandidate()
+    public void NestedTypeLookup()
     {
-        // Inaccessible private member in base is not a candidate; lookup skips it.
-        // Demonstrate that accessible derived wins without ambiguity.
-        _ = Value;
+        var viaNested = new Item();
+        var viaGlobal = new global::SourceBinding.Core.Lookup.ScopedLookup.Item();
+        _ = viaNested;
+        _ = viaGlobal;
     }
 
-    // Nested type shadowing import.
-    public sealed class Item { }
-
-    public void NestedTypeShadow()
+    public string MemberShadowing()
     {
-        var item = new Item();
-        _ = item;
-        // Qualification disambiguates nested type from namespace.
-        var globalItem = new global::SourceBinding.Core.Lookup.ScopedLookup.Item();
-        _ = globalItem;
+        int viaThis = this.shared;
+        int viaBase = base.shared;
+        int viaGlobal = global::SourceBinding.Core.Lookup.ScopedLookupBase.StaticValue;
+        return $"{viaThis}:{viaBase}:{viaGlobal}";
+    }
+
+    public string CloserUsingScope()
+    {
+        string viaA = DemoA.Widget.Describe();
+        string viaB = DemoB.Widget.Describe();
+        return $"{viaA}:{viaB}";
+    }
+
+    public void ContextualVarDemo()
+    {
+        var var = 7;
+        int result = var + 1;
+        _ = result;
+    }
+
+    public int InaccessibleCandidateDemo()
+    {
+        return hidden;
+    }
+
+    public string AmbiguousResolved()
+    {
+        var a = new DemoA.Widget();
+        var b = new DemoB.Widget();
+        return $"{a.GetType().FullName}:{b.GetType().FullName}";
     }
 }
 
@@ -76,7 +112,7 @@ public static class VarContextual
 {
     public static int UseVar(string? input)
     {
-        if (input is var x) // 'var' pattern.
+        if (input is var x)
         {
             return x?.Length ?? 0;
         }

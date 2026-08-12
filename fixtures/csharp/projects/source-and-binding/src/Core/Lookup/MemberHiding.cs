@@ -1,5 +1,7 @@
 using System;
 
+#pragma warning disable CS0414
+
 namespace SourceBinding.Core.Lookup;
 
 public class HidingBase
@@ -19,7 +21,45 @@ public class HidingBase
         public static string Describe() => "nested base";
     }
 
+    private int hiddenPrivate = 99;
+
     protected string HiddenProtected => "base protected";
+}
+
+public class HidingWithoutNewBase
+{
+    public int Value = 1;
+}
+
+public class HidingWithoutNewDerived : HidingWithoutNewBase
+{
+#pragma warning disable CS0108
+    public int Value = 2;
+#pragma warning restore CS0108
+}
+
+public class InaccessibleBase
+{
+    private int secret = 1;
+}
+
+public class InaccessibleDerived : InaccessibleBase
+{
+    public int secret = 2;
+}
+
+public class GenericHidingBase<T>
+{
+    public T BaseValue = default!;
+
+    public string DescribeBase(T value) => $"base:{value}";
+}
+
+public class GenericHidingDerived : GenericHidingBase<int>
+{
+    public new string BaseValue = "derived";
+
+    public new string DescribeBase(int value) => $"derived:{value}";
 }
 
 public class HidingDerived : HidingBase
@@ -47,10 +87,21 @@ public class HidingDerived : HidingBase
         return $"{viaBase}:{viaThis}:{viaBaseCast}";
     }
 
-    public string AccessHiddenProtected() => HiddenProtected; // inaccessible base member not hidden; still accessible via inheritance.
+    public string AccessHiddenProtected() => HiddenProtected;
 
-    // Generic base hiding demonstration.
-    public string DescribeGeneric<T>(T value) => value?.ToString() ?? "null";
+    public int AccessHiddenPrivateViaDerived()
+    {
+        var derived = new InaccessibleDerived();
+        return derived.secret;
+    }
+
+    public string GenericBaseHidingDemo()
+    {
+        var derived = new GenericHidingDerived();
+        string viaDerived = derived.BaseValue;
+        string viaBase = ((GenericHidingBase<int>)derived).BaseValue.ToString()!;
+        return $"{viaDerived}:{viaBase}";
+    }
 }
 
 public class HidingMostDerived : HidingDerived

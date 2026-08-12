@@ -53,9 +53,11 @@ public sealed class AfterUndefine
 }
 #endif
 
-// Inactive region may contain malformed-looking text that is not parsed.
+// Inactive region may contain malformed-looking text and inactive diagnostics that are not emitted.
 #if false
 This is inactive text that looks malformed: @@@ ### """ not parsed as C#
+#error Inactive error directive does not emit when inactive
+#warning Inactive warning directive does not emit when inactive
 #endif
 
 #pragma warning disable CS0219
@@ -63,8 +65,7 @@ public static class WarningSuppression
 {
     public static void Suppressed()
     {
-        int unused = 123; // suppressed
-        _ = unused;
+        int unused = 123;
     }
 }
 #pragma warning restore CS0219
@@ -75,7 +76,6 @@ public static class WarningHidden
     public static void Hidden()
     {
         int hiddenUnused = 456;
-        _ = hiddenUnused;
     }
 #pragma warning restore CS0219
 

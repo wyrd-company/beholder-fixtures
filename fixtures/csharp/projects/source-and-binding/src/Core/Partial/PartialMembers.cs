@@ -4,11 +4,11 @@ namespace SourceBinding.Core.Partial;
 
 public partial class PartialEntity
 {
-    // Legacy partial method (no accessibility, implicitly private). No implementation -> calls erased.
-    partial void LegacyHook();
+    // Legacy partial method (no accessibility, implicitly private). No implementation -> call and argument evaluation erased.
+    partial void LegacyHook(int value);
 
     // Legacy partial method with implementation.
-    partial void LegacyImplementedHook();
+    partial void LegacyImplementedHook(int value);
 
     // Extended partial method (C# 9) with accessibility and implementation required.
     public partial void ExtendedHook(int value);
@@ -20,12 +20,19 @@ public partial class PartialEntity
 
     private string _catalogLabel = string.Empty;
     private int[] _store = new int[8];
+    private static int _sideEffectCounter;
+
+    private static int ProduceSideEffect()
+    {
+        _sideEffectCounter++;
+        return _sideEffectCounter;
+    }
 
     public void Invoke()
     {
-        // This call is erased when LegacyHook lacks implementation (no side effects emitted).
-        LegacyHook();
-        LegacyImplementedHook();
+        // This call and its argument side effect are erased when LegacyHook lacks implementation.
+        LegacyHook(ProduceSideEffect());
+        LegacyImplementedHook(ProduceSideEffect());
         ExtendedHook(42);
         _ = CatalogLabel;
         _ = this[2];
@@ -35,9 +42,9 @@ public partial class PartialEntity
 public partial class PartialEntity
 {
     // Implementations for the partial members.
-    partial void LegacyImplementedHook()
+    partial void LegacyImplementedHook(int value)
     {
-        _catalogLabel = "legacy";
+        _catalogLabel = $"legacy:{value}";
     }
 
     public partial void ExtendedHook(int value)
