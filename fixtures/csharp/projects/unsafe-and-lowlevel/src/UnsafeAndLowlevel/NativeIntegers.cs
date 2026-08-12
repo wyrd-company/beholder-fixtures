@@ -46,9 +46,20 @@ public static class NativeIntegers
     public static unsafe int SizeOfNuint => sizeof(nuint);
 
     // Demonstrates native-sized integer identity alongside IntPtr/UIntPtr.
+    // nint and IntPtr share the runtime representation System.IntPtr, so a
+    // single-type overload pair M(nint)/M(IntPtr) would be CS0111 duplicate.
+    // The contrast is shown via distinct names, explicit casts, and type identity.
     public static string Describe(nint value) => $"nint:{value}";
 
     public static string Describe(nuint value) => $"nuint:{value}";
+
+    public static string DescribeIntPtr(IntPtr value) => $"IntPtr:{value}";
+
+    public static string DescribeUIntPtr(UIntPtr value) => $"UIntPtr:{value}";
+
+    public static bool NintIsIntPtr => typeof(nint) == typeof(IntPtr);
+
+    public static bool NuintIsUIntPtr => typeof(nuint) == typeof(UIntPtr);
 
     public static string DescribeOverload(object _)
         => "object";
