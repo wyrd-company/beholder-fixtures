@@ -1,0 +1,70 @@
+# ---
+# relationships:
+#   implements: ground-rules
+# ---
+
+version: '3'
+
+tasks:
+  build:
+    desc: Build all Rust fixture projects
+    cmds:
+      - task --dir projects/cargo-build-model build
+      - task --dir projects/build-scripts-and-codegen build
+      - task --dir projects/macros-and-procedural-macros build
+      - task --dir projects/modules-visibility-and-resolution build
+      - task --dir projects/types-and-layout build
+      - task --dir projects/generics-bounds-and-associated-items build
+      - task --dir projects/traits-and-dispatch build
+      - task --dir projects/ownership-and-borrowing build
+      - task --dir projects/expressions-constants-and-statics build
+      - task --dir projects/attributes-and-lints build
+      - task --dir projects/unsafe-ffi-and-abi build
+      - task --dir projects/async-and-concurrency build
+      - task --dir projects/tests-and-documentation build
+      - task --dir projects/serde-and-error-derives build
+      - task --dir projects/async-runtime-and-registration build
+      - task --dir projects/api-facades-and-lazy-globals build
+      - task --dir projects/wasm-bindgen-bridge build
+
+  lint:
+    desc: Lint all Rust fixture projects
+    cmds:
+      - task --dir projects/cargo-build-model lint
+      - task --dir projects/build-scripts-and-codegen lint
+      - task --dir projects/macros-and-procedural-macros lint
+      - task --dir projects/modules-visibility-and-resolution lint
+      - task --dir projects/types-and-layout lint
+      - task --dir projects/generics-bounds-and-associated-items lint
+      - task --dir projects/traits-and-dispatch lint
+      - task --dir projects/ownership-and-borrowing lint
+      - task --dir projects/expressions-constants-and-statics lint
+      - task --dir projects/attributes-and-lints lint
+      - task --dir projects/unsafe-ffi-and-abi lint
+      - task --dir projects/async-and-concurrency lint
+      - task --dir projects/tests-and-documentation lint
+      - task --dir projects/serde-and-error-derives lint
+      - task --dir projects/async-runtime-and-registration lint
+      - task --dir projects/api-facades-and-lazy-globals lint
+      - task --dir projects/wasm-bindgen-bridge lint
+
+  test:
+    desc: Test all Rust fixture projects
+    cmds:
+      - task --dir projects/cargo-build-model test
+      - task --dir projects/build-scripts-and-codegen test
+      - task --dir projects/macros-and-procedural-macros test
+      - task --dir projects/modules-visibility-and-resolution test
+      - task --dir projects/types-and-layout test
+      - task --dir projects/generics-bounds-and-associated-items test
+      - task --dir projects/traits-and-dispatch test
+      - task --dir projects/ownership-and-borrowing test
+      - task --dir projects/expressions-constants-and-statics test
+      - task --dir projects/attributes-and-lints test
+      - task --dir projects/unsafe-ffi-and-abi test
+      - task --dir projects/async-and-concurrency test
+      - task --dir projects/tests-and-documentation test
+      - task --dir projects/serde-and-error-derives test
+      - task --dir projects/async-runtime-and-registration test
+      - task --dir projects/api-facades-and-lazy-globals test
+      - task --dir projects/wasm-bindgen-bridge test
