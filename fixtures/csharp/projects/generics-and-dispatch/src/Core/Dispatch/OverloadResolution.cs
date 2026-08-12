@@ -140,8 +140,9 @@ public static class OverloadResolution
         string log2 = Log((FormattableString)$"value:{42}");
         string log3 = Log((ReadOnlySpan<char>)"hello");
 
-        // Added overload compatibility: calling with original type still binds to original overload.
-        string added = Select(42);
+        // Added-overload compatibility across an assembly metadata boundary is modeled by the
+        // versioned producer/consumer projects under compat/ (ConsumerV1 binds Render(object)
+        // against version 1; ConsumerV2 rebinds to the added Render(string) against version 2).
 
         _ = r1; _ = r2; _ = r3; _ = r4; _ = r5; _ = r6; _ = r7;
         _ = o1; _ = o2; _ = p1; _ = p2; _ = p3; _ = ps;
@@ -149,7 +150,7 @@ public static class OverloadResolution
         _ = b1; _ = b2; _ = b3;
         _ = instanceWins; _ = extensionViaString;
         _ = l1; _ = l2; _ = l3; _ = m1;
-        _ = t1; _ = t2; _ = t3; _ = t4; _ = log1; _ = log2; _ = log3; _ = added;
+        _ = t1; _ = t2; _ = t3; _ = t4; _ = log1; _ = log2; _ = log3;
     }
 
     private static int Scale(int value) => value * 3;

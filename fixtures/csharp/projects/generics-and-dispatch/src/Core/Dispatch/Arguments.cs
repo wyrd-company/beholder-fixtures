@@ -54,31 +54,20 @@ public static class ArgumentForms
         string j1 = Join(",", "a", "b");
         string j2 = Join(parts: ["a", "b"]);
 
-        // Caller-baked default mismatch: default value 1 is baked at call site.
-        // ProducerV1 has count=1, ProducerV2 has count=99 but call without explicit count still bakes 1.
+        // The optional default is baked into this caller's IL at the call site, not read from the
+        // callee at runtime. A default that changes across an assembly metadata boundary is modeled
+        // by the versioned producer/consumer projects under compat/ (ConsumerV1 bakes times=1 from
+        // version 1; ConsumerV2 bakes times=99 from version 2).
         string defaultBaked = Format("demo");
         string explicitDefault = Format("demo", 1);
-        string v1 = DefaultsV1.Format("x");
-        string v2 = DefaultsV2.Format("x");
-        bool mismatch = v1 != v2;
 
         _ = a1; _ = a2; _ = a3; _ = a4;
         _ = s1; _ = s2; _ = s3; _ = s4; _ = s5; _ = s6;
         _ = spanFromBuffer; _ = arrayFromCollection; _ = coll1; _ = coll2;
-        _ = eval; _ = j1; _ = j2; _ = defaultBaked; _ = explicitDefault; _ = mismatch;
+        _ = eval; _ = j1; _ = j2; _ = defaultBaked; _ = explicitDefault;
     }
 
     private static string Next(ref int counter) => $"name-{counter++}";
     private static int NextInt(ref int counter) => counter++;
     private static bool NextBool(ref int counter) => (counter++ % 2) == 0;
-}
-
-public static class DefaultsV1
-{
-    public static string Format(string title, int count = 1) => $"{title}:{count}";
-}
-
-public static class DefaultsV2
-{
-    public static string Format(string title, int count = 99) => $"{title}:{count}";
 }

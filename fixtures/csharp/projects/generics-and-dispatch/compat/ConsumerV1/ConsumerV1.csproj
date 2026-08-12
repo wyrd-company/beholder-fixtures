@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>GenericsAndDispatch.Compat.Consumers</RootNamespace>
+    <AssemblyName>GenericsAndDispatch.Compat.ConsumerV1</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProducerV1\ProducerV1.csproj" />
+  </ItemGroup>
+
+</Project>

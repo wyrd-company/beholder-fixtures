@@ -7,6 +7,9 @@ public class Box<T>
 
     public Box(T value) => Value = value;
 
+    // Instance method whose JIT-compiled code is shared across reference-type constructions.
+    public T Echo() => Value;
+
     public static int Instances;
 }
 
@@ -116,12 +119,27 @@ public static class GenericExercises
         IntPtr handleInt = closedInt.TypeHandle.Value;
         IntPtr handleString = closedString.TypeHandle.Value;
 
-        // MethodHandle sharing for generic method definition versus distinct instantiation.
-        var methodDef = typeof(Factory).GetMethod(nameof(Factory.Create), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)!.GetGenericMethodDefinition();
-        var methodInt = methodDef.MakeGenericMethod(typeof(int));
-        var methodString = methodDef.MakeGenericMethod(typeof(string));
-        IntPtr mHandleInt = methodInt.MethodHandle.Value;
-        IntPtr mHandleString = methodString.MethodHandle.Value;
+        // Runtime code-sharing: reference-type constructions share one JIT-compiled body while
+        // value-type constructions are specialized. Observed by comparing the code entry points of
+        // an instance method on the constructed types (a static generic method would instead expose
+        // per-instantiation entry stubs, so it cannot show sharing).
+        var echoString = typeof(Box<string>).GetMethod(nameof(Box<object>.Echo))!;
+        var echoObject = typeof(Box<object>).GetMethod(nameof(Box<object>.Echo))!;
+        var echoInt = typeof(Box<int>).GetMethod(nameof(Box<object>.Echo))!;
+        IntPtr entryString = echoString.MethodHandle.GetFunctionPointer();
+        IntPtr entryObject = echoObject.MethodHandle.GetFunctionPointer();
+        IntPtr entryInt = echoInt.MethodHandle.GetFunctionPointer();
+        bool referenceTypesShareCode = entryString == entryObject;
+        bool valueTypeSpecialized = entryInt != entryString;
+
+        // Select the single-arity Create<T> unambiguously across the two Create arities, then
+        // confirm both instantiations map back to one shared generic method definition.
+        var createDef = typeof(Factory).GetMethods()
+            .Single(m => m.Name == nameof(Factory.Create) && m.GetGenericArguments().Length == 1);
+        var createInt = createDef.MakeGenericMethod(typeof(int));
+        var createString = createDef.MakeGenericMethod(typeof(string));
+        bool sameMethodDefinition =
+            createInt.GetGenericMethodDefinition() == createString.GetGenericMethodDefinition();
 
         _ = inferred;
         _ = explicitSingle;
@@ -143,8 +161,9 @@ public static class GenericExercises
         _ = distinctTypes;
         _ = handleInt;
         _ = handleString;
-        _ = mHandleInt;
-        _ = mHandleString;
+        _ = referenceTypesShareCode;
+        _ = valueTypeSpecialized;
+        _ = sameMethodDefinition;
     }
 
     public static Type GetDefinition<T>(Box<T> box) => box.GetType().GetGenericTypeDefinition();

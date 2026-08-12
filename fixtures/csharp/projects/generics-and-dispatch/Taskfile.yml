@@ -16,6 +16,10 @@ tasks:
       - dotnet build contexts/csharp11/CSharp11.csproj --no-restore -c Release
       - dotnet build contexts/csharp12/CSharp12.csproj --no-restore -c Release
       - dotnet build contexts/csharp13/CSharp13.csproj --no-restore -c Release
+      - dotnet build compat/ProducerV1/ProducerV1.csproj --no-restore -c Release
+      - dotnet build compat/ProducerV2/ProducerV2.csproj --no-restore -c Release
+      - dotnet build compat/ConsumerV1/ConsumerV1.csproj --no-restore -c Release
+      - dotnet build compat/ConsumerV2/ConsumerV2.csproj --no-restore -c Release
 
   lint:
     desc: Verify formatting and analyzer warnings for fixture-owned source.
@@ -31,6 +35,10 @@ tasks:
       - dotnet build contexts/csharp11/CSharp11.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
       - dotnet build contexts/csharp12/CSharp12.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
       - dotnet build contexts/csharp13/CSharp13.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build compat/ProducerV1/ProducerV1.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build compat/ProducerV2/ProducerV2.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build compat/ConsumerV1/ConsumerV1.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build compat/ConsumerV2/ConsumerV2.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
 
   test:
     desc: Succeed when a project has no test source.
