@@ -38,9 +38,9 @@ export type LowerAtlas = Lowercase<"ATLAS">; // "atlas"
 export type Capitalized = Capitalize<"atlas">; // "Atlas"
 export type Uncapitalized = Uncapitalize<"Atlas">; // "atlas"
 
-// Wide string interaction
+// Wide string interaction: substitution preserves template-literal pattern
 export type WideString = string;
-export type PrefixedWide = `prefix-${WideString}`; // `prefix-${string}` remains string
+export type PrefixedWide = `prefix-${WideString}`; // resolves to template-literal pattern `prefix-${string}`, not wide `string`
 
 // Key-remapping interaction with template literal
 export type PrefixedCatalog = {

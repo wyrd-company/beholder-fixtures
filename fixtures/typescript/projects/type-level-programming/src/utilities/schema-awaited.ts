@@ -22,7 +22,7 @@ export const catalogDefinition = defineCatalog({
 });
 
 export type CatalogFromDefinition = typeof catalogDefinition.shape;
-// { label: string; count: number; tag: string } inferred only through generic
+// { readonly label: "atlas"; readonly count: 3; readonly tag: "beacon" } readonly literal shape via const generic
 
 export type InferredCatalog = CatalogFromDefinition;
 
@@ -60,6 +60,24 @@ export function buildLabeled(label: string, count: number): LabeledRecord {
   return { label, count };
 }
 
+// Last-overload extraction distinct instance for coverage (TS-CAN-080)
+export function schemaOverloaded(value: string): number;
+export function schemaOverloaded(value: number): string;
+export function schemaOverloaded(value: string | number): string | number {
+  return typeof value === "string" ? value.length : String(value);
+}
+
+export type SchemaLastOverload<T> = T extends {
+  (...args: infer _A): infer R;
+}
+  ? R
+  : never;
+
+export type SchemaOverloadedLastReturn = SchemaLastOverload<
+  typeof schemaOverloaded
+>;
+
 export const isolatedExample: LabeledRecord = buildLabeled("atlas", 3);
 export const schemaAwaitedExample: AwaitedThenable = "atlas";
 export const nestedAwaitedExample: AwaitedNestedThenable = "atlas";
+export const schemaOverloadExample: SchemaOverloadedLastReturn = "atlas";

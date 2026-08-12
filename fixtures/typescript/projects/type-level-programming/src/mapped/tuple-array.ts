@@ -22,6 +22,16 @@ export type MappedPair = TupleToUnion<MappedPairSource>; // [string, number] map
 export type ArrayMapped = ToArray<{ label: string; count: number }>;
 // { label: string[]; count: number[] }
 
+// Array source: mapped type instantiated over an array source (TS-CAN-071)
+export type ArraySourceMapped<T extends readonly unknown[]> = {
+  [K in keyof T]: T[K];
+};
+
+export type ArraySourceExample = ArraySourceMapped<string[]>;
+export type ReadonlyArraySourceExample = ArraySourceMapped<
+  readonly ["atlas", "ledger"]
+>;
+
 // Recursive maps
 export type DeepReadonly<T> = {
   readonly [K in keyof T]: T[K] extends object ? DeepReadonly<T[K]> : T[K];
@@ -44,6 +54,12 @@ export const deepReadonlyExample: DeepReadonlyNested = {
   label: "atlas",
   child: { tag: "beacon", value: 42 },
 };
+
+export const arraySourceExample: ArraySourceExample = ["atlas", "ledger"];
+export const readonlyArraySourceExample: ReadonlyArraySourceExample = [
+  "atlas",
+  "ledger",
+];
 
 export const mappedDeepPartialExample: MappedDeepPartialNested = {
   label: "atlas",
