@@ -7,8 +7,9 @@
 
 /**
  * Auto-accessor field: `accessor` keyword creates hidden backing storage with
- * declaration and emitted getter/setter. Emit differs between modern target
- * (native `accessor` kept) and downlevel target (desugared to defineProperty).
+ * declaration and emitted getter/setter. Under TypeScript 5.9.3, ES2022 emits
+ * private `#label_accessor_storage` fields with accessor pairs, ES2017 emits
+ * WeakMap-backed helpers, and declaration emit retains the `accessor` keyword.
  */
 export class AutoAccessDemo {
   accessor label = "auto-init";

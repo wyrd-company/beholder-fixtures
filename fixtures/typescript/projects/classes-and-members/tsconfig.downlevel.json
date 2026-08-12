@@ -4,7 +4,6 @@
   "compilerOptions": {
     "target": "ES2017",
     "lib": ["ES2017", "DOM"],
-    "useDefineForClassFields": false,
     "outDir": "dist-downlevel",
     "rootDir": "src"
   },

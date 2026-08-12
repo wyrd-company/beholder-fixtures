@@ -16,7 +16,9 @@ export function baseFactory(tag: string) {
   };
 }
 
-export class DerivedFromExpression extends baseFactory("factory-tag") {
+export const FactoryBase = baseFactory("factory-tag");
+
+export class DerivedFromExpression extends FactoryBase {
   extra = "derived";
 
   describe(): string {
@@ -36,7 +38,9 @@ export class ImplementsErased implements ErasedContract {
   // No runtime heritage from the interface; `instanceof` check is not meaningful.
 }
 
-export class ExtendsRuntime extends baseFactory("runtime-tag") {
+export const RuntimeBase = baseFactory("runtime-tag");
+
+export class ExtendsRuntime extends RuntimeBase {
   token(): string {
     return this.label();
   }
@@ -51,8 +55,10 @@ export function exerciseExpressionExtends(): void {
   void r.token();
 
   // `implements` does not create a runtime prototype chain, `extends` does:
-  const isInstance =
-    r instanceof
-    (baseFactory("runtime-tag") as unknown as abstract new () => unknown);
+  const isInstance = r instanceof RuntimeBase;
   void isInstance;
+
+  // Separate factory call produces a distinct constructor, not the same prototype chain:
+  const OtherBase = baseFactory("runtime-tag");
+  void (r instanceof (OtherBase as unknown as abstract new () => unknown));
 }

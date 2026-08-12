@@ -31,7 +31,7 @@ export class UnrelatedAccess {
     return this._payload;
   }
 
-  set payload(v: string | number) {
+  set payload(v: number) {
     this._payload = String(v);
   }
 }

@@ -9,16 +9,17 @@
 
 export type Labeled = {
   label: string;
-  describe(this: Labeled): string;
+  describe(): string;
 };
 
-export function createLabeled(label: string): Labeled & ThisType<Labeled> {
-  return {
+export function createLabeled(label: string): Labeled {
+  const labeled: Labeled & ThisType<Labeled> = {
     label,
-    describe(this: Labeled) {
+    describe() {
       return this.label;
     },
-  } as Labeled & ThisType<Labeled>;
+  };
+  return labeled;
 }
 
 export function exerciseContextualThisType(): void {
@@ -26,13 +27,15 @@ export function exerciseContextualThisType(): void {
   const text: string = labeled.describe();
   void text;
 
-  // ThisType allows methods inside an object literal to see `this` as the host type.
-  const container: {
+  // ThisType supplies contextual `this` without an explicit `this` parameter.
+  type Container = {
     items: string[];
-    add(this: { items: string[] }, item: string): void;
-  } & ThisType<{ items: string[] }> = {
+    add(item: string): void;
+  };
+
+  const container: Container & ThisType<Container> = {
     items: [],
-    add(this: { items: string[] }, item: string) {
+    add(item) {
       this.items.push(item);
     },
   };

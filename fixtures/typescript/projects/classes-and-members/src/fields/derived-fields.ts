@@ -25,10 +25,8 @@ export class DerivedFields extends BaseFields {
    * Field shadowing base setter `shadowed`.
    * Under `useDefineForClassFields: true` this defines an own data property, shadowing the accessor.
    * Under `false` it assigns via `this.shadowed = ...` invoking the setter.
-   * TypeScript 4.3+ reports TS2610 for accessor/property override; suppression is intentional
-   * to preserve the valid runtime emit difference that the fixture must demonstrate.
+   * The base setter is installed via `Object.defineProperty` so the override is TypeScript-valid.
    */
-  // @ts-ignore: TS2610 — intentional field shadowing accessor to show define vs assignment emit
   override shadowed = "derived-shadowing-field";
 
   declare derivedDeclared: string;
