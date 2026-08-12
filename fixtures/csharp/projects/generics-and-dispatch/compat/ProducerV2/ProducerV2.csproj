@@ -3,7 +3,11 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>GenericsAndDispatch.Compat</RootNamespace>
-    <AssemblyName>GenericsAndDispatch.Compat.ProducerV2</AssemblyName>
+    <!-- Same assembly identity as ProducerV1 (same AssemblyName and AssemblyVersion, no strong
+         name): version 2 is a drop-in binary replacement, so a consumer compiled against version 1
+         binds against this assembly at run time without recompiling. -->
+    <AssemblyName>GenericsAndDispatch.Compat.Producer</AssemblyName>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
