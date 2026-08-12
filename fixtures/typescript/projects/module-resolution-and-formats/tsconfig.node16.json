@@ -14,18 +14,18 @@
     "esModuleInterop": true,
     "allowJs": true,
     "skipLibCheck": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "forceConsistentCasingInFileNames": true,
     "preserveSymlinks": false,
     "baseUrl": ".",
-    "paths": {
-      "#core/*": ["src/core/*"]
-    }
+    "paths": {}
   },
   "include": ["src/**/*"],
   "exclude": [
     "src/core/consumer-extensionless.ts",
+    "src/directory-consumer.ts",
     "src/formats/rewrite-consumer.ts",
-    "src/identity/preserve-consumer.ts"
+    "src/identity/preserve-consumer.ts",
+    "src/identity/linked/**/*"
   ]
 }

@@ -13,20 +13,16 @@
     "rootDir": ".",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "preserveSymlinks": true,
     "baseUrl": ".",
-    "paths": {
-      "#core/*": ["src/core/*"],
-      "#identity/*": ["src/identity/*"]
-    }
+    "paths": {}
   },
   "include": [
     "src/identity/real/**/*",
     "src/identity/alias-via-real.ts",
     "src/identity/alias-via-link.ts",
     "src/identity/preserve-consumer.ts",
-    "src/identity/dual-identity-consumer.ts",
     "src/identity/symlink-spellings.ts",
     "src/identity/vendor-v1/**/*",
     "src/identity/vendor-v2/**/*",

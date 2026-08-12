@@ -13,7 +13,7 @@
     "rootDir": "src",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
     "preserveSymlinks": false,
     "baseUrl": ".",
     "paths": {
@@ -26,11 +26,12 @@
     "src/core/util.ts",
     "src/core/index.ts",
     "src/core/consumer-extensionless.ts",
-    "src/core/directory-consumer.ts",
+    "src/directory-consumer.ts",
     "src/graph/shared-types.ts",
     "src/graph/node-a.ts",
     "src/graph/node-b.ts",
     "src/formats/component.tsx",
+    "src/formats/jsx.d.ts",
     "src/formats/legacy.cts",
     "src/formats/decl-shapes.d.ts",
     "src/formats/legacy-decl.d.cts",
@@ -38,6 +39,9 @@
     "src/identity/vendor-v1/**/*",
     "src/identity/vendor-v2/**/*",
     "src/identity/alias-via-real.ts",
-    "src/exports/pkg/**/*"
+    "src/exports/pkg/index.ts",
+    "src/exports/pkg/util.ts",
+    "src/exports/pkg/internal.ts",
+    "src/exports/pkg/nested/**/*"
   ]
 }

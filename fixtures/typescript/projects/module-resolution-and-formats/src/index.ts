@@ -1,7 +1,7 @@
 export { coreTag, formatLabel } from "./core/index.js";
 export { makeLeaf, joinIds } from "./core/util.js";
 export { runExplicit } from "./core/consumer-explicit.js";
-export { runDirectory } from "./core/directory-consumer.js";
+// runDirectory is provided via directory import in src/directory-consumer.ts (bundler context)
 export { runViaImportsField } from "./core/exports-consumer.js";
 export { readA, linkAtoB } from "./graph/node-a.js";
 export { readB, linkBtoA } from "./graph/node-b.js";

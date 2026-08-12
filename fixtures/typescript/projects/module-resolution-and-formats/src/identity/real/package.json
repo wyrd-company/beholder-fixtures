@@ -1,0 +1,5 @@
+{
+  "name": "@fixtures/shared-real",
+  "type": "module",
+  "private": true
+}
