@@ -5,6 +5,7 @@ tasks:
     desc: Compile all fixture-owned projects in every declared build context without restoring from the network
     dir: '{{.TASKFILE_DIR}}'
     cmds:
+      - dotnet restore PackagesAndBuild.sln --locked-mode
       - dotnet build PackagesAndBuild.sln -c Release --no-restore
       - dotnet build PackagesAndBuild.sln -c Debug --no-restore
       - dotnet build src/Core/Core.csproj -c Release -f net10.0 --no-restore
@@ -24,6 +25,7 @@ tasks:
     desc: Verify formatting and run analyzers via build
     dir: '{{.TASKFILE_DIR}}'
     cmds:
+      - dotnet restore PackagesAndBuild.sln --locked-mode
       - dotnet format PackagesAndBuild.sln --verify-no-changes --no-restore
       - dotnet build PackagesAndBuild.sln -c Release --no-restore /p:TreatWarningsAsErrors=true
       - dotnet build src/Core/Core.csproj -c Release -f netstandard2.1 --no-restore /p:TreatWarningsAsErrors=true
