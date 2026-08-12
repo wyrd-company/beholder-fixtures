@@ -8,6 +8,8 @@ tasks:
       - dotnet build contexts/csharp9/CSharp9.csproj --no-restore -c Release
       - dotnet build contexts/csharp12/CSharp12.csproj --no-restore -c Release
       - dotnet build contexts/csharp13/CSharp13.csproj --no-restore -c Release
+      - dotnet build contexts/entrypoint-task/EntryPointTask.csproj --no-restore -c Release
+      - dotnet build contexts/entrypoint-taskofint/EntryPointTaskOfInt.csproj --no-restore -c Release
   lint:
     desc: Verify formatting and analyzer warnings for fixture-owned source.
     cmds:
@@ -16,6 +18,8 @@ tasks:
       - dotnet build contexts/csharp9/CSharp9.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
       - dotnet build contexts/csharp12/CSharp12.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
       - dotnet build contexts/csharp13/CSharp13.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build contexts/entrypoint-task/EntryPointTask.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build contexts/entrypoint-taskofint/EntryPointTaskOfInt.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
   test:
     desc: Succeed when a project has no test source.
     cmds:
