@@ -26,27 +26,32 @@ trait without implementing it.
 
 ## Extension method ambiguity
 
-Conflicting blanket and inherent methods can create ambiguity at the call site.
-The following pattern is not present as source:
+Two blanket extension traits that expose the same method name leave the call
+site ambiguous when both traits are in scope. The following is rejected by the
+compiler with `E0034` and is not present as source:
 
 ```rust
-trait AmbiguousExt {
+trait AlphaExt {
     fn describe(&self) -> &str;
 }
 
-impl<T> AmbiguousExt for T {
+trait BetaExt {
+    fn describe(&self) -> &str;
+}
+
+impl<T> AlphaExt for T {
     fn describe(&self) -> &str {
-        "blanket"
+        "alpha"
+    }
+}
+
+impl<T> BetaExt for T {
+    fn describe(&self) -> &str {
+        "beta"
     }
 }
 
 struct Entry;
-
-impl Entry {
-    fn describe(&self) -> &str {
-        "inherent"
-    }
-}
 
 fn ambiguous_call(entry: &Entry) -> &str {
     entry.describe()
@@ -54,7 +59,7 @@ fn ambiguous_call(entry: &Entry) -> &str {
 ```
 
 Valid contrast: `src/extension.rs` provides a single blanket `CatalogExt`
-implementation without a conflicting inherent method on `CatalogItem`.
+implementation without a second in-scope trait method of the same name.
 
 ## Lazy global reentrancy or panic path
 
