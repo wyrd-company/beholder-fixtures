@@ -54,7 +54,8 @@ export class MetadataDesignGallery {
     return `${String(value)}:${item.sku}`;
   }
 
-  // design:type Number on accessor, design:paramtypes [] for getter, design:returntype Number
+  // decorated accessor emits combined design:type Number and
+  // design:paramtypes [Number]; no design:returntype is emitted for accessors
   @tracked
   get score(): number {
     return this.count;
@@ -73,9 +74,9 @@ export class MetadataDesignGallery {
 }
 
 /**
- * Lossy encodings: generic and union types are emitted as Object.
- * This file demonstrates that annotation structure is not fully preserved
- * at runtime but produces observable metadata entries.
+ * Lossy encodings: generic types such as Array<string> emit as Array, while
+ * unions such as string | number emit as Object. Annotation structure is not
+ * fully preserved at runtime but produces observable metadata entries.
  */
 export class LossyMetadataGallery {
   @tracked
