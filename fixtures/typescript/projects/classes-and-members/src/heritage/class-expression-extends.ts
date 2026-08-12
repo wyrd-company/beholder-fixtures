@@ -16,9 +16,8 @@ export function baseFactory(tag: string) {
   };
 }
 
-export const FactoryBase = baseFactory("factory-tag");
-
-export class DerivedFromExpression extends FactoryBase {
+/** The `extends` clause directly contains the class-producing call expression. */
+export class DerivedFromExpression extends baseFactory("factory-tag") {
   extra = "derived";
 
   describe(): string {
