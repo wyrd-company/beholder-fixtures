@@ -13,8 +13,14 @@
     "rootDir": "src",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "jsx": "preserve",
-    "preserveSymlinks": false
+    "jsx": "react-jsx",
+    "jsxImportSource": "@fixtures/jsx-runtime",
+    "preserveSymlinks": false,
+    "baseUrl": ".",
+    "paths": {
+      "@fixtures/jsx-runtime": ["src/formats/jsx-runtime"],
+      "@fixtures/jsx-runtime/*": ["src/formats/jsx-runtime/*"]
+    }
   },
   "include": [
     "src/core/types.ts",

@@ -8,7 +8,7 @@ export { readB, linkBtoA } from "./graph/node-b.js";
 export { ready, getReady } from "./graph/top-level-await.js";
 export { metaUrl, describeMeta } from "./graph/import-meta.js";
 export { preserved } from "./graph/preserve-consumer.js";
-export { Panel } from "./formats/component.jsx";
+export { Panel } from "./formats/component.js";
 export { describeNative } from "./formats/native.mjs";
 export { describeLegacy } from "./formats/legacy.cjs";
 export { describeMixed } from "./formats/mixed.js";
