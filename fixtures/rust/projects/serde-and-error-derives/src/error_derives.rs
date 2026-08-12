@@ -44,17 +44,30 @@ impl ServiceError {
     }
 }
 
+fn read_layer(path: &str) -> Result<(), IoLayer> {
+    Err(IoLayer {
+        path: path.to_owned(),
+    })
+}
+
+fn parse_layer(path: &str, token: &str) -> Result<(), ParseLayer> {
+    Err(ParseLayer {
+        token: token.to_owned(),
+        cause: IoLayer {
+            path: path.to_owned(),
+        },
+    })
+}
+
 /// Consumes typed conversions and source chains through `?`.
 pub fn service_operation(path: &str, token: &str) -> Result<u32, ServiceError> {
-    let io = IoLayer {
-        path: path.to_owned(),
-    };
-    let parse = ParseLayer {
-        token: token.to_owned(),
-        cause: io,
-    };
-    let app: AppError = parse.into();
-    Err(ServiceError::from_app(app))
+    fn service_inner(path: &str, token: &str) -> Result<u32, AppError> {
+        read_layer(path)?;
+        parse_layer(path, token)?;
+        Ok(1)
+    }
+
+    service_inner(path, token).map_err(ServiceError::from_app)
 }
 
 /// Summary anchor for derive-generated error coverage.
