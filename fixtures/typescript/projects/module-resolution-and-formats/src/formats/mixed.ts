@@ -1,6 +1,6 @@
 import { describeNative } from "./native.mjs";
 import { describeLegacy } from "./legacy.cjs";
-import { Panel } from "./component.js";
+import { Panel } from "./component.jsx";
 
 export function describeMixed(title: string): string {
   const native = describeNative(title);
