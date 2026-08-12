@@ -114,11 +114,6 @@ public static class BoxingExercises
 
     public static void ReadOnlyDefensiveCopy()
     {
-        ReadOnlyStamp stamp = new(5);
-        stamp.Stamp(99);
-        bool unchanged = stamp.Mark == 5;
-        _ = unchanged;
-
         var holder = new ReadOnlyHolder();
         holder.Exercise();
     }
@@ -198,12 +193,14 @@ public static class BoxingExercises
 
     private sealed class ReadOnlyHolder
     {
-        public readonly ReadOnlyStamp Field = new(6);
+        public readonly MutableCounter Field = new(6);
 
         public void Exercise()
         {
+            int before = Field.Mark;
             Field.Stamp(99);
-            _ = Field.Mark == 6;
+            bool unchanged = Field.Mark == before;
+            _ = unchanged;
         }
     }
 

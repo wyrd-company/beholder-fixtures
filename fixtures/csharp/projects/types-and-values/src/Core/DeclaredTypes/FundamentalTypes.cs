@@ -79,6 +79,17 @@ public delegate Pastry PastryFactory(string name);
 
 public delegate TResult MapFactory<out TResult>(int seed);
 
+public delegate void NoticeHandlerDelegate(string message);
+
+public struct StructNotifier
+{
+    public string Prefix;
+
+    public StructNotifier(string prefix) => Prefix = prefix;
+
+    public void Notify(string message) => _ = Prefix + message;
+}
+
 public static class FundamentalExercises
 {
     public static Pastry NewPastry() => new Pastry("plain");
@@ -154,5 +165,16 @@ public static class FundamentalExercises
         combined -= second;
 #pragma warning restore CS8601
         _ = combined is null;
+    }
+
+    public static void ExerciseBoxedStructDelegate()
+    {
+        StructNotifier notifier = new("batch-");
+        NoticeHandlerDelegate viaStruct = notifier.Notify;
+        viaStruct("tray");
+        object boxed = new StructNotifier("boxed-");
+        NoticeHandlerDelegate viaBoxed = ((StructNotifier)boxed).Notify;
+        viaBoxed("tray");
+        _ = viaStruct.Method.DeclaringType == typeof(StructNotifier);
     }
 }

@@ -21,12 +21,24 @@ public class BakeryItem(string name, int batch)
 
     // Shadowing: parameter 'name' shadows member-like naming; lookup prefers parameter
     public string Shadow(string name) => name.ToUpperInvariant();
-
-    // Captured storage: 'name' and 'batch' are captured; elided if unused elsewhere.
-    // Double-storage warning would occur if we also declared a property with same initializer
-    // but we avoid it here; comment shows the pattern.
-    // public string NameProp { get; } = name; // double-storage if also capturing 'name'
 }
+
+// Elided storage: parameter only initializes property, no separate capture field.
+public class ElidedItem(string name)
+{
+    public string Name { get; } = name;
+}
+
+// Double-storage: parameter both initializes property and is captured elsewhere,
+// creating both a property backing field and a capture field; suppressed locally.
+#pragma warning disable CS9124
+public class DoubleStorageItem(string name)
+{
+    public string Name { get; } = name;
+
+    public string Get() => name;
+}
+#pragma warning restore CS9124
 
 public abstract class BakedBase(string category)
 {
@@ -103,12 +115,19 @@ public static class PrimaryConstructorExercises
 
     public static void ExerciseCapturedVsElided()
     {
-        // 'batch' used in Batch property and method => captured storage.
-        // If a parameter were only used to initialize a property and never again,
-        // the compiler may elide separate storage and use the property backing field.
-        BakeryItem item = new("brioche", 5);
-        _ = item.BatchPlus(1);
-        _ = item.Shadow("test");
+        // Captured: 'batch' and 'name' are captured for use in methods => separate capture field.
+        BakeryItem captured = new("brioche", 5);
+        _ = captured.BatchPlus(1);
+        _ = captured.Shadow("test");
+
+        // Elided: 'name' only initializes property, no separate capture field.
+        ElidedItem elided = new("sourdough");
+        _ = elided.Name;
+
+        // Double-storage: property initializer and capture both store 'name'; warned and suppressed locally.
+        DoubleStorageItem doubleStorage = new("rye");
+        _ = doubleStorage.Name;
+        _ = doubleStorage.Get();
     }
 
     public static void ExerciseShadowing()

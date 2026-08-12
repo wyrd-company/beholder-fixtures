@@ -51,8 +51,12 @@ public static class AnonymousShapes
     {
         var withValue = new { Label = "a", Note = "present" };
         var withNull = new { Label = "a", Note = (string?)null };
-        bool differentNullability = withValue.GetType() != withNull.GetType();
-        _ = differentNullability;
+        bool sameRuntimeType = withValue.GetType() == withNull.GetType();
+        _ = sameRuntimeType;
+        string? nullableNote = withNull.Note;
+        string nonNullNote = withValue.Note;
+        _ = nullableNote;
+        _ = nonNullNote;
     }
 
     public static void CaptureAndEquality()
@@ -106,7 +110,8 @@ public static class AnonymousShapes
         return (first, second);
     }
 
-    // Cross-assembly identity: even equal shapes compiled in another assembly
-    // produce a different anonymous type. The consumer project observes that
-    // Bakery.TypesAndValues.Nullable.* anonymous types do not equal this assembly's.
+    // Cross-assembly identity is demonstrated project-locally via
+    // `AnnotatedAnonymous.CreateShape` in AnnotatedApi, `LegacyAnonymous.CreateShape`
+    // in ObliviousLegacy, and `AnonymousCrossAssembly.ObserveDistinctIdentities` in Consumer,
+    // which creates equal shapes in separate assemblies and observes distinct identities.
 }

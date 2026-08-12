@@ -9,20 +9,22 @@ public static class NullableValueTypes
 
     public static int? LiftedMultiply(int? left, int? right) => left * right;
 
-    public static bool? LiftedEquals(int? left, int? right) => left == right;
+    public static bool LiftedEquals(int? left, int? right) => left == right;
 
     public static bool LiftedEqualsIsLifted(int? left, int? right)
     {
-        bool? result = left == right;
+        bool result = left == right;
+#pragma warning disable CS0183
         return result is bool;
+#pragma warning restore CS0183
     }
 
-    public static bool? LiftedComparisonReturnsBool(int? left, int? right) => left > right;
+    public static bool LiftedComparisonReturnsBool(int? left, int? right) => left > right;
 
     public static bool? LiftedToNullVsBoolean(int? left, int? right)
     {
         int? sum = left + right;
-        bool? cmp = left > right;
+        bool cmp = left > right;
         int? leftNull = null;
         bool sumIsNullWhenLeftNull = (leftNull + 5) is null;
         int? nullLeft = null;
@@ -82,9 +84,22 @@ public static class NullableValueTypes
 
     public static T? GenericLifted<T>(T? value) where T : struct => value;
 
+    public static T? GenericLiftedClass<T>(T? value) where T : class => value;
+
+    public static T? GenericLiftedUnconstrained<T>(T? value) => value;
+
     public static T? LiftedViaGeneric<T>(T left, T right) where T : struct
     {
         // Demonstrate generic T? changing meaning by struct constraint vs class.
+        T? a = left;
+        T? b = right;
+        _ = a;
+        _ = b;
+        return null;
+    }
+
+    public static T? LiftedViaGenericClass<T>(T left, T right) where T : class
+    {
         T? a = left;
         T? b = right;
         _ = a;

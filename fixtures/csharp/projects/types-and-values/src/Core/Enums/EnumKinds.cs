@@ -122,9 +122,11 @@ public static class EnumExercises
 
     public static void StaleConstantObservation()
     {
-        // Enum constants are baked as literals at call sites; cross-assembly
-        // recompilation would show stale values, but this project is self-contained.
         int baked = (int)BakeKind.Sourdough;
         _ = baked;
+        // Cross-assembly stale embedding is demonstrated project-locally via
+        // `StaleConstants.Favorite` in AnnotatedApi (producer) and
+        // `StaleEnumConsumer.ConsumeFavorite` in Consumer (consumer), where the
+        // consumer embeds the const literal independently.
     }
 }

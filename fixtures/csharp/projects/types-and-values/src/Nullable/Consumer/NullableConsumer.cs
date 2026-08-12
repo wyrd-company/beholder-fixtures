@@ -116,16 +116,40 @@ public sealed class NullableConsumer
         }
     }
 
+    // Real override/interface nullability mismatch with local suppression at declaration.
+    public abstract class OverrideMismatchBase
+    {
+        public virtual string? Describe(string? input) => input;
+    }
+
+    public sealed class OverrideMismatchDerived : OverrideMismatchBase
+    {
+#pragma warning disable CS8765
+        public override string Describe(string input) => input ?? "fallback";
+#pragma warning restore CS8765
+    }
+
+    public interface IMismatchContract
+    {
+        string? Fetch(string? query);
+    }
+
+    public sealed class MismatchContractImpl : IMismatchContract
+    {
+#pragma warning disable CS8767
+        public string Fetch(string query) => query ?? "fallback";
+#pragma warning restore CS8767
+    }
+
     public void DemonstrateOverrideMismatch()
     {
-        AnnotatedBase asBase = new AnnotatedDerived();
-#pragma warning disable CS8764
-        // Mismatch illustration: derived could narrow nullability compared to base;
-        // the real mismatch would warn, suppressed here to keep build green while
-        // preserving the source shape for code-graph evaluation.
+        OverrideMismatchBase asBase = new OverrideMismatchDerived();
         string? result = asBase.Describe(null);
-#pragma warning restore CS8764
         _ = result;
+
+        IMismatchContract contract = new MismatchContractImpl();
+        string? fetched = contract.Fetch(null);
+        _ = fetched;
     }
 
     public void ConstructorInitializationDemo()
@@ -154,6 +178,14 @@ public sealed class NullableConsumer
     {
         string value = maybe ?? "default";
         _ = value.Length;
+    }
+
+    // Valid dereference-warning source in enabled scope with narrowly scoped suppression.
+    public void EnabledDereferenceWarning(string? maybe)
+    {
+#pragma warning disable CS8602
+        _ = maybe.Length;
+#pragma warning restore CS8602
     }
 
     // Enabled + disabled scopes coexisting via #nullable directives in same file.

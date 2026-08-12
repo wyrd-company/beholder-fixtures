@@ -90,10 +90,10 @@ public sealed class StampHolder
 
     public void MutateViaInParameter(in MutableStamp stamp)
     {
-        // In-parameter is readonly: mutating call copies.
-        MutableStamp copy = stamp;
-        copy.Stamp(11);
-        _ = copy.Mark;
+        int original = stamp.Mark;
+        stamp.Stamp(11);
+        bool unchanged = stamp.Mark == original;
+        _ = unchanged;
     }
 }
 

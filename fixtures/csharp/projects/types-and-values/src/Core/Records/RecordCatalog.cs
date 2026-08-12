@@ -109,6 +109,16 @@ public static class RecordExercises
         var decorated = new DecoratedRecord("sourdough", 6);
         _ = decorated;
     }
+
+    public static void AttributeTargetVariants()
+    {
+        var propertyTarget = new PropertyTargetRecord("brioche", 1);
+        var fieldTarget = new FieldTargetRecord("rye", 2);
+        var paramTarget = new ParamTargetRecord("plain", 3);
+        _ = propertyTarget;
+        _ = fieldTarget;
+        _ = paramTarget;
+    }
 }
 
 public sealed record ListHolder(List<string> Tags, string Name = "holder");
@@ -121,5 +131,11 @@ public sealed class ExampleAttribute : Attribute
     public string Note { get; }
 }
 
-[Example("decorated")]
-public record DecoratedRecord(string Name, int Batch);
+[Example("decorated-type")]
+public record DecoratedRecord([property: Example("decorated-prop")] string Name, [field: Example("decorated-field")] int Batch);
+
+public record PropertyTargetRecord([property: Example("prop-target")] string Name, int Count);
+
+public record FieldTargetRecord([field: Example("field-target")] string Name, int Count);
+
+public record ParamTargetRecord([param: Example("param-target")] string Name, int Count);
