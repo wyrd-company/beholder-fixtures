@@ -1,0 +1,76 @@
+# ---
+# relationships:
+#   implements: ground-rules
+# ---
+
+version: '3'
+
+tasks:
+  build:
+    desc: Build all TypeScript fixture projects
+    cmds:
+      - task --dir projects/program-solution-workspace build
+      - task --dir projects/compiler-options-matrix build
+      - task --dir projects/compiler-version-boundary build
+      - task --dir projects/module-resolution-and-formats build
+      - task --dir projects/esm-cjs-interop build
+      - task --dir projects/module-graph-edges build
+      - task --dir projects/namespaces-ambient-globals build
+      - task --dir projects/package-publishing-ecosystem build
+      - task --dir projects/checked-javascript-inputs build
+      - task --dir projects/classes-and-members build
+      - task --dir projects/decorators build
+      - task --dir projects/jsx-tsx-components build
+      - task --dir projects/declarations-scope-merging build
+      - task --dir projects/type-relations-and-compatibility build
+      - task --dir projects/narrowing-inference-assertions build
+      - task --dir projects/generics-and-inference build
+      - task --dir projects/type-level-programming build
+      - task --dir projects/runtime-constructs-and-emit build
+      - task --dir projects/alternate-tools-and-hosts build
+
+  lint:
+    desc: Lint all TypeScript fixture projects
+    cmds:
+      - task --dir projects/program-solution-workspace lint
+      - task --dir projects/compiler-options-matrix lint
+      - task --dir projects/compiler-version-boundary lint
+      - task --dir projects/module-resolution-and-formats lint
+      - task --dir projects/esm-cjs-interop lint
+      - task --dir projects/module-graph-edges lint
+      - task --dir projects/namespaces-ambient-globals lint
+      - task --dir projects/package-publishing-ecosystem lint
+      - task --dir projects/checked-javascript-inputs lint
+      - task --dir projects/classes-and-members lint
+      - task --dir projects/decorators lint
+      - task --dir projects/jsx-tsx-components lint
+      - task --dir projects/declarations-scope-merging lint
+      - task --dir projects/type-relations-and-compatibility lint
+      - task --dir projects/narrowing-inference-assertions lint
+      - task --dir projects/generics-and-inference lint
+      - task --dir projects/type-level-programming lint
+      - task --dir projects/runtime-constructs-and-emit lint
+      - task --dir projects/alternate-tools-and-hosts lint
+
+  test:
+    desc: Test all TypeScript fixture projects
+    cmds:
+      - task --dir projects/program-solution-workspace test
+      - task --dir projects/compiler-options-matrix test
+      - task --dir projects/compiler-version-boundary test
+      - task --dir projects/module-resolution-and-formats test
+      - task --dir projects/esm-cjs-interop test
+      - task --dir projects/module-graph-edges test
+      - task --dir projects/namespaces-ambient-globals test
+      - task --dir projects/package-publishing-ecosystem test
+      - task --dir projects/checked-javascript-inputs test
+      - task --dir projects/classes-and-members test
+      - task --dir projects/decorators test
+      - task --dir projects/jsx-tsx-components test
+      - task --dir projects/declarations-scope-merging test
+      - task --dir projects/type-relations-and-compatibility test
+      - task --dir projects/narrowing-inference-assertions test
+      - task --dir projects/generics-and-inference test
+      - task --dir projects/type-level-programming test
+      - task --dir projects/runtime-constructs-and-emit test
+      - task --dir projects/alternate-tools-and-hosts test
