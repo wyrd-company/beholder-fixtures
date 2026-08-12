@@ -10,6 +10,11 @@
  * factories, replacement, addInitializer, and ordering.
  */
 
+if (!(Symbol as unknown as Record<string, symbol>).metadata) {
+  (Symbol as unknown as Record<string, symbol>).metadata =
+    Symbol("Symbol.metadata");
+}
+
 export const methodInitLog: string[] = [];
 
 function loggedMethod(value: any, context: ClassMethodDecoratorContext): any {
@@ -27,7 +32,8 @@ function loggedMethod(value: any, context: ClassMethodDecoratorContext): any {
 
 function withRetry(retries: number) {
   return function (value: any, context: ClassMethodDecoratorContext): any {
-    context.metadata[`retry:${String(context.name)}`] = retries;
+    if (context.metadata)
+      context.metadata[`retry:${String(context.name)}`] = retries;
     return value;
   };
 }

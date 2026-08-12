@@ -10,6 +10,11 @@
  * replacement via initializer, typed context, addInitializer, and ordering.
  */
 
+if (!(Symbol as unknown as Record<string, symbol>).metadata) {
+  (Symbol as unknown as Record<string, symbol>).metadata =
+    Symbol("Symbol.metadata");
+}
+
 export const fieldInitLog: string[] = [];
 
 function trackedField<This, Value>(
@@ -32,7 +37,8 @@ function withDefault(fallback: any) {
     _value: undefined,
     context: ClassFieldDecoratorContext,
   ): (initialValue: any) => any {
-    context.metadata[`default:${String(context.name)}`] = fallback;
+    if (context.metadata)
+      context.metadata[`default:${String(context.name)}`] = fallback;
     return function (initialValue: any): any {
       return (initialValue as unknown) ?? fallback;
     };

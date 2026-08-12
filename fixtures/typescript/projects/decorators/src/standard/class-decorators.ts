@@ -10,6 +10,11 @@
  * typed context, ordering, and Symbol.metadata.
  */
 
+if (!(Symbol as unknown as Record<string, symbol>).metadata) {
+  (Symbol as unknown as Record<string, symbol>).metadata =
+    Symbol("Symbol.metadata");
+}
+
 export const classInitLog: string[] = [];
 
 function withTag(tag: string) {
@@ -17,7 +22,7 @@ function withTag(tag: string) {
     value: abstract new (...args: unknown[]) => unknown,
     context: ClassDecoratorContext,
   ): void {
-    context.metadata[tag] = true;
+    if (context.metadata) context.metadata[tag] = true;
     context.addInitializer(function (
       this: abstract new (...args: unknown[]) => unknown,
     ) {

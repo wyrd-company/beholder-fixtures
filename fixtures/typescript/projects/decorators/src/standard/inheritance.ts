@@ -10,14 +10,21 @@
  * Base and derived decorators each contribute metadata and initializers.
  */
 
+if (!(Symbol as unknown as Record<string, symbol>).metadata) {
+  (Symbol as unknown as Record<string, symbol>).metadata =
+    Symbol("Symbol.metadata");
+}
+
 export const inheritanceLog: string[] = [];
 
 function baseTag(
   value: abstract new (...args: unknown[]) => unknown,
   context: ClassDecoratorContext,
 ): void {
-  context.metadata["base"] = true;
-  context.metadata["baseName"] = String(context.name);
+  if (context.metadata) {
+    context.metadata["base"] = true;
+    context.metadata["baseName"] = String(context.name);
+  }
   context.addInitializer(function () {
     inheritanceLog.push(`base-init:${String(context.name)}`);
   });
@@ -27,8 +34,14 @@ function derivedTag(
   value: abstract new (...args: unknown[]) => unknown,
   context: ClassDecoratorContext,
 ): void {
-  context.metadata["derived"] = true;
-  context.metadata["derivedName"] = String(context.name);
+  if (context.metadata) {
+    context.metadata["derived"] = true;
+    context.metadata["derivedName"] = String(context.name);
+    const baseMeta = (
+      Object.getPrototypeOf(value) as unknown as Record<symbol, unknown>
+    )[Symbol.metadata] as Record<string, unknown> | undefined;
+    if (baseMeta) Object.setPrototypeOf(context.metadata, baseMeta);
+  }
   context.addInitializer(function () {
     inheritanceLog.push(`derived-init:${String(context.name)}`);
   });
@@ -38,7 +51,8 @@ function baseMethod<
   This,
   Value extends (this: This, ...args: unknown[]) => unknown,
 >(value: Value, context: ClassMethodDecoratorContext<This, Value>): Value {
-  context.metadata[`baseMethod:${String(context.name)}`] = true;
+  if (context.metadata)
+    context.metadata[`baseMethod:${String(context.name)}`] = true;
   context.addInitializer(function () {
     inheritanceLog.push(`baseMethod-init:${String(context.name)}`);
   });
@@ -49,7 +63,8 @@ function derivedMethod<
   This,
   Value extends (this: This, ...args: unknown[]) => unknown,
 >(value: Value, context: ClassMethodDecoratorContext<This, Value>): Value {
-  context.metadata[`derivedMethod:${String(context.name)}`] = true;
+  if (context.metadata)
+    context.metadata[`derivedMethod:${String(context.name)}`] = true;
   context.addInitializer(function () {
     inheritanceLog.push(`derivedMethod-init:${String(context.name)}`);
   });
@@ -60,12 +75,13 @@ function baseFieldDecorator(
   _value: undefined,
   context: ClassFieldDecoratorContext,
 ): (initialValue: any) => any {
-  context.metadata["baseField"] = true;
+  if (context.metadata) context.metadata["baseField"] = true;
   return function (initialValue: any): any {
     return initialValue;
   };
 }
 
+@baseTag
 export class BaseCatalog {
   @baseMethod
   describe(): string {

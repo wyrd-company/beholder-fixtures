@@ -11,6 +11,11 @@
  * addInitializer, and ordering.
  */
 
+if (!(Symbol as unknown as Record<string, symbol>).metadata) {
+  (Symbol as unknown as Record<string, symbol>).metadata =
+    Symbol("Symbol.metadata");
+}
+
 export const accessorInitLog: string[] = [];
 
 function loggedGetter<This, Value>(
@@ -48,7 +53,8 @@ function withRange<This, Value extends number>(min: number, max: number) {
     value: ClassAccessorDecoratorTarget<This, Value>,
     context: ClassAccessorDecoratorContext<This, Value>,
   ): ClassAccessorDecoratorResult<This, Value> {
-    context.metadata[`range:${String(context.name)}`] = { min, max };
+    if (context.metadata)
+      context.metadata[`range:${String(context.name)}`] = { min, max };
     return {
       get(this: This): Value {
         return value.get.call(this);

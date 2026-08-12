@@ -19,12 +19,15 @@ import { CatalogItem } from "./catalog-item.js";
 
 function tracked(_target: Object, _propertyKey: string | symbol): void {}
 
+function trackedClass(constructor: Function): void {}
+
 function loggedType(
   _target: Object,
   _propertyKey: string | symbol,
   _descriptor: PropertyDescriptor,
 ): void {}
 
+@trackedClass
 export class MetadataDesignGallery {
   // design:type for property (String)
   @tracked
@@ -51,7 +54,8 @@ export class MetadataDesignGallery {
     return `${String(value)}:${item.sku}`;
   }
 
-  // design:returntype Number, design:paramtypes [] for getter, Number for setter param
+  // design:type Number on accessor, design:paramtypes [] for getter, design:returntype Number
+  @tracked
   get score(): number {
     return this.count;
   }

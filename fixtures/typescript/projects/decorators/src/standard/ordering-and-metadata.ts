@@ -37,7 +37,7 @@ function metaTag(key: string, value: unknown) {
       name?: string | symbol;
       metadata: Record<string, unknown>;
     };
-    ctx.metadata[key] = value;
+    if (ctx.metadata) ctx.metadata[key] = value;
     metadataLog.push(
       `meta:${String(ctx.name ?? "class")}:${key}=${String(value)}`,
     );
