@@ -57,6 +57,19 @@ def wrapping_register(key: object) -> Callable[[Callable[..., object]], Callable
     return decorator
 
 
+# Stacked decorator order variant: order determines which object is registered.
+@register_handler("ordered-outer")
+@wrapping_register("ordered-outer")
+def handle_ordered_outer(payload: object) -> str:
+    return f"ordered-outer:{payload!r}"
+
+
+@wrapping_register("ordered-inner")
+@register_handler("ordered-inner")
+def handle_ordered_inner(payload: object) -> str:
+    return f"ordered-inner:{payload!r}"
+
+
 # __init_subclass__ registry across modules.
 class PluginBase:
     """Base that auto-registers subclasses via __init_subclass__."""
@@ -142,6 +155,38 @@ def handle_order(payload: object) -> str:
 @register_handler("catalog")
 def handle_catalog_override(payload: dict[str, object]) -> str:
     return f"catalog-override:{payload.get('id')}"
+
+
+# Cross-module import-order competition: ordering_alpha and ordering_beta both register
+# "shared-key" and PluginBase "shared"; the final entry depends on import order.
+def cross_module_order_probe() -> tuple[str, str]:
+    handler = handler_registry.get("shared-key")
+    plugin = PluginBase.registry.get("shared")
+    handler_name = getattr(handler, "__name__", "none") if handler else "none"
+    plugin_source = getattr(plugin, "source", getattr(plugin, "__name__", "none")) if plugin else "none"  # type: ignore
+    return handler_name, plugin_source
+
+
+def load_alpha_then_beta() -> tuple[str, str]:
+    import importlib
+
+    import dispatch_framework.plugins.ordering_alpha  # noqa: F401
+    import dispatch_framework.plugins.ordering_beta  # noqa: F401
+
+    importlib.reload(dispatch_framework.plugins.ordering_alpha)
+    importlib.reload(dispatch_framework.plugins.ordering_beta)
+    return cross_module_order_probe()
+
+
+def load_beta_then_alpha() -> tuple[str, str]:
+    import importlib
+
+    import dispatch_framework.plugins.ordering_beta  # noqa: F401
+    import dispatch_framework.plugins.ordering_alpha  # noqa: F401
+
+    importlib.reload(dispatch_framework.plugins.ordering_beta)
+    importlib.reload(dispatch_framework.plugins.ordering_alpha)
+    return cross_module_order_probe()
 
 
 class HandlerRegistry:

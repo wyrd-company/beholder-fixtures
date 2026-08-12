@@ -48,7 +48,7 @@ def main_logger_name() -> str:
     return logging.getLogger("__main__").name
 
 
-# Propagation / duplicate handlers variant.
+# Propagation / duplicate handlers variant: child propagates to parent, both have handlers.
 def propagation_demo() -> tuple[bool, int]:
     parent = logging.getLogger("dispatch_framework")
     child = logging.getLogger("dispatch_framework.logging_config.worker")
@@ -58,8 +58,62 @@ def propagation_demo() -> tuple[bool, int]:
     return propagates, handler_count
 
 
-# Import-time config conflict variant: avoid configuring at import time; expose function instead.
-# If this module called configure_external() at top level, it would conflict with app config.
+def propagation_duplicate_demo() -> tuple[int, int, bool]:
+    parent = logging.getLogger("dispatch_framework")
+    child = logging.getLogger("dispatch_framework.logging_config.worker")
+    parent.handlers.clear()
+    child.handlers.clear()
+    parent.addHandler(logging.NullHandler())
+    child.addHandler(logging.NullHandler())
+    child.propagate = True
+    # With propagate True, a record emitted by child is handled by child's handler plus parent's via propagation.
+    # Effective handler walk: child.handlers + (parent.handlers if propagate else [])
+    child_handler_count = len(child.handlers)
+    parent_handler_count = len(parent.handlers)
+    emits_to_both = child.propagate and parent_handler_count > 0 and child_handler_count > 0
+    duplicate_path = emits_to_both
+    total_effective = child_handler_count + (parent_handler_count if child.propagate else 0)
+    return child_handler_count, parent_handler_count, duplicate_path
+
+
+# Import-time configuration: executed at import time, then external config conflicts.
+_import_time_config_applied = False
+_import_time_handler: logging.Handler | None = None
+
+
+def _apply_import_time_config() -> None:
+    global _import_time_config_applied, _import_time_handler
+    if not _import_time_config_applied:
+        cfg = {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "handlers": {"early": {"class": "logging.NullHandler"}},
+            "loggers": {"dispatch_framework.logging_config": {"level": "INFO", "handlers": ["early"], "propagate": False}},
+        }
+        logging.config.dictConfig(cfg)
+        _import_time_config_applied = True
+        # Keep reference for conflict check.
+        _import_time_handler = logging.getLogger("dispatch_framework.logging_config").handlers[0] if logging.getLogger("dispatch_framework.logging_config").handlers else None
+
+
+# Execute at import time.
+_apply_import_time_config()
+
+
+def import_time_conflict_demo() -> tuple[bool, list[str], list[str], bool]:
+    """Show import-time config conflicts with external configuration."""
+    before_handlers = logging.getLogger("dispatch_framework.logging_config").handlers[:]
+    before_types = [type(h).__name__ for h in before_handlers]
+    before_has_early = "NullHandler" in before_types
+    # External configuration replaces the import-time NullHandler with StreamHandler.
+    configure_external(level="INFO")
+    after_handlers = logging.getLogger("dispatch_framework.logging_config").handlers[:]
+    after_types = [type(h).__name__ for h in after_handlers]
+    # Conflict: early NullHandler is replaced by StreamHandler from external config.
+    conflict = before_has_early and "StreamHandler" in after_types and "NullHandler" not in after_types
+    return before_has_early, before_types, after_types, conflict
+
+
 _CONFIGURED = False
 
 

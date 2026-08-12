@@ -76,27 +76,30 @@ def try_stale_path() -> tuple[bool, str]:
 
 
 # Mock patching variant: patch where looked up, not where defined.
-# Example module that imports logging for demonstration.
 def produce_value() -> str:
     return "real"
 
 
 def patched_demo() -> str:
-    # Patch dispatch_framework.dotted_paths.produce_value as seen from this module.
+    # Patch the defining module (straightforward case).
     with mock.patch("dispatch_framework.dotted_paths.produce_value", return_value="mocked"):
         return produce_value()
 
 
 def patch_where_looked_up_demo() -> str:
-    # Contrast: patching the defining module works; patching an unrelated alias fails.
-    import dispatch_framework.dotted_paths as here
+    # Consumer imports produce_value; patch the consumer binding, not the defining module.
+    import dispatch_framework.consumer as consumer
 
-    # Correct: patch where used (here).
-    with mock.patch.object(here, "produce_value", return_value="patched-here"):
-        correct = here.produce_value()
-    # The attribute still resolves via dotted path.
+    # Correct: patch where looked up (consumer), not where defined.
+    with mock.patch("dispatch_framework.consumer.consumed_value", return_value="patched-consumer"):
+        via_consumer = consumer.consume_value()
+        via_defining = produce_value()
+    # Contrast: patching defining module alone does not affect already-imported consumer binding.
+    with mock.patch("dispatch_framework.dotted_paths.produce_value", return_value="patched-defining"):
+        still_consumer = consumer.consume_value()
+        patched_defining = produce_value()
     via_path = resolve_dotted_path("dispatch_framework.dotted_paths.produce_value")
-    return f"{correct}:{callable(via_path)}"
+    return f"{via_consumer}:{via_defining}:{still_consumer}:{patched_defining}:{callable(via_path)}"
 
 
 # Logging configuration via dotted logger name.

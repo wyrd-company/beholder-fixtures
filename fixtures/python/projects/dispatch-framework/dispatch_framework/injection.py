@@ -5,6 +5,13 @@ from __future__ import annotations
 import inspect
 from typing import Annotated, get_args, get_origin, get_type_hints
 
+# Field specifier for dataclass_transform contract (runtime drift example).
+try:
+    from dispatch_framework.models import Field as _ModelField
+except Exception:
+    _ModelField = object  # fallback for import order during static analysis
+Field = _ModelField  # type: ignore[assignment]
+
 # Minimal container: providers keyed by type, with scope and cycle detection.
 
 
@@ -178,6 +185,33 @@ def cycle_demo() -> str:
         return "no-cycle"
     except RuntimeError as exc:
         return str(exc)
+
+
+# Static transform contract and runtime drift variant.
+try:
+    from typing import dataclass_transform  # type: ignore[attr-defined]
+except ImportError:
+    from typing_extensions import dataclass_transform  # type: ignore[no-redef, import-not-found]
+
+
+@dataclass_transform(field_specifiers=(Field,))  # type: ignore[name-defined]
+def define_catalog_model(name: str, *, title: Field, count: Field) -> type:  # type: ignore[no-untyped-def]
+    # Static checker treats this as a dataclass-like factory generating __init__(title, count).
+    # Runtime shape is built via ModelMeta registry, not dataclass fields, demonstrating drift.
+    from dispatch_framework.models import CatalogRecord
+
+    return CatalogRecord
+
+
+def static_transform_runtime_drift_demo() -> tuple[str, list[str], list[str]]:
+    # Static transform expects __init__ with title/count from decorator contract.
+    # Runtime drift: actual CatalogRecord fields come from ModelMeta._fields, not dataclass.
+    from dispatch_framework.models import CatalogRecord as CR
+
+    static_params = ["title", "count"]
+    runtime_fields = sorted(CR._fields.keys())
+    drift = "match" if static_params == runtime_fields else "drift:static-vs-runtime"
+    return drift, static_params, runtime_fields
 
 
 # Static transform / runtime drift comment: runtime inspects real hints, static checker may differ.

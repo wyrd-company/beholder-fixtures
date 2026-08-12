@@ -31,17 +31,16 @@ def _format_float(value: float) -> str:
     return f"float:{value:.2f}"
 
 
-# Union variant: register a union of bytes and bytearray.
-@format_value.register(bytes)
-@format_value.register(bytearray)
-def _format_bytes(value: bytes | bytearray) -> str:
+# Union variant: annotation-inferred union and explicit union registration.
+@format_value.register
+def _format_bytes_union(value: bytes | bytearray) -> str:
     return f"bytes:{len(value)}"
 
 
-# Union with pipe syntax handled through explicit loop registration.
-for _tp in (Union[int, str],):
-    # This loop documents union handling; actual runtime uses concrete types above.
-    pass
+# Explicit union type registration (Union syntax) — covers list and tuple jointly.
+@format_value.register(Union[list, tuple])
+def _format_list_tuple_union(value: list | tuple) -> str:
+    return f"list-tuple-union:{len(value)}"
 
 
 # Abstract-base variant: Sequence but not str (str is already more specific).
@@ -81,8 +80,7 @@ def _combine_int(first: int, second: object) -> str:
     return f"int-first:{first}+{second!r}"
 
 
-# Ambiguous ABCs variant: two ABCs at same MRO distance raise ambiguity, resolved by
-# explicit ordering via register. Demonstrate by registering both and inspecting.
+# Ambiguous ABCs variant: two incomparable ABCs registered, exercising ambiguity resolution.
 class AmbiguousA(cabc.Hashable):
     pass
 
@@ -91,8 +89,18 @@ class AmbiguousB(cabc.Sized):
     pass
 
 
-# A type implementing both Hashable and Sized at same level can trigger ambiguous lookup.
-# Python picks the first registered most-specific; we show inspection rather than relying on error.
+@format_value.register(cabc.Hashable)
+def _format_hashable(value: cabc.Hashable) -> str:
+    return f"hashable:{hash(value) % 1000}"
+
+
+@format_value.register(cabc.Sized)
+def _format_sized(value: cabc.Sized) -> str:
+    return f"sized:{len(value)}"
+
+
+# A type implementing both Hashable and Sized at same level exercises ambiguous lookup.
+# With both ABCs registered, dispatch picks the first most-specific in MRO; explicit Dual registration resolves it.
 def ambiguous_abc_pair() -> tuple[object, str]:
     class Dual(cabc.Hashable, cabc.Sized):
         def __hash__(self) -> int:  # type: ignore[override]
@@ -102,8 +110,15 @@ def ambiguous_abc_pair() -> tuple[object, str]:
             return 2
 
     inst = Dual()
-    # dispatch resolution is deterministic: whichever ABC was registered earlier wins.
-    return inst, format_value.dispatch(type(inst)).__name__
+    before = format_value.dispatch(type(inst)).__name__
+
+    @format_value.register(Dual)
+    def _format_dual(value: Dual) -> str:  # type: ignore[no-redef]
+        return f"dual:{len(value)}:{hash(value)}"
+
+    after = format_value.dispatch(type(inst)).__name__
+    # Restore ambiguity demo by leaving Dual registered (graph sees explicit resolution).
+    return inst, f"{before}->{after}"
 
 
 # Out-of-module registration requires import: function is defined here, registration lives elsewhere.

@@ -4,12 +4,16 @@ tasks:
   build:
     desc: Byte-compile all fixture-owned packages.
     dir: '{{.TASKFILE_DIR}}'
+    env:
+      PYTHONPYCACHEPREFIX: /tmp/dispatch-framework-pyc-build
     cmds:
       - python3 -m compileall -q dispatch_framework
 
   lint:
     desc: Parse and byte-compile every fixture-owned source file.
     dir: '{{.TASKFILE_DIR}}'
+    env:
+      PYTHONPYCACHEPREFIX: /tmp/dispatch-framework-pyc-lint
     cmds:
       - >-
         find dispatch_framework -type f -name '*.py' -print0 |

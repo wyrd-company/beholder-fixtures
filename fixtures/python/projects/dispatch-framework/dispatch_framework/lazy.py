@@ -66,7 +66,46 @@ def failing_lazy_module() -> ModuleType:
     return mod
 
 
-# Thread-safety note: cached_property is not guaranteed atomic; cycle variant via recursion.
+# Thread-safety and cycle variant: concurrent access shows synchronization change.
+import threading
+
+
+class ThreadSafeLazy:
+    """Thread-safe lazy value via lock (contrasts with non-atomic cached_property)."""
+
+    def __init__(self) -> None:
+        self._value: int | None = None
+        self._lock = threading.Lock()
+        self._compute_count = 0
+
+    @property
+    def value(self) -> int:
+        if self._value is None:
+            with self._lock:
+                if self._value is None:
+                    self._compute_count += 1
+                    self._value = 42
+        return self._value
+
+    def compute_count(self) -> int:
+        return self._compute_count
+
+
+def concurrent_lazy_access() -> tuple[int, int]:
+    lazy = ThreadSafeLazy()
+    results: list[int] = []
+
+    def worker() -> None:
+        results.append(lazy.value)
+
+    threads = [threading.Thread(target=worker) for _ in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    return len(set(results)), lazy.compute_count()
+
+
 class CyclicLazy:
     @cached_property
     def value(self) -> int:
@@ -80,4 +119,8 @@ class CyclicLazy:
 
 
 # Stub can expose static surface: __all__ lists lazy names even though they are not yet loaded.
-__all__ = ["HeavyResource", "cached_total", "lazy_import"]
+__all__ = ["HeavyResource", "ThreadSafeLazy", "cached_total", "lazy_import", "concurrent_lazy_access", "failing_lazy_module"]
+
+
+def __dir__() -> list[str]:
+    return sorted(__all__)
