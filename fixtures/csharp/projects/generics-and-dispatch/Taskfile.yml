@@ -3,23 +3,37 @@ version: '3'
 tasks:
   build:
     desc: Compile every declared build context without restoring from the network.
+    dir: '{{.TASKFILE_DIR}}'
     cmds:
-      - dotnet build GenericsAndDispatch.sln --no-restore -c Release
+      # Offline restore first: this project has no PackageReference, so restore
+      # touches only the local SDK/ref packs and needs no network. Without this,
+      # a clean checkout has no obj/project.assets.json and --no-restore fails with NETSDK1004.
+      - dotnet restore GenericsAndDispatch.sln
       - dotnet build src/Core/Core.csproj --no-restore -c Release
+      - dotnet build contexts/csharp8/CSharp8.csproj --no-restore -c Release
+      - dotnet build contexts/csharp9/CSharp9.csproj --no-restore -c Release
       - dotnet build contexts/csharp10/CSharp10.csproj --no-restore -c Release
       - dotnet build contexts/csharp11/CSharp11.csproj --no-restore -c Release
+      - dotnet build contexts/csharp12/CSharp12.csproj --no-restore -c Release
       - dotnet build contexts/csharp13/CSharp13.csproj --no-restore -c Release
 
   lint:
     desc: Verify formatting and analyzer warnings for fixture-owned source.
+    dir: '{{.TASKFILE_DIR}}'
     cmds:
+      # Same offline restore as build, required standalone since lint may run on a clean checkout.
+      - dotnet restore GenericsAndDispatch.sln
       - dotnet format GenericsAndDispatch.sln --verify-no-changes --no-restore
       - dotnet build src/Core/Core.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build contexts/csharp8/CSharp8.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build contexts/csharp9/CSharp9.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
       - dotnet build contexts/csharp10/CSharp10.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
       - dotnet build contexts/csharp11/CSharp11.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
+      - dotnet build contexts/csharp12/CSharp12.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
       - dotnet build contexts/csharp13/CSharp13.csproj --no-restore -c Release /p:TreatWarningsAsErrors=true
 
   test:
     desc: Succeed when a project has no test source.
+    dir: '{{.TASKFILE_DIR}}'
     cmds:
       - echo "No test source"

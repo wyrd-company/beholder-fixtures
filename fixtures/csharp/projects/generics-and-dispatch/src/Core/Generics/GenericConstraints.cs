@@ -23,7 +23,7 @@ public static class ConstraintSamples
 
     public static T NeedStruct<T>(T value) where T : struct => value;
 
-    public static int NeedUnmanaged<T>(T value) where T : unmanaged => 0;
+    public static unsafe int NeedUnmanaged<T>(T value) where T : unmanaged => sizeof(T);
 
     public static bool NeedNotNull<T>(T value) where T : notnull => value is not null;
 
@@ -43,8 +43,16 @@ public static class ConstraintSamples
         where TParam : IIdentifiable
         where TResult : TParam =>
         map(value);
+}
 
-    public static int NeedDefaultConstraint<T>() where T : struct => 0;
+public abstract class DefaultConstraintBase
+{
+    public abstract T Get<T>();
+}
+
+public class DefaultConstraintDerived : DefaultConstraintBase
+{
+    public override T Get<T>() where T : default => default!;
 }
 
 public sealed class SampleEntity : EntityBase, IIdentifiable
@@ -107,7 +115,8 @@ public static class ConstraintExercises
         ConstraintSamples.NeedDelegate<WorkHandler>(msg => { _ = msg; }, "msg");
         var created = ConstraintSamples.NeedNew<SampleEntity>();
         _ = ConstraintSamples.NeedDefault<int>();
-        _ = ConstraintSamples.NeedDefaultConstraint<int>();
+        var defaultImpl = new DefaultConstraintDerived();
+        _ = defaultImpl.Get<int>();
 
         var host = new ConstraintAggregator<SampleEntity>();
         _ = host.Create("x");

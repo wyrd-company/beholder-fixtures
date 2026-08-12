@@ -1,4 +1,5 @@
 using System.Dynamic;
+using Microsoft.CSharp.RuntimeBinder;
 
 namespace GenericsAndDispatch.Core.Dynamic;
 
@@ -15,6 +16,22 @@ public sealed class CatalogEntry
         new() { Title = left.Title + "+" + right.Title, Stock = left.Stock + right.Stock };
 
     public static implicit operator string(CatalogEntry entry) => entry.Title;
+}
+
+public static class CatalogExtensions
+{
+    public static string Extend(this CatalogEntry entry) => $"extended:{entry.Title}";
+}
+
+public sealed class PublicDynamicHolder
+{
+    public dynamic Value { get; set; } = new CatalogEntry { Title = "holder", Stock = 1 };
+
+    public dynamic Transform(dynamic input) => input;
+
+    public static dynamic Create(dynamic input) => input;
+
+    public dynamic Forward(dynamic input, Func<dynamic, dynamic> map) => map(input);
 }
 
 public static class DynamicExercises
@@ -49,11 +66,40 @@ public static class DynamicExercises
         expando.Name = "dynamic";
         string expandoName = expando.Name;
 
+        // Public-metadata dynamic signatures.
+        dynamic holderValue = new PublicDynamicHolder().Value;
+        dynamic transformed = PublicDynamicHolder.Create(entry);
+        Func<dynamic, dynamic> mapper = static d => d.Title;
+        dynamic forwarded = new PublicDynamicHolder().Forward(entry, mapper);
+        List<dynamic> publicList = [holderValue, transformed];
+
+        // Caught missing member via runtime binder.
+        try
+        {
+            _ = entry.MissingMember;
+        }
+        catch (RuntimeBinderException)
+        {
+        }
+
+        // Extension-method non-discovery: dynamic does not find extension.
+        try
+        {
+            _ = entry.Extend();
+        }
+        catch (RuntimeBinderException)
+        {
+        }
+
+        // Valid extension via static call still works.
+        string viaStatic = CatalogExtensions.Extend(entry);
+
         // Explicit interface member not found via dynamic unless cast.
         dynamic identifiable = new EntryWithExplicit();
-        // Call through helper to contrast object identity versus dynamic dispatch.
         string objectResult = DescribeObject(identifiable);
         string dynamicResult = DescribeDynamic(identifiable);
+        string explicitViaCast = ((INameProvider)identifiable).Name;
+        string explicitFromDynamicCast = ((INameProvider)(object)identifiable).Name;
 
         _ = title;
         _ = described;
@@ -65,8 +111,15 @@ public static class DynamicExercises
         _ = list;
         _ = tupleTitle;
         _ = expandoName;
+        _ = holderValue;
+        _ = transformed;
+        _ = forwarded;
+        _ = publicList;
+        _ = viaStatic;
         _ = objectResult;
         _ = dynamicResult;
+        _ = explicitViaCast;
+        _ = explicitFromDynamicCast;
     }
 
     private static string Overload(CatalogEntry entry) => "typed";

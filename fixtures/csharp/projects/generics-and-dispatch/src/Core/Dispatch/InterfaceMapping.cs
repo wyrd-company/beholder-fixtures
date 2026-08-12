@@ -1,3 +1,4 @@
+#pragma warning disable CS0067
 namespace GenericsAndDispatch.Core.Dispatch;
 
 public interface IRenderer
@@ -30,7 +31,7 @@ public class BaseRenderer : IRenderer
 // Implicit, explicit, and base-member participation.
 public sealed class MappedWidget : BaseRenderer, IRenderer, IExporter, ITagReset
 {
-    // Shared explicit separation for same-signature members.
+    // Separate explicit implementations for same-signature members.
     string IRenderer.Render() => "renderer";
     string IExporter.Render() => "exporter";
     string IExporter.Export() => "export";
@@ -44,6 +45,15 @@ public sealed class MappedWidget : BaseRenderer, IRenderer, IExporter, ITagReset
     void ITagReset.Reset() => Tag = string.Empty;
     public event EventHandler? Exported;
     public void Fire() => Exported?.Invoke(this, EventArgs.Empty);
+}
+
+// Shared same-signature mapping: one member satisfies both IRenderer and IExporter.
+public sealed class SharedWidget : IRenderer, IExporter
+{
+    public string Tag => "shared";
+    public event EventHandler? Rendered;
+    public string Render() => "shared";
+    public string Export() => "shared-export";
 }
 
 // Derived reimplementation.
@@ -83,6 +93,16 @@ public static class InterfaceMappingExercises
         string viaExporter = asExporter.Render();
         string export = asExporter.Export();
 
+        // Shared mapping: one Render serves both interfaces.
+        var shared = new SharedWidget();
+        string sharedViaRenderer = ((IRenderer)shared).Render();
+        string sharedViaExporter = ((IExporter)shared).Render();
+        shared.Rendered += (_, _) => { };
+        ((IRenderer)shared).Rendered += (_, _) => { };
+        var sharedMapRenderer = typeof(SharedWidget).GetInterfaceMap(typeof(IRenderer));
+        var sharedMapExporter = typeof(SharedWidget).GetInterfaceMap(typeof(IExporter));
+        bool sameTarget = sharedMapRenderer.TargetMethods[0] == sharedMapExporter.TargetMethods[0];
+
         // Explicit-call cast requirement.
         string tagRenderer = asRenderer.Tag;
         string tagReset = ((ITagReset)widget).Tag;
@@ -104,6 +124,7 @@ public static class InterfaceMappingExercises
         string reExplicit = ((IRenderer)reBase).Render();
 
         _ = viaBase; _ = viaRenderer; _ = viaExporter; _ = export;
+        _ = sharedViaRenderer; _ = sharedViaExporter; _ = sharedMapRenderer; _ = sharedMapExporter; _ = sameTarget;
         _ = tagRenderer; _ = tagReset; _ = map; _ = mapExporter;
         _ = structRender; _ = reBaseRender; _ = reExplicit;
     }

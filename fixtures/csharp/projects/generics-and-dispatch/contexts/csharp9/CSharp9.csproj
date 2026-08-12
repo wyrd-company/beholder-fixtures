@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>GenericsAndDispatch.CSharp9</RootNamespace>
+    <AssemblyName>GenericsAndDispatch.CSharp9</AssemblyName>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>9.0</LangVersion>
+  </PropertyGroup>
+
+</Project>

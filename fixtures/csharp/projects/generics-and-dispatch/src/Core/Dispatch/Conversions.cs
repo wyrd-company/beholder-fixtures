@@ -16,6 +16,10 @@ public readonly struct Currency : IEquatable<Currency>
     public bool Equals(Currency other) => Amount == other.Amount;
     public override bool Equals(object? obj) => obj is Currency other && Equals(other);
     public override int GetHashCode() => Amount.GetHashCode();
+
+    public static implicit operator decimal(Currency currency) => currency.Amount;
+    public static explicit operator Currency(decimal amount) => new(amount);
+    public static explicit operator Currency(int amount) => new(amount);
 }
 
 public static class ConversionExercises
@@ -25,7 +29,16 @@ public static class ConversionExercises
         // Identity and numeric/constant conversions.
         int i = 42;
         long l = i;
-        int narrowed = checked((int)l);
+        long big = int.MaxValue + 10L;
+        try
+        {
+            int narrowedOverflow = checked((int)big);
+            _ = narrowedOverflow;
+        }
+        catch (OverflowException)
+        {
+        }
+
         const int constant = 100;
         byte asByte = constant;
         double d = 3.14;
@@ -38,14 +51,41 @@ public static class ConversionExercises
         // Reference and variance conversions.
         object boxedObject = new CatalogItem("alpha");
         CatalogItem downcast = (CatalogItem)boxedObject;
+        try
+        {
+            object notCatalog = "string";
+            CatalogItem failedDowncast = (CatalogItem)notCatalog;
+            _ = failedDowncast;
+        }
+        catch (InvalidCastException)
+        {
+        }
+
         IEnumerable<CatalogItem> items = [new CatalogItem("a")];
         IEnumerable<object> objects = items;
 
-        // Boxing/unboxing, including invalid numeric unbox avoidance.
+        // Boxing/unboxing, including invalid numeric unbox.
         object boxed = 5;
         int unboxed = (int)boxed;
+        try
+        {
+            object boxedDouble = 5.0;
+            int invalidUnbox = (int)boxedDouble;
+            _ = invalidUnbox;
+        }
+        catch (InvalidCastException)
+        {
+        }
+
         object boxedEnum = OrderStatus.Active;
         OrderStatus unboxedEnum = (OrderStatus)boxedEnum;
+
+        // User-defined conversion interaction.
+        Currency currency = (Currency)10.5m;
+        decimal asDecimal = currency;
+        Currency fromDecimal = (Currency)5;
+        string userConversionOverload = Overload(currency);
+        string userConversionViaDecimal = Overload((decimal)currency);
 
         // Nullable conversions and tuple conversions.
         int? nullableInt = 5;
@@ -80,8 +120,6 @@ public static class ConversionExercises
         string interpolated = $"value:{i}";
         FormattableString formattable = $"value:{i}";
 
-        // Checked conversion failure omitted (invalid source); valid checked path above.
-
         // Null literal conversion.
         string? maybeNull = null;
         object? maybeObject = maybeNull;
@@ -90,16 +128,18 @@ public static class ConversionExercises
         bool isString = maybeObject is string;
         string? asString = maybeObject as string;
 
-        // Lambda/method-group to delegate conversion already above; variance via IEnumerable above.
-
-        _ = l; _ = narrowed; _ = asByte; _ = d;
+        _ = l; _ = asByte; _ = d;
         _ = downcast; _ = objects; _ = unboxed; _ = unboxedEnum;
+        _ = currency; _ = asDecimal; _ = fromDecimal; _ = userConversionOverload; _ = userConversionViaDecimal;
         _ = lifted; _ = widenedTuple; _ = fromDynamic;
         _ = methodGroup; _ = lambda; _ = span; _ = roSpan;
         _ = interpolated; _ = formattable; _ = isString; _ = asString;
     }
 
     private static int Identity(int value) => value;
+
+    private static string Overload(Currency currency) => $"currency:{currency.Amount}";
+    private static string Overload(decimal value) => $"decimal:{value}";
 
     public static bool TryUnbox(object boxed, out int value)
     {

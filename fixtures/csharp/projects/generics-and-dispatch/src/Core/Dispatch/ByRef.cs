@@ -24,7 +24,7 @@ public static class ByRefExercises
 
     public static int Read(in int value) => value;
 
-    public static ref readonly int ReadOnlyRef(in int value) => ref value;
+    public static ref readonly int ReadOnlyRef(ref readonly int value) => ref value;
 
     public static ref int FindMax(ref int a, ref int b) => ref a > b ? ref a : ref b;
 
@@ -42,6 +42,7 @@ public static class ByRefExercises
 
         _ = TryDivide(9, 3, out int direct);
         _ = direct;
+        _ = TryDivide(10, 0, out _);
     }
 
     public static void Run()
@@ -58,7 +59,7 @@ public static class ByRefExercises
         ref int element = ref array[1];
         element = 99;
 
-        ref readonly int ro = ref ReadOnlyRef(in a);
+        ref readonly int ro = ref ReadOnlyRef(ref a);
         _ = ro;
 
         scoped ref int scopedLocal = ref a;
@@ -71,23 +72,35 @@ public static class ByRefExercises
         // Temporary-to-in (rvalue promoted to temp for in param).
         _ = Read(42);
 
-        // Defensive copy awareness: readonly struct with in param.
-        ReadonlyPoint point = new(5, 6);
-        _ = point.Distance(in point);
+        // Defensive copy: mutable struct passed via in, calling non-readonly method copies.
+        MutablePoint mutable = new(5, 6);
+        _ = mutable.GetX();
+        _ = DistanceIn(mutable);
 
-        // Metadata signature collision: by-value versus in overload choice.
-        string byValue = Format("text");
+        // Metadata signature collision: by-value versus in overload choice with same type.
+        string byValue = Format(42);
         string byIn = Format(in a);
         _ = byValue;
         _ = byIn;
 
+        // Discard for out parameter.
+        _ = TryDivide(8, 2, out _);
+
         WithOutVar();
     }
 
-    private static string Format(string value) => value;
-    private static string Format(in int value) => value.ToString();
+    private static string Format(int value) => $"value:{value}";
+    private static string Format(in int value) => $"in:{value}";
 
-    private static int FormatImpl(int value) => value;
+    private static int DistanceIn(in MutablePoint point) => point.GetX();
+}
+
+public struct MutablePoint
+{
+    public int X;
+    public int Y;
+    public MutablePoint(int x, int y) => (X, Y) = (x, y);
+    public int GetX() => X;
 }
 
 public readonly struct ReadonlyPoint

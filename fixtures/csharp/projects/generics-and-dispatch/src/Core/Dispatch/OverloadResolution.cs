@@ -20,6 +20,26 @@ public sealed class Rectangle : Shape
     public override double Area() => Width * Height;
 }
 
+public readonly struct Token
+{
+    public int Value { get; }
+    public Token(int value) => Value = value;
+    public static implicit operator int(Token token) => token.Value;
+    public static implicit operator string(Token token) => token.Value.ToString();
+}
+
+public sealed class Extendable
+{
+    public int Extend(int pad) => 100 + pad;
+}
+
+public static class CatalogExtensionsForOverload
+{
+    public static int Extend(this Extendable value, int pad) => value.Extend(pad) + 1;
+    public static int Extend(this string value, int pad) => value.Length + pad;
+    public static int Extend(this object value, int pad) => -1;
+}
+
 public static class OverloadResolution
 {
     // Numeric/reference conversion and inheritance distance.
@@ -32,21 +52,32 @@ public static class OverloadResolution
     // Genericity versus non-generic.
     public static string Select<T>(T value) => "generic";
 
-    // Optional versus params and receiver inheritance.
-    public static string WithOptional(string name, int count = 1) => $"{name}:{count}";
-    public static string WithParams(params string[] names) => string.Join(",", names);
-    public static string WithParams(Span<string> names) => string.Join(",", names.ToArray());
+    // Same-name optional versus params competing candidates.
+    public static string Collect(string name, int count = 1) => $"{name}:{count}";
+    public static string Collect(params string[] names) => string.Join(",", names);
+    public static string Collect(Span<string> names) => string.Join(",", names.ToArray());
+
+    // User-defined conversion overload set.
+    public static string Accept(int value) => $"int:{value}";
+    public static string Accept(string value) => $"string:{value}";
+    public static string Accept(Token token) => $"token:{token.Value}";
 
     // Ref kind differentiation.
     public static string ByRef(ref int value) => $"ref:{value}";
-
     public static string ByRef(int value) => $"value:{value}";
-
     public static string WithIn(in int value) => $"in:{value}";
 
     // Lambda/method-group target competition.
     public static int Apply(Func<int, int> func, int value) => func(value);
     public static int Apply(Func<int, string> func, int value) => func(value).Length;
+
+    // Target-typed collection, interpolation, span, and added-overload compatibility.
+    public static int Process(IEnumerable<int> values) => values.Sum();
+    public static int Process(int[] values) => values.Sum() + 1;
+    public static int Process(ReadOnlySpan<int> values) => values.Length + 2;
+    public static string Log(string message) => $"string:{message}";
+    public static string Log(FormattableString message) => $"formattable:{message}";
+    public static string Log(ReadOnlySpan<char> message) => $"span:{message.Length}";
 
     public static void Run()
     {
@@ -63,12 +94,21 @@ public static class OverloadResolution
         Circle c = new(3);
         string r7 = Select((Shape)c);
 
-        // Optional versus params.
-        string o1 = WithOptional("a");
-        string o2 = WithOptional("a", 2);
-        string p1 = WithParams("a", "b");
-        string p2 = WithParams(["a", "b"]);
-        string p3 = WithParams();
+        // Same-name optional versus params.
+        string o1 = Collect("a");
+        string o2 = Collect("a", 2);
+        string p1 = Collect("a", "b");
+        string p2 = Collect(["a", "b"]);
+        string p3 = Collect();
+        string ps = Collect(new Span<string>(["a", "b"]));
+
+        // User-defined conversion overload set.
+        Token token = new(5);
+        string u1 = Accept(token);
+        string u2 = Accept(5);
+        string u3 = Accept("hi");
+        string u4 = Accept((int)token);
+        string u5 = Accept((string)token);
 
         // Ref kind overloads resolved by call-site modifier.
         int number = 5;
@@ -76,6 +116,11 @@ public static class OverloadResolution
         string b1 = ByRef(snapshot);
         string b2 = ByRef(ref number);
         string b3 = WithIn(in snapshot);
+
+        // Instance versus extension: instance wins.
+        var extendable = new Extendable();
+        int instanceWins = extendable.Extend(2);
+        int extensionViaString = "hi".Extend(2);
 
         // Lambda target competition disambiguated by explicit target type.
         int l1 = Apply((int x) => x * 2, 7);
@@ -86,27 +131,26 @@ public static class OverloadResolution
         // Method group target.
         int m1 = Apply(Scale, 3);
 
+        // Target-typed collection, span, interpolation, compatibility.
+        int t1 = Process([1, 2, 3]);
+        int t2 = Process((int[])[1, 2, 3]);
+        int t3 = Process((ReadOnlySpan<int>)[1, 2, 3]);
+        int t4 = Process((IEnumerable<int>)[1, 2, 3]);
+        string log1 = Log($"value:{42}");
+        string log2 = Log((FormattableString)$"value:{42}");
+        string log3 = Log((ReadOnlySpan<char>)"hello");
+
+        // Added overload compatibility: calling with original type still binds to original overload.
+        string added = Select(42);
+
         _ = r1; _ = r2; _ = r3; _ = r4; _ = r5; _ = r6; _ = r7;
-        _ = o1; _ = o2; _ = p1; _ = p2; _ = p3;
+        _ = o1; _ = o2; _ = p1; _ = p2; _ = p3; _ = ps;
+        _ = u1; _ = u2; _ = u3; _ = u4; _ = u5;
         _ = b1; _ = b2; _ = b3;
+        _ = instanceWins; _ = extensionViaString;
         _ = l1; _ = l2; _ = l3; _ = m1;
+        _ = t1; _ = t2; _ = t3; _ = t4; _ = log1; _ = log2; _ = log3; _ = added;
     }
 
     private static int Scale(int value) => value * 3;
-    private static string ScaleString(int value) => value.ToString();
-}
-
-public static class ExtensionOverloads
-{
-    public static int Extend(this string value, int pad) => value.Length + pad;
-    public static int Extend(this object value, int pad) => -1;
-
-    public static void Run()
-    {
-        string text = "hi";
-        int instanceWins = text.Length;
-        int extensionChosen = text.Extend(2);
-        _ = instanceWins;
-        _ = extensionChosen;
-    }
 }

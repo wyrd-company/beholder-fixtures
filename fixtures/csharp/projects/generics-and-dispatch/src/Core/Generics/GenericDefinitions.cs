@@ -106,6 +106,23 @@ public static class GenericExercises
         Counter<string>.Count = 2;
         Counter<int>.Count++;
 
+        // Runtime code-sharing versus non-erased constructed identity.
+        Type def = typeof(Box<>);
+        Type closedInt = def.MakeGenericType(typeof(int));
+        Type closedString = def.MakeGenericType(typeof(string));
+        bool sameDefinition = closedInt.GetGenericTypeDefinition() == closedString.GetGenericTypeDefinition();
+        bool distinctHandles = closedInt.TypeHandle.Value != closedString.TypeHandle.Value;
+        bool distinctTypes = closedInt != closedString;
+        IntPtr handleInt = closedInt.TypeHandle.Value;
+        IntPtr handleString = closedString.TypeHandle.Value;
+
+        // MethodHandle sharing for generic method definition versus distinct instantiation.
+        var methodDef = typeof(Factory).GetMethod(nameof(Factory.Create), System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)!.GetGenericMethodDefinition();
+        var methodInt = methodDef.MakeGenericMethod(typeof(int));
+        var methodString = methodDef.MakeGenericMethod(typeof(string));
+        IntPtr mHandleInt = methodInt.MethodHandle.Value;
+        IntPtr mHandleString = methodString.MethodHandle.Value;
+
         _ = inferred;
         _ = explicitSingle;
         _ = explicitDouble;
@@ -121,6 +138,13 @@ public static class GenericExercises
         _ = nestedClosed;
         _ = openName;
         _ = closedName;
+        _ = sameDefinition;
+        _ = distinctHandles;
+        _ = distinctTypes;
+        _ = handleInt;
+        _ = handleString;
+        _ = mHandleInt;
+        _ = mHandleString;
     }
 
     public static Type GetDefinition<T>(Box<T> box) => box.GetType().GetGenericTypeDefinition();

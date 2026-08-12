@@ -14,6 +14,7 @@ public static class NaturalFunctionTypes
         var naturalLambda = (int x) => x.ToString();
 
         // Method group natural handling via var.
+        var naturalGroup = Transform;
         var methodGroup = (int x) => Transform(x);
         Func<int, int> groupAsDelegate = Transform;
 
@@ -29,6 +30,7 @@ public static class NaturalFunctionTypes
         _ = inferred("test");
         _ = explicitTarget(5);
         _ = naturalLambda(3);
+        _ = naturalGroup(3);
         _ = methodGroup(3);
         _ = groupAsDelegate(3);
         _ = conditional(2, 3);
