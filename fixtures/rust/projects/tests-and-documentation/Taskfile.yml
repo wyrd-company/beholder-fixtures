@@ -8,6 +8,8 @@ version: '3'
 tasks:
   build:
     desc: Build all fixture-owned crates in every declared build context (offline, non-mutating).
+    env:
+      CARGO_TARGET_DIR: /tmp/cargo-target/tests-and-documentation
     cmds:
       - cargo build --offline
       - cargo build --offline --tests
@@ -17,14 +19,17 @@ tasks:
       - cargo build --offline --benches
       - cargo test --offline --doc
 
-
   lint:
     desc: Check formatting and clippy on fixture-owned crates (vendored source excluded).
+    env:
+      CARGO_TARGET_DIR: /tmp/cargo-target/tests-and-documentation
     cmds:
       - cargo fmt -- --check
       - cargo clippy --offline --all-targets
 
   test:
     desc: Compile and run unit, integration, and documentation tests.
+    env:
+      CARGO_TARGET_DIR: /tmp/cargo-target/tests-and-documentation
     cmds:
       - cargo test --offline

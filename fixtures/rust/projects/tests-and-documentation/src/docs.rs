@@ -29,9 +29,8 @@ pub fn no_run_demo() -> u32 {
 /// Ignored variant: not compiled or run unless `--ignored` is passed to the harness.
 ///
 /// ```ignore
-/// // This block is not compiled during normal `cargo test`.
-/// let value = unknown_function();
-/// let _ = value;
+/// let value = tests_and_documentation::public_api::public_function();
+/// assert_eq!(value, 42);
 /// ```
 pub fn ignored_demo() -> u32 {
     0
