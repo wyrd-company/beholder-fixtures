@@ -1,0 +1,10 @@
+# Packages that look vendored but are written for this repository.
+# They are covered by LICENSE, not THIRD-PARTY-NOTICES.md.
+# Form: <ecosystem>:<name>, or a prefix ending in *.
+
+npm:@fixtures/*
+npm:@typescript/lib-webworker   # stand-in for the TypeScript webworker lib
+nuget:Acme.*                    # packages built by packages-and-build
+go:example.invalid/*            # modules defined by module-federation
+crate:fake-git-crate            # crates defined by cargo-build-model
+crate:vendored-crate

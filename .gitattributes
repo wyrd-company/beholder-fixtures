@@ -1,0 +1,2 @@
+# Fixture content is compared by byte digests. Never convert line endings.
+* -text

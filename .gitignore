@@ -3,4 +3,44 @@
 #   supports: ground-rules
 # ---
 
+# Vendored third-party code under vendor/ and node_modules/ is tracked on
+# purpose, so that every project builds offline. Never ignore those
+# directories here. Projects ignore their own build output in their own
+# .gitignore; the patterns below are safe for every project.
+
+# Tool caches
 .rumdl_cache/
+.task/
+
+# Python
+__pycache__/
+*.py[cod]
+# Bytecode that a fixture project tracks as source.
+!/fixtures/python/projects/*/**/generated_bytecode/*.pyc
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# TypeScript
+*.tsbuildinfo
+/fixtures/typescript/projects/*/dist/
+
+# Rust
+/fixtures/rust/projects/*/target/
+
+# Dart
+/fixtures/dart/projects/*/.dart_tool/
+/fixtures/dart/projects/*/build/
+
+# C#
+/fixtures/csharp/projects/**/bin/
+/fixtures/csharp/projects/**/obj/
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+
+# Local scratch
+.tmp/

@@ -1,0 +1,17 @@
+version: "3"
+
+tasks:
+  notices:
+    desc: Regenerate THIRD-PARTY-NOTICES.md from the vendored packages
+    cmds:
+      - python3 -I scripts/third_party_notices.py
+
+  notices:check:
+    desc: Fail when THIRD-PARTY-NOTICES.md is stale or a vendored package has no license
+    cmds:
+      - python3 -I scripts/third_party_notices.py --check
+
+  check:
+    desc: Run the repository checks
+    cmds:
+      - task: notices:check
