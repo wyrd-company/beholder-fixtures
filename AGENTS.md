@@ -36,8 +36,9 @@ datasets.
   indexer, or from coverage files or research reports.
 - Themes and example values are generic and do not use code analysis,
   indexing or fixture evaluation as their domain.
-- Vendored packages are pinned on purpose. Do not upgrade, remove or add one
-  without a plan change. After any such change, run `task notices` and
+- Vendored packages are pinned on purpose. Renovate ignores `fixtures/`
+  (`renovate.json`) and updates only repository tooling. Do not upgrade,
+  remove or add a vendored package without a plan change. After any such change, run `task notices` and
   commit the regenerated `THIRD-PARTY-NOTICES.md`; `task check` fails
   otherwise.
 - Keep each vendored package's license and notice files.
