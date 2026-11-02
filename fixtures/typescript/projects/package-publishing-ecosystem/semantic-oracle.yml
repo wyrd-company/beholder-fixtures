@@ -9516,7 +9516,215 @@ public-api:
     - {distribution: 'types-versions-pkg', entity: 'packages.types-versions-pkg.dist-types.v5.index.d.ts', paths: ['import:@fixtures/types-versions-pkg', 'require:@fixtures/types-versions-pkg'], access: all}
     - {distribution: 'workspace-a', entity: 'packages.workspace-a.dist.index.d.ts', paths: ['import:@fixtures/workspace-a', 'require:@fixtures/workspace-a'], access: all}
     - {distribution: 'workspace-b', entity: 'packages.workspace-b.dist.index.d.ts', paths: ['import:@fixtures/workspace-b', 'require:@fixtures/workspace-b'], access: all}
-  signatures: []
+  signatures:
+    - entity: packages.custom-conditions-dep.dist-types.index.d.ts#read
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.custom-conditions-dep.dist-types.index.d.ts#marker
+      type: '"default"'
+    - entity: packages.custom-conditions-dep.dist-types.index.d.ts#CustomDepDefault
+      type: '{ kind: "default" }'
+    - entity: packages.custom-conditions-dep.dist-types.index.d.ts#CustomDepWorkspace
+      type: '{ fallback: true; kind: "default" }'
+    - entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#read
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#marker
+      type: '"workspace"'
+    - entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#workspaceOnly
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#CustomDepWorkspace
+      type: '{ extra: string; kind: "workspace" }'
+    - entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#CustomDepDefault
+      type: '{ extra: string; kind: "workspace" }'
+    - entity: packages.dual-pkg.dist-types.utils.d.ts#readUtils
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.dual-pkg.dist-types.types-only.d.ts#TypesOnlyMarker.kind
+      type: '"types-only"'
+    - entity: packages.dual-pkg.dist-types.types-only.d.ts#TypesOnlyMarker.value
+      type: string
+    - entity: packages.dual-pkg.dist-types.types-only.d.ts#DescribeTypesOnly
+      type: '(value: @{packages.dual-pkg.dist-types.types-only.d.ts#TypesOnlyMarker}) => string'
+    - entity: packages.dual-pkg.dist-types.bundler.d.ts#bundlerRead
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.dual-pkg.dist-types.bundler.d.ts#BundlerMarker.bundler
+      type: 'true'
+    - entity: packages.exports-map.dist-types.index.v5.d.ts#readMain
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.exports-map.dist-types.index.v5.d.ts#MainBeacon.id
+      type: string
+    - entity: packages.exports-map.dist-types.index.v5.d.ts#MainBeacon.v5
+      type: 'true'
+    - entity: packages.exports-map.dist-types.utils.d.ts#formatUtils
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.exports-map.dist-types.utils.extra.d.ts#extraUtils
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.exports-map.dist-types.feature.alpha.d.ts#alphaFeature
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.legacy-fallback.dist.index.d.ts#legacyRead
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.legacy-fallback.dist.index.d.ts#legacyValue
+      type: string
+    - entity: packages.mismatch-pkg.dist-types.index.d.ts#readMismatch
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.mismatch-pkg.dist-types.index.d.ts#mismatchMarker
+      type: '"typed-mismatch"'
+    - entity: packages.mismatch-pkg.dist-types.index.d.ts#MismatchMarker.kind
+      type: '"mismatch-typed"'
+    - entity: packages.platform-pkg.dist-types.browser.d.ts#read
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.platform-pkg.dist-types.server.d.ts#read
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.platform-pkg.dist-types.native.d.ts#read
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.platform-pkg.dist-types.index.d.ts#read
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.self-ref-pkg.dist.feature.alpha.d.ts#alphaFeature
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.sensitive-lib.index.d.ts#SensitiveToken
+      constructors:
+        - parameters:
+            - {name: value, type: string}
+    - entity: packages.sensitive-lib.index.d.ts#SensitiveToken.getValue
+      returns: string
+    - entity: packages.sensitive-lib.index.d.ts#tokenV1
+      type: '@{packages.sensitive-lib.index.d.ts#SensitiveToken}'
+    - entity: packages.typed-conventional.index.d.ts#readConventional
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.typed-conventional.index.d.ts#ConventionalMarker.source
+      type: '"index-dts"'
+    - entity: packages.typed-via-exports.dist-types.index.d.ts#readViaExports
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.typed-via-exports.dist-types.index.d.ts#ViaExportsMarker.source
+      type: '"exports-types"'
+    - entity: packages.typed-via-typings.dist.index.d.ts#readViaTypings
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.typed-via-typings.dist.index.d.ts#ViaTypingsMarker.source
+      type: '"typings"'
+    - entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#VersionedMarker.version
+      type: '"v5"'
+    - entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#VersionedMarker.modern
+      type: 'true'
+    - entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#readVersioned
+      returns: '@{packages.types-versions-pkg.dist-types.v5.index.d.ts#VersionedMarker}'
+    - entity: packages.workspace-a.dist.index.d.ts#readWorkspaceA
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.workspace-a.dist.index.d.ts#WorkspaceAMarker.source
+      type: '"workspace-a"'
+    - entity: packages.workspace-b.dist.index.d.ts#readWorkspaceB
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.workspace-b.dist.index.d.ts#WorkspaceBMarker.source
+      type: '"workspace-b"'
+    - entity: local-packages.direct-dep.index.d.ts#readDirect
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: local-packages.direct-dep.index.d.ts#readTransitive
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: local-packages.direct-dep.index.d.ts#DirectMarker.source
+      type: '"direct"'
+    - entity: local-packages.direct-dep.index.d.ts#DirectMarker.transitive
+      type: '@{local-packages.transitive-dep.index.d.ts#TransitiveMarker}'
+    - entity: local-packages.peer-dep.index.d.ts#readPeer
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: local-packages.peer-dep.index.d.ts#PeerMarker.peer
+      type: 'true'
+    - entity: local-packages.peer-dep.index.d.ts#PeerMarker.transitive
+      type: '@{local-packages.transitive-dep.index.d.ts#TransitiveMarker}'
+    - entity: local-packages.transitive-dep.index.d.ts#readTransitive
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: local-packages.transitive-dep.index.d.ts#TransitiveMarker.source
+      type: '"transitive"'
+    - entity: packages.atypes-generic-ambient.index.d.ts#readGenericAmbient
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.atypes-generic-ambient.index.d.ts#GenericAmbientMarker.source
+      type: '"types-generic"'
+    - entity: ambient.scope.name#readScoped
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: ambient.scope.name#ScopedMarker.source
+      type: '"scoped-atypes"'
+    - entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker.source
+      type: '"generated-platform"'
+    - entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker.platform
+      type: '"browser" | "native" | "server"'
+    - entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker.env
+      type: '"development" | "production"'
+    - entity: generated.platform-generated.index.d.ts#describeGeneratedPlatform
+      parameters:
+        - {name: platform, type: '@{generated.platform-generated.index.d.ts#PlatformGeneratedMarker}["platform"]'}
+      returns: string
+    - entity: packages.dual-pkg.dist-types.index.d.mts#readDual
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.dual-pkg.dist-types.index.d.mts#dualValue
+      type: string
+    - entity: packages.dual-pkg.dist-types.index.d.mts#DualMarkerMts.kind
+      type: '"dual-mts"'
+    - entity: packages.dual-pkg.dist-types.index.d.cts#readDual
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.dual-pkg.dist-types.index.d.cts#dualValue
+      type: string
+    - entity: packages.dual-pkg.dist-types.index.d.cts#DualMarkerCts.kind
+      type: '"dual-cts"'
+    - entity: packages.exports-map.dist-types.bundle.d.mts#bundleFeature
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.exports-map.dist-types.bundle.d.mts#BundleMtsMarker.kind
+      type: '"mts"'
 extensions:
   typescript:module-format:
     - unit: u.packages.atypes-generic-ambient.index.d.ts
