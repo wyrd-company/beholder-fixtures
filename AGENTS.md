@@ -21,9 +21,9 @@ datasets.
 | build context | A declared combination of toolchain, target, configuration flags and features in which a project's source is valid. |
 | vendored package | Third-party code copied into a project so that it builds offline. Listed in `THIRD-PARTY-NOTICES.md`. |
 | first-party package | A package written for this repository that looks vendored, such as `@fixtures/*`, `Acme.*` or `example.invalid/*`. Listed in `scripts/first-party-packages.txt`. |
-| semantic-oracle dataset | `<project>/semantic-oracle.yml`. The facts a correct indexer finds in the project: entities, references, relations, visibility and public API, each tied to exact source locations. |
+| semantic-oracle dataset | `<project>/semantic-oracle.yml`. The facts a correct indexer finds in the project: entities, references, relations, visibility and public API (members and signatures), tied to exact source locations. |
 | language profile | Beholder's per-language rules for what a dataset records. |
-| pilot | One of the three datasets used to calibrate the v1 contract: Rust `modules-visibility-and-resolution`, TypeScript `package-publishing-ecosystem`, Python `plugin-content-library`. |
+| pilot | One of the four datasets used to calibrate the v1 contract: Rust `modules-visibility-and-resolution`, TypeScript `package-publishing-ecosystem`, Python `plugin-content-library` and Python `diagnostics-toolkit`. |
 
 ## Rules
 
@@ -60,6 +60,5 @@ datasets.
 
 ## Repository
 
-- Private until the corpus is accepted (`wyrd-company/beholder#19`).
 - Work arrives through pull requests. Use conventional commits.
 - The work is tracked in Beholder: epic `wyrd-company/beholder#13`.
