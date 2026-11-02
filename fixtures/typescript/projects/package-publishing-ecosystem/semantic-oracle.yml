@@ -9119,403 +9119,612 @@ relations:
     name: describeQuality
     at: {"path": "src/index.ts", "start": [16, 8], "end": [16, 9], "text": "*"}
 public-api:
-  - distribution: custom-conditions-dep
-    entity: packages.custom-conditions-dep.dist-types.index.d.ts#read
-    paths: ["import:@fixtures/custom-conditions-dep#read", "require:@fixtures/custom-conditions-dep#read"]
-    access: all
-  - distribution: custom-conditions-dep
-    entity: packages.custom-conditions-dep.dist-types.index.d.ts#marker
-    paths: ["import:@fixtures/custom-conditions-dep#marker", "require:@fixtures/custom-conditions-dep#marker"]
-    access: all
-  - distribution: custom-conditions-dep
-    entity: packages.custom-conditions-dep.dist-types.index.d.ts#CustomDepDefault
-    paths: ["import:@fixtures/custom-conditions-dep#CustomDepDefault", "require:@fixtures/custom-conditions-dep#CustomDepDefault"]
-    access: all
-  - distribution: custom-conditions-dep
-    entity: packages.custom-conditions-dep.dist-types.index.d.ts#CustomDepWorkspace
-    paths: ["import:@fixtures/custom-conditions-dep#CustomDepWorkspace", "require:@fixtures/custom-conditions-dep#CustomDepWorkspace"]
-    access: all
-  - distribution: custom-conditions-dep
-    entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#read
-    paths: ["import:@fixtures/custom-conditions-dep#read", "require:@fixtures/custom-conditions-dep#read"]
-    access: all
-  - distribution: custom-conditions-dep
-    entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#marker
-    paths: ["import:@fixtures/custom-conditions-dep#marker", "require:@fixtures/custom-conditions-dep#marker"]
-    access: all
-  - distribution: custom-conditions-dep
-    entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#workspaceOnly
-    paths: ["import:@fixtures/custom-conditions-dep#workspaceOnly", "require:@fixtures/custom-conditions-dep#workspaceOnly"]
-    access: all
-  - distribution: custom-conditions-dep
-    entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#CustomDepWorkspace
-    paths: ["import:@fixtures/custom-conditions-dep#CustomDepWorkspace", "require:@fixtures/custom-conditions-dep#CustomDepWorkspace"]
-    access: all
-  - distribution: custom-conditions-dep
-    entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#CustomDepDefault
-    paths: ["import:@fixtures/custom-conditions-dep#CustomDepDefault", "require:@fixtures/custom-conditions-dep#CustomDepDefault"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.utils.d.ts#readUtils
-    paths: ["import:@fixtures/dual-pkg/utils#readUtils", "require:@fixtures/dual-pkg/utils#readUtils"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.types-only.d.ts#TypesOnlyMarker
-    paths: ["import:@fixtures/dual-pkg/types-only#TypesOnlyMarker", "require:@fixtures/dual-pkg/types-only#TypesOnlyMarker"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.types-only.d.ts#TypesOnlyMarker.kind
-    paths: ["import:@fixtures/dual-pkg/types-only#TypesOnlyMarker.kind", "require:@fixtures/dual-pkg/types-only#TypesOnlyMarker.kind"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.types-only.d.ts#TypesOnlyMarker.value
-    paths: ["import:@fixtures/dual-pkg/types-only#TypesOnlyMarker.value", "require:@fixtures/dual-pkg/types-only#TypesOnlyMarker.value"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.types-only.d.ts#DescribeTypesOnly
-    paths: ["import:@fixtures/dual-pkg/types-only#DescribeTypesOnly", "require:@fixtures/dual-pkg/types-only#DescribeTypesOnly"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.bundler.d.ts#bundlerRead
-    paths: ["import:@fixtures/dual-pkg/bundler#bundlerRead", "require:@fixtures/dual-pkg/bundler#bundlerRead"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.bundler.d.ts#BundlerMarker
-    paths: ["import:@fixtures/dual-pkg/bundler#BundlerMarker", "require:@fixtures/dual-pkg/bundler#BundlerMarker"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.bundler.d.ts#BundlerMarker.bundler
-    paths: ["import:@fixtures/dual-pkg/bundler#BundlerMarker.bundler", "require:@fixtures/dual-pkg/bundler#BundlerMarker.bundler"]
-    access: all
-  - distribution: exports-map
-    entity: packages.exports-map.dist-types.index.v5.d.ts#readMain
-    paths: ["import:@fixtures/exports-map#readMain", "require:@fixtures/exports-map#readMain"]
-    access: all
-  - distribution: exports-map
-    entity: packages.exports-map.dist-types.index.v5.d.ts#MainBeacon
-    paths: ["import:@fixtures/exports-map#MainBeacon", "require:@fixtures/exports-map#MainBeacon"]
-    access: all
-  - distribution: exports-map
-    entity: packages.exports-map.dist-types.index.v5.d.ts#MainBeacon.id
-    paths: ["import:@fixtures/exports-map#MainBeacon.id", "require:@fixtures/exports-map#MainBeacon.id"]
-    access: all
-  - distribution: exports-map
-    entity: packages.exports-map.dist-types.index.v5.d.ts#MainBeacon.v5
-    paths: ["import:@fixtures/exports-map#MainBeacon.v5", "require:@fixtures/exports-map#MainBeacon.v5"]
-    access: all
-  - distribution: exports-map
-    entity: packages.exports-map.dist-types.utils.d.ts#formatUtils
-    paths: ["import:@fixtures/exports-map/utils#formatUtils", "require:@fixtures/exports-map/utils#formatUtils"]
-    access: all
-  - distribution: exports-map
-    entity: packages.exports-map.dist-types.utils.extra.d.ts#extraUtils
-    paths: ["import:@fixtures/exports-map/utils/extra#extraUtils", "require:@fixtures/exports-map/utils/extra#extraUtils"]
-    access: all
-  - distribution: exports-map
-    entity: packages.exports-map.dist-types.feature.alpha.d.ts#alphaFeature
-    paths: ["import:@fixtures/exports-map/feature/alpha#alphaFeature", "require:@fixtures/exports-map/feature/alpha#alphaFeature"]
-    access: all
-  - distribution: legacy-fallback
-    entity: packages.legacy-fallback.dist.index.d.ts#legacyRead
-    paths: ["import:@fixtures/legacy-fallback#legacyRead", "require:@fixtures/legacy-fallback#legacyRead"]
-    access: all
-  - distribution: legacy-fallback
-    entity: packages.legacy-fallback.dist.index.d.ts#legacyValue
-    paths: ["import:@fixtures/legacy-fallback#legacyValue", "require:@fixtures/legacy-fallback#legacyValue"]
-    access: all
-  - distribution: mismatch-pkg
-    entity: packages.mismatch-pkg.dist-types.index.d.ts#readMismatch
-    paths: ["import:@fixtures/mismatch-pkg#readMismatch", "require:@fixtures/mismatch-pkg#readMismatch"]
-    access: all
-  - distribution: mismatch-pkg
-    entity: packages.mismatch-pkg.dist-types.index.d.ts#mismatchMarker
-    paths: ["import:@fixtures/mismatch-pkg#mismatchMarker", "require:@fixtures/mismatch-pkg#mismatchMarker"]
-    access: all
-  - distribution: mismatch-pkg
-    entity: packages.mismatch-pkg.dist-types.index.d.ts#MismatchMarker
-    paths: ["import:@fixtures/mismatch-pkg#MismatchMarker", "require:@fixtures/mismatch-pkg#MismatchMarker"]
-    access: all
-  - distribution: mismatch-pkg
-    entity: packages.mismatch-pkg.dist-types.index.d.ts#MismatchMarker.kind
-    paths: ["import:@fixtures/mismatch-pkg#MismatchMarker.kind", "require:@fixtures/mismatch-pkg#MismatchMarker.kind"]
-    access: all
-  - distribution: platform-pkg
-    entity: packages.platform-pkg.dist-types.browser.d.ts#read
-    paths: ["import:@fixtures/platform-pkg/browser#read", "require:@fixtures/platform-pkg/browser#read"]
-    access: all
-  - distribution: platform-pkg
-    entity: packages.platform-pkg.dist-types.server.d.ts#read
-    paths: ["import:@fixtures/platform-pkg/server#read", "require:@fixtures/platform-pkg/server#read"]
-    access: all
-  - distribution: platform-pkg
-    entity: packages.platform-pkg.dist-types.native.d.ts#read
-    paths: ["import:@fixtures/platform-pkg/native#read", "require:@fixtures/platform-pkg/native#read"]
-    access: all
-  - distribution: platform-pkg
-    entity: packages.platform-pkg.dist-types.index.d.ts#read
-    paths: ["import:@fixtures/platform-pkg#read", "require:@fixtures/platform-pkg#read"]
-    access: all
-  - distribution: self-ref-pkg
-    entity: packages.self-ref-pkg.dist.feature.alpha.d.ts#alphaFeature
-    paths: ["import:self-ref-pkg/feature/alpha#alphaFeature", "require:self-ref-pkg/feature/alpha#alphaFeature"]
-    access: all
-  - distribution: sensitive-lib
-    entity: packages.sensitive-lib.index.d.ts#SensitiveToken
-    paths: ["import:@fixtures/sensitive-lib#SensitiveToken", "require:@fixtures/sensitive-lib#SensitiveToken"]
-    access: all
-  - distribution: sensitive-lib
-    entity: packages.sensitive-lib.index.d.ts#SensitiveToken.getValue
-    paths: ["import:@fixtures/sensitive-lib#SensitiveToken.getValue", "require:@fixtures/sensitive-lib#SensitiveToken.getValue"]
-    access: all
-  - distribution: sensitive-lib
-    entity: packages.sensitive-lib.index.d.ts#tokenV1
-    paths: ["import:@fixtures/sensitive-lib#tokenV1", "require:@fixtures/sensitive-lib#tokenV1"]
-    access: all
-  - distribution: typed-conventional
-    entity: packages.typed-conventional.index.d.ts#readConventional
-    paths: ["import:@fixtures/typed-conventional#readConventional", "require:@fixtures/typed-conventional#readConventional"]
-    access: all
-  - distribution: typed-conventional
-    entity: packages.typed-conventional.index.d.ts#ConventionalMarker
-    paths: ["import:@fixtures/typed-conventional#ConventionalMarker", "require:@fixtures/typed-conventional#ConventionalMarker"]
-    access: all
-  - distribution: typed-conventional
-    entity: packages.typed-conventional.index.d.ts#ConventionalMarker.source
-    paths: ["import:@fixtures/typed-conventional#ConventionalMarker.source", "require:@fixtures/typed-conventional#ConventionalMarker.source"]
-    access: all
-  - distribution: typed-via-exports
-    entity: packages.typed-via-exports.dist-types.index.d.ts#readViaExports
-    paths: ["import:@fixtures/typed-via-exports#readViaExports", "require:@fixtures/typed-via-exports#readViaExports"]
-    access: all
-  - distribution: typed-via-exports
-    entity: packages.typed-via-exports.dist-types.index.d.ts#ViaExportsMarker
-    paths: ["import:@fixtures/typed-via-exports#ViaExportsMarker", "require:@fixtures/typed-via-exports#ViaExportsMarker"]
-    access: all
-  - distribution: typed-via-exports
-    entity: packages.typed-via-exports.dist-types.index.d.ts#ViaExportsMarker.source
-    paths: ["import:@fixtures/typed-via-exports#ViaExportsMarker.source", "require:@fixtures/typed-via-exports#ViaExportsMarker.source"]
-    access: all
-  - distribution: typed-via-typings
-    entity: packages.typed-via-typings.dist.index.d.ts#readViaTypings
-    paths: ["import:@fixtures/typed-via-typings#readViaTypings", "require:@fixtures/typed-via-typings#readViaTypings"]
-    access: all
-  - distribution: typed-via-typings
-    entity: packages.typed-via-typings.dist.index.d.ts#ViaTypingsMarker
-    paths: ["import:@fixtures/typed-via-typings#ViaTypingsMarker", "require:@fixtures/typed-via-typings#ViaTypingsMarker"]
-    access: all
-  - distribution: typed-via-typings
-    entity: packages.typed-via-typings.dist.index.d.ts#ViaTypingsMarker.source
-    paths: ["import:@fixtures/typed-via-typings#ViaTypingsMarker.source", "require:@fixtures/typed-via-typings#ViaTypingsMarker.source"]
-    access: all
-  - distribution: types-versions-pkg
-    entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#VersionedMarker
-    paths: ["import:@fixtures/types-versions-pkg#VersionedMarker", "require:@fixtures/types-versions-pkg#VersionedMarker"]
-    access: all
-  - distribution: types-versions-pkg
-    entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#VersionedMarker.version
-    paths: ["import:@fixtures/types-versions-pkg#VersionedMarker.version", "require:@fixtures/types-versions-pkg#VersionedMarker.version"]
-    access: all
-  - distribution: types-versions-pkg
-    entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#VersionedMarker.modern
-    paths: ["import:@fixtures/types-versions-pkg#VersionedMarker.modern", "require:@fixtures/types-versions-pkg#VersionedMarker.modern"]
-    access: all
-  - distribution: types-versions-pkg
-    entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#readVersioned
-    paths: ["import:@fixtures/types-versions-pkg#readVersioned", "require:@fixtures/types-versions-pkg#readVersioned"]
-    access: all
-  - distribution: workspace-a
-    entity: packages.workspace-a.dist.index.d.ts#readWorkspaceA
-    paths: ["import:@fixtures/workspace-a#readWorkspaceA", "require:@fixtures/workspace-a#readWorkspaceA"]
-    access: all
-  - distribution: workspace-a
-    entity: packages.workspace-a.dist.index.d.ts#WorkspaceAMarker
-    paths: ["import:@fixtures/workspace-a#WorkspaceAMarker", "require:@fixtures/workspace-a#WorkspaceAMarker"]
-    access: all
-  - distribution: workspace-a
-    entity: packages.workspace-a.dist.index.d.ts#WorkspaceAMarker.source
-    paths: ["import:@fixtures/workspace-a#WorkspaceAMarker.source", "require:@fixtures/workspace-a#WorkspaceAMarker.source"]
-    access: all
-  - distribution: workspace-b
-    entity: packages.workspace-b.dist.index.d.ts#readWorkspaceB
-    paths: ["import:@fixtures/workspace-b#readWorkspaceB", "require:@fixtures/workspace-b#readWorkspaceB"]
-    access: all
-  - distribution: workspace-b
-    entity: packages.workspace-b.dist.index.d.ts#WorkspaceBMarker
-    paths: ["import:@fixtures/workspace-b#WorkspaceBMarker", "require:@fixtures/workspace-b#WorkspaceBMarker"]
-    access: all
-  - distribution: workspace-b
-    entity: packages.workspace-b.dist.index.d.ts#WorkspaceBMarker.source
-    paths: ["import:@fixtures/workspace-b#WorkspaceBMarker.source", "require:@fixtures/workspace-b#WorkspaceBMarker.source"]
-    access: all
-  - distribution: direct-dep
-    entity: local-packages.direct-dep.index.d.ts#readDirect
-    paths: ["import:@fixtures/direct-dep#readDirect", "require:@fixtures/direct-dep#readDirect"]
-    access: all
-  - distribution: direct-dep
-    entity: local-packages.direct-dep.index.d.ts#readTransitive
-    paths: ["import:@fixtures/direct-dep#readTransitive", "require:@fixtures/direct-dep#readTransitive"]
-    access: all
-  - distribution: direct-dep
-    entity: local-packages.direct-dep.index.d.ts#DirectMarker
-    paths: ["import:@fixtures/direct-dep#DirectMarker", "require:@fixtures/direct-dep#DirectMarker"]
-    access: all
-  - distribution: direct-dep
-    entity: local-packages.direct-dep.index.d.ts#DirectMarker.source
-    paths: ["import:@fixtures/direct-dep#DirectMarker.source", "require:@fixtures/direct-dep#DirectMarker.source"]
-    access: all
-  - distribution: direct-dep
-    entity: local-packages.direct-dep.index.d.ts#DirectMarker.transitive
-    paths: ["import:@fixtures/direct-dep#DirectMarker.transitive", "require:@fixtures/direct-dep#DirectMarker.transitive"]
-    access: all
-  - distribution: peer-dep
-    entity: local-packages.peer-dep.index.d.ts#readPeer
-    paths: ["import:@fixtures/peer-dep#readPeer", "require:@fixtures/peer-dep#readPeer"]
-    access: all
-  - distribution: peer-dep
-    entity: local-packages.peer-dep.index.d.ts#PeerMarker
-    paths: ["import:@fixtures/peer-dep#PeerMarker", "require:@fixtures/peer-dep#PeerMarker"]
-    access: all
-  - distribution: peer-dep
-    entity: local-packages.peer-dep.index.d.ts#PeerMarker.peer
-    paths: ["import:@fixtures/peer-dep#PeerMarker.peer", "require:@fixtures/peer-dep#PeerMarker.peer"]
-    access: all
-  - distribution: peer-dep
-    entity: local-packages.peer-dep.index.d.ts#PeerMarker.transitive
-    paths: ["import:@fixtures/peer-dep#PeerMarker.transitive", "require:@fixtures/peer-dep#PeerMarker.transitive"]
-    access: all
-  - distribution: transitive-dep
-    entity: local-packages.transitive-dep.index.d.ts#readTransitive
-    paths: ["import:@fixtures/transitive-dep#readTransitive", "require:@fixtures/transitive-dep#readTransitive"]
-    access: all
-  - distribution: transitive-dep
-    entity: local-packages.transitive-dep.index.d.ts#TransitiveMarker
-    paths: ["import:@fixtures/transitive-dep#TransitiveMarker", "require:@fixtures/transitive-dep#TransitiveMarker"]
-    access: all
-  - distribution: transitive-dep
-    entity: local-packages.transitive-dep.index.d.ts#TransitiveMarker.source
-    paths: ["import:@fixtures/transitive-dep#TransitiveMarker.source", "require:@fixtures/transitive-dep#TransitiveMarker.source"]
-    access: all
-  - distribution: types-generic-ambient
-    entity: packages.atypes-generic-ambient.index.d.ts#readGenericAmbient
-    paths: ["import:generic-ambient#readGenericAmbient", "require:generic-ambient#readGenericAmbient"]
-    access: all
-  - distribution: types-generic-ambient
-    entity: packages.atypes-generic-ambient.index.d.ts#GenericAmbientMarker
-    paths: ["import:generic-ambient#GenericAmbientMarker", "require:generic-ambient#GenericAmbientMarker"]
-    access: all
-  - distribution: types-generic-ambient
-    entity: packages.atypes-generic-ambient.index.d.ts#GenericAmbientMarker.source
-    paths: ["import:generic-ambient#GenericAmbientMarker.source", "require:generic-ambient#GenericAmbientMarker.source"]
-    access: all
-  - distribution: types-scope-name
-    entity: ambient.scope.name#readScoped
-    paths: ["import:@scope/name#readScoped", "require:@scope/name#readScoped"]
-    access: all
-  - distribution: types-scope-name
-    entity: ambient.scope.name#ScopedMarker
-    paths: ["import:@scope/name#ScopedMarker", "require:@scope/name#ScopedMarker"]
-    access: all
-  - distribution: types-scope-name
-    entity: ambient.scope.name#ScopedMarker.source
-    paths: ["import:@scope/name#ScopedMarker.source", "require:@scope/name#ScopedMarker.source"]
-    access: all
-  - distribution: generated-platform-pkg
-    entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker
-    paths: ["import:@fixtures/generated-platform-pkg#PlatformGeneratedMarker", "require:@fixtures/generated-platform-pkg#PlatformGeneratedMarker"]
-    access: all
-  - distribution: generated-platform-pkg
-    entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker.source
-    paths: ["import:@fixtures/generated-platform-pkg#PlatformGeneratedMarker.source", "require:@fixtures/generated-platform-pkg#PlatformGeneratedMarker.source"]
-    access: all
-  - distribution: generated-platform-pkg
-    entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker.platform
-    paths: ["import:@fixtures/generated-platform-pkg#PlatformGeneratedMarker.platform", "require:@fixtures/generated-platform-pkg#PlatformGeneratedMarker.platform"]
-    access: all
-  - distribution: generated-platform-pkg
-    entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker.env
-    paths: ["import:@fixtures/generated-platform-pkg#PlatformGeneratedMarker.env", "require:@fixtures/generated-platform-pkg#PlatformGeneratedMarker.env"]
-    access: all
-  - distribution: generated-platform-pkg
-    entity: generated.platform-generated.index.d.ts#describeGeneratedPlatform
-    paths: ["import:@fixtures/generated-platform-pkg#describeGeneratedPlatform", "require:@fixtures/generated-platform-pkg#describeGeneratedPlatform"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.index.d.mts#readDual
-    paths: ["import:@fixtures/dual-pkg#readDual"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.index.d.mts#dualValue
-    paths: ["import:@fixtures/dual-pkg#dualValue"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.index.d.mts#DualMarkerMts
-    paths: ["import:@fixtures/dual-pkg#DualMarkerMts"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.index.d.mts#DualMarkerMts.kind
-    paths: ["import:@fixtures/dual-pkg#DualMarkerMts.kind"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.index.d.cts#readDual
-    paths: ["require:@fixtures/dual-pkg#readDual"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.index.d.cts#dualValue
-    paths: ["require:@fixtures/dual-pkg#dualValue"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.index.d.cts#DualMarkerCts
-    paths: ["require:@fixtures/dual-pkg#DualMarkerCts"]
-    access: all
-  - distribution: dual-pkg
-    entity: packages.dual-pkg.dist-types.index.d.cts#DualMarkerCts.kind
-    paths: ["require:@fixtures/dual-pkg#DualMarkerCts.kind"]
-    access: all
-  - distribution: exports-map
-    entity: packages.exports-map.dist-types.bundle.d.mts#bundleFeature
-    paths: ["import:@fixtures/exports-map/bundle#bundleFeature"]
-    access: all
-  - distribution: exports-map
-    entity: packages.exports-map.dist-types.bundle.d.mts#BundleMtsMarker
-    paths: ["import:@fixtures/exports-map/bundle#BundleMtsMarker"]
-    access: all
-  - distribution: exports-map
-    entity: packages.exports-map.dist-types.bundle.d.mts#BundleMtsMarker.kind
-    paths: ["import:@fixtures/exports-map/bundle#BundleMtsMarker.kind"]
-    access: all
-  - {distribution: 'types-scope-name', entity: 'ambient.scope.name', paths: ['import:@scope/name', 'require:@scope/name'], access: all}
-  - {distribution: 'generated-platform-pkg', entity: 'generated.platform-generated.index.d.ts', paths: ['import:@fixtures/generated-platform-pkg', 'require:@fixtures/generated-platform-pkg'], access: all}
-  - {distribution: 'direct-dep', entity: 'local-packages.direct-dep.index.d.ts', paths: ['import:@fixtures/direct-dep', 'require:@fixtures/direct-dep'], access: all}
-  - {distribution: 'peer-dep', entity: 'local-packages.peer-dep.index.d.ts', paths: ['import:@fixtures/peer-dep', 'require:@fixtures/peer-dep'], access: all}
-  - {distribution: 'transitive-dep', entity: 'local-packages.transitive-dep.index.d.ts', paths: ['import:@fixtures/transitive-dep', 'require:@fixtures/transitive-dep'], access: all}
-  - {distribution: 'types-generic-ambient', entity: 'packages.atypes-generic-ambient.index.d.ts', paths: ['import:generic-ambient', 'require:generic-ambient'], access: all}
-  - {distribution: 'custom-conditions-dep', entity: 'packages.custom-conditions-dep.dist-types.index.d.ts', paths: ['import:@fixtures/custom-conditions-dep', 'require:@fixtures/custom-conditions-dep'], access: all, contexts: [bundler, declaration, default, emit-declaration-only, nodenext, platform, platform-browser-prod, platform-native, platform-server, skip-lib-check-off, skip-lib-check-on]}
-  - {distribution: 'custom-conditions-dep', entity: 'packages.custom-conditions-dep.dist-types.workspace.d.ts', paths: ['import:@fixtures/custom-conditions-dep', 'require:@fixtures/custom-conditions-dep'], access: all, contexts: [custom-conditions]}
-  - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.bundler.d.ts', paths: ['import:@fixtures/dual-pkg/bundler', 'require:@fixtures/dual-pkg/bundler'], access: all}
-  - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.index.d.cts', paths: ['require:@fixtures/dual-pkg'], access: all, contexts: [custom-conditions, declaration, default, emit-declaration-only, nodenext, platform, platform-browser-prod, platform-native, platform-server, skip-lib-check-off, skip-lib-check-on]}
-  - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.index.d.mts', paths: ['import:@fixtures/dual-pkg'], access: all}
-  - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.types-only.d.ts', paths: ['import:@fixtures/dual-pkg/types-only', 'require:@fixtures/dual-pkg/types-only'], access: all}
-  - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.utils.d.ts', paths: ['import:@fixtures/dual-pkg/utils', 'require:@fixtures/dual-pkg/utils'], access: all}
-  - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.bundle.d.mts', paths: ['import:@fixtures/exports-map/bundle'], access: all}
-  - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.feature.alpha.d.ts', paths: ['import:@fixtures/exports-map/feature/alpha', 'require:@fixtures/exports-map/feature/alpha'], access: all}
-  - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.index.v5.d.ts', paths: ['import:@fixtures/exports-map', 'require:@fixtures/exports-map'], access: all}
-  - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.utils.d.ts', paths: ['import:@fixtures/exports-map/utils', 'require:@fixtures/exports-map/utils'], access: all}
-  - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.utils.extra.d.ts', paths: ['import:@fixtures/exports-map/utils/extra', 'require:@fixtures/exports-map/utils/extra'], access: all}
-  - {distribution: 'legacy-fallback', entity: 'packages.legacy-fallback.dist.index.d.ts', paths: ['import:@fixtures/legacy-fallback', 'require:@fixtures/legacy-fallback'], access: all}
-  - {distribution: 'mismatch-pkg', entity: 'packages.mismatch-pkg.dist-types.index.d.ts', paths: ['import:@fixtures/mismatch-pkg', 'require:@fixtures/mismatch-pkg'], access: all}
-  - {distribution: 'platform-pkg', entity: 'packages.platform-pkg.dist-types.browser.d.ts', paths: ['import:@fixtures/platform-pkg/browser', 'require:@fixtures/platform-pkg/browser'], access: all}
-  - {distribution: 'platform-pkg', entity: 'packages.platform-pkg.dist-types.index.d.ts', paths: ['import:@fixtures/platform-pkg', 'require:@fixtures/platform-pkg'], access: all}
-  - {distribution: 'platform-pkg', entity: 'packages.platform-pkg.dist-types.native.d.ts', paths: ['import:@fixtures/platform-pkg/native', 'require:@fixtures/platform-pkg/native'], access: all}
-  - {distribution: 'platform-pkg', entity: 'packages.platform-pkg.dist-types.server.d.ts', paths: ['import:@fixtures/platform-pkg/server', 'require:@fixtures/platform-pkg/server'], access: all}
-  - {distribution: 'self-ref-pkg', entity: 'packages.self-ref-pkg.dist.feature.alpha.d.ts', paths: ['import:self-ref-pkg/feature/alpha', 'require:self-ref-pkg/feature/alpha'], access: all, contexts: [custom-conditions, declaration, default, emit-declaration-only, nodenext, platform, platform-browser-prod, platform-native, platform-server, skip-lib-check-off, skip-lib-check-on]}
-  - {distribution: 'sensitive-lib', entity: 'packages.sensitive-lib.index.d.ts', paths: ['import:@fixtures/sensitive-lib', 'require:@fixtures/sensitive-lib'], access: all}
-  - {distribution: 'typed-conventional', entity: 'packages.typed-conventional.index.d.ts', paths: ['import:@fixtures/typed-conventional', 'require:@fixtures/typed-conventional'], access: all}
-  - {distribution: 'typed-via-exports', entity: 'packages.typed-via-exports.dist-types.index.d.ts', paths: ['import:@fixtures/typed-via-exports', 'require:@fixtures/typed-via-exports'], access: all}
-  - {distribution: 'typed-via-typings', entity: 'packages.typed-via-typings.dist.index.d.ts', paths: ['import:@fixtures/typed-via-typings', 'require:@fixtures/typed-via-typings'], access: all}
-  - {distribution: 'types-versions-pkg', entity: 'packages.types-versions-pkg.dist-types.v5.index.d.ts', paths: ['import:@fixtures/types-versions-pkg', 'require:@fixtures/types-versions-pkg'], access: all}
-  - {distribution: 'workspace-a', entity: 'packages.workspace-a.dist.index.d.ts', paths: ['import:@fixtures/workspace-a', 'require:@fixtures/workspace-a'], access: all}
-  - {distribution: 'workspace-b', entity: 'packages.workspace-b.dist.index.d.ts', paths: ['import:@fixtures/workspace-b', 'require:@fixtures/workspace-b'], access: all}
-
+  members:
+    - distribution: custom-conditions-dep
+      entity: packages.custom-conditions-dep.dist-types.index.d.ts#read
+      paths: ["import:@fixtures/custom-conditions-dep#read", "require:@fixtures/custom-conditions-dep#read"]
+      access: all
+    - distribution: custom-conditions-dep
+      entity: packages.custom-conditions-dep.dist-types.index.d.ts#marker
+      paths: ["import:@fixtures/custom-conditions-dep#marker", "require:@fixtures/custom-conditions-dep#marker"]
+      access: all
+    - distribution: custom-conditions-dep
+      entity: packages.custom-conditions-dep.dist-types.index.d.ts#CustomDepDefault
+      paths: ["import:@fixtures/custom-conditions-dep#CustomDepDefault", "require:@fixtures/custom-conditions-dep#CustomDepDefault"]
+      access: all
+    - distribution: custom-conditions-dep
+      entity: packages.custom-conditions-dep.dist-types.index.d.ts#CustomDepWorkspace
+      paths: ["import:@fixtures/custom-conditions-dep#CustomDepWorkspace", "require:@fixtures/custom-conditions-dep#CustomDepWorkspace"]
+      access: all
+    - distribution: custom-conditions-dep
+      entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#read
+      paths: ["import:@fixtures/custom-conditions-dep#read", "require:@fixtures/custom-conditions-dep#read"]
+      access: all
+    - distribution: custom-conditions-dep
+      entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#marker
+      paths: ["import:@fixtures/custom-conditions-dep#marker", "require:@fixtures/custom-conditions-dep#marker"]
+      access: all
+    - distribution: custom-conditions-dep
+      entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#workspaceOnly
+      paths: ["import:@fixtures/custom-conditions-dep#workspaceOnly", "require:@fixtures/custom-conditions-dep#workspaceOnly"]
+      access: all
+    - distribution: custom-conditions-dep
+      entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#CustomDepWorkspace
+      paths: ["import:@fixtures/custom-conditions-dep#CustomDepWorkspace", "require:@fixtures/custom-conditions-dep#CustomDepWorkspace"]
+      access: all
+    - distribution: custom-conditions-dep
+      entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#CustomDepDefault
+      paths: ["import:@fixtures/custom-conditions-dep#CustomDepDefault", "require:@fixtures/custom-conditions-dep#CustomDepDefault"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.utils.d.ts#readUtils
+      paths: ["import:@fixtures/dual-pkg/utils#readUtils", "require:@fixtures/dual-pkg/utils#readUtils"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.types-only.d.ts#TypesOnlyMarker
+      paths: ["import:@fixtures/dual-pkg/types-only#TypesOnlyMarker", "require:@fixtures/dual-pkg/types-only#TypesOnlyMarker"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.types-only.d.ts#TypesOnlyMarker.kind
+      paths: ["import:@fixtures/dual-pkg/types-only#TypesOnlyMarker.kind", "require:@fixtures/dual-pkg/types-only#TypesOnlyMarker.kind"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.types-only.d.ts#TypesOnlyMarker.value
+      paths: ["import:@fixtures/dual-pkg/types-only#TypesOnlyMarker.value", "require:@fixtures/dual-pkg/types-only#TypesOnlyMarker.value"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.types-only.d.ts#DescribeTypesOnly
+      paths: ["import:@fixtures/dual-pkg/types-only#DescribeTypesOnly", "require:@fixtures/dual-pkg/types-only#DescribeTypesOnly"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.bundler.d.ts#bundlerRead
+      paths: ["import:@fixtures/dual-pkg/bundler#bundlerRead", "require:@fixtures/dual-pkg/bundler#bundlerRead"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.bundler.d.ts#BundlerMarker
+      paths: ["import:@fixtures/dual-pkg/bundler#BundlerMarker", "require:@fixtures/dual-pkg/bundler#BundlerMarker"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.bundler.d.ts#BundlerMarker.bundler
+      paths: ["import:@fixtures/dual-pkg/bundler#BundlerMarker.bundler", "require:@fixtures/dual-pkg/bundler#BundlerMarker.bundler"]
+      access: all
+    - distribution: exports-map
+      entity: packages.exports-map.dist-types.index.v5.d.ts#readMain
+      paths: ["import:@fixtures/exports-map#readMain", "require:@fixtures/exports-map#readMain"]
+      access: all
+    - distribution: exports-map
+      entity: packages.exports-map.dist-types.index.v5.d.ts#MainBeacon
+      paths: ["import:@fixtures/exports-map#MainBeacon", "require:@fixtures/exports-map#MainBeacon"]
+      access: all
+    - distribution: exports-map
+      entity: packages.exports-map.dist-types.index.v5.d.ts#MainBeacon.id
+      paths: ["import:@fixtures/exports-map#MainBeacon.id", "require:@fixtures/exports-map#MainBeacon.id"]
+      access: all
+    - distribution: exports-map
+      entity: packages.exports-map.dist-types.index.v5.d.ts#MainBeacon.v5
+      paths: ["import:@fixtures/exports-map#MainBeacon.v5", "require:@fixtures/exports-map#MainBeacon.v5"]
+      access: all
+    - distribution: exports-map
+      entity: packages.exports-map.dist-types.utils.d.ts#formatUtils
+      paths: ["import:@fixtures/exports-map/utils#formatUtils", "require:@fixtures/exports-map/utils#formatUtils"]
+      access: all
+    - distribution: exports-map
+      entity: packages.exports-map.dist-types.utils.extra.d.ts#extraUtils
+      paths: ["import:@fixtures/exports-map/utils/extra#extraUtils", "require:@fixtures/exports-map/utils/extra#extraUtils"]
+      access: all
+    - distribution: exports-map
+      entity: packages.exports-map.dist-types.feature.alpha.d.ts#alphaFeature
+      paths: ["import:@fixtures/exports-map/feature/alpha#alphaFeature", "require:@fixtures/exports-map/feature/alpha#alphaFeature"]
+      access: all
+    - distribution: legacy-fallback
+      entity: packages.legacy-fallback.dist.index.d.ts#legacyRead
+      paths: ["import:@fixtures/legacy-fallback#legacyRead", "require:@fixtures/legacy-fallback#legacyRead"]
+      access: all
+    - distribution: legacy-fallback
+      entity: packages.legacy-fallback.dist.index.d.ts#legacyValue
+      paths: ["import:@fixtures/legacy-fallback#legacyValue", "require:@fixtures/legacy-fallback#legacyValue"]
+      access: all
+    - distribution: mismatch-pkg
+      entity: packages.mismatch-pkg.dist-types.index.d.ts#readMismatch
+      paths: ["import:@fixtures/mismatch-pkg#readMismatch", "require:@fixtures/mismatch-pkg#readMismatch"]
+      access: all
+    - distribution: mismatch-pkg
+      entity: packages.mismatch-pkg.dist-types.index.d.ts#mismatchMarker
+      paths: ["import:@fixtures/mismatch-pkg#mismatchMarker", "require:@fixtures/mismatch-pkg#mismatchMarker"]
+      access: all
+    - distribution: mismatch-pkg
+      entity: packages.mismatch-pkg.dist-types.index.d.ts#MismatchMarker
+      paths: ["import:@fixtures/mismatch-pkg#MismatchMarker", "require:@fixtures/mismatch-pkg#MismatchMarker"]
+      access: all
+    - distribution: mismatch-pkg
+      entity: packages.mismatch-pkg.dist-types.index.d.ts#MismatchMarker.kind
+      paths: ["import:@fixtures/mismatch-pkg#MismatchMarker.kind", "require:@fixtures/mismatch-pkg#MismatchMarker.kind"]
+      access: all
+    - distribution: platform-pkg
+      entity: packages.platform-pkg.dist-types.browser.d.ts#read
+      paths: ["import:@fixtures/platform-pkg/browser#read", "require:@fixtures/platform-pkg/browser#read"]
+      access: all
+    - distribution: platform-pkg
+      entity: packages.platform-pkg.dist-types.server.d.ts#read
+      paths: ["import:@fixtures/platform-pkg/server#read", "require:@fixtures/platform-pkg/server#read"]
+      access: all
+    - distribution: platform-pkg
+      entity: packages.platform-pkg.dist-types.native.d.ts#read
+      paths: ["import:@fixtures/platform-pkg/native#read", "require:@fixtures/platform-pkg/native#read"]
+      access: all
+    - distribution: platform-pkg
+      entity: packages.platform-pkg.dist-types.index.d.ts#read
+      paths: ["import:@fixtures/platform-pkg#read", "require:@fixtures/platform-pkg#read"]
+      access: all
+    - distribution: self-ref-pkg
+      entity: packages.self-ref-pkg.dist.feature.alpha.d.ts#alphaFeature
+      paths: ["import:self-ref-pkg/feature/alpha#alphaFeature", "require:self-ref-pkg/feature/alpha#alphaFeature"]
+      access: all
+    - distribution: sensitive-lib
+      entity: packages.sensitive-lib.index.d.ts#SensitiveToken
+      paths: ["import:@fixtures/sensitive-lib#SensitiveToken", "require:@fixtures/sensitive-lib#SensitiveToken"]
+      access: all
+    - distribution: sensitive-lib
+      entity: packages.sensitive-lib.index.d.ts#SensitiveToken.getValue
+      paths: ["import:@fixtures/sensitive-lib#SensitiveToken.getValue", "require:@fixtures/sensitive-lib#SensitiveToken.getValue"]
+      access: all
+    - distribution: sensitive-lib
+      entity: packages.sensitive-lib.index.d.ts#tokenV1
+      paths: ["import:@fixtures/sensitive-lib#tokenV1", "require:@fixtures/sensitive-lib#tokenV1"]
+      access: all
+    - distribution: typed-conventional
+      entity: packages.typed-conventional.index.d.ts#readConventional
+      paths: ["import:@fixtures/typed-conventional#readConventional", "require:@fixtures/typed-conventional#readConventional"]
+      access: all
+    - distribution: typed-conventional
+      entity: packages.typed-conventional.index.d.ts#ConventionalMarker
+      paths: ["import:@fixtures/typed-conventional#ConventionalMarker", "require:@fixtures/typed-conventional#ConventionalMarker"]
+      access: all
+    - distribution: typed-conventional
+      entity: packages.typed-conventional.index.d.ts#ConventionalMarker.source
+      paths: ["import:@fixtures/typed-conventional#ConventionalMarker.source", "require:@fixtures/typed-conventional#ConventionalMarker.source"]
+      access: all
+    - distribution: typed-via-exports
+      entity: packages.typed-via-exports.dist-types.index.d.ts#readViaExports
+      paths: ["import:@fixtures/typed-via-exports#readViaExports", "require:@fixtures/typed-via-exports#readViaExports"]
+      access: all
+    - distribution: typed-via-exports
+      entity: packages.typed-via-exports.dist-types.index.d.ts#ViaExportsMarker
+      paths: ["import:@fixtures/typed-via-exports#ViaExportsMarker", "require:@fixtures/typed-via-exports#ViaExportsMarker"]
+      access: all
+    - distribution: typed-via-exports
+      entity: packages.typed-via-exports.dist-types.index.d.ts#ViaExportsMarker.source
+      paths: ["import:@fixtures/typed-via-exports#ViaExportsMarker.source", "require:@fixtures/typed-via-exports#ViaExportsMarker.source"]
+      access: all
+    - distribution: typed-via-typings
+      entity: packages.typed-via-typings.dist.index.d.ts#readViaTypings
+      paths: ["import:@fixtures/typed-via-typings#readViaTypings", "require:@fixtures/typed-via-typings#readViaTypings"]
+      access: all
+    - distribution: typed-via-typings
+      entity: packages.typed-via-typings.dist.index.d.ts#ViaTypingsMarker
+      paths: ["import:@fixtures/typed-via-typings#ViaTypingsMarker", "require:@fixtures/typed-via-typings#ViaTypingsMarker"]
+      access: all
+    - distribution: typed-via-typings
+      entity: packages.typed-via-typings.dist.index.d.ts#ViaTypingsMarker.source
+      paths: ["import:@fixtures/typed-via-typings#ViaTypingsMarker.source", "require:@fixtures/typed-via-typings#ViaTypingsMarker.source"]
+      access: all
+    - distribution: types-versions-pkg
+      entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#VersionedMarker
+      paths: ["import:@fixtures/types-versions-pkg#VersionedMarker", "require:@fixtures/types-versions-pkg#VersionedMarker"]
+      access: all
+    - distribution: types-versions-pkg
+      entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#VersionedMarker.version
+      paths: ["import:@fixtures/types-versions-pkg#VersionedMarker.version", "require:@fixtures/types-versions-pkg#VersionedMarker.version"]
+      access: all
+    - distribution: types-versions-pkg
+      entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#VersionedMarker.modern
+      paths: ["import:@fixtures/types-versions-pkg#VersionedMarker.modern", "require:@fixtures/types-versions-pkg#VersionedMarker.modern"]
+      access: all
+    - distribution: types-versions-pkg
+      entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#readVersioned
+      paths: ["import:@fixtures/types-versions-pkg#readVersioned", "require:@fixtures/types-versions-pkg#readVersioned"]
+      access: all
+    - distribution: workspace-a
+      entity: packages.workspace-a.dist.index.d.ts#readWorkspaceA
+      paths: ["import:@fixtures/workspace-a#readWorkspaceA", "require:@fixtures/workspace-a#readWorkspaceA"]
+      access: all
+    - distribution: workspace-a
+      entity: packages.workspace-a.dist.index.d.ts#WorkspaceAMarker
+      paths: ["import:@fixtures/workspace-a#WorkspaceAMarker", "require:@fixtures/workspace-a#WorkspaceAMarker"]
+      access: all
+    - distribution: workspace-a
+      entity: packages.workspace-a.dist.index.d.ts#WorkspaceAMarker.source
+      paths: ["import:@fixtures/workspace-a#WorkspaceAMarker.source", "require:@fixtures/workspace-a#WorkspaceAMarker.source"]
+      access: all
+    - distribution: workspace-b
+      entity: packages.workspace-b.dist.index.d.ts#readWorkspaceB
+      paths: ["import:@fixtures/workspace-b#readWorkspaceB", "require:@fixtures/workspace-b#readWorkspaceB"]
+      access: all
+    - distribution: workspace-b
+      entity: packages.workspace-b.dist.index.d.ts#WorkspaceBMarker
+      paths: ["import:@fixtures/workspace-b#WorkspaceBMarker", "require:@fixtures/workspace-b#WorkspaceBMarker"]
+      access: all
+    - distribution: workspace-b
+      entity: packages.workspace-b.dist.index.d.ts#WorkspaceBMarker.source
+      paths: ["import:@fixtures/workspace-b#WorkspaceBMarker.source", "require:@fixtures/workspace-b#WorkspaceBMarker.source"]
+      access: all
+    - distribution: direct-dep
+      entity: local-packages.direct-dep.index.d.ts#readDirect
+      paths: ["import:@fixtures/direct-dep#readDirect", "require:@fixtures/direct-dep#readDirect"]
+      access: all
+    - distribution: direct-dep
+      entity: local-packages.direct-dep.index.d.ts#readTransitive
+      paths: ["import:@fixtures/direct-dep#readTransitive", "require:@fixtures/direct-dep#readTransitive"]
+      access: all
+    - distribution: direct-dep
+      entity: local-packages.direct-dep.index.d.ts#DirectMarker
+      paths: ["import:@fixtures/direct-dep#DirectMarker", "require:@fixtures/direct-dep#DirectMarker"]
+      access: all
+    - distribution: direct-dep
+      entity: local-packages.direct-dep.index.d.ts#DirectMarker.source
+      paths: ["import:@fixtures/direct-dep#DirectMarker.source", "require:@fixtures/direct-dep#DirectMarker.source"]
+      access: all
+    - distribution: direct-dep
+      entity: local-packages.direct-dep.index.d.ts#DirectMarker.transitive
+      paths: ["import:@fixtures/direct-dep#DirectMarker.transitive", "require:@fixtures/direct-dep#DirectMarker.transitive"]
+      access: all
+    - distribution: peer-dep
+      entity: local-packages.peer-dep.index.d.ts#readPeer
+      paths: ["import:@fixtures/peer-dep#readPeer", "require:@fixtures/peer-dep#readPeer"]
+      access: all
+    - distribution: peer-dep
+      entity: local-packages.peer-dep.index.d.ts#PeerMarker
+      paths: ["import:@fixtures/peer-dep#PeerMarker", "require:@fixtures/peer-dep#PeerMarker"]
+      access: all
+    - distribution: peer-dep
+      entity: local-packages.peer-dep.index.d.ts#PeerMarker.peer
+      paths: ["import:@fixtures/peer-dep#PeerMarker.peer", "require:@fixtures/peer-dep#PeerMarker.peer"]
+      access: all
+    - distribution: peer-dep
+      entity: local-packages.peer-dep.index.d.ts#PeerMarker.transitive
+      paths: ["import:@fixtures/peer-dep#PeerMarker.transitive", "require:@fixtures/peer-dep#PeerMarker.transitive"]
+      access: all
+    - distribution: transitive-dep
+      entity: local-packages.transitive-dep.index.d.ts#readTransitive
+      paths: ["import:@fixtures/transitive-dep#readTransitive", "require:@fixtures/transitive-dep#readTransitive"]
+      access: all
+    - distribution: transitive-dep
+      entity: local-packages.transitive-dep.index.d.ts#TransitiveMarker
+      paths: ["import:@fixtures/transitive-dep#TransitiveMarker", "require:@fixtures/transitive-dep#TransitiveMarker"]
+      access: all
+    - distribution: transitive-dep
+      entity: local-packages.transitive-dep.index.d.ts#TransitiveMarker.source
+      paths: ["import:@fixtures/transitive-dep#TransitiveMarker.source", "require:@fixtures/transitive-dep#TransitiveMarker.source"]
+      access: all
+    - distribution: types-generic-ambient
+      entity: packages.atypes-generic-ambient.index.d.ts#readGenericAmbient
+      paths: ["import:generic-ambient#readGenericAmbient", "require:generic-ambient#readGenericAmbient"]
+      access: all
+    - distribution: types-generic-ambient
+      entity: packages.atypes-generic-ambient.index.d.ts#GenericAmbientMarker
+      paths: ["import:generic-ambient#GenericAmbientMarker", "require:generic-ambient#GenericAmbientMarker"]
+      access: all
+    - distribution: types-generic-ambient
+      entity: packages.atypes-generic-ambient.index.d.ts#GenericAmbientMarker.source
+      paths: ["import:generic-ambient#GenericAmbientMarker.source", "require:generic-ambient#GenericAmbientMarker.source"]
+      access: all
+    - distribution: types-scope-name
+      entity: ambient.scope.name#readScoped
+      paths: ["import:@scope/name#readScoped", "require:@scope/name#readScoped"]
+      access: all
+    - distribution: types-scope-name
+      entity: ambient.scope.name#ScopedMarker
+      paths: ["import:@scope/name#ScopedMarker", "require:@scope/name#ScopedMarker"]
+      access: all
+    - distribution: types-scope-name
+      entity: ambient.scope.name#ScopedMarker.source
+      paths: ["import:@scope/name#ScopedMarker.source", "require:@scope/name#ScopedMarker.source"]
+      access: all
+    - distribution: generated-platform-pkg
+      entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker
+      paths: ["import:@fixtures/generated-platform-pkg#PlatformGeneratedMarker", "require:@fixtures/generated-platform-pkg#PlatformGeneratedMarker"]
+      access: all
+    - distribution: generated-platform-pkg
+      entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker.source
+      paths: ["import:@fixtures/generated-platform-pkg#PlatformGeneratedMarker.source", "require:@fixtures/generated-platform-pkg#PlatformGeneratedMarker.source"]
+      access: all
+    - distribution: generated-platform-pkg
+      entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker.platform
+      paths: ["import:@fixtures/generated-platform-pkg#PlatformGeneratedMarker.platform", "require:@fixtures/generated-platform-pkg#PlatformGeneratedMarker.platform"]
+      access: all
+    - distribution: generated-platform-pkg
+      entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker.env
+      paths: ["import:@fixtures/generated-platform-pkg#PlatformGeneratedMarker.env", "require:@fixtures/generated-platform-pkg#PlatformGeneratedMarker.env"]
+      access: all
+    - distribution: generated-platform-pkg
+      entity: generated.platform-generated.index.d.ts#describeGeneratedPlatform
+      paths: ["import:@fixtures/generated-platform-pkg#describeGeneratedPlatform", "require:@fixtures/generated-platform-pkg#describeGeneratedPlatform"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.index.d.mts#readDual
+      paths: ["import:@fixtures/dual-pkg#readDual"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.index.d.mts#dualValue
+      paths: ["import:@fixtures/dual-pkg#dualValue"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.index.d.mts#DualMarkerMts
+      paths: ["import:@fixtures/dual-pkg#DualMarkerMts"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.index.d.mts#DualMarkerMts.kind
+      paths: ["import:@fixtures/dual-pkg#DualMarkerMts.kind"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.index.d.cts#readDual
+      paths: ["require:@fixtures/dual-pkg#readDual"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.index.d.cts#dualValue
+      paths: ["require:@fixtures/dual-pkg#dualValue"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.index.d.cts#DualMarkerCts
+      paths: ["require:@fixtures/dual-pkg#DualMarkerCts"]
+      access: all
+    - distribution: dual-pkg
+      entity: packages.dual-pkg.dist-types.index.d.cts#DualMarkerCts.kind
+      paths: ["require:@fixtures/dual-pkg#DualMarkerCts.kind"]
+      access: all
+    - distribution: exports-map
+      entity: packages.exports-map.dist-types.bundle.d.mts#bundleFeature
+      paths: ["import:@fixtures/exports-map/bundle#bundleFeature"]
+      access: all
+    - distribution: exports-map
+      entity: packages.exports-map.dist-types.bundle.d.mts#BundleMtsMarker
+      paths: ["import:@fixtures/exports-map/bundle#BundleMtsMarker"]
+      access: all
+    - distribution: exports-map
+      entity: packages.exports-map.dist-types.bundle.d.mts#BundleMtsMarker.kind
+      paths: ["import:@fixtures/exports-map/bundle#BundleMtsMarker.kind"]
+      access: all
+    - {distribution: 'types-scope-name', entity: 'ambient.scope.name', paths: ['import:@scope/name', 'require:@scope/name'], access: all}
+    - {distribution: 'generated-platform-pkg', entity: 'generated.platform-generated.index.d.ts', paths: ['import:@fixtures/generated-platform-pkg', 'require:@fixtures/generated-platform-pkg'], access: all}
+    - {distribution: 'direct-dep', entity: 'local-packages.direct-dep.index.d.ts', paths: ['import:@fixtures/direct-dep', 'require:@fixtures/direct-dep'], access: all}
+    - {distribution: 'peer-dep', entity: 'local-packages.peer-dep.index.d.ts', paths: ['import:@fixtures/peer-dep', 'require:@fixtures/peer-dep'], access: all}
+    - {distribution: 'transitive-dep', entity: 'local-packages.transitive-dep.index.d.ts', paths: ['import:@fixtures/transitive-dep', 'require:@fixtures/transitive-dep'], access: all}
+    - {distribution: 'types-generic-ambient', entity: 'packages.atypes-generic-ambient.index.d.ts', paths: ['import:generic-ambient', 'require:generic-ambient'], access: all}
+    - {distribution: 'custom-conditions-dep', entity: 'packages.custom-conditions-dep.dist-types.index.d.ts', paths: ['import:@fixtures/custom-conditions-dep', 'require:@fixtures/custom-conditions-dep'], access: all, contexts: [bundler, declaration, default, emit-declaration-only, nodenext, platform, platform-browser-prod, platform-native, platform-server, skip-lib-check-off, skip-lib-check-on]}
+    - {distribution: 'custom-conditions-dep', entity: 'packages.custom-conditions-dep.dist-types.workspace.d.ts', paths: ['import:@fixtures/custom-conditions-dep', 'require:@fixtures/custom-conditions-dep'], access: all, contexts: [custom-conditions]}
+    - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.bundler.d.ts', paths: ['import:@fixtures/dual-pkg/bundler', 'require:@fixtures/dual-pkg/bundler'], access: all}
+    - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.index.d.cts', paths: ['require:@fixtures/dual-pkg'], access: all, contexts: [custom-conditions, declaration, default, emit-declaration-only, nodenext, platform, platform-browser-prod, platform-native, platform-server, skip-lib-check-off, skip-lib-check-on]}
+    - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.index.d.mts', paths: ['import:@fixtures/dual-pkg'], access: all}
+    - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.types-only.d.ts', paths: ['import:@fixtures/dual-pkg/types-only', 'require:@fixtures/dual-pkg/types-only'], access: all}
+    - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.utils.d.ts', paths: ['import:@fixtures/dual-pkg/utils', 'require:@fixtures/dual-pkg/utils'], access: all}
+    - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.bundle.d.mts', paths: ['import:@fixtures/exports-map/bundle'], access: all}
+    - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.feature.alpha.d.ts', paths: ['import:@fixtures/exports-map/feature/alpha', 'require:@fixtures/exports-map/feature/alpha'], access: all}
+    - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.index.v5.d.ts', paths: ['import:@fixtures/exports-map', 'require:@fixtures/exports-map'], access: all}
+    - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.utils.d.ts', paths: ['import:@fixtures/exports-map/utils', 'require:@fixtures/exports-map/utils'], access: all}
+    - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.utils.extra.d.ts', paths: ['import:@fixtures/exports-map/utils/extra', 'require:@fixtures/exports-map/utils/extra'], access: all}
+    - {distribution: 'legacy-fallback', entity: 'packages.legacy-fallback.dist.index.d.ts', paths: ['import:@fixtures/legacy-fallback', 'require:@fixtures/legacy-fallback'], access: all}
+    - {distribution: 'mismatch-pkg', entity: 'packages.mismatch-pkg.dist-types.index.d.ts', paths: ['import:@fixtures/mismatch-pkg', 'require:@fixtures/mismatch-pkg'], access: all}
+    - {distribution: 'platform-pkg', entity: 'packages.platform-pkg.dist-types.browser.d.ts', paths: ['import:@fixtures/platform-pkg/browser', 'require:@fixtures/platform-pkg/browser'], access: all}
+    - {distribution: 'platform-pkg', entity: 'packages.platform-pkg.dist-types.index.d.ts', paths: ['import:@fixtures/platform-pkg', 'require:@fixtures/platform-pkg'], access: all}
+    - {distribution: 'platform-pkg', entity: 'packages.platform-pkg.dist-types.native.d.ts', paths: ['import:@fixtures/platform-pkg/native', 'require:@fixtures/platform-pkg/native'], access: all}
+    - {distribution: 'platform-pkg', entity: 'packages.platform-pkg.dist-types.server.d.ts', paths: ['import:@fixtures/platform-pkg/server', 'require:@fixtures/platform-pkg/server'], access: all}
+    - {distribution: 'self-ref-pkg', entity: 'packages.self-ref-pkg.dist.feature.alpha.d.ts', paths: ['import:self-ref-pkg/feature/alpha', 'require:self-ref-pkg/feature/alpha'], access: all, contexts: [custom-conditions, declaration, default, emit-declaration-only, nodenext, platform, platform-browser-prod, platform-native, platform-server, skip-lib-check-off, skip-lib-check-on]}
+    - {distribution: 'sensitive-lib', entity: 'packages.sensitive-lib.index.d.ts', paths: ['import:@fixtures/sensitive-lib', 'require:@fixtures/sensitive-lib'], access: all}
+    - {distribution: 'typed-conventional', entity: 'packages.typed-conventional.index.d.ts', paths: ['import:@fixtures/typed-conventional', 'require:@fixtures/typed-conventional'], access: all}
+    - {distribution: 'typed-via-exports', entity: 'packages.typed-via-exports.dist-types.index.d.ts', paths: ['import:@fixtures/typed-via-exports', 'require:@fixtures/typed-via-exports'], access: all}
+    - {distribution: 'typed-via-typings', entity: 'packages.typed-via-typings.dist.index.d.ts', paths: ['import:@fixtures/typed-via-typings', 'require:@fixtures/typed-via-typings'], access: all}
+    - {distribution: 'types-versions-pkg', entity: 'packages.types-versions-pkg.dist-types.v5.index.d.ts', paths: ['import:@fixtures/types-versions-pkg', 'require:@fixtures/types-versions-pkg'], access: all}
+    - {distribution: 'workspace-a', entity: 'packages.workspace-a.dist.index.d.ts', paths: ['import:@fixtures/workspace-a', 'require:@fixtures/workspace-a'], access: all}
+    - {distribution: 'workspace-b', entity: 'packages.workspace-b.dist.index.d.ts', paths: ['import:@fixtures/workspace-b', 'require:@fixtures/workspace-b'], access: all}
+  signatures:
+    - entity: packages.custom-conditions-dep.dist-types.index.d.ts#read
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.custom-conditions-dep.dist-types.index.d.ts#marker
+      type: '"default"'
+    - entity: packages.custom-conditions-dep.dist-types.index.d.ts#CustomDepDefault
+      type: '{ kind: "default" }'
+    - entity: packages.custom-conditions-dep.dist-types.index.d.ts#CustomDepWorkspace
+      type: '{ fallback: true; kind: "default" }'
+    - entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#read
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#marker
+      type: '"workspace"'
+    - entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#workspaceOnly
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#CustomDepWorkspace
+      type: '{ extra: string; kind: "workspace" }'
+    - entity: packages.custom-conditions-dep.dist-types.workspace.d.ts#CustomDepDefault
+      type: '{ extra: string; kind: "workspace" }'
+    - entity: packages.dual-pkg.dist-types.utils.d.ts#readUtils
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.dual-pkg.dist-types.types-only.d.ts#TypesOnlyMarker.kind
+      type: '"types-only"'
+    - entity: packages.dual-pkg.dist-types.types-only.d.ts#TypesOnlyMarker.value
+      type: string
+    - entity: packages.dual-pkg.dist-types.types-only.d.ts#DescribeTypesOnly
+      type: '(value: @{packages.dual-pkg.dist-types.types-only.d.ts#TypesOnlyMarker}) => string'
+    - entity: packages.dual-pkg.dist-types.bundler.d.ts#bundlerRead
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.dual-pkg.dist-types.bundler.d.ts#BundlerMarker.bundler
+      type: 'true'
+    - entity: packages.exports-map.dist-types.index.v5.d.ts#readMain
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.exports-map.dist-types.index.v5.d.ts#MainBeacon.id
+      type: string
+    - entity: packages.exports-map.dist-types.index.v5.d.ts#MainBeacon.v5
+      type: 'true'
+    - entity: packages.exports-map.dist-types.utils.d.ts#formatUtils
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.exports-map.dist-types.utils.extra.d.ts#extraUtils
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.exports-map.dist-types.feature.alpha.d.ts#alphaFeature
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.legacy-fallback.dist.index.d.ts#legacyRead
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.legacy-fallback.dist.index.d.ts#legacyValue
+      type: string
+    - entity: packages.mismatch-pkg.dist-types.index.d.ts#readMismatch
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.mismatch-pkg.dist-types.index.d.ts#mismatchMarker
+      type: '"typed-mismatch"'
+    - entity: packages.mismatch-pkg.dist-types.index.d.ts#MismatchMarker.kind
+      type: '"mismatch-typed"'
+    - entity: packages.platform-pkg.dist-types.browser.d.ts#read
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.platform-pkg.dist-types.server.d.ts#read
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.platform-pkg.dist-types.native.d.ts#read
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.platform-pkg.dist-types.index.d.ts#read
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.self-ref-pkg.dist.feature.alpha.d.ts#alphaFeature
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.sensitive-lib.index.d.ts#SensitiveToken
+      constructors:
+        - parameters:
+            - {name: value, type: string}
+    - entity: packages.sensitive-lib.index.d.ts#SensitiveToken.getValue
+      returns: string
+    - entity: packages.sensitive-lib.index.d.ts#tokenV1
+      type: '@{packages.sensitive-lib.index.d.ts#SensitiveToken}'
+    - entity: packages.typed-conventional.index.d.ts#readConventional
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.typed-conventional.index.d.ts#ConventionalMarker.source
+      type: '"index-dts"'
+    - entity: packages.typed-via-exports.dist-types.index.d.ts#readViaExports
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.typed-via-exports.dist-types.index.d.ts#ViaExportsMarker.source
+      type: '"exports-types"'
+    - entity: packages.typed-via-typings.dist.index.d.ts#readViaTypings
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.typed-via-typings.dist.index.d.ts#ViaTypingsMarker.source
+      type: '"typings"'
+    - entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#VersionedMarker.version
+      type: '"v5"'
+    - entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#VersionedMarker.modern
+      type: 'true'
+    - entity: packages.types-versions-pkg.dist-types.v5.index.d.ts#readVersioned
+      returns: '@{packages.types-versions-pkg.dist-types.v5.index.d.ts#VersionedMarker}'
+    - entity: packages.workspace-a.dist.index.d.ts#readWorkspaceA
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.workspace-a.dist.index.d.ts#WorkspaceAMarker.source
+      type: '"workspace-a"'
+    - entity: packages.workspace-b.dist.index.d.ts#readWorkspaceB
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.workspace-b.dist.index.d.ts#WorkspaceBMarker.source
+      type: '"workspace-b"'
+    - entity: local-packages.direct-dep.index.d.ts#readDirect
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: local-packages.direct-dep.index.d.ts#readTransitive
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: local-packages.direct-dep.index.d.ts#DirectMarker.source
+      type: '"direct"'
+    - entity: local-packages.direct-dep.index.d.ts#DirectMarker.transitive
+      type: '@{local-packages.transitive-dep.index.d.ts#TransitiveMarker}'
+    - entity: local-packages.peer-dep.index.d.ts#readPeer
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: local-packages.peer-dep.index.d.ts#PeerMarker.peer
+      type: 'true'
+    - entity: local-packages.peer-dep.index.d.ts#PeerMarker.transitive
+      type: '@{local-packages.transitive-dep.index.d.ts#TransitiveMarker}'
+    - entity: local-packages.transitive-dep.index.d.ts#readTransitive
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: local-packages.transitive-dep.index.d.ts#TransitiveMarker.source
+      type: '"transitive"'
+    - entity: packages.atypes-generic-ambient.index.d.ts#readGenericAmbient
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.atypes-generic-ambient.index.d.ts#GenericAmbientMarker.source
+      type: '"types-generic"'
+    - entity: ambient.scope.name#readScoped
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: ambient.scope.name#ScopedMarker.source
+      type: '"scoped-atypes"'
+    - entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker.source
+      type: '"generated-platform"'
+    - entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker.platform
+      type: '"browser" | "native" | "server"'
+    - entity: generated.platform-generated.index.d.ts#PlatformGeneratedMarker.env
+      type: '"development" | "production"'
+    - entity: generated.platform-generated.index.d.ts#describeGeneratedPlatform
+      parameters:
+        - {name: platform, type: '@{generated.platform-generated.index.d.ts#PlatformGeneratedMarker}["platform"]'}
+      returns: string
+    - entity: packages.dual-pkg.dist-types.index.d.mts#readDual
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.dual-pkg.dist-types.index.d.mts#dualValue
+      type: string
+    - entity: packages.dual-pkg.dist-types.index.d.mts#DualMarkerMts.kind
+      type: '"dual-mts"'
+    - entity: packages.dual-pkg.dist-types.index.d.cts#readDual
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.dual-pkg.dist-types.index.d.cts#dualValue
+      type: string
+    - entity: packages.dual-pkg.dist-types.index.d.cts#DualMarkerCts.kind
+      type: '"dual-cts"'
+    - entity: packages.exports-map.dist-types.bundle.d.mts#bundleFeature
+      parameters:
+        - {name: value, type: string}
+      returns: string
+    - entity: packages.exports-map.dist-types.bundle.d.mts#BundleMtsMarker.kind
+      type: '"mts"'
 extensions:
   typescript:module-format:
     - unit: u.packages.atypes-generic-ambient.index.d.ts

@@ -14864,7 +14864,9 @@ relations:
 - kind: overrides
   from: content_library.finder_loader.SyntheticLoader.create_module
   to: ext:stdlib:importlib._abc.Loader.create_module
-public-api: []
+public-api:
+  members: []
+  signatures: []
 extensions:
   python:stub-of:
   - stub: stub:mod:content_library.facade

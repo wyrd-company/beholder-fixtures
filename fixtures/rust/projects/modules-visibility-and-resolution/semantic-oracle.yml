@@ -23,9 +23,12 @@ authoring:
     cfg and #[path]. mod cfg_selected is one module with two definition sites, each with its contexts (D1). Items in cfg_selected_a.rs and cfg_selected_b.rs are separate records with disjoint contexts. shared_source.rs is mounted three times in the lib (two #[path] mods and include!) and once in the bin: four entity sets.
 
     Profile rules applied that the calibration decided: keyword path segments crate, self, super and Self are references; primitive types are not entities and their inherent items are core externals such as f64::EPSILON and str::len; a reference inside a parameter's type has the parameter as from; outer attributes and pub(in ...) paths take the enclosing entity as from, and the pub(in ...) path has role qualifier; built-in and tool attributes name no entity; include! of an indexed file gives origin source and no macro-expansion fact; items re-exported from another project crate are public API members of the re-exporting distribution, with the re-exporting unit's contexts; tuple fields are named by index, have no definition site, and pub tuple fields of members are members; the glob re-export of the pub(crate) macro binding shared_macro has visibility pub(crate); a macro_rules re-exported by pub(crate) use has unit access all; #[macro_export] macros have the crate root as parent; rust:reachable-unnameable via lists every exposing entity, sorted. #[derive(Debug, Clone)] on namespaces::DemoDerive generates two trait-impl blocks with fmt and clone (expansion checked with rustc -Zunpretty=expanded on a /tmp copy), recorded as origin generated with anchor on the derive name, implements and overrides relations, and a rust:macro-expansion fact per block and item; their parameters are generated parameter entities (R-Q26). Unit access is the widest over in-crate paths, narrowed by each module and re-export on the path; a scope that holds the unit root is written all.
+
+    Signatures. Slots were written from source and the Rust Reference, then compared with rustdoc JSON and an auto-trait compile check for each of the thirteen contexts. Each public type's fields are u32, &'static str, Vec<u32> or Option<u32>, so each holds all five auto traits with no condition. No callable returns an opaque type. mvr.namespaces.DemoDerive has one bases entry per derived implementation, and mvr.scopes_shadowing.BodyLocalType one for its implementation inside a function body; neither has a type reference from its source declaration.
   tools:
     - {name: "rustc", version: "1.99.1"}
     - {name: "cargo", version: "1.99.1"}
+    - {name: "rustdoc JSON", version: "rustc 1.99.1, format 61"}
     - {name: "Rust standard library source (rust-src)", version: "1.99.1"}
     - {name: "The Rust Reference", version: "1.99"}
     - {name: "The Cargo Book", version: "1.99"}
@@ -7908,421 +7911,1189 @@ relations:
   - {kind: "overrides", from: "mvr.namespaces.DemoDerive-as-Clone.clone", to: "ext.core.clone.Clone.clone"}
 
 public-api:
-  - {distribution: "fixture-direct", entity: "direct.DIRECT_CONST", paths: ["fixture_direct::DIRECT_CONST"], access: "all"}
-  - {distribution: "fixture-direct", entity: "direct.DirectType", paths: ["fixture_direct::DirectType"], access: "all"}
-  - {distribution: "fixture-direct", entity: "direct.DirectType.new", paths: ["fixture_direct::DirectType::new"], access: "all"}
-  - {distribution: "fixture-direct", entity: "direct.DirectType.value", paths: ["fixture_direct::DirectType::value"], access: "all"}
-  - {distribution: "fixture-direct", entity: "direct.ReexportedTransitive", paths: ["fixture_direct::ReexportedTransitive"], access: "all"}
-  - {distribution: "fixture-direct", entity: "direct.crate", paths: ["fixture_direct"], access: "all"}
-  - {distribution: "fixture-direct", entity: "direct.direct_macro#macro", paths: ["fixture_direct::direct_macro"], access: "all"}
-  - {distribution: "fixture-direct", entity: "direct.direct_origin", paths: ["fixture_direct::direct_origin"], access: "all"}
-  - {distribution: "fixture-direct", entity: "skew1.SKEW_CONST", paths: ["fixture_direct::TRANSITIVE_SKEW_CONST"], access: "all"}
-  - {distribution: "fixture-direct", entity: "skew1.SkewType", paths: ["fixture_direct::TransitiveSkewType"], access: "all"}
-  - {distribution: "fixture-direct", entity: "skew1.SkewType.new", paths: ["fixture_direct::TransitiveSkewType::new"], access: "all"}
-  - {distribution: "fixture-direct", entity: "skew1.SkewType.version", paths: ["fixture_direct::TransitiveSkewType::version"], access: "all"}
-  - {distribution: "fixture-direct", entity: "transitive.TransitiveType", paths: ["fixture_direct::TransitiveType"], access: "all"}
-  - {distribution: "fixture-direct", entity: "transitive.TransitiveType.new", paths: ["fixture_direct::ReexportedTransitive::new", "fixture_direct::TransitiveType::new"], access: "all"}
-  - {distribution: "fixture-direct", entity: "transitive.TransitiveType.value", paths: ["fixture_direct::TransitiveType::value"], access: "all"}
-  - {distribution: "fixture-downstream", entity: "downstream.crate", paths: ["fixture_downstream"], access: "all"}
-  - {distribution: "fixture-downstream", entity: "downstream.downstream_can_access_pub_in_restricted_via_public_type", paths: ["fixture_downstream::downstream_can_access_pub_in_restricted_via_public_type"], access: "all"}
-  - {distribution: "fixture-downstream", entity: "downstream.downstream_can_access_public", paths: ["fixture_downstream::downstream_can_access_public"], access: "all"}
-  - {distribution: "fixture-downstream", entity: "downstream.downstream_matches_non_exhaustive", paths: ["fixture_downstream::downstream_matches_non_exhaustive"], access: "all"}
-  - {distribution: "fixture-downstream", entity: "downstream.downstream_matches_public_enum", paths: ["fixture_downstream::downstream_matches_public_enum"], access: "all"}
-  - {distribution: "fixture-downstream", entity: "downstream.downstream_uses_reexported_type", paths: ["fixture_downstream::downstream_uses_reexported_type"], access: "all"}
-  - {distribution: "fixture-downstream", entity: "downstream.downstream_uses_struct_with_public_constructor", paths: ["fixture_downstream::downstream_uses_struct_with_public_constructor"], access: "all"}
-  - {distribution: "fixture-downstream", entity: "downstream.downstream_uses_trait", paths: ["fixture_downstream::downstream_uses_trait"], access: "all"}
-  - {distribution: "fixture-edition2015", entity: "ed2015.CrossEditionRaw", paths: ["fixture_edition2015::CrossEditionRaw"], access: "all"}
-  - {distribution: "fixture-edition2015", entity: "ed2015.CrossEditionRaw.match", paths: ["fixture_edition2015::CrossEditionRaw::match"], access: "all"}
-  - {distribution: "fixture-edition2015", entity: "ed2015.crate", paths: ["fixture_edition2015"], access: "all"}
-  - {distribution: "fixture-edition2015", entity: "ed2015.cross_edition_type", paths: ["fixture_edition2015::cross_edition_type"], access: "all"}
-  - {distribution: "fixture-edition2015", entity: "ed2015.edition2015_leading_colons", paths: ["fixture_edition2015::edition2015_leading_colons"], access: "all"}
-  - {distribution: "fixture-edition2015", entity: "ed2015.edition2015_macro_use", paths: ["fixture_edition2015::edition2015_macro_use"], access: "all"}
-  - {distribution: "fixture-edition2015", entity: "ed2015.edition2015_try_into", paths: ["fixture_edition2015::edition2015_try_into"], access: "all"}
-  - {distribution: "fixture-edition2015", entity: "ed2015.try", paths: ["fixture_edition2015::try"], access: "all"}
-  - {distribution: "fixture-edition2015", entity: "ed2015.type", paths: ["fixture_edition2015::type"], access: "all"}
-  - {distribution: "fixture-edition2015", entity: "ed2015.type.v", paths: ["fixture_edition2015::type::v"], access: "all"}
-  - {distribution: "fixture-edition2018", entity: "ed2018.crate", paths: ["fixture_edition2018"], access: "all"}
-  - {distribution: "fixture-edition2018", entity: "ed2018.edition2018_leading_colons_still_works", paths: ["fixture_edition2018::edition2018_leading_colons_still_works"], access: "all"}
-  - {distribution: "fixture-edition2018", entity: "ed2018.edition2018_macro_via_use", paths: ["fixture_edition2018::edition2018_macro_via_use"], access: "all"}
-  - {distribution: "fixture-edition2018", entity: "ed2018.edition2018_try_into", paths: ["fixture_edition2018::edition2018_try_into"], access: "all"}
-  - {distribution: "fixture-edition2018", entity: "ed2018.edition2018_uniform_path", paths: ["fixture_edition2018::edition2018_uniform_path"], access: "all"}
-  - {distribution: "fixture-skew-0.1.0", entity: "skew1.SKEW_CONST", paths: ["fixture_skew::SKEW_CONST"], access: "all"}
-  - {distribution: "fixture-skew-0.1.0", entity: "skew1.SkewType", paths: ["fixture_skew::SkewType"], access: "all"}
-  - {distribution: "fixture-skew-0.1.0", entity: "skew1.SkewType.new", paths: ["fixture_skew::SkewType::new"], access: "all"}
-  - {distribution: "fixture-skew-0.1.0", entity: "skew1.SkewType.version", paths: ["fixture_skew::SkewType::version"], access: "all"}
-  - {distribution: "fixture-skew-0.1.0", entity: "skew1.crate", paths: ["fixture_skew"], access: "all"}
-  - {distribution: "fixture-skew-0.1.0", entity: "skew1.skew_version", paths: ["fixture_skew::skew_version"], access: "all"}
-  - {distribution: "fixture-skew-0.2.0", entity: "skew2.SKEW_CONST", paths: ["fixture_skew::SKEW_CONST"], access: "all"}
-  - {distribution: "fixture-skew-0.2.0", entity: "skew2.SkewType", paths: ["fixture_skew::SkewType"], access: "all"}
-  - {distribution: "fixture-skew-0.2.0", entity: "skew2.SkewType.new", paths: ["fixture_skew::SkewType::new"], access: "all"}
-  - {distribution: "fixture-skew-0.2.0", entity: "skew2.SkewType.version", paths: ["fixture_skew::SkewType::version"], access: "all"}
-  - {distribution: "fixture-skew-0.2.0", entity: "skew2.crate", paths: ["fixture_skew"], access: "all"}
-  - {distribution: "fixture-skew-0.2.0", entity: "skew2.skew_version", paths: ["fixture_skew::skew_version"], access: "all"}
-  - {distribution: "fixture-transitive", entity: "transitive.TransitiveType", paths: ["fixture_transitive::TransitiveType"], access: "all"}
-  - {distribution: "fixture-transitive", entity: "transitive.TransitiveType.new", paths: ["fixture_transitive::TransitiveType::new"], access: "all"}
-  - {distribution: "fixture-transitive", entity: "transitive.TransitiveType.value", paths: ["fixture_transitive::TransitiveType::value"], access: "all"}
-  - {distribution: "fixture-transitive", entity: "transitive.crate", paths: ["fixture_transitive"], access: "all"}
-  - {distribution: "fixture-transitive", entity: "transitive.transitive_origin", paths: ["fixture_transitive::transitive_origin"], access: "all"}
-  - {distribution: "mvr", entity: "direct.DirectType", paths: ["modules_visibility_and_resolution::ReexportedDirectType", "modules_visibility_and_resolution::reexports::ReexportedDirectType"], access: "all", contexts: ["build", "build-cfg-a", "build-target", "doc", "doc-private", "test", "doctest"]}
-  - {distribution: "mvr", entity: "direct.DirectType.new", paths: ["modules_visibility_and_resolution::ReexportedDirectType::new", "modules_visibility_and_resolution::reexports::ReexportedDirectType::new"], access: "all", contexts: ["build", "build-cfg-a", "build-target", "doc", "doc-private", "test", "doctest"]}
-  - {distribution: "mvr", entity: "direct.DirectType.value", paths: ["modules_visibility_and_resolution::ReexportedDirectType::value", "modules_visibility_and_resolution::reexports::ReexportedDirectType::value"], access: "all", contexts: ["build", "build-cfg-a", "build-target", "doc", "doc-private", "test", "doctest"]}
-  - {distribution: "mvr", entity: "mvr.another_macro#macro", paths: ["modules_visibility_and_resolution::another_macro"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.cfg_selected", paths: ["modules_visibility_and_resolution::cfg_selected"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.cfg_selected.CFG_SELECTED_CONST#a", paths: ["modules_visibility_and_resolution::cfg_selected::CFG_SELECTED_CONST"], access: "all", contexts: ["build-cfg-a"]}
-  - {distribution: "mvr", entity: "mvr.cfg_selected.CFG_SELECTED_CONST#b", paths: ["modules_visibility_and_resolution::cfg_selected::CFG_SELECTED_CONST"], access: "all", contexts: ["build", "build-target", "doc", "doc-private", "test", "doctest"]}
-  - {distribution: "mvr", entity: "mvr.cfg_selected.cfg_selected_fn#a", paths: ["modules_visibility_and_resolution::cfg_selected::cfg_selected_fn"], access: "all", contexts: ["build-cfg-a"]}
-  - {distribution: "mvr", entity: "mvr.cfg_selected.cfg_selected_fn#b", paths: ["modules_visibility_and_resolution::cfg_selected::cfg_selected_fn"], access: "all", contexts: ["build", "build-target", "doc", "doc-private", "test", "doctest"]}
-  - {distribution: "mvr", entity: "mvr.cfg_selected_summary", paths: ["modules_visibility_and_resolution::cfg_selected_summary"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.colliding_macro_a#macro", paths: ["modules_visibility_and_resolution::colliding_macro_a"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.colliding_macro_b#macro", paths: ["modules_visibility_and_resolution::colliding_macro_b"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.crate", paths: ["modules_visibility_and_resolution"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.custom_mapped", paths: ["modules_visibility_and_resolution::custom_mapped"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.custom_mapped.custom_fn", paths: ["modules_visibility_and_resolution::custom_mapped::custom_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.custom_mapped.inline_nested_child", paths: ["modules_visibility_and_resolution::custom_mapped::inline_nested_child"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.custom_mapped.inline_nested_child.value", paths: ["modules_visibility_and_resolution::custom_mapped::inline_nested_child::value"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.custom_mapped.nested", paths: ["modules_visibility_and_resolution::custom_mapped::nested"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.custom_mapped.nested.NestedType", paths: ["modules_visibility_and_resolution::custom_mapped::nested::NestedType"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.custom_mapped.nested.NestedType.v", paths: ["modules_visibility_and_resolution::custom_mapped::nested::NestedType::v"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.custom_mapped.nested.nested_fn", paths: ["modules_visibility_and_resolution::custom_mapped::nested::nested_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.demo#macro", paths: ["modules_visibility_and_resolution::demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.demonstrate_shared_distinctness", paths: ["modules_visibility_and_resolution::demonstrate_shared_distinctness"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude", paths: ["modules_visibility_and_resolution::extern_prelude"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude.alloc_boxed", paths: ["modules_visibility_and_resolution::extern_prelude::alloc_boxed"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude.direct_skew_version", paths: ["modules_visibility_and_resolution::extern_prelude::direct_skew_version"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude.modern_macro_use", paths: ["modules_visibility_and_resolution::extern_prelude::modern_macro_use"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude.skew_types_hold_both", paths: ["modules_visibility_and_resolution::extern_prelude::skew_types_hold_both"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude.skew_versions", paths: ["modules_visibility_and_resolution::extern_prelude::skew_versions"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude.transitive_only_via_reexport", paths: ["modules_visibility_and_resolution::extern_prelude::transitive_only_via_reexport"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude.transitive_skew_version", paths: ["modules_visibility_and_resolution::extern_prelude::transitive_skew_version"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude.uses_alloc_crate", paths: ["modules_visibility_and_resolution::extern_prelude::uses_alloc_crate"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude.uses_direct_via_prelude", paths: ["modules_visibility_and_resolution::extern_prelude::uses_direct_via_prelude"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude.uses_direct_via_renamed", paths: ["modules_visibility_and_resolution::extern_prelude::uses_direct_via_renamed"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude.uses_reexported_transitive", paths: ["modules_visibility_and_resolution::extern_prelude::uses_reexported_transitive"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude.uses_self_alias", paths: ["modules_visibility_and_resolution::extern_prelude::uses_self_alias"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.extern_prelude.uses_transitive_via_reexport", paths: ["modules_visibility_and_resolution::extern_prelude::uses_transitive_via_reexport"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.fixture_summary", paths: ["modules_visibility_and_resolution::fixture_summary"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity", paths: ["modules_visibility_and_resolution::glob_ambiguity"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.enum_glob_collision", paths: ["modules_visibility_and_resolution::glob_ambiguity::enum_glob_collision"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.enum_glob_collision.explicit_variant_a", paths: ["modules_visibility_and_resolution::glob_ambiguity::enum_glob_collision::explicit_variant_a"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.enum_glob_collision.explicit_variant_b", paths: ["modules_visibility_and_resolution::glob_ambiguity::enum_glob_collision::explicit_variant_b"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.enum_glob_collision.shadow_variant_via_explicit", paths: ["modules_visibility_and_resolution::glob_ambiguity::enum_glob_collision::shadow_variant_via_explicit"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.enum_glob_collision.shadow_variant_via_explicit.uses_shadowed_variant", paths: ["modules_visibility_and_resolution::glob_ambiguity::enum_glob_collision::shadow_variant_via_explicit::uses_shadowed_variant"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_summary", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_summary"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.colliding_fn_a", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::colliding_fn_a"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.colliding_fn_b", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::colliding_fn_b"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.explicit_resolution_a", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::explicit_resolution_a"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.explicit_resolution_b", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::explicit_resolution_b"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.shadow_via_explicit", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::shadow_via_explicit"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.shadow_via_explicit.uses_shadowed_type", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::shadow_via_explicit::uses_shadowed_type"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.shadow_via_local", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::shadow_via_local"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.shadow_via_local.CollidingType", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::shadow_via_local::CollidingType"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.shadow_via_local.CollidingType.local", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::shadow_via_local::CollidingType::local"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.shadow_via_local.uses_local_shadow", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::shadow_via_local::uses_local_shadow"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_unused", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_unused"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_unused.non_colliding_use", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_unused::non_colliding_use"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.macro_glob_collision", paths: ["modules_visibility_and_resolution::glob_ambiguity::macro_glob_collision"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.macro_glob_collision.distinct_macros_via_crate", paths: ["modules_visibility_and_resolution::glob_ambiguity::macro_glob_collision::distinct_macros_via_crate"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.macro_glob_collision.macro_a_explicit", paths: ["modules_visibility_and_resolution::glob_ambiguity::macro_glob_collision::macro_a_explicit"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.macro_glob_collision.macro_b_explicit", paths: ["modules_visibility_and_resolution::glob_ambiguity::macro_glob_collision::macro_b_explicit"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.macro_glob_collision.macro_via_a", paths: ["modules_visibility_and_resolution::glob_ambiguity::macro_glob_collision::macro_via_a"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.prelude_glob_shadow", paths: ["modules_visibility_and_resolution::glob_ambiguity::prelude_glob_shadow"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.prelude_glob_shadow.shadowed_prelude_via_glob", paths: ["modules_visibility_and_resolution::glob_ambiguity::prelude_glob_shadow::shadowed_prelude_via_glob"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.prelude_glob_shadow.std_option_still_accessible_via_path", paths: ["modules_visibility_and_resolution::glob_ambiguity::prelude_glob_shadow::std_option_still_accessible_via_path"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.prelude_interaction_alias", paths: ["modules_visibility_and_resolution::glob_ambiguity::prelude_interaction_alias"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.prelude_interaction_alias.shadowed_prelude_alias", paths: ["modules_visibility_and_resolution::glob_ambiguity::prelude_interaction_alias::shadowed_prelude_alias"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.public_glob_exporter", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.public_glob_exporter.exported_const_user", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::exported_const_user"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_a"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.COLLIDING_CONST", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::COLLIDING_CONST", "modules_visibility_and_resolution::glob_ambiguity::source_a::COLLIDING_CONST"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.CollidingEnum", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::CollidingEnum", "modules_visibility_and_resolution::glob_ambiguity::source_a::CollidingEnum"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.CollidingEnum.VariantA", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::CollidingEnum::VariantA", "modules_visibility_and_resolution::glob_ambiguity::source_a::CollidingEnum::VariantA"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.CollidingEnum.VariantB", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::CollidingEnum::VariantB", "modules_visibility_and_resolution::glob_ambiguity::source_a::CollidingEnum::VariantB"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.CollidingType", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::CollidingType", "modules_visibility_and_resolution::glob_ambiguity::source_a::CollidingType"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.CollidingType.v", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::CollidingType::v", "modules_visibility_and_resolution::glob_ambiguity::source_a::CollidingType::v"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.Option", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::Option", "modules_visibility_and_resolution::glob_ambiguity::source_a::Option"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.Option.0", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::Option::0", "modules_visibility_and_resolution::glob_ambiguity::source_a::Option::0"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.colliding_fn", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::colliding_fn", "modules_visibility_and_resolution::glob_ambiguity::source_a::colliding_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.COLLIDING_CONST", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::COLLIDING_CONST"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.CollidingEnum", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::CollidingEnum"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.CollidingEnum.VariantA", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::CollidingEnum::VariantA"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.CollidingEnum.VariantB", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::CollidingEnum::VariantB"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.CollidingType", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::CollidingType"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.CollidingType.v", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::CollidingType::v"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.Option", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::Option"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.Option.0", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::Option::0"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.colliding_fn", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::colliding_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.inline_root", paths: ["modules_visibility_and_resolution::inline_root"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.inline_root.inline_child", paths: ["modules_visibility_and_resolution::inline_root::inline_child"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.inline_root.inline_child.child_fn", paths: ["modules_visibility_and_resolution::inline_root::inline_child::child_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.inline_root.inline_child.inline_grandchild", paths: ["modules_visibility_and_resolution::inline_root::inline_child::inline_grandchild"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.inline_root.inline_child.inline_grandchild.value", paths: ["modules_visibility_and_resolution::inline_root::inline_child::inline_grandchild::value"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.inline_root.inline_fn", paths: ["modules_visibility_and_resolution::inline_root::inline_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.internal_macro#macro", paths: ["modules_visibility_and_resolution::internal_macro", "modules_visibility_and_resolution::reexports::internal_macro"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.intra_doc_links", paths: ["modules_visibility_and_resolution::intra_doc_links"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.intra_doc_links.HiddenDemo", paths: ["modules_visibility_and_resolution::intra_doc_links::HiddenDemo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.intra_doc_links.HiddenDemo.value", paths: ["modules_visibility_and_resolution::intra_doc_links::HiddenDemo::value"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.intra_doc_links.LinkDemo", paths: ["modules_visibility_and_resolution::intra_doc_links::LinkDemo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.intra_doc_links.LinkDemo.linked_method", paths: ["modules_visibility_and_resolution::intra_doc_links::LinkDemo::linked_method"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.intra_doc_links.LinkDemo.value", paths: ["modules_visibility_and_resolution::intra_doc_links::LinkDemo::value"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.intra_doc_links.LinkDemo.via_self_link", paths: ["modules_visibility_and_resolution::intra_doc_links::LinkDemo::via_self_link"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.intra_doc_links.cross_module_enum_link", paths: ["modules_visibility_and_resolution::intra_doc_links::cross_module_enum_link"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.intra_doc_links.dependency_reexport_link", paths: ["modules_visibility_and_resolution::intra_doc_links::dependency_reexport_link"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.intra_doc_links.hidden_item_link", paths: ["modules_visibility_and_resolution::intra_doc_links::hidden_item_link"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.intra_doc_links.link_to_reexport", paths: ["modules_visibility_and_resolution::intra_doc_links::link_to_reexport"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.intra_doc_links.namespace_disambiguated_links", paths: ["modules_visibility_and_resolution::intra_doc_links::namespace_disambiguated_links"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.intra_doc_links.self_item_link_demo", paths: ["modules_visibility_and_resolution::intra_doc_links::self_item_link_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.legacy_mod", paths: ["modules_visibility_and_resolution::legacy_mod"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.legacy_mod.LegacyType", paths: ["modules_visibility_and_resolution::legacy_mod::LegacyType"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.legacy_mod.LegacyType.v", paths: ["modules_visibility_and_resolution::legacy_mod::LegacyType::v"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.legacy_mod.inner", paths: ["modules_visibility_and_resolution::legacy_mod::inner"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.legacy_mod.inner.inner_fn", paths: ["modules_visibility_and_resolution::legacy_mod::inner::inner_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.legacy_mod.legacy_fn", paths: ["modules_visibility_and_resolution::legacy_mod::legacy_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces", paths: ["modules_visibility_and_resolution::namespaces"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.Beta", paths: ["modules_visibility_and_resolution::namespaces::Beta"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.Beta.0", paths: ["modules_visibility_and_resolution::namespaces::Beta::0"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.DEMO_VALUE", paths: ["modules_visibility_and_resolution::namespaces::DEMO_VALUE"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.DemoDerive", paths: ["modules_visibility_and_resolution::namespaces::DemoDerive"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.DemoDerive.x", paths: ["modules_visibility_and_resolution::namespaces::DemoDerive::x"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.Gamma", paths: ["modules_visibility_and_resolution::namespaces::Gamma"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.Gamma.x", paths: ["modules_visibility_and_resolution::namespaces::Gamma::x"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.demo", paths: ["modules_visibility_and_resolution::namespaces::demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.demo#fn", paths: ["modules_visibility_and_resolution::namespaces::demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.demo.v", paths: ["modules_visibility_and_resolution::namespaces::demo::v"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.demo_allow_attr", paths: ["modules_visibility_and_resolution::namespaces::demo_allow_attr"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.demo_inline_attr", paths: ["modules_visibility_and_resolution::namespaces::demo_inline_attr"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.import_demo", paths: ["modules_visibility_and_resolution::namespaces::import_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.import_demo.uses_multi_namespace", paths: ["modules_visibility_and_resolution::namespaces::import_demo::uses_multi_namespace"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.label_namespace_demo", paths: ["modules_visibility_and_resolution::namespaces::label_namespace_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.lifetime_and_label_demo", paths: ["modules_visibility_and_resolution::namespaces::lifetime_and_label_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.namespaces.namespace_resolution_demo", paths: ["modules_visibility_and_resolution::namespaces::namespace_resolution_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots", paths: ["modules_visibility_and_resolution::path_roots"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.PathRootDemo", paths: ["modules_visibility_and_resolution::path_roots::PathRootDemo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.PathRootDemo.associated_fn", paths: ["modules_visibility_and_resolution::path_roots::PathRootDemo::associated_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.PathRootDemo.new", paths: ["modules_visibility_and_resolution::path_roots::PathRootDemo::new"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.PathRootDemo.value", paths: ["modules_visibility_and_resolution::path_roots::PathRootDemo::value"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.PathRootDemo.via_self", paths: ["modules_visibility_and_resolution::path_roots::PathRootDemo::via_self"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.PathRootDemo.via_self_associated", paths: ["modules_visibility_and_resolution::path_roots::PathRootDemo::via_self_associated"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.PathTrait", paths: ["modules_visibility_and_resolution::path_roots::PathTrait"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.PathTrait.Assoc", paths: ["modules_visibility_and_resolution::path_roots::PathTrait::Assoc"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.PathTrait.trait_fn", paths: ["modules_visibility_and_resolution::path_roots::PathTrait::trait_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.QualifiedAssocAlias", paths: ["modules_visibility_and_resolution::path_roots::QualifiedAssocAlias"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.associated_type_demo", paths: ["modules_visibility_and_resolution::path_roots::associated_type_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.extern_prelude_vs_local", paths: ["modules_visibility_and_resolution::path_roots::extern_prelude_vs_local"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.fixture_direct", paths: ["modules_visibility_and_resolution::path_roots::fixture_direct"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.fixture_direct.LocalShadow", paths: ["modules_visibility_and_resolution::path_roots::fixture_direct::LocalShadow"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.fixture_direct.LocalShadow.new", paths: ["modules_visibility_and_resolution::path_roots::fixture_direct::LocalShadow::new"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.fixture_direct.LocalShadow.v", paths: ["modules_visibility_and_resolution::path_roots::fixture_direct::LocalShadow::v"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.fixture_direct.local_fn", paths: ["modules_visibility_and_resolution::path_roots::fixture_direct::local_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.outer", paths: ["modules_visibility_and_resolution::path_roots::outer"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.outer.inner", paths: ["modules_visibility_and_resolution::path_roots::outer::inner"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.outer.inner.inner_fn", paths: ["modules_visibility_and_resolution::path_roots::outer::inner::inner_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.outer.inner.via_crate", paths: ["modules_visibility_and_resolution::path_roots::outer::inner::via_crate"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.outer.inner.via_self_path", paths: ["modules_visibility_and_resolution::path_roots::outer::inner::via_self_path"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.outer.inner.via_super", paths: ["modules_visibility_and_resolution::path_roots::outer::inner::via_super"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.outer.outer_fn", paths: ["modules_visibility_and_resolution::path_roots::outer::outer_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.outer.via_crate_direct", paths: ["modules_visibility_and_resolution::path_roots::outer::via_crate_direct"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.qualified_path_demo", paths: ["modules_visibility_and_resolution::path_roots::qualified_path_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.self_constructor_demo", paths: ["modules_visibility_and_resolution::path_roots::self_constructor_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.path_roots.uses_qualified_assoc", paths: ["modules_visibility_and_resolution::path_roots::uses_qualified_assoc"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes", paths: ["modules_visibility_and_resolution::preludes"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.PreludeDemo", paths: ["modules_visibility_and_resolution::preludes::PreludeDemo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.PreludeDemo.items", paths: ["modules_visibility_and_resolution::preludes::PreludeDemo::items"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.PreludeDemo.maybe", paths: ["modules_visibility_and_resolution::preludes::PreludeDemo::maybe"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.attribute_prelude_demo", paths: ["modules_visibility_and_resolution::preludes::attribute_prelude_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.core_prelude_demo", paths: ["modules_visibility_and_resolution::preludes::core_prelude_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.core_prelude_demo.core_explicit_vs_prelude", paths: ["modules_visibility_and_resolution::preludes::core_prelude_demo::core_explicit_vs_prelude"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.core_prelude_demo.core_option_via_prelude", paths: ["modules_visibility_and_resolution::preludes::core_prelude_demo::core_option_via_prelude"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.core_prelude_demo.core_prelude_copy", paths: ["modules_visibility_and_resolution::preludes::core_prelude_demo::core_prelude_copy"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.core_prelude_demo.explicit_core_prelude", paths: ["modules_visibility_and_resolution::preludes::core_prelude_demo::explicit_core_prelude"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.core_prelude_demo.explicit_core_prelude.via_explicit_core_prelude", paths: ["modules_visibility_and_resolution::preludes::core_prelude_demo::explicit_core_prelude::via_explicit_core_prelude"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.core_vs_std_paths", paths: ["modules_visibility_and_resolution::preludes::core_vs_std_paths"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.edition_prelude_try_into", paths: ["modules_visibility_and_resolution::preludes::edition_prelude_try_into"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.extern_vs_std_prelude", paths: ["modules_visibility_and_resolution::preludes::extern_vs_std_prelude"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.no_prelude_mod", paths: ["modules_visibility_and_resolution::preludes::no_prelude_mod"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.no_prelude_mod.option_without_prelude", paths: ["modules_visibility_and_resolution::preludes::no_prelude_mod::option_without_prelude"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.no_prelude_mod.without_prelude", paths: ["modules_visibility_and_resolution::preludes::no_prelude_mod::without_prelude"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.prelude_trait_usage", paths: ["modules_visibility_and_resolution::preludes::prelude_trait_usage"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.prelude_unqualified_types", paths: ["modules_visibility_and_resolution::preludes::prelude_unqualified_types"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.shadow_demo", paths: ["modules_visibility_and_resolution::preludes::shadow_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.shadow_demo.Vec", paths: ["modules_visibility_and_resolution::preludes::shadow_demo::Vec"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.shadow_demo.Vec.shadowed", paths: ["modules_visibility_and_resolution::preludes::shadow_demo::Vec::shadowed"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.shadow_demo.accesses_true_vec_via_alloc", paths: ["modules_visibility_and_resolution::preludes::shadow_demo::accesses_true_vec_via_alloc"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.shadow_demo.accesses_true_vec_via_std", paths: ["modules_visibility_and_resolution::preludes::shadow_demo::accesses_true_vec_via_std"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.shadow_demo.uses_shadowed", paths: ["modules_visibility_and_resolution::preludes::shadow_demo::uses_shadowed"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.static_lifetime_demo", paths: ["modules_visibility_and_resolution::preludes::static_lifetime_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.preludes.version_addition_is_some_and", paths: ["modules_visibility_and_resolution::preludes::version_addition_is_some_and"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers", paths: ["modules_visibility_and_resolution::raw_identifiers"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.Cafe", paths: ["modules_visibility_and_resolution::raw_identifiers::Café"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.Cafe.deja_vu", paths: ["modules_visibility_and_resolution::raw_identifiers::Café::déjà_vu"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.Cafe.naive_method", paths: ["modules_visibility_and_resolution::raw_identifiers::Café::naïve_method"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.WithKeywordField", paths: ["modules_visibility_and_resolution::raw_identifiers::WithKeywordField"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.WithKeywordField.async", paths: ["modules_visibility_and_resolution::raw_identifiers::WithKeywordField::async"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.WithKeywordField.match", paths: ["modules_visibility_and_resolution::raw_identifiers::WithKeywordField::match"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.cafe_normalized", paths: ["modules_visibility_and_resolution::raw_identifiers::café_normalized"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.call_raw_identifiers", paths: ["modules_visibility_and_resolution::raw_identifiers::call_raw_identifiers"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.confusable_demo", paths: ["modules_visibility_and_resolution::raw_identifiers::confusable_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.cross_edition_raw_field", paths: ["modules_visibility_and_resolution::raw_identifiers::cross_edition_raw_field"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.gen", paths: ["modules_visibility_and_resolution::raw_identifiers::gen"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.naive_cafe", paths: ["modules_visibility_and_resolution::raw_identifiers::naïve_café"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.normalization_equivalent_call", paths: ["modules_visibility_and_resolution::raw_identifiers::normalization_equivalent_call"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.try", paths: ["modules_visibility_and_resolution::raw_identifiers::try", "modules_visibility_and_resolution::try_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.type", paths: ["modules_visibility_and_resolution::raw_identifiers::type"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.type.new", paths: ["modules_visibility_and_resolution::raw_identifiers::type::new"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.type.value", paths: ["modules_visibility_and_resolution::raw_identifiers::type::value"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.uncommon_codepoint_demo", paths: ["modules_visibility_and_resolution::raw_identifiers::uncommon_codepoint_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.raw_identifiers.unicode_identifier_demo", paths: ["modules_visibility_and_resolution::raw_identifiers::unicode_identifier_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.reexports", paths: ["modules_visibility_and_resolution::reexports"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.reexports.implementation.INTERNAL_CONST", paths: ["modules_visibility_and_resolution::reexports::INTERNAL_CONST"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.reexports.implementation.InternalTrait", paths: ["modules_visibility_and_resolution::reexports::InternalTrait"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.reexports.implementation.InternalTrait.method", paths: ["modules_visibility_and_resolution::reexports::InternalTrait::method"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.reexports.implementation.InternalType", paths: ["modules_visibility_and_resolution::ReexportedRenamed", "modules_visibility_and_resolution::reexports::ChainType", "modules_visibility_and_resolution::reexports::InternalType", "modules_visibility_and_resolution::reexports::RenamedType", "modules_visibility_and_resolution::reexports::reexport_chain_mid::ChainType"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.reexports.implementation.InternalType.new", paths: ["modules_visibility_and_resolution::ReexportedRenamed::new", "modules_visibility_and_resolution::reexports::ChainType::new", "modules_visibility_and_resolution::reexports::InternalType::new", "modules_visibility_and_resolution::reexports::RenamedType::new", "modules_visibility_and_resolution::reexports::reexport_chain_mid::ChainType::new"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.reexports.implementation.InternalType.value", paths: ["modules_visibility_and_resolution::ReexportedRenamed::value", "modules_visibility_and_resolution::reexports::ChainType::value", "modules_visibility_and_resolution::reexports::InternalType::value", "modules_visibility_and_resolution::reexports::RenamedType::value", "modules_visibility_and_resolution::reexports::reexport_chain_mid::ChainType::value"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.reexports.implementation.internal_fn", paths: ["modules_visibility_and_resolution::reexports::internal_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.reexports.reexport_chain_mid", paths: ["modules_visibility_and_resolution::reexports::reexport_chain_mid"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.reexports.reexport_identity_demo", paths: ["modules_visibility_and_resolution::reexports::reexport_identity_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing", paths: ["modules_visibility_and_resolution::scopes_shadowing"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.BodyLocalTrait", paths: ["modules_visibility_and_resolution::scopes_shadowing::BodyLocalTrait"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.BodyLocalTrait.body_method", paths: ["modules_visibility_and_resolution::scopes_shadowing::BodyLocalTrait::body_method"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.BodyLocalType", paths: ["modules_visibility_and_resolution::scopes_shadowing::BodyLocalType"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.BodyLocalType.0", paths: ["modules_visibility_and_resolution::scopes_shadowing::BodyLocalType::0"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.ForwardType", paths: ["modules_visibility_and_resolution::scopes_shadowing::ForwardType"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.ForwardType.uses_later_item", paths: ["modules_visibility_and_resolution::scopes_shadowing::ForwardType::uses_later_item"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.body_local_impl_visible_outside", paths: ["modules_visibility_and_resolution::scopes_shadowing::body_local_impl_visible_outside"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.body_local_import_leakage", paths: ["modules_visibility_and_resolution::scopes_shadowing::body_local_import_leakage"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.forward_caller", paths: ["modules_visibility_and_resolution::scopes_shadowing::forward_caller"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.forward_declared_fn", paths: ["modules_visibility_and_resolution::forward_declared_fn", "modules_visibility_and_resolution::scopes_shadowing::forward_declared_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.generic_and_label_scope", paths: ["modules_visibility_and_resolution::scopes_shadowing::generic_and_label_scope"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.guard_scope_demo", paths: ["modules_visibility_and_resolution::scopes_shadowing::guard_scope_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.later_const", paths: ["modules_visibility_and_resolution::scopes_shadowing::later_const"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.nested_items_vs_closure", paths: ["modules_visibility_and_resolution::scopes_shadowing::nested_items_vs_closure"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.shadowing_block", paths: ["modules_visibility_and_resolution::scopes_shadowing::shadowing_block"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.scopes_shadowing.shadowing_demo", paths: ["modules_visibility_and_resolution::scopes_shadowing::shadowing_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_first", paths: ["modules_visibility_and_resolution::shared_first"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_first.SHARED_CONST", paths: ["modules_visibility_and_resolution::shared_first::SHARED_CONST"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_first.SharedMarker", paths: ["modules_visibility_and_resolution::shared_first::SharedMarker"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_first.SharedMarker.describe", paths: ["modules_visibility_and_resolution::shared_first::SharedMarker::describe"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_first.SharedMarker.id", paths: ["modules_visibility_and_resolution::shared_first::SharedMarker::id"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_first.SharedMarker.new", paths: ["modules_visibility_and_resolution::shared_first::SharedMarker::new"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_first.shared_fn", paths: ["modules_visibility_and_resolution::shared_first::shared_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_second", paths: ["modules_visibility_and_resolution::shared_second"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_second.SHARED_CONST", paths: ["modules_visibility_and_resolution::shared_second::SHARED_CONST"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_second.SharedMarker", paths: ["modules_visibility_and_resolution::shared_second::SharedMarker"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_second.SharedMarker.describe", paths: ["modules_visibility_and_resolution::shared_second::SharedMarker::describe"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_second.SharedMarker.id", paths: ["modules_visibility_and_resolution::shared_second::SharedMarker::id"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_second.SharedMarker.new", paths: ["modules_visibility_and_resolution::shared_second::SharedMarker::new"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_second.shared_fn", paths: ["modules_visibility_and_resolution::shared_second::shared_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_via_include", paths: ["modules_visibility_and_resolution::shared_via_include"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_via_include.SHARED_CONST", paths: ["modules_visibility_and_resolution::shared_via_include::SHARED_CONST"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_via_include.SharedMarker", paths: ["modules_visibility_and_resolution::shared_via_include::SharedMarker"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_via_include.SharedMarker.describe", paths: ["modules_visibility_and_resolution::shared_via_include::SharedMarker::describe"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_via_include.SharedMarker.id", paths: ["modules_visibility_and_resolution::shared_via_include::SharedMarker::id"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_via_include.SharedMarker.new", paths: ["modules_visibility_and_resolution::shared_via_include::SharedMarker::new"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.shared_via_include.shared_fn", paths: ["modules_visibility_and_resolution::shared_via_include::shared_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.source_macro#macro", paths: ["modules_visibility_and_resolution::source_macro"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.standalone_file", paths: ["modules_visibility_and_resolution::standalone_file"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.standalone_file.StandaloneType", paths: ["modules_visibility_and_resolution::standalone_file::StandaloneType"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.standalone_file.StandaloneType.v", paths: ["modules_visibility_and_resolution::standalone_file::StandaloneType::v"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.standalone_file.from_inline_child", paths: ["modules_visibility_and_resolution::standalone_file::from_inline_child"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.standalone_file.from_inline_child.inner", paths: ["modules_visibility_and_resolution::standalone_file::from_inline_child::inner"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.standalone_file.inner_child", paths: ["modules_visibility_and_resolution::standalone_file::inner_child"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.standalone_file.inner_child.ChildType", paths: ["modules_visibility_and_resolution::standalone_file::inner_child::ChildType"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.standalone_file.inner_child.ChildType.x", paths: ["modules_visibility_and_resolution::standalone_file::inner_child::ChildType::x"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.standalone_file.inner_child.child_fn", paths: ["modules_visibility_and_resolution::standalone_file::inner_child::child_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.standalone_file.standalone_fn", paths: ["modules_visibility_and_resolution::standalone_file::standalone_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms", paths: ["modules_visibility_and_resolution::use_forms"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.importer", paths: ["modules_visibility_and_resolution::use_forms::importer"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.importer.child", paths: ["modules_visibility_and_resolution::use_forms::importer::child"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.importer.child.child_needs_own_import", paths: ["modules_visibility_and_resolution::use_forms::importer::child::child_needs_own_import"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.importer.child.child_underscore_not_inherited", paths: ["modules_visibility_and_resolution::use_forms::importer::child::child_underscore_not_inherited"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.importer.demonstrate_all_forms", paths: ["modules_visibility_and_resolution::use_forms::importer::demonstrate_all_forms"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.importer.forward_declared_fn", paths: ["modules_visibility_and_resolution::use_forms::importer::forward_declared_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.importer.underscore_macro_demo", paths: ["modules_visibility_and_resolution::use_forms::importer::underscore_macro_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.importer.underscore_macro_demo.uses_underscore_macros", paths: ["modules_visibility_and_resolution::use_forms::importer::underscore_macro_demo::uses_underscore_macros"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.importer.uses_forward_import", paths: ["modules_visibility_and_resolution::use_forms::importer::uses_forward_import"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.source", paths: ["modules_visibility_and_resolution::use_forms::source"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.source.SOURCE_CONST", paths: ["modules_visibility_and_resolution::use_forms::source::SOURCE_CONST"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.source.SourceTrait", paths: ["modules_visibility_and_resolution::use_forms::source::SourceTrait"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.source.SourceTrait.trait_method", paths: ["modules_visibility_and_resolution::use_forms::source::SourceTrait::trait_method"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.source.SourceType", paths: ["modules_visibility_and_resolution::use_forms::source::SourceType"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.source.SourceType.inherent_method", paths: ["modules_visibility_and_resolution::use_forms::source::SourceType::inherent_method"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.source.SourceType.v", paths: ["modules_visibility_and_resolution::use_forms::source::SourceType::v"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.source.TupleSource", paths: ["modules_visibility_and_resolution::use_forms::source::TupleSource"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.source.TupleSource.0", paths: ["modules_visibility_and_resolution::use_forms::source::TupleSource::0"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.source.source_fn", paths: ["modules_visibility_and_resolution::use_forms::source::source_fn"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.use_forms.use_forms_summary", paths: ["modules_visibility_and_resolution::use_forms::use_forms_summary"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields", paths: ["modules_visibility_and_resolution::visibility_fields"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.InherentDemo", paths: ["modules_visibility_and_resolution::visibility_fields::InherentDemo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.InherentDemo.calls_private", paths: ["modules_visibility_and_resolution::visibility_fields::InherentDemo::calls_private"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.InherentDemo.public_method", paths: ["modules_visibility_and_resolution::visibility_fields::InherentDemo::public_method"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.InherentDemo.v", paths: ["modules_visibility_and_resolution::visibility_fields::InherentDemo::v"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.MixedStruct", paths: ["modules_visibility_and_resolution::visibility_fields::MixedStruct"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.MixedStruct.new", paths: ["modules_visibility_and_resolution::visibility_fields::MixedStruct::new"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.MixedStruct.new_with_private", paths: ["modules_visibility_and_resolution::visibility_fields::MixedStruct::new_with_private"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.MixedStruct.public_field", paths: ["modules_visibility_and_resolution::visibility_fields::MixedStruct::public_field"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.MixedStruct.read_private", paths: ["modules_visibility_and_resolution::visibility_fields::MixedStruct::read_private"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.NonExhaustiveEnum", paths: ["modules_visibility_and_resolution::visibility_fields::NonExhaustiveEnum"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.NonExhaustiveEnum.Hidden", paths: ["modules_visibility_and_resolution::visibility_fields::NonExhaustiveEnum::Hidden"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.NonExhaustiveEnum.Hidden.0", paths: ["modules_visibility_and_resolution::visibility_fields::NonExhaustiveEnum::Hidden::0"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.NonExhaustiveEnum.Known", paths: ["modules_visibility_and_resolution::visibility_fields::NonExhaustiveEnum::Known"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.NonExhaustiveEnum.Known.0", paths: ["modules_visibility_and_resolution::visibility_fields::NonExhaustiveEnum::Known::0"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.PrivatePayloadVariant", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::PrivatePayloadVariant"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.PrivatePayloadVariant.0", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::PrivatePayloadVariant::0"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.PublicVariant", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::PublicVariant"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.PublicVariant.0", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::PublicVariant::0"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.StructVariant", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::StructVariant"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.StructVariant.x", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::StructVariant::x"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.StructVariant.y", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::StructVariant::y"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.UnitVariant", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::UnitVariant"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.TupleMixed", paths: ["modules_visibility_and_resolution::visibility_fields::TupleMixed"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.TupleMixed.0", paths: ["modules_visibility_and_resolution::visibility_fields::TupleMixed::0"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.TupleMixed.constructible_via_new", paths: ["modules_visibility_and_resolution::visibility_fields::TupleMixed::constructible_via_new"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.TupleMixed.new", paths: ["modules_visibility_and_resolution::visibility_fields::TupleMixed::new"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.TupleMixed.values", paths: ["modules_visibility_and_resolution::visibility_fields::TupleMixed::values"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.VisibleTrait", paths: ["modules_visibility_and_resolution::visibility_fields::VisibleTrait"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.VisibleTrait.default_method", paths: ["modules_visibility_and_resolution::visibility_fields::VisibleTrait::default_method"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.VisibleTrait.visible_method", paths: ["modules_visibility_and_resolution::visibility_fields::VisibleTrait::visible_method"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.cross_crate_construction_demo", paths: ["modules_visibility_and_resolution::visibility_fields::cross_crate_construction_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.tuple_constructor_in_crate", paths: ["modules_visibility_and_resolution::visibility_fields::tuple_constructor_in_crate"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_fields.use_struct_literal_within_crate", paths: ["modules_visibility_and_resolution::visibility_fields::use_struct_literal_within_crate"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted", paths: ["modules_visibility_and_resolution::visibility_restricted"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.PubInModuleVisible", paths: ["modules_visibility_and_resolution::visibility_restricted::PubInModuleVisible"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.PubInModuleVisible.inner", paths: ["modules_visibility_and_resolution::visibility_restricted::PubInModuleVisible::inner"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.PubInRestrictedMod", paths: ["modules_visibility_and_resolution::visibility_restricted::PubInRestrictedMod"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.PubInRestrictedMod.inner", paths: ["modules_visibility_and_resolution::visibility_restricted::PubInRestrictedMod::inner"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.PublicItem", paths: ["modules_visibility_and_resolution::visibility_restricted::PublicItem"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.PublicItem.value", paths: ["modules_visibility_and_resolution::visibility_restricted::PublicItem::value"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.VisibilityDemo", paths: ["modules_visibility_and_resolution::visibility_restricted::VisibilityDemo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.VisibilityDemo.new", paths: ["modules_visibility_and_resolution::visibility_restricted::VisibilityDemo::new"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.VisibilityDemo.public_field", paths: ["modules_visibility_and_resolution::visibility_restricted::VisibilityDemo::public_field"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.VisibilityDemo.read_private", paths: ["modules_visibility_and_resolution::visibility_restricted::VisibilityDemo::read_private"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.child_access_demo", paths: ["modules_visibility_and_resolution::visibility_restricted::child_access_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.effective_visibility_demo", paths: ["modules_visibility_and_resolution::visibility_restricted::effective_visibility_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod.child", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod::child"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod.child.child_can_access_pub_in_parent", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod::child::child_can_access_pub_in_parent"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod.child.child_can_access_super", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod::child::child_can_access_super"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod.inner_user", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod::inner_user"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod.make_visible", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod::make_visible"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod.parent_accesses_child_super", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod::parent_accesses_child_super"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.parent_accesses_super", paths: ["modules_visibility_and_resolution::visibility_restricted::parent_accesses_super"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.private_container.CappedPublic", paths: ["modules_visibility_and_resolution::visibility_restricted::ReachableCapped"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.private_container.CappedPublic.v", paths: ["modules_visibility_and_resolution::visibility_restricted::ReachableCapped::v"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.restricted_paths", paths: ["modules_visibility_and_resolution::visibility_restricted::restricted_paths"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.same_crate_can_access_pub_in", paths: ["modules_visibility_and_resolution::visibility_restricted::same_crate_can_access_pub_in"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.sibling_a", paths: ["modules_visibility_and_resolution::visibility_restricted::sibling_a"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.sibling_access_demo", paths: ["modules_visibility_and_resolution::visibility_restricted::sibling_access_demo"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.sibling_access_demo_via_crate", paths: ["modules_visibility_and_resolution::visibility_restricted::sibling_access_demo_via_crate"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.sibling_b", paths: ["modules_visibility_and_resolution::visibility_restricted::sibling_b"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.sibling_b.sibling_accesses_crate_visible", paths: ["modules_visibility_and_resolution::visibility_restricted::sibling_b::sibling_accesses_crate_visible"], access: "all"}
-  - {distribution: "mvr", entity: "mvr.visibility_restricted.sibling_b.sibling_via_crate_path", paths: ["modules_visibility_and_resolution::visibility_restricted::sibling_b::sibling_via_crate_path"], access: "all"}
-  - {distribution: "mvr", entity: "transitive.TransitiveType", paths: ["modules_visibility_and_resolution::reexports::ReexportedTransitiveType"], access: "all", contexts: ["build", "build-cfg-a", "build-target", "doc", "doc-private", "test", "doctest"]}
-  - {distribution: "mvr", entity: "transitive.TransitiveType.new", paths: ["modules_visibility_and_resolution::reexports::ReexportedTransitiveType::new"], access: "all", contexts: ["build", "build-cfg-a", "build-target", "doc", "doc-private", "test", "doctest"]}
-  - {distribution: "mvr", entity: "transitive.TransitiveType.value", paths: ["modules_visibility_and_resolution::reexports::ReexportedTransitiveType::value"], access: "all", contexts: ["build", "build-cfg-a", "build-target", "doc", "doc-private", "test", "doctest"]}
-
+  members:
+    - {distribution: "fixture-direct", entity: "direct.DIRECT_CONST", paths: ["fixture_direct::DIRECT_CONST"], access: "all"}
+    - {distribution: "fixture-direct", entity: "direct.DirectType", paths: ["fixture_direct::DirectType"], access: "all"}
+    - {distribution: "fixture-direct", entity: "direct.DirectType.new", paths: ["fixture_direct::DirectType::new"], access: "all"}
+    - {distribution: "fixture-direct", entity: "direct.DirectType.value", paths: ["fixture_direct::DirectType::value"], access: "all"}
+    - {distribution: "fixture-direct", entity: "direct.ReexportedTransitive", paths: ["fixture_direct::ReexportedTransitive"], access: "all"}
+    - {distribution: "fixture-direct", entity: "direct.crate", paths: ["fixture_direct"], access: "all"}
+    - {distribution: "fixture-direct", entity: "direct.direct_macro#macro", paths: ["fixture_direct::direct_macro"], access: "all"}
+    - {distribution: "fixture-direct", entity: "direct.direct_origin", paths: ["fixture_direct::direct_origin"], access: "all"}
+    - {distribution: "fixture-direct", entity: "skew1.SKEW_CONST", paths: ["fixture_direct::TRANSITIVE_SKEW_CONST"], access: "all"}
+    - {distribution: "fixture-direct", entity: "skew1.SkewType", paths: ["fixture_direct::TransitiveSkewType"], access: "all"}
+    - {distribution: "fixture-direct", entity: "skew1.SkewType.new", paths: ["fixture_direct::TransitiveSkewType::new"], access: "all"}
+    - {distribution: "fixture-direct", entity: "skew1.SkewType.version", paths: ["fixture_direct::TransitiveSkewType::version"], access: "all"}
+    - {distribution: "fixture-direct", entity: "transitive.TransitiveType", paths: ["fixture_direct::TransitiveType"], access: "all"}
+    - {distribution: "fixture-direct", entity: "transitive.TransitiveType.new", paths: ["fixture_direct::ReexportedTransitive::new", "fixture_direct::TransitiveType::new"], access: "all"}
+    - {distribution: "fixture-direct", entity: "transitive.TransitiveType.value", paths: ["fixture_direct::TransitiveType::value"], access: "all"}
+    - {distribution: "fixture-downstream", entity: "downstream.crate", paths: ["fixture_downstream"], access: "all"}
+    - {distribution: "fixture-downstream", entity: "downstream.downstream_can_access_pub_in_restricted_via_public_type", paths: ["fixture_downstream::downstream_can_access_pub_in_restricted_via_public_type"], access: "all"}
+    - {distribution: "fixture-downstream", entity: "downstream.downstream_can_access_public", paths: ["fixture_downstream::downstream_can_access_public"], access: "all"}
+    - {distribution: "fixture-downstream", entity: "downstream.downstream_matches_non_exhaustive", paths: ["fixture_downstream::downstream_matches_non_exhaustive"], access: "all"}
+    - {distribution: "fixture-downstream", entity: "downstream.downstream_matches_public_enum", paths: ["fixture_downstream::downstream_matches_public_enum"], access: "all"}
+    - {distribution: "fixture-downstream", entity: "downstream.downstream_uses_reexported_type", paths: ["fixture_downstream::downstream_uses_reexported_type"], access: "all"}
+    - {distribution: "fixture-downstream", entity: "downstream.downstream_uses_struct_with_public_constructor", paths: ["fixture_downstream::downstream_uses_struct_with_public_constructor"], access: "all"}
+    - {distribution: "fixture-downstream", entity: "downstream.downstream_uses_trait", paths: ["fixture_downstream::downstream_uses_trait"], access: "all"}
+    - {distribution: "fixture-edition2015", entity: "ed2015.CrossEditionRaw", paths: ["fixture_edition2015::CrossEditionRaw"], access: "all"}
+    - {distribution: "fixture-edition2015", entity: "ed2015.CrossEditionRaw.match", paths: ["fixture_edition2015::CrossEditionRaw::match"], access: "all"}
+    - {distribution: "fixture-edition2015", entity: "ed2015.crate", paths: ["fixture_edition2015"], access: "all"}
+    - {distribution: "fixture-edition2015", entity: "ed2015.cross_edition_type", paths: ["fixture_edition2015::cross_edition_type"], access: "all"}
+    - {distribution: "fixture-edition2015", entity: "ed2015.edition2015_leading_colons", paths: ["fixture_edition2015::edition2015_leading_colons"], access: "all"}
+    - {distribution: "fixture-edition2015", entity: "ed2015.edition2015_macro_use", paths: ["fixture_edition2015::edition2015_macro_use"], access: "all"}
+    - {distribution: "fixture-edition2015", entity: "ed2015.edition2015_try_into", paths: ["fixture_edition2015::edition2015_try_into"], access: "all"}
+    - {distribution: "fixture-edition2015", entity: "ed2015.try", paths: ["fixture_edition2015::try"], access: "all"}
+    - {distribution: "fixture-edition2015", entity: "ed2015.type", paths: ["fixture_edition2015::type"], access: "all"}
+    - {distribution: "fixture-edition2015", entity: "ed2015.type.v", paths: ["fixture_edition2015::type::v"], access: "all"}
+    - {distribution: "fixture-edition2018", entity: "ed2018.crate", paths: ["fixture_edition2018"], access: "all"}
+    - {distribution: "fixture-edition2018", entity: "ed2018.edition2018_leading_colons_still_works", paths: ["fixture_edition2018::edition2018_leading_colons_still_works"], access: "all"}
+    - {distribution: "fixture-edition2018", entity: "ed2018.edition2018_macro_via_use", paths: ["fixture_edition2018::edition2018_macro_via_use"], access: "all"}
+    - {distribution: "fixture-edition2018", entity: "ed2018.edition2018_try_into", paths: ["fixture_edition2018::edition2018_try_into"], access: "all"}
+    - {distribution: "fixture-edition2018", entity: "ed2018.edition2018_uniform_path", paths: ["fixture_edition2018::edition2018_uniform_path"], access: "all"}
+    - {distribution: "fixture-skew-0.1.0", entity: "skew1.SKEW_CONST", paths: ["fixture_skew::SKEW_CONST"], access: "all"}
+    - {distribution: "fixture-skew-0.1.0", entity: "skew1.SkewType", paths: ["fixture_skew::SkewType"], access: "all"}
+    - {distribution: "fixture-skew-0.1.0", entity: "skew1.SkewType.new", paths: ["fixture_skew::SkewType::new"], access: "all"}
+    - {distribution: "fixture-skew-0.1.0", entity: "skew1.SkewType.version", paths: ["fixture_skew::SkewType::version"], access: "all"}
+    - {distribution: "fixture-skew-0.1.0", entity: "skew1.crate", paths: ["fixture_skew"], access: "all"}
+    - {distribution: "fixture-skew-0.1.0", entity: "skew1.skew_version", paths: ["fixture_skew::skew_version"], access: "all"}
+    - {distribution: "fixture-skew-0.2.0", entity: "skew2.SKEW_CONST", paths: ["fixture_skew::SKEW_CONST"], access: "all"}
+    - {distribution: "fixture-skew-0.2.0", entity: "skew2.SkewType", paths: ["fixture_skew::SkewType"], access: "all"}
+    - {distribution: "fixture-skew-0.2.0", entity: "skew2.SkewType.new", paths: ["fixture_skew::SkewType::new"], access: "all"}
+    - {distribution: "fixture-skew-0.2.0", entity: "skew2.SkewType.version", paths: ["fixture_skew::SkewType::version"], access: "all"}
+    - {distribution: "fixture-skew-0.2.0", entity: "skew2.crate", paths: ["fixture_skew"], access: "all"}
+    - {distribution: "fixture-skew-0.2.0", entity: "skew2.skew_version", paths: ["fixture_skew::skew_version"], access: "all"}
+    - {distribution: "fixture-transitive", entity: "transitive.TransitiveType", paths: ["fixture_transitive::TransitiveType"], access: "all"}
+    - {distribution: "fixture-transitive", entity: "transitive.TransitiveType.new", paths: ["fixture_transitive::TransitiveType::new"], access: "all"}
+    - {distribution: "fixture-transitive", entity: "transitive.TransitiveType.value", paths: ["fixture_transitive::TransitiveType::value"], access: "all"}
+    - {distribution: "fixture-transitive", entity: "transitive.crate", paths: ["fixture_transitive"], access: "all"}
+    - {distribution: "fixture-transitive", entity: "transitive.transitive_origin", paths: ["fixture_transitive::transitive_origin"], access: "all"}
+    - {distribution: "mvr", entity: "direct.DirectType", paths: ["modules_visibility_and_resolution::ReexportedDirectType", "modules_visibility_and_resolution::reexports::ReexportedDirectType"], access: "all", contexts: ["build", "build-cfg-a", "build-target", "doc", "doc-private", "test", "doctest"]}
+    - {distribution: "mvr", entity: "direct.DirectType.new", paths: ["modules_visibility_and_resolution::ReexportedDirectType::new", "modules_visibility_and_resolution::reexports::ReexportedDirectType::new"], access: "all", contexts: ["build", "build-cfg-a", "build-target", "doc", "doc-private", "test", "doctest"]}
+    - {distribution: "mvr", entity: "direct.DirectType.value", paths: ["modules_visibility_and_resolution::ReexportedDirectType::value", "modules_visibility_and_resolution::reexports::ReexportedDirectType::value"], access: "all", contexts: ["build", "build-cfg-a", "build-target", "doc", "doc-private", "test", "doctest"]}
+    - {distribution: "mvr", entity: "mvr.another_macro#macro", paths: ["modules_visibility_and_resolution::another_macro"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.cfg_selected", paths: ["modules_visibility_and_resolution::cfg_selected"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.cfg_selected.CFG_SELECTED_CONST#a", paths: ["modules_visibility_and_resolution::cfg_selected::CFG_SELECTED_CONST"], access: "all", contexts: ["build-cfg-a"]}
+    - {distribution: "mvr", entity: "mvr.cfg_selected.CFG_SELECTED_CONST#b", paths: ["modules_visibility_and_resolution::cfg_selected::CFG_SELECTED_CONST"], access: "all", contexts: ["build", "build-target", "doc", "doc-private", "test", "doctest"]}
+    - {distribution: "mvr", entity: "mvr.cfg_selected.cfg_selected_fn#a", paths: ["modules_visibility_and_resolution::cfg_selected::cfg_selected_fn"], access: "all", contexts: ["build-cfg-a"]}
+    - {distribution: "mvr", entity: "mvr.cfg_selected.cfg_selected_fn#b", paths: ["modules_visibility_and_resolution::cfg_selected::cfg_selected_fn"], access: "all", contexts: ["build", "build-target", "doc", "doc-private", "test", "doctest"]}
+    - {distribution: "mvr", entity: "mvr.cfg_selected_summary", paths: ["modules_visibility_and_resolution::cfg_selected_summary"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.colliding_macro_a#macro", paths: ["modules_visibility_and_resolution::colliding_macro_a"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.colliding_macro_b#macro", paths: ["modules_visibility_and_resolution::colliding_macro_b"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.crate", paths: ["modules_visibility_and_resolution"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.custom_mapped", paths: ["modules_visibility_and_resolution::custom_mapped"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.custom_mapped.custom_fn", paths: ["modules_visibility_and_resolution::custom_mapped::custom_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.custom_mapped.inline_nested_child", paths: ["modules_visibility_and_resolution::custom_mapped::inline_nested_child"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.custom_mapped.inline_nested_child.value", paths: ["modules_visibility_and_resolution::custom_mapped::inline_nested_child::value"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.custom_mapped.nested", paths: ["modules_visibility_and_resolution::custom_mapped::nested"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.custom_mapped.nested.NestedType", paths: ["modules_visibility_and_resolution::custom_mapped::nested::NestedType"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.custom_mapped.nested.NestedType.v", paths: ["modules_visibility_and_resolution::custom_mapped::nested::NestedType::v"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.custom_mapped.nested.nested_fn", paths: ["modules_visibility_and_resolution::custom_mapped::nested::nested_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.demo#macro", paths: ["modules_visibility_and_resolution::demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.demonstrate_shared_distinctness", paths: ["modules_visibility_and_resolution::demonstrate_shared_distinctness"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude", paths: ["modules_visibility_and_resolution::extern_prelude"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude.alloc_boxed", paths: ["modules_visibility_and_resolution::extern_prelude::alloc_boxed"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude.direct_skew_version", paths: ["modules_visibility_and_resolution::extern_prelude::direct_skew_version"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude.modern_macro_use", paths: ["modules_visibility_and_resolution::extern_prelude::modern_macro_use"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude.skew_types_hold_both", paths: ["modules_visibility_and_resolution::extern_prelude::skew_types_hold_both"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude.skew_versions", paths: ["modules_visibility_and_resolution::extern_prelude::skew_versions"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude.transitive_only_via_reexport", paths: ["modules_visibility_and_resolution::extern_prelude::transitive_only_via_reexport"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude.transitive_skew_version", paths: ["modules_visibility_and_resolution::extern_prelude::transitive_skew_version"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude.uses_alloc_crate", paths: ["modules_visibility_and_resolution::extern_prelude::uses_alloc_crate"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude.uses_direct_via_prelude", paths: ["modules_visibility_and_resolution::extern_prelude::uses_direct_via_prelude"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude.uses_direct_via_renamed", paths: ["modules_visibility_and_resolution::extern_prelude::uses_direct_via_renamed"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude.uses_reexported_transitive", paths: ["modules_visibility_and_resolution::extern_prelude::uses_reexported_transitive"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude.uses_self_alias", paths: ["modules_visibility_and_resolution::extern_prelude::uses_self_alias"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.extern_prelude.uses_transitive_via_reexport", paths: ["modules_visibility_and_resolution::extern_prelude::uses_transitive_via_reexport"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.fixture_summary", paths: ["modules_visibility_and_resolution::fixture_summary"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity", paths: ["modules_visibility_and_resolution::glob_ambiguity"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.enum_glob_collision", paths: ["modules_visibility_and_resolution::glob_ambiguity::enum_glob_collision"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.enum_glob_collision.explicit_variant_a", paths: ["modules_visibility_and_resolution::glob_ambiguity::enum_glob_collision::explicit_variant_a"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.enum_glob_collision.explicit_variant_b", paths: ["modules_visibility_and_resolution::glob_ambiguity::enum_glob_collision::explicit_variant_b"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.enum_glob_collision.shadow_variant_via_explicit", paths: ["modules_visibility_and_resolution::glob_ambiguity::enum_glob_collision::shadow_variant_via_explicit"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.enum_glob_collision.shadow_variant_via_explicit.uses_shadowed_variant", paths: ["modules_visibility_and_resolution::glob_ambiguity::enum_glob_collision::shadow_variant_via_explicit::uses_shadowed_variant"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_summary", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_summary"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.colliding_fn_a", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::colliding_fn_a"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.colliding_fn_b", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::colliding_fn_b"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.explicit_resolution_a", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::explicit_resolution_a"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.explicit_resolution_b", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::explicit_resolution_b"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.shadow_via_explicit", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::shadow_via_explicit"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.shadow_via_explicit.uses_shadowed_type", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::shadow_via_explicit::uses_shadowed_type"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.shadow_via_local", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::shadow_via_local"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.shadow_via_local.CollidingType", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::shadow_via_local::CollidingType"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.shadow_via_local.CollidingType.local", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::shadow_via_local::CollidingType::local"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_shadowed.shadow_via_local.uses_local_shadow", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_shadowed::shadow_via_local::uses_local_shadow"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_unused", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_unused"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.glob_user_unused.non_colliding_use", paths: ["modules_visibility_and_resolution::glob_ambiguity::glob_user_unused::non_colliding_use"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.macro_glob_collision", paths: ["modules_visibility_and_resolution::glob_ambiguity::macro_glob_collision"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.macro_glob_collision.distinct_macros_via_crate", paths: ["modules_visibility_and_resolution::glob_ambiguity::macro_glob_collision::distinct_macros_via_crate"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.macro_glob_collision.macro_a_explicit", paths: ["modules_visibility_and_resolution::glob_ambiguity::macro_glob_collision::macro_a_explicit"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.macro_glob_collision.macro_b_explicit", paths: ["modules_visibility_and_resolution::glob_ambiguity::macro_glob_collision::macro_b_explicit"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.macro_glob_collision.macro_via_a", paths: ["modules_visibility_and_resolution::glob_ambiguity::macro_glob_collision::macro_via_a"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.prelude_glob_shadow", paths: ["modules_visibility_and_resolution::glob_ambiguity::prelude_glob_shadow"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.prelude_glob_shadow.shadowed_prelude_via_glob", paths: ["modules_visibility_and_resolution::glob_ambiguity::prelude_glob_shadow::shadowed_prelude_via_glob"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.prelude_glob_shadow.std_option_still_accessible_via_path", paths: ["modules_visibility_and_resolution::glob_ambiguity::prelude_glob_shadow::std_option_still_accessible_via_path"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.prelude_interaction_alias", paths: ["modules_visibility_and_resolution::glob_ambiguity::prelude_interaction_alias"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.prelude_interaction_alias.shadowed_prelude_alias", paths: ["modules_visibility_and_resolution::glob_ambiguity::prelude_interaction_alias::shadowed_prelude_alias"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.public_glob_exporter", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.public_glob_exporter.exported_const_user", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::exported_const_user"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_a"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.COLLIDING_CONST", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::COLLIDING_CONST", "modules_visibility_and_resolution::glob_ambiguity::source_a::COLLIDING_CONST"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.CollidingEnum", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::CollidingEnum", "modules_visibility_and_resolution::glob_ambiguity::source_a::CollidingEnum"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.CollidingEnum.VariantA", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::CollidingEnum::VariantA", "modules_visibility_and_resolution::glob_ambiguity::source_a::CollidingEnum::VariantA"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.CollidingEnum.VariantB", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::CollidingEnum::VariantB", "modules_visibility_and_resolution::glob_ambiguity::source_a::CollidingEnum::VariantB"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.CollidingType", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::CollidingType", "modules_visibility_and_resolution::glob_ambiguity::source_a::CollidingType"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.CollidingType.v", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::CollidingType::v", "modules_visibility_and_resolution::glob_ambiguity::source_a::CollidingType::v"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.Option", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::Option", "modules_visibility_and_resolution::glob_ambiguity::source_a::Option"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.Option.0", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::Option::0", "modules_visibility_and_resolution::glob_ambiguity::source_a::Option::0"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_a.colliding_fn", paths: ["modules_visibility_and_resolution::glob_ambiguity::public_glob_exporter::colliding_fn", "modules_visibility_and_resolution::glob_ambiguity::source_a::colliding_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.COLLIDING_CONST", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::COLLIDING_CONST"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.CollidingEnum", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::CollidingEnum"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.CollidingEnum.VariantA", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::CollidingEnum::VariantA"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.CollidingEnum.VariantB", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::CollidingEnum::VariantB"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.CollidingType", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::CollidingType"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.CollidingType.v", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::CollidingType::v"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.Option", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::Option"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.Option.0", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::Option::0"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.glob_ambiguity.source_b.colliding_fn", paths: ["modules_visibility_and_resolution::glob_ambiguity::source_b::colliding_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.inline_root", paths: ["modules_visibility_and_resolution::inline_root"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.inline_root.inline_child", paths: ["modules_visibility_and_resolution::inline_root::inline_child"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.inline_root.inline_child.child_fn", paths: ["modules_visibility_and_resolution::inline_root::inline_child::child_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.inline_root.inline_child.inline_grandchild", paths: ["modules_visibility_and_resolution::inline_root::inline_child::inline_grandchild"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.inline_root.inline_child.inline_grandchild.value", paths: ["modules_visibility_and_resolution::inline_root::inline_child::inline_grandchild::value"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.inline_root.inline_fn", paths: ["modules_visibility_and_resolution::inline_root::inline_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.internal_macro#macro", paths: ["modules_visibility_and_resolution::internal_macro", "modules_visibility_and_resolution::reexports::internal_macro"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.intra_doc_links", paths: ["modules_visibility_and_resolution::intra_doc_links"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.intra_doc_links.HiddenDemo", paths: ["modules_visibility_and_resolution::intra_doc_links::HiddenDemo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.intra_doc_links.HiddenDemo.value", paths: ["modules_visibility_and_resolution::intra_doc_links::HiddenDemo::value"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.intra_doc_links.LinkDemo", paths: ["modules_visibility_and_resolution::intra_doc_links::LinkDemo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.intra_doc_links.LinkDemo.linked_method", paths: ["modules_visibility_and_resolution::intra_doc_links::LinkDemo::linked_method"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.intra_doc_links.LinkDemo.value", paths: ["modules_visibility_and_resolution::intra_doc_links::LinkDemo::value"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.intra_doc_links.LinkDemo.via_self_link", paths: ["modules_visibility_and_resolution::intra_doc_links::LinkDemo::via_self_link"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.intra_doc_links.cross_module_enum_link", paths: ["modules_visibility_and_resolution::intra_doc_links::cross_module_enum_link"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.intra_doc_links.dependency_reexport_link", paths: ["modules_visibility_and_resolution::intra_doc_links::dependency_reexport_link"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.intra_doc_links.hidden_item_link", paths: ["modules_visibility_and_resolution::intra_doc_links::hidden_item_link"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.intra_doc_links.link_to_reexport", paths: ["modules_visibility_and_resolution::intra_doc_links::link_to_reexport"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.intra_doc_links.namespace_disambiguated_links", paths: ["modules_visibility_and_resolution::intra_doc_links::namespace_disambiguated_links"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.intra_doc_links.self_item_link_demo", paths: ["modules_visibility_and_resolution::intra_doc_links::self_item_link_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.legacy_mod", paths: ["modules_visibility_and_resolution::legacy_mod"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.legacy_mod.LegacyType", paths: ["modules_visibility_and_resolution::legacy_mod::LegacyType"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.legacy_mod.LegacyType.v", paths: ["modules_visibility_and_resolution::legacy_mod::LegacyType::v"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.legacy_mod.inner", paths: ["modules_visibility_and_resolution::legacy_mod::inner"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.legacy_mod.inner.inner_fn", paths: ["modules_visibility_and_resolution::legacy_mod::inner::inner_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.legacy_mod.legacy_fn", paths: ["modules_visibility_and_resolution::legacy_mod::legacy_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces", paths: ["modules_visibility_and_resolution::namespaces"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.Beta", paths: ["modules_visibility_and_resolution::namespaces::Beta"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.Beta.0", paths: ["modules_visibility_and_resolution::namespaces::Beta::0"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.DEMO_VALUE", paths: ["modules_visibility_and_resolution::namespaces::DEMO_VALUE"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.DemoDerive", paths: ["modules_visibility_and_resolution::namespaces::DemoDerive"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.DemoDerive.x", paths: ["modules_visibility_and_resolution::namespaces::DemoDerive::x"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.Gamma", paths: ["modules_visibility_and_resolution::namespaces::Gamma"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.Gamma.x", paths: ["modules_visibility_and_resolution::namespaces::Gamma::x"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.demo", paths: ["modules_visibility_and_resolution::namespaces::demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.demo#fn", paths: ["modules_visibility_and_resolution::namespaces::demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.demo.v", paths: ["modules_visibility_and_resolution::namespaces::demo::v"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.demo_allow_attr", paths: ["modules_visibility_and_resolution::namespaces::demo_allow_attr"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.demo_inline_attr", paths: ["modules_visibility_and_resolution::namespaces::demo_inline_attr"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.import_demo", paths: ["modules_visibility_and_resolution::namespaces::import_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.import_demo.uses_multi_namespace", paths: ["modules_visibility_and_resolution::namespaces::import_demo::uses_multi_namespace"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.label_namespace_demo", paths: ["modules_visibility_and_resolution::namespaces::label_namespace_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.lifetime_and_label_demo", paths: ["modules_visibility_and_resolution::namespaces::lifetime_and_label_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.namespaces.namespace_resolution_demo", paths: ["modules_visibility_and_resolution::namespaces::namespace_resolution_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots", paths: ["modules_visibility_and_resolution::path_roots"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.PathRootDemo", paths: ["modules_visibility_and_resolution::path_roots::PathRootDemo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.PathRootDemo.associated_fn", paths: ["modules_visibility_and_resolution::path_roots::PathRootDemo::associated_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.PathRootDemo.new", paths: ["modules_visibility_and_resolution::path_roots::PathRootDemo::new"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.PathRootDemo.value", paths: ["modules_visibility_and_resolution::path_roots::PathRootDemo::value"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.PathRootDemo.via_self", paths: ["modules_visibility_and_resolution::path_roots::PathRootDemo::via_self"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.PathRootDemo.via_self_associated", paths: ["modules_visibility_and_resolution::path_roots::PathRootDemo::via_self_associated"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.PathTrait", paths: ["modules_visibility_and_resolution::path_roots::PathTrait"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.PathTrait.Assoc", paths: ["modules_visibility_and_resolution::path_roots::PathTrait::Assoc"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.PathTrait.trait_fn", paths: ["modules_visibility_and_resolution::path_roots::PathTrait::trait_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.QualifiedAssocAlias", paths: ["modules_visibility_and_resolution::path_roots::QualifiedAssocAlias"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.associated_type_demo", paths: ["modules_visibility_and_resolution::path_roots::associated_type_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.extern_prelude_vs_local", paths: ["modules_visibility_and_resolution::path_roots::extern_prelude_vs_local"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.fixture_direct", paths: ["modules_visibility_and_resolution::path_roots::fixture_direct"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.fixture_direct.LocalShadow", paths: ["modules_visibility_and_resolution::path_roots::fixture_direct::LocalShadow"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.fixture_direct.LocalShadow.new", paths: ["modules_visibility_and_resolution::path_roots::fixture_direct::LocalShadow::new"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.fixture_direct.LocalShadow.v", paths: ["modules_visibility_and_resolution::path_roots::fixture_direct::LocalShadow::v"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.fixture_direct.local_fn", paths: ["modules_visibility_and_resolution::path_roots::fixture_direct::local_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.outer", paths: ["modules_visibility_and_resolution::path_roots::outer"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.outer.inner", paths: ["modules_visibility_and_resolution::path_roots::outer::inner"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.outer.inner.inner_fn", paths: ["modules_visibility_and_resolution::path_roots::outer::inner::inner_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.outer.inner.via_crate", paths: ["modules_visibility_and_resolution::path_roots::outer::inner::via_crate"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.outer.inner.via_self_path", paths: ["modules_visibility_and_resolution::path_roots::outer::inner::via_self_path"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.outer.inner.via_super", paths: ["modules_visibility_and_resolution::path_roots::outer::inner::via_super"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.outer.outer_fn", paths: ["modules_visibility_and_resolution::path_roots::outer::outer_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.outer.via_crate_direct", paths: ["modules_visibility_and_resolution::path_roots::outer::via_crate_direct"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.qualified_path_demo", paths: ["modules_visibility_and_resolution::path_roots::qualified_path_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.self_constructor_demo", paths: ["modules_visibility_and_resolution::path_roots::self_constructor_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.path_roots.uses_qualified_assoc", paths: ["modules_visibility_and_resolution::path_roots::uses_qualified_assoc"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes", paths: ["modules_visibility_and_resolution::preludes"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.PreludeDemo", paths: ["modules_visibility_and_resolution::preludes::PreludeDemo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.PreludeDemo.items", paths: ["modules_visibility_and_resolution::preludes::PreludeDemo::items"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.PreludeDemo.maybe", paths: ["modules_visibility_and_resolution::preludes::PreludeDemo::maybe"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.attribute_prelude_demo", paths: ["modules_visibility_and_resolution::preludes::attribute_prelude_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.core_prelude_demo", paths: ["modules_visibility_and_resolution::preludes::core_prelude_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.core_prelude_demo.core_explicit_vs_prelude", paths: ["modules_visibility_and_resolution::preludes::core_prelude_demo::core_explicit_vs_prelude"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.core_prelude_demo.core_option_via_prelude", paths: ["modules_visibility_and_resolution::preludes::core_prelude_demo::core_option_via_prelude"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.core_prelude_demo.core_prelude_copy", paths: ["modules_visibility_and_resolution::preludes::core_prelude_demo::core_prelude_copy"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.core_prelude_demo.explicit_core_prelude", paths: ["modules_visibility_and_resolution::preludes::core_prelude_demo::explicit_core_prelude"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.core_prelude_demo.explicit_core_prelude.via_explicit_core_prelude", paths: ["modules_visibility_and_resolution::preludes::core_prelude_demo::explicit_core_prelude::via_explicit_core_prelude"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.core_vs_std_paths", paths: ["modules_visibility_and_resolution::preludes::core_vs_std_paths"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.edition_prelude_try_into", paths: ["modules_visibility_and_resolution::preludes::edition_prelude_try_into"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.extern_vs_std_prelude", paths: ["modules_visibility_and_resolution::preludes::extern_vs_std_prelude"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.no_prelude_mod", paths: ["modules_visibility_and_resolution::preludes::no_prelude_mod"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.no_prelude_mod.option_without_prelude", paths: ["modules_visibility_and_resolution::preludes::no_prelude_mod::option_without_prelude"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.no_prelude_mod.without_prelude", paths: ["modules_visibility_and_resolution::preludes::no_prelude_mod::without_prelude"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.prelude_trait_usage", paths: ["modules_visibility_and_resolution::preludes::prelude_trait_usage"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.prelude_unqualified_types", paths: ["modules_visibility_and_resolution::preludes::prelude_unqualified_types"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.shadow_demo", paths: ["modules_visibility_and_resolution::preludes::shadow_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.shadow_demo.Vec", paths: ["modules_visibility_and_resolution::preludes::shadow_demo::Vec"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.shadow_demo.Vec.shadowed", paths: ["modules_visibility_and_resolution::preludes::shadow_demo::Vec::shadowed"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.shadow_demo.accesses_true_vec_via_alloc", paths: ["modules_visibility_and_resolution::preludes::shadow_demo::accesses_true_vec_via_alloc"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.shadow_demo.accesses_true_vec_via_std", paths: ["modules_visibility_and_resolution::preludes::shadow_demo::accesses_true_vec_via_std"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.shadow_demo.uses_shadowed", paths: ["modules_visibility_and_resolution::preludes::shadow_demo::uses_shadowed"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.static_lifetime_demo", paths: ["modules_visibility_and_resolution::preludes::static_lifetime_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.preludes.version_addition_is_some_and", paths: ["modules_visibility_and_resolution::preludes::version_addition_is_some_and"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers", paths: ["modules_visibility_and_resolution::raw_identifiers"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.Cafe", paths: ["modules_visibility_and_resolution::raw_identifiers::Café"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.Cafe.deja_vu", paths: ["modules_visibility_and_resolution::raw_identifiers::Café::déjà_vu"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.Cafe.naive_method", paths: ["modules_visibility_and_resolution::raw_identifiers::Café::naïve_method"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.WithKeywordField", paths: ["modules_visibility_and_resolution::raw_identifiers::WithKeywordField"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.WithKeywordField.async", paths: ["modules_visibility_and_resolution::raw_identifiers::WithKeywordField::async"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.WithKeywordField.match", paths: ["modules_visibility_and_resolution::raw_identifiers::WithKeywordField::match"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.cafe_normalized", paths: ["modules_visibility_and_resolution::raw_identifiers::café_normalized"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.call_raw_identifiers", paths: ["modules_visibility_and_resolution::raw_identifiers::call_raw_identifiers"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.confusable_demo", paths: ["modules_visibility_and_resolution::raw_identifiers::confusable_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.cross_edition_raw_field", paths: ["modules_visibility_and_resolution::raw_identifiers::cross_edition_raw_field"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.gen", paths: ["modules_visibility_and_resolution::raw_identifiers::gen"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.naive_cafe", paths: ["modules_visibility_and_resolution::raw_identifiers::naïve_café"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.normalization_equivalent_call", paths: ["modules_visibility_and_resolution::raw_identifiers::normalization_equivalent_call"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.try", paths: ["modules_visibility_and_resolution::raw_identifiers::try", "modules_visibility_and_resolution::try_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.type", paths: ["modules_visibility_and_resolution::raw_identifiers::type"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.type.new", paths: ["modules_visibility_and_resolution::raw_identifiers::type::new"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.type.value", paths: ["modules_visibility_and_resolution::raw_identifiers::type::value"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.uncommon_codepoint_demo", paths: ["modules_visibility_and_resolution::raw_identifiers::uncommon_codepoint_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.raw_identifiers.unicode_identifier_demo", paths: ["modules_visibility_and_resolution::raw_identifiers::unicode_identifier_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.reexports", paths: ["modules_visibility_and_resolution::reexports"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.reexports.implementation.INTERNAL_CONST", paths: ["modules_visibility_and_resolution::reexports::INTERNAL_CONST"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.reexports.implementation.InternalTrait", paths: ["modules_visibility_and_resolution::reexports::InternalTrait"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.reexports.implementation.InternalTrait.method", paths: ["modules_visibility_and_resolution::reexports::InternalTrait::method"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.reexports.implementation.InternalType", paths: ["modules_visibility_and_resolution::ReexportedRenamed", "modules_visibility_and_resolution::reexports::ChainType", "modules_visibility_and_resolution::reexports::InternalType", "modules_visibility_and_resolution::reexports::RenamedType", "modules_visibility_and_resolution::reexports::reexport_chain_mid::ChainType"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.reexports.implementation.InternalType.new", paths: ["modules_visibility_and_resolution::ReexportedRenamed::new", "modules_visibility_and_resolution::reexports::ChainType::new", "modules_visibility_and_resolution::reexports::InternalType::new", "modules_visibility_and_resolution::reexports::RenamedType::new", "modules_visibility_and_resolution::reexports::reexport_chain_mid::ChainType::new"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.reexports.implementation.InternalType.value", paths: ["modules_visibility_and_resolution::ReexportedRenamed::value", "modules_visibility_and_resolution::reexports::ChainType::value", "modules_visibility_and_resolution::reexports::InternalType::value", "modules_visibility_and_resolution::reexports::RenamedType::value", "modules_visibility_and_resolution::reexports::reexport_chain_mid::ChainType::value"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.reexports.implementation.internal_fn", paths: ["modules_visibility_and_resolution::reexports::internal_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.reexports.reexport_chain_mid", paths: ["modules_visibility_and_resolution::reexports::reexport_chain_mid"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.reexports.reexport_identity_demo", paths: ["modules_visibility_and_resolution::reexports::reexport_identity_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing", paths: ["modules_visibility_and_resolution::scopes_shadowing"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.BodyLocalTrait", paths: ["modules_visibility_and_resolution::scopes_shadowing::BodyLocalTrait"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.BodyLocalTrait.body_method", paths: ["modules_visibility_and_resolution::scopes_shadowing::BodyLocalTrait::body_method"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.BodyLocalType", paths: ["modules_visibility_and_resolution::scopes_shadowing::BodyLocalType"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.BodyLocalType.0", paths: ["modules_visibility_and_resolution::scopes_shadowing::BodyLocalType::0"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.ForwardType", paths: ["modules_visibility_and_resolution::scopes_shadowing::ForwardType"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.ForwardType.uses_later_item", paths: ["modules_visibility_and_resolution::scopes_shadowing::ForwardType::uses_later_item"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.body_local_impl_visible_outside", paths: ["modules_visibility_and_resolution::scopes_shadowing::body_local_impl_visible_outside"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.body_local_import_leakage", paths: ["modules_visibility_and_resolution::scopes_shadowing::body_local_import_leakage"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.forward_caller", paths: ["modules_visibility_and_resolution::scopes_shadowing::forward_caller"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.forward_declared_fn", paths: ["modules_visibility_and_resolution::forward_declared_fn", "modules_visibility_and_resolution::scopes_shadowing::forward_declared_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.generic_and_label_scope", paths: ["modules_visibility_and_resolution::scopes_shadowing::generic_and_label_scope"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.guard_scope_demo", paths: ["modules_visibility_and_resolution::scopes_shadowing::guard_scope_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.later_const", paths: ["modules_visibility_and_resolution::scopes_shadowing::later_const"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.nested_items_vs_closure", paths: ["modules_visibility_and_resolution::scopes_shadowing::nested_items_vs_closure"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.shadowing_block", paths: ["modules_visibility_and_resolution::scopes_shadowing::shadowing_block"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.scopes_shadowing.shadowing_demo", paths: ["modules_visibility_and_resolution::scopes_shadowing::shadowing_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_first", paths: ["modules_visibility_and_resolution::shared_first"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_first.SHARED_CONST", paths: ["modules_visibility_and_resolution::shared_first::SHARED_CONST"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_first.SharedMarker", paths: ["modules_visibility_and_resolution::shared_first::SharedMarker"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_first.SharedMarker.describe", paths: ["modules_visibility_and_resolution::shared_first::SharedMarker::describe"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_first.SharedMarker.id", paths: ["modules_visibility_and_resolution::shared_first::SharedMarker::id"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_first.SharedMarker.new", paths: ["modules_visibility_and_resolution::shared_first::SharedMarker::new"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_first.shared_fn", paths: ["modules_visibility_and_resolution::shared_first::shared_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_second", paths: ["modules_visibility_and_resolution::shared_second"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_second.SHARED_CONST", paths: ["modules_visibility_and_resolution::shared_second::SHARED_CONST"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_second.SharedMarker", paths: ["modules_visibility_and_resolution::shared_second::SharedMarker"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_second.SharedMarker.describe", paths: ["modules_visibility_and_resolution::shared_second::SharedMarker::describe"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_second.SharedMarker.id", paths: ["modules_visibility_and_resolution::shared_second::SharedMarker::id"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_second.SharedMarker.new", paths: ["modules_visibility_and_resolution::shared_second::SharedMarker::new"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_second.shared_fn", paths: ["modules_visibility_and_resolution::shared_second::shared_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_via_include", paths: ["modules_visibility_and_resolution::shared_via_include"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_via_include.SHARED_CONST", paths: ["modules_visibility_and_resolution::shared_via_include::SHARED_CONST"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_via_include.SharedMarker", paths: ["modules_visibility_and_resolution::shared_via_include::SharedMarker"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_via_include.SharedMarker.describe", paths: ["modules_visibility_and_resolution::shared_via_include::SharedMarker::describe"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_via_include.SharedMarker.id", paths: ["modules_visibility_and_resolution::shared_via_include::SharedMarker::id"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_via_include.SharedMarker.new", paths: ["modules_visibility_and_resolution::shared_via_include::SharedMarker::new"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.shared_via_include.shared_fn", paths: ["modules_visibility_and_resolution::shared_via_include::shared_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.source_macro#macro", paths: ["modules_visibility_and_resolution::source_macro"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.standalone_file", paths: ["modules_visibility_and_resolution::standalone_file"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.standalone_file.StandaloneType", paths: ["modules_visibility_and_resolution::standalone_file::StandaloneType"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.standalone_file.StandaloneType.v", paths: ["modules_visibility_and_resolution::standalone_file::StandaloneType::v"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.standalone_file.from_inline_child", paths: ["modules_visibility_and_resolution::standalone_file::from_inline_child"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.standalone_file.from_inline_child.inner", paths: ["modules_visibility_and_resolution::standalone_file::from_inline_child::inner"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.standalone_file.inner_child", paths: ["modules_visibility_and_resolution::standalone_file::inner_child"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.standalone_file.inner_child.ChildType", paths: ["modules_visibility_and_resolution::standalone_file::inner_child::ChildType"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.standalone_file.inner_child.ChildType.x", paths: ["modules_visibility_and_resolution::standalone_file::inner_child::ChildType::x"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.standalone_file.inner_child.child_fn", paths: ["modules_visibility_and_resolution::standalone_file::inner_child::child_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.standalone_file.standalone_fn", paths: ["modules_visibility_and_resolution::standalone_file::standalone_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms", paths: ["modules_visibility_and_resolution::use_forms"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.importer", paths: ["modules_visibility_and_resolution::use_forms::importer"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.importer.child", paths: ["modules_visibility_and_resolution::use_forms::importer::child"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.importer.child.child_needs_own_import", paths: ["modules_visibility_and_resolution::use_forms::importer::child::child_needs_own_import"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.importer.child.child_underscore_not_inherited", paths: ["modules_visibility_and_resolution::use_forms::importer::child::child_underscore_not_inherited"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.importer.demonstrate_all_forms", paths: ["modules_visibility_and_resolution::use_forms::importer::demonstrate_all_forms"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.importer.forward_declared_fn", paths: ["modules_visibility_and_resolution::use_forms::importer::forward_declared_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.importer.underscore_macro_demo", paths: ["modules_visibility_and_resolution::use_forms::importer::underscore_macro_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.importer.underscore_macro_demo.uses_underscore_macros", paths: ["modules_visibility_and_resolution::use_forms::importer::underscore_macro_demo::uses_underscore_macros"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.importer.uses_forward_import", paths: ["modules_visibility_and_resolution::use_forms::importer::uses_forward_import"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.source", paths: ["modules_visibility_and_resolution::use_forms::source"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.source.SOURCE_CONST", paths: ["modules_visibility_and_resolution::use_forms::source::SOURCE_CONST"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.source.SourceTrait", paths: ["modules_visibility_and_resolution::use_forms::source::SourceTrait"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.source.SourceTrait.trait_method", paths: ["modules_visibility_and_resolution::use_forms::source::SourceTrait::trait_method"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.source.SourceType", paths: ["modules_visibility_and_resolution::use_forms::source::SourceType"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.source.SourceType.inherent_method", paths: ["modules_visibility_and_resolution::use_forms::source::SourceType::inherent_method"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.source.SourceType.v", paths: ["modules_visibility_and_resolution::use_forms::source::SourceType::v"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.source.TupleSource", paths: ["modules_visibility_and_resolution::use_forms::source::TupleSource"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.source.TupleSource.0", paths: ["modules_visibility_and_resolution::use_forms::source::TupleSource::0"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.source.source_fn", paths: ["modules_visibility_and_resolution::use_forms::source::source_fn"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.use_forms.use_forms_summary", paths: ["modules_visibility_and_resolution::use_forms::use_forms_summary"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields", paths: ["modules_visibility_and_resolution::visibility_fields"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.InherentDemo", paths: ["modules_visibility_and_resolution::visibility_fields::InherentDemo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.InherentDemo.calls_private", paths: ["modules_visibility_and_resolution::visibility_fields::InherentDemo::calls_private"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.InherentDemo.public_method", paths: ["modules_visibility_and_resolution::visibility_fields::InherentDemo::public_method"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.InherentDemo.v", paths: ["modules_visibility_and_resolution::visibility_fields::InherentDemo::v"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.MixedStruct", paths: ["modules_visibility_and_resolution::visibility_fields::MixedStruct"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.MixedStruct.new", paths: ["modules_visibility_and_resolution::visibility_fields::MixedStruct::new"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.MixedStruct.new_with_private", paths: ["modules_visibility_and_resolution::visibility_fields::MixedStruct::new_with_private"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.MixedStruct.public_field", paths: ["modules_visibility_and_resolution::visibility_fields::MixedStruct::public_field"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.MixedStruct.read_private", paths: ["modules_visibility_and_resolution::visibility_fields::MixedStruct::read_private"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.NonExhaustiveEnum", paths: ["modules_visibility_and_resolution::visibility_fields::NonExhaustiveEnum"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.NonExhaustiveEnum.Hidden", paths: ["modules_visibility_and_resolution::visibility_fields::NonExhaustiveEnum::Hidden"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.NonExhaustiveEnum.Hidden.0", paths: ["modules_visibility_and_resolution::visibility_fields::NonExhaustiveEnum::Hidden::0"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.NonExhaustiveEnum.Known", paths: ["modules_visibility_and_resolution::visibility_fields::NonExhaustiveEnum::Known"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.NonExhaustiveEnum.Known.0", paths: ["modules_visibility_and_resolution::visibility_fields::NonExhaustiveEnum::Known::0"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.PrivatePayloadVariant", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::PrivatePayloadVariant"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.PrivatePayloadVariant.0", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::PrivatePayloadVariant::0"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.PublicVariant", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::PublicVariant"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.PublicVariant.0", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::PublicVariant::0"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.StructVariant", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::StructVariant"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.StructVariant.x", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::StructVariant::x"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.StructVariant.y", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::StructVariant::y"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.PublicEnum.UnitVariant", paths: ["modules_visibility_and_resolution::visibility_fields::PublicEnum::UnitVariant"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.TupleMixed", paths: ["modules_visibility_and_resolution::visibility_fields::TupleMixed"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.TupleMixed.0", paths: ["modules_visibility_and_resolution::visibility_fields::TupleMixed::0"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.TupleMixed.constructible_via_new", paths: ["modules_visibility_and_resolution::visibility_fields::TupleMixed::constructible_via_new"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.TupleMixed.new", paths: ["modules_visibility_and_resolution::visibility_fields::TupleMixed::new"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.TupleMixed.values", paths: ["modules_visibility_and_resolution::visibility_fields::TupleMixed::values"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.VisibleTrait", paths: ["modules_visibility_and_resolution::visibility_fields::VisibleTrait"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.VisibleTrait.default_method", paths: ["modules_visibility_and_resolution::visibility_fields::VisibleTrait::default_method"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.VisibleTrait.visible_method", paths: ["modules_visibility_and_resolution::visibility_fields::VisibleTrait::visible_method"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.cross_crate_construction_demo", paths: ["modules_visibility_and_resolution::visibility_fields::cross_crate_construction_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.tuple_constructor_in_crate", paths: ["modules_visibility_and_resolution::visibility_fields::tuple_constructor_in_crate"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_fields.use_struct_literal_within_crate", paths: ["modules_visibility_and_resolution::visibility_fields::use_struct_literal_within_crate"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted", paths: ["modules_visibility_and_resolution::visibility_restricted"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.PubInModuleVisible", paths: ["modules_visibility_and_resolution::visibility_restricted::PubInModuleVisible"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.PubInModuleVisible.inner", paths: ["modules_visibility_and_resolution::visibility_restricted::PubInModuleVisible::inner"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.PubInRestrictedMod", paths: ["modules_visibility_and_resolution::visibility_restricted::PubInRestrictedMod"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.PubInRestrictedMod.inner", paths: ["modules_visibility_and_resolution::visibility_restricted::PubInRestrictedMod::inner"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.PublicItem", paths: ["modules_visibility_and_resolution::visibility_restricted::PublicItem"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.PublicItem.value", paths: ["modules_visibility_and_resolution::visibility_restricted::PublicItem::value"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.VisibilityDemo", paths: ["modules_visibility_and_resolution::visibility_restricted::VisibilityDemo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.VisibilityDemo.new", paths: ["modules_visibility_and_resolution::visibility_restricted::VisibilityDemo::new"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.VisibilityDemo.public_field", paths: ["modules_visibility_and_resolution::visibility_restricted::VisibilityDemo::public_field"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.VisibilityDemo.read_private", paths: ["modules_visibility_and_resolution::visibility_restricted::VisibilityDemo::read_private"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.child_access_demo", paths: ["modules_visibility_and_resolution::visibility_restricted::child_access_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.effective_visibility_demo", paths: ["modules_visibility_and_resolution::visibility_restricted::effective_visibility_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod.child", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod::child"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod.child.child_can_access_pub_in_parent", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod::child::child_can_access_pub_in_parent"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod.child.child_can_access_super", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod::child::child_can_access_super"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod.inner_user", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod::inner_user"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod.make_visible", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod::make_visible"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.inner_mod.parent_accesses_child_super", paths: ["modules_visibility_and_resolution::visibility_restricted::inner_mod::parent_accesses_child_super"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.parent_accesses_super", paths: ["modules_visibility_and_resolution::visibility_restricted::parent_accesses_super"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.private_container.CappedPublic", paths: ["modules_visibility_and_resolution::visibility_restricted::ReachableCapped"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.private_container.CappedPublic.v", paths: ["modules_visibility_and_resolution::visibility_restricted::ReachableCapped::v"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.restricted_paths", paths: ["modules_visibility_and_resolution::visibility_restricted::restricted_paths"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.same_crate_can_access_pub_in", paths: ["modules_visibility_and_resolution::visibility_restricted::same_crate_can_access_pub_in"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.sibling_a", paths: ["modules_visibility_and_resolution::visibility_restricted::sibling_a"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.sibling_access_demo", paths: ["modules_visibility_and_resolution::visibility_restricted::sibling_access_demo"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.sibling_access_demo_via_crate", paths: ["modules_visibility_and_resolution::visibility_restricted::sibling_access_demo_via_crate"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.sibling_b", paths: ["modules_visibility_and_resolution::visibility_restricted::sibling_b"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.sibling_b.sibling_accesses_crate_visible", paths: ["modules_visibility_and_resolution::visibility_restricted::sibling_b::sibling_accesses_crate_visible"], access: "all"}
+    - {distribution: "mvr", entity: "mvr.visibility_restricted.sibling_b.sibling_via_crate_path", paths: ["modules_visibility_and_resolution::visibility_restricted::sibling_b::sibling_via_crate_path"], access: "all"}
+    - {distribution: "mvr", entity: "transitive.TransitiveType", paths: ["modules_visibility_and_resolution::reexports::ReexportedTransitiveType"], access: "all", contexts: ["build", "build-cfg-a", "build-target", "doc", "doc-private", "test", "doctest"]}
+    - {distribution: "mvr", entity: "transitive.TransitiveType.new", paths: ["modules_visibility_and_resolution::reexports::ReexportedTransitiveType::new"], access: "all", contexts: ["build", "build-cfg-a", "build-target", "doc", "doc-private", "test", "doctest"]}
+    - {distribution: "mvr", entity: "transitive.TransitiveType.value", paths: ["modules_visibility_and_resolution::reexports::ReexportedTransitiveType::value"], access: "all", contexts: ["build", "build-cfg-a", "build-target", "doc", "doc-private", "test", "doctest"]}
+  signatures:
+    - entity: direct.DIRECT_CONST
+      type: u32
+      value: "99"
+    - entity: direct.DirectType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: direct.DirectType.new
+      parameters:
+        - {name: v, type: u32}
+      returns: "@{direct.DirectType}"
+    - entity: direct.DirectType.value
+      type: u32
+    - entity: direct.ReexportedTransitive
+      type: "@{transitive.TransitiveType}"
+    - entity: direct.direct_origin
+      returns: "&'static str"
+    - entity: downstream.downstream_can_access_pub_in_restricted_via_public_type
+      returns: u32
+    - entity: downstream.downstream_can_access_public
+      returns: u32
+    - entity: downstream.downstream_matches_non_exhaustive
+      parameters:
+        - {name: variant, type: "@{mvr.visibility_fields.NonExhaustiveEnum}"}
+      returns: u32
+    - entity: downstream.downstream_matches_public_enum
+      parameters:
+        - {name: variant, type: "@{mvr.visibility_fields.PublicEnum}"}
+      returns: u32
+    - entity: downstream.downstream_uses_reexported_type
+      returns: "@{direct.DirectType}"
+    - entity: downstream.downstream_uses_struct_with_public_constructor
+      returns: "@{mvr.visibility_fields.MixedStruct}"
+    - entity: downstream.downstream_uses_trait
+      parameters:
+        - {name: item, type: "&dyn @{mvr.visibility_fields.VisibleTrait}"}
+      returns: u32
+    - entity: ed2015.CrossEditionRaw
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: ed2015.CrossEditionRaw.match
+      type: u32
+    - entity: ed2015.cross_edition_type
+      returns: "@{direct.DirectType}"
+    - entity: ed2015.edition2015_leading_colons
+      returns: "@{direct.DirectType}"
+    - entity: ed2015.edition2015_macro_use
+      returns: u32
+    - entity: ed2015.edition2015_try_into
+      parameters:
+        - {name: x, type: u8}
+      returns: u16
+    - entity: ed2015.try
+      returns: u32
+    - entity: ed2015.type
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: ed2015.type.v
+      type: u32
+    - entity: ed2018.edition2018_leading_colons_still_works
+      returns: "@{direct.DirectType}"
+    - entity: ed2018.edition2018_macro_via_use
+      returns: u32
+    - entity: ed2018.edition2018_try_into
+      parameters:
+        - {name: x, type: u8}
+      returns: u16
+    - entity: ed2018.edition2018_uniform_path
+      returns: "@{direct.DirectType}"
+    - entity: "mvr.cfg_selected.CFG_SELECTED_CONST#a"
+      contexts: [build-cfg-a]
+      type: u32
+      value: "1"
+    - entity: "mvr.cfg_selected.CFG_SELECTED_CONST#b"
+      contexts: [build, build-target, doc, doc-private, test, doctest]
+      type: u32
+      value: "2"
+    - entity: "mvr.cfg_selected.cfg_selected_fn#a"
+      contexts: [build-cfg-a]
+      returns: "&'static str"
+    - entity: "mvr.cfg_selected.cfg_selected_fn#b"
+      contexts: [build, build-target, doc, doc-private, test, doctest]
+      returns: "&'static str"
+    - entity: mvr.cfg_selected_summary
+      returns: "&'static str"
+    - entity: mvr.custom_mapped.custom_fn
+      returns: u32
+    - entity: mvr.custom_mapped.inline_nested_child.value
+      returns: u32
+    - entity: mvr.custom_mapped.nested.NestedType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.custom_mapped.nested.NestedType.v
+      type: u32
+    - entity: mvr.custom_mapped.nested.nested_fn
+      returns: u32
+    - entity: mvr.demonstrate_shared_distinctness
+      returns: "(u32, u32, u32)"
+    - entity: mvr.extern_prelude.alloc_boxed
+      returns: "@{ext.alloc.boxed.Box}<u32>"
+    - entity: mvr.extern_prelude.direct_skew_version
+      returns: u32
+    - entity: mvr.extern_prelude.modern_macro_use
+      returns: u32
+    - entity: mvr.extern_prelude.skew_types_hold_both
+      returns: "(@{skew1.SkewType}, @{skew2.SkewType})"
+    - entity: mvr.extern_prelude.skew_versions
+      returns: "(u32, u32)"
+    - entity: mvr.extern_prelude.transitive_only_via_reexport
+      returns: "@{direct.ReexportedTransitive}"
+    - entity: mvr.extern_prelude.transitive_skew_version
+      returns: u32
+    - entity: mvr.extern_prelude.uses_alloc_crate
+      returns: "@{ext.alloc.vec.Vec}<u32>"
+    - entity: mvr.extern_prelude.uses_direct_via_prelude
+      returns: "@{direct.DirectType}"
+    - entity: mvr.extern_prelude.uses_direct_via_renamed
+      returns: "@{direct.DirectType}"
+    - entity: mvr.extern_prelude.uses_reexported_transitive
+      returns: "@{transitive.TransitiveType}"
+    - entity: mvr.extern_prelude.uses_self_alias
+      returns: u32
+    - entity: mvr.extern_prelude.uses_transitive_via_reexport
+      returns: "@{transitive.TransitiveType}"
+    - entity: mvr.fixture_summary
+      returns: "&'static str"
+    - entity: mvr.glob_ambiguity.enum_glob_collision.explicit_variant_a
+      returns: "@{mvr.glob_ambiguity.source_a.CollidingEnum}"
+    - entity: mvr.glob_ambiguity.enum_glob_collision.explicit_variant_b
+      returns: "@{mvr.glob_ambiguity.source_b.CollidingEnum}"
+    - entity: mvr.glob_ambiguity.enum_glob_collision.shadow_variant_via_explicit.uses_shadowed_variant
+      returns: "@{mvr.glob_ambiguity.source_a.CollidingEnum}"
+    - entity: mvr.glob_ambiguity.glob_summary
+      returns: u32
+    - entity: mvr.glob_ambiguity.glob_user_shadowed.colliding_fn_a
+      returns: u32
+    - entity: mvr.glob_ambiguity.glob_user_shadowed.colliding_fn_b
+      returns: u32
+    - entity: mvr.glob_ambiguity.glob_user_shadowed.explicit_resolution_a
+      returns: "@{mvr.glob_ambiguity.source_a.CollidingType}"
+    - entity: mvr.glob_ambiguity.glob_user_shadowed.explicit_resolution_b
+      returns: "@{mvr.glob_ambiguity.source_b.CollidingType}"
+    - entity: mvr.glob_ambiguity.glob_user_shadowed.shadow_via_explicit.uses_shadowed_type
+      returns: "@{mvr.glob_ambiguity.source_a.CollidingType}"
+    - entity: mvr.glob_ambiguity.glob_user_shadowed.shadow_via_local.CollidingType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.glob_ambiguity.glob_user_shadowed.shadow_via_local.CollidingType.local
+      type: u32
+    - entity: mvr.glob_ambiguity.glob_user_shadowed.shadow_via_local.uses_local_shadow
+      returns: "@{mvr.glob_ambiguity.glob_user_shadowed.shadow_via_local.CollidingType}"
+    - entity: mvr.glob_ambiguity.glob_user_unused.non_colliding_use
+      returns: u32
+    - entity: mvr.glob_ambiguity.macro_glob_collision.distinct_macros_via_crate
+      returns: u32
+    - entity: mvr.glob_ambiguity.macro_glob_collision.macro_a_explicit
+      returns: u32
+    - entity: mvr.glob_ambiguity.macro_glob_collision.macro_b_explicit
+      returns: u32
+    - entity: mvr.glob_ambiguity.macro_glob_collision.macro_via_a
+      returns: u32
+    - entity: mvr.glob_ambiguity.prelude_glob_shadow.shadowed_prelude_via_glob
+      returns: "@{mvr.glob_ambiguity.source_a.Option}"
+    - entity: mvr.glob_ambiguity.prelude_glob_shadow.std_option_still_accessible_via_path
+      returns: "@{ext.core.option.Option}<u32>"
+    - entity: mvr.glob_ambiguity.prelude_interaction_alias.shadowed_prelude_alias
+      returns: "@{mvr.glob_ambiguity.source_a.CollidingType}"
+    - entity: mvr.glob_ambiguity.public_glob_exporter.exported_const_user
+      returns: u32
+    - entity: mvr.glob_ambiguity.source_a.COLLIDING_CONST
+      type: u32
+      value: "10"
+    - entity: mvr.glob_ambiguity.source_a.CollidingEnum
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.glob_ambiguity.source_a.CollidingEnum.VariantA
+      value: "0"
+    - entity: mvr.glob_ambiguity.source_a.CollidingEnum.VariantB
+      value: "1"
+    - entity: mvr.glob_ambiguity.source_a.CollidingType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.glob_ambiguity.source_a.CollidingType.v
+      type: u32
+    - entity: mvr.glob_ambiguity.source_a.Option
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.glob_ambiguity.source_a.Option.0
+      type: u32
+    - entity: mvr.glob_ambiguity.source_a.colliding_fn
+      returns: u32
+    - entity: mvr.glob_ambiguity.source_b.COLLIDING_CONST
+      type: u32
+      value: "20"
+    - entity: mvr.glob_ambiguity.source_b.CollidingEnum
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.glob_ambiguity.source_b.CollidingEnum.VariantA
+      value: "0"
+    - entity: mvr.glob_ambiguity.source_b.CollidingEnum.VariantB
+      value: "1"
+    - entity: mvr.glob_ambiguity.source_b.CollidingType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.glob_ambiguity.source_b.CollidingType.v
+      type: u32
+    - entity: mvr.glob_ambiguity.source_b.Option
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.glob_ambiguity.source_b.Option.0
+      type: u32
+    - entity: mvr.glob_ambiguity.source_b.colliding_fn
+      returns: u32
+    - entity: mvr.inline_root.inline_child.child_fn
+      returns: u32
+    - entity: mvr.inline_root.inline_child.inline_grandchild.value
+      returns: u32
+    - entity: mvr.inline_root.inline_fn
+      returns: u32
+    - entity: mvr.intra_doc_links.HiddenDemo
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.intra_doc_links.HiddenDemo.value
+      type: u32
+    - entity: mvr.intra_doc_links.LinkDemo
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.intra_doc_links.LinkDemo.linked_method
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: u32
+    - entity: mvr.intra_doc_links.LinkDemo.value
+      type: u32
+    - entity: mvr.intra_doc_links.LinkDemo.via_self_link
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: u32
+    - entity: mvr.intra_doc_links.cross_module_enum_link
+      returns: "@{mvr.glob_ambiguity.source_a.CollidingEnum}"
+    - entity: mvr.intra_doc_links.dependency_reexport_link
+      returns: "@{direct.DirectType}"
+    - entity: mvr.intra_doc_links.hidden_item_link
+      returns: u32
+    - entity: mvr.intra_doc_links.link_to_reexport
+      returns: "@{mvr.reexports.implementation.InternalType}"
+    - entity: mvr.intra_doc_links.namespace_disambiguated_links
+      returns: u32
+    - entity: mvr.intra_doc_links.self_item_link_demo
+      returns: u32
+    - entity: mvr.legacy_mod.LegacyType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.legacy_mod.LegacyType.v
+      type: u32
+    - entity: mvr.legacy_mod.inner.inner_fn
+      returns: u32
+    - entity: mvr.legacy_mod.legacy_fn
+      returns: u32
+    - entity: mvr.namespaces.Beta
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.namespaces.Beta.0
+      type: u32
+    - entity: mvr.namespaces.DEMO_VALUE
+      type: u32
+      value: "2"
+    - entity: mvr.namespaces.DemoDerive
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+      bases:
+        - {type: "@{ext.core.clone.Clone}"}
+        - {type: "@{ext.core.fmt.Debug}"}
+    - entity: mvr.namespaces.DemoDerive.x
+      type: u32
+    - entity: mvr.namespaces.Gamma
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.namespaces.Gamma.x
+      type: u32
+    - entity: mvr.namespaces.demo
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: "mvr.namespaces.demo#fn"
+      returns: u32
+    - entity: mvr.namespaces.demo.v
+      type: u32
+    - entity: mvr.namespaces.demo_allow_attr
+      returns: u32
+    - entity: mvr.namespaces.demo_inline_attr
+      returns: u32
+    - entity: mvr.namespaces.import_demo.uses_multi_namespace
+      returns: "(@{mvr.namespaces.Beta}, @{mvr.namespaces.Gamma})"
+    - entity: mvr.namespaces.label_namespace_demo
+      returns: u32
+    - entity: mvr.namespaces.lifetime_and_label_demo
+      type-parameters:
+        - {name: "'demo", kind: lifetime}
+      parameters:
+        - {name: input, type: "&'demo str"}
+      returns: "&'demo str"
+    - entity: mvr.namespaces.namespace_resolution_demo
+      returns: u32
+    - entity: mvr.path_roots.PathRootDemo
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+      bases:
+        - type: "@{mvr.path_roots.PathTrait}"
+          bindings:
+            - {name: Assoc, type: u32}
+    - entity: mvr.path_roots.PathRootDemo.associated_fn
+      returns: u32
+    - entity: mvr.path_roots.PathRootDemo.new
+      parameters:
+        - {name: v, type: u32}
+      returns: "@{mvr.path_roots.PathRootDemo}"
+    - entity: mvr.path_roots.PathRootDemo.value
+      type: u32
+    - entity: mvr.path_roots.PathRootDemo.via_self
+      parameters:
+        - {name: v, type: u32}
+      returns: "@{mvr.path_roots.PathRootDemo}"
+    - entity: mvr.path_roots.PathRootDemo.via_self_associated
+      returns: u32
+    - entity: mvr.path_roots.PathTrait.trait_fn
+      returns: u32
+    - entity: mvr.path_roots.QualifiedAssocAlias
+      type: "<@{mvr.path_roots.PathRootDemo} as @{mvr.path_roots.PathTrait}>::@{mvr.path_roots.PathTrait.Assoc}"
+    - entity: mvr.path_roots.associated_type_demo
+      returns: "<@{mvr.path_roots.PathRootDemo} as @{mvr.path_roots.PathTrait}>::@{mvr.path_roots.PathTrait.Assoc}"
+    - entity: mvr.path_roots.extern_prelude_vs_local
+      returns: "(u32, u32)"
+    - entity: mvr.path_roots.fixture_direct.LocalShadow
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.path_roots.fixture_direct.LocalShadow.new
+      parameters:
+        - {name: v, type: u32}
+      returns: "@{mvr.path_roots.fixture_direct.LocalShadow}"
+    - entity: mvr.path_roots.fixture_direct.LocalShadow.v
+      type: u32
+    - entity: mvr.path_roots.fixture_direct.local_fn
+      returns: u32
+    - entity: mvr.path_roots.outer.inner.inner_fn
+      returns: u32
+    - entity: mvr.path_roots.outer.inner.via_crate
+      returns: u32
+    - entity: mvr.path_roots.outer.inner.via_self_path
+      returns: u32
+    - entity: mvr.path_roots.outer.inner.via_super
+      returns: u32
+    - entity: mvr.path_roots.outer.outer_fn
+      returns: u32
+    - entity: mvr.path_roots.outer.via_crate_direct
+      returns: u32
+    - entity: mvr.path_roots.qualified_path_demo
+      returns: u32
+    - entity: mvr.path_roots.self_constructor_demo
+      returns: "@{mvr.path_roots.PathRootDemo}"
+    - entity: mvr.path_roots.uses_qualified_assoc
+      parameters:
+        - {name: alias, type: "@{mvr.path_roots.QualifiedAssocAlias}"}
+      returns: "@{mvr.path_roots.QualifiedAssocAlias}"
+    - entity: mvr.preludes.PreludeDemo
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.preludes.PreludeDemo.items
+      type: "@{ext.alloc.vec.Vec}<u32>"
+    - entity: mvr.preludes.PreludeDemo.maybe
+      type: "@{ext.core.option.Option}<u32>"
+    - entity: mvr.preludes.attribute_prelude_demo
+      returns: u32
+    - entity: mvr.preludes.core_prelude_demo.core_explicit_vs_prelude
+      returns: "(@{ext.core.option.Option}<u32>, @{ext.core.option.Option}<u32>)"
+    - entity: mvr.preludes.core_prelude_demo.core_option_via_prelude
+      returns: "@{ext.core.option.Option}<u32>"
+    - entity: mvr.preludes.core_prelude_demo.core_prelude_copy
+      type-parameters:
+        - {name: T, kind: type, bounds: "@{ext.core.marker.Copy}"}
+      parameters:
+        - {name: x, type: T}
+      returns: T
+    - entity: mvr.preludes.core_prelude_demo.explicit_core_prelude.via_explicit_core_prelude
+      parameters:
+        - {name: x, type: "@{ext.core.option.Option}<u32>"}
+      returns: "@{ext.core.option.Option}<u32>"
+    - entity: mvr.preludes.core_vs_std_paths
+      returns: "(@{ext.core.option.Option}<u32>, @{ext.core.option.Option}<u32>)"
+    - entity: mvr.preludes.edition_prelude_try_into
+      parameters:
+        - {name: x, type: u8}
+      returns: u16
+    - entity: mvr.preludes.extern_vs_std_prelude
+      returns: "@{direct.DirectType}"
+    - entity: mvr.preludes.no_prelude_mod.option_without_prelude
+      returns: "@{ext.core.option.Option}<u32>"
+    - entity: mvr.preludes.no_prelude_mod.without_prelude
+      returns: "@{ext.alloc.vec.Vec}<u32>"
+    - entity: mvr.preludes.prelude_trait_usage
+      parameters:
+        - {name: v, type: "@{ext.alloc.vec.Vec}<u32>"}
+      returns: usize
+    - entity: mvr.preludes.prelude_unqualified_types
+      returns: "(@{ext.alloc.vec.Vec}<u32>, @{ext.core.option.Option}<u32>, @{ext.alloc.string.String})"
+    - entity: mvr.preludes.shadow_demo.Vec
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.preludes.shadow_demo.Vec.shadowed
+      type: u32
+    - entity: mvr.preludes.shadow_demo.accesses_true_vec_via_alloc
+      returns: "@{ext.alloc.vec.Vec}<u32>"
+    - entity: mvr.preludes.shadow_demo.accesses_true_vec_via_std
+      returns: "@{ext.alloc.vec.Vec}<u32>"
+    - entity: mvr.preludes.shadow_demo.uses_shadowed
+      returns: "@{mvr.preludes.shadow_demo.Vec}"
+    - entity: mvr.preludes.static_lifetime_demo
+      parameters:
+        - {name: x, type: "&'static str"}
+      returns: "&'static str"
+    - entity: mvr.preludes.version_addition_is_some_and
+      parameters:
+        - {name: opt, type: "@{ext.core.option.Option}<u32>"}
+      returns: bool
+    - entity: mvr.raw_identifiers.Cafe
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.raw_identifiers.Cafe.deja_vu
+      type: u32
+    - entity: mvr.raw_identifiers.Cafe.naive_method
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: u32
+    - entity: mvr.raw_identifiers.WithKeywordField
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.raw_identifiers.WithKeywordField.async
+      type: u32
+    - entity: mvr.raw_identifiers.WithKeywordField.match
+      type: u32
+    - entity: mvr.raw_identifiers.cafe_normalized
+      returns: u32
+    - entity: mvr.raw_identifiers.call_raw_identifiers
+      returns: u32
+    - entity: mvr.raw_identifiers.confusable_demo
+      returns: u32
+    - entity: mvr.raw_identifiers.cross_edition_raw_field
+      returns: u32
+    - entity: mvr.raw_identifiers.gen
+      returns: u32
+    - entity: mvr.raw_identifiers.naive_cafe
+      returns: u32
+    - entity: mvr.raw_identifiers.normalization_equivalent_call
+      returns: u32
+    - entity: mvr.raw_identifiers.try
+      returns: u32
+    - entity: mvr.raw_identifiers.type
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.raw_identifiers.type.new
+      parameters:
+        - {name: v, type: u32}
+      returns: "@{mvr.raw_identifiers.type}"
+    - entity: mvr.raw_identifiers.type.value
+      type: u32
+    - entity: mvr.raw_identifiers.uncommon_codepoint_demo
+      returns: u32
+    - entity: mvr.raw_identifiers.unicode_identifier_demo
+      returns: u32
+    - entity: mvr.reexports.implementation.INTERNAL_CONST
+      type: u32
+      value: "700"
+    - entity: mvr.reexports.implementation.InternalTrait.method
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: u32
+    - entity: mvr.reexports.implementation.InternalType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+      bases:
+        - {type: "@{mvr.reexports.implementation.InternalTrait}"}
+    - entity: mvr.reexports.implementation.InternalType.new
+      parameters:
+        - {name: v, type: u32}
+      returns: "@{mvr.reexports.implementation.InternalType}"
+    - entity: mvr.reexports.implementation.InternalType.value
+      type: u32
+    - entity: mvr.reexports.implementation.internal_fn
+      returns: u32
+    - entity: mvr.reexports.reexport_identity_demo
+      returns: u32
+    - entity: mvr.scopes_shadowing.BodyLocalTrait.body_method
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: u32
+    - entity: mvr.scopes_shadowing.BodyLocalType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+      bases:
+        - {type: "@{mvr.scopes_shadowing.BodyLocalTrait}"}
+    - entity: mvr.scopes_shadowing.BodyLocalType.0
+      type: u32
+    - entity: mvr.scopes_shadowing.ForwardType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.scopes_shadowing.ForwardType.uses_later_item
+      returns: u32
+    - entity: mvr.scopes_shadowing.body_local_impl_visible_outside
+      returns: u32
+    - entity: mvr.scopes_shadowing.body_local_import_leakage
+      returns: u32
+    - entity: mvr.scopes_shadowing.forward_caller
+      returns: u32
+    - entity: mvr.scopes_shadowing.forward_declared_fn
+      returns: u32
+    - entity: mvr.scopes_shadowing.generic_and_label_scope
+      returns: u32
+    - entity: mvr.scopes_shadowing.guard_scope_demo
+      parameters:
+        - {name: opt, type: "@{ext.core.option.Option}<u32>"}
+      returns: u32
+    - entity: mvr.scopes_shadowing.later_const
+      returns: u32
+    - entity: mvr.scopes_shadowing.nested_items_vs_closure
+      returns: u32
+    - entity: mvr.scopes_shadowing.shadowing_block
+      returns: u32
+    - entity: mvr.scopes_shadowing.shadowing_demo
+      returns: u32
+    - entity: mvr.shared_first.SHARED_CONST
+      type: u32
+      value: "100"
+    - entity: mvr.shared_first.SharedMarker
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.shared_first.SharedMarker.describe
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: "&'static str"
+    - entity: mvr.shared_first.SharedMarker.id
+      type: u32
+    - entity: mvr.shared_first.SharedMarker.new
+      parameters:
+        - {name: id, type: u32}
+      returns: "@{mvr.shared_first.SharedMarker}"
+    - entity: mvr.shared_first.shared_fn
+      returns: u32
+    - entity: mvr.shared_second.SHARED_CONST
+      type: u32
+      value: "100"
+    - entity: mvr.shared_second.SharedMarker
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.shared_second.SharedMarker.describe
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: "&'static str"
+    - entity: mvr.shared_second.SharedMarker.id
+      type: u32
+    - entity: mvr.shared_second.SharedMarker.new
+      parameters:
+        - {name: id, type: u32}
+      returns: "@{mvr.shared_second.SharedMarker}"
+    - entity: mvr.shared_second.shared_fn
+      returns: u32
+    - entity: mvr.shared_via_include.SHARED_CONST
+      type: u32
+      value: "100"
+    - entity: mvr.shared_via_include.SharedMarker
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.shared_via_include.SharedMarker.describe
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: "&'static str"
+    - entity: mvr.shared_via_include.SharedMarker.id
+      type: u32
+    - entity: mvr.shared_via_include.SharedMarker.new
+      parameters:
+        - {name: id, type: u32}
+      returns: "@{mvr.shared_via_include.SharedMarker}"
+    - entity: mvr.shared_via_include.shared_fn
+      returns: u32
+    - entity: mvr.standalone_file.StandaloneType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.standalone_file.StandaloneType.v
+      type: u32
+    - entity: mvr.standalone_file.from_inline_child.inner
+      returns: u32
+    - entity: mvr.standalone_file.inner_child.ChildType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.standalone_file.inner_child.ChildType.x
+      type: u32
+    - entity: mvr.standalone_file.inner_child.child_fn
+      returns: u32
+    - entity: mvr.standalone_file.standalone_fn
+      returns: u32
+    - entity: mvr.use_forms.importer.child.child_needs_own_import
+      returns: "@{mvr.use_forms.source.SourceType}"
+    - entity: mvr.use_forms.importer.child.child_underscore_not_inherited
+      returns: u32
+    - entity: mvr.use_forms.importer.demonstrate_all_forms
+      returns: u32
+    - entity: mvr.use_forms.importer.forward_declared_fn
+      returns: u32
+    - entity: mvr.use_forms.importer.underscore_macro_demo.uses_underscore_macros
+      returns: u32
+    - entity: mvr.use_forms.importer.uses_forward_import
+      returns: u32
+    - entity: mvr.use_forms.source.SOURCE_CONST
+      type: u32
+      value: "10"
+    - entity: mvr.use_forms.source.SourceTrait.trait_method
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: u32
+    - entity: mvr.use_forms.source.SourceType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+      bases:
+        - {type: "@{mvr.use_forms.source.SourceTrait}"}
+    - entity: mvr.use_forms.source.SourceType.inherent_method
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: u32
+    - entity: mvr.use_forms.source.SourceType.v
+      type: u32
+    - entity: mvr.use_forms.source.TupleSource
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+      bases:
+        - {type: "@{mvr.use_forms.source.SourceTrait}"}
+    - entity: mvr.use_forms.source.TupleSource.0
+      type: u32
+    - entity: mvr.use_forms.source.source_fn
+      returns: u32
+    - entity: mvr.use_forms.use_forms_summary
+      returns: u32
+    - entity: mvr.visibility_fields.InherentDemo
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.visibility_fields.InherentDemo.calls_private
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: u32
+    - entity: mvr.visibility_fields.InherentDemo.public_method
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: u32
+    - entity: mvr.visibility_fields.InherentDemo.v
+      type: u32
+    - entity: mvr.visibility_fields.MixedStruct
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+      bases:
+        - {type: "@{mvr.visibility_fields.VisibleTrait}"}
+    - entity: mvr.visibility_fields.MixedStruct.new
+      parameters:
+        - {name: public, type: u32}
+        - {name: crate_f, type: u32}
+      returns: "@{mvr.visibility_fields.MixedStruct}"
+    - entity: mvr.visibility_fields.MixedStruct.new_with_private
+      parameters:
+        - {name: public, type: u32}
+        - {name: crate_f, type: u32}
+        - {name: private, type: u32}
+      returns: "@{mvr.visibility_fields.MixedStruct}"
+    - entity: mvr.visibility_fields.MixedStruct.public_field
+      type: u32
+    - entity: mvr.visibility_fields.MixedStruct.read_private
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: u32
+    - entity: mvr.visibility_fields.NonExhaustiveEnum
+      modifiers: [non_exhaustive]
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.visibility_fields.NonExhaustiveEnum.Hidden.0
+      type: u32
+    - entity: mvr.visibility_fields.NonExhaustiveEnum.Known.0
+      type: u32
+    - entity: mvr.visibility_fields.PublicEnum
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.visibility_fields.PublicEnum.PrivatePayloadVariant.0
+      type: u32
+    - entity: mvr.visibility_fields.PublicEnum.PublicVariant.0
+      type: u32
+    - entity: mvr.visibility_fields.PublicEnum.StructVariant.x
+      type: u32
+    - entity: mvr.visibility_fields.PublicEnum.StructVariant.y
+      type: u32
+    - entity: mvr.visibility_fields.TupleMixed
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.visibility_fields.TupleMixed.0
+      type: u32
+    - entity: mvr.visibility_fields.TupleMixed.constructible_via_new
+      returns: "@{mvr.visibility_fields.TupleMixed}"
+    - entity: mvr.visibility_fields.TupleMixed.new
+      parameters:
+        - {name: a, type: u32}
+        - {name: b, type: u32}
+        - {name: c, type: u32}
+      returns: "@{mvr.visibility_fields.TupleMixed}"
+    - entity: mvr.visibility_fields.TupleMixed.values
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: "(u32, u32, u32)"
+    - entity: mvr.visibility_fields.VisibleTrait.default_method
+      modifiers: [provided]
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: u32
+    - entity: mvr.visibility_fields.VisibleTrait.visible_method
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: u32
+    - entity: mvr.visibility_fields.cross_crate_construction_demo
+      returns: "@{mvr.visibility_fields.MixedStruct}"
+    - entity: mvr.visibility_fields.tuple_constructor_in_crate
+      returns: "@{mvr.visibility_fields.TupleMixed}"
+    - entity: mvr.visibility_fields.use_struct_literal_within_crate
+      returns: "@{mvr.visibility_fields.MixedStruct}"
+    - entity: mvr.visibility_restricted.PubInModuleVisible
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.visibility_restricted.PubInModuleVisible.inner
+      type: u32
+    - entity: mvr.visibility_restricted.PubInRestrictedMod
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.visibility_restricted.PubInRestrictedMod.inner
+      type: u32
+    - entity: mvr.visibility_restricted.PublicItem
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.visibility_restricted.PublicItem.value
+      type: u32
+    - entity: mvr.visibility_restricted.VisibilityDemo
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.visibility_restricted.VisibilityDemo.new
+      returns: "@{mvr.visibility_restricted.VisibilityDemo}"
+    - entity: mvr.visibility_restricted.VisibilityDemo.public_field
+      type: u32
+    - entity: mvr.visibility_restricted.VisibilityDemo.read_private
+      parameters:
+        - {name: self, mode: self-ref}
+      returns: u32
+    - entity: mvr.visibility_restricted.child_access_demo
+      returns: u32
+    - entity: mvr.visibility_restricted.effective_visibility_demo
+      returns: "@{mvr.visibility_restricted.private_container.CappedPublic}"
+    - entity: mvr.visibility_restricted.inner_mod.child.child_can_access_pub_in_parent
+      returns: "@{mvr.visibility_restricted.inner_mod.PubInModuleVisible}"
+    - entity: mvr.visibility_restricted.inner_mod.child.child_can_access_super
+      returns: "@{mvr.visibility_restricted.SuperVisible}"
+    - entity: mvr.visibility_restricted.inner_mod.inner_user
+      returns: "@{mvr.visibility_restricted.PubInRestricted}"
+    - entity: mvr.visibility_restricted.inner_mod.make_visible
+      returns: "@{mvr.visibility_restricted.inner_mod.PubInModuleVisible}"
+    - entity: mvr.visibility_restricted.inner_mod.parent_accesses_child_super
+      returns: u32
+    - entity: mvr.visibility_restricted.parent_accesses_super
+      returns: "@{mvr.visibility_restricted.SuperVisible}"
+    - entity: mvr.visibility_restricted.private_container.CappedPublic
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: mvr.visibility_restricted.private_container.CappedPublic.v
+      type: u32
+    - entity: mvr.visibility_restricted.same_crate_can_access_pub_in
+      returns: "@{mvr.visibility_restricted.PubInRestricted}"
+    - entity: mvr.visibility_restricted.sibling_access_demo
+      returns: u32
+    - entity: mvr.visibility_restricted.sibling_access_demo_via_crate
+      returns: "@{mvr.visibility_restricted.CrateVisible}"
+    - entity: mvr.visibility_restricted.sibling_b.sibling_accesses_crate_visible
+      returns: "@{mvr.visibility_restricted.sibling_a.SiblingCrateVisible}"
+    - entity: mvr.visibility_restricted.sibling_b.sibling_via_crate_path
+      returns: "@{mvr.visibility_restricted.CrateVisible}"
+    - entity: skew1.SKEW_CONST
+      type: u32
+      value: "1"
+    - entity: skew1.SkewType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: skew1.SkewType.new
+      returns: "@{skew1.SkewType}"
+    - entity: skew1.SkewType.version
+      type: "&'static str"
+    - entity: skew1.skew_version
+      returns: "&'static str"
+    - entity: skew2.SKEW_CONST
+      type: u32
+      value: "2"
+    - entity: skew2.SkewType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: skew2.SkewType.new
+      returns: "@{skew2.SkewType}"
+    - entity: skew2.SkewType.version
+      type: "&'static str"
+    - entity: skew2.skew_version
+      returns: "&'static str"
+    - entity: transitive.TransitiveType
+      auto-traits: [RefUnwindSafe, Send, Sync, Unpin, UnwindSafe]
+    - entity: transitive.TransitiveType.new
+      parameters:
+        - {name: v, type: u32}
+      returns: "@{transitive.TransitiveType}"
+    - entity: transitive.TransitiveType.value
+      type: u32
+    - entity: transitive.transitive_origin
+      returns: "&'static str"
 extensions:
   rust:reachable-unnameable:
     - {entity: mvr.visibility_restricted.PubInRestricted, distribution: mvr, via: ["mvr.visibility_restricted.inner_mod.inner_user", "mvr.visibility_restricted.same_crate_can_access_pub_in"]}
