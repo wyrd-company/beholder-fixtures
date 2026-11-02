@@ -9483,6 +9483,39 @@ public-api:
     entity: packages.exports-map.dist-types.bundle.d.mts#BundleMtsMarker.kind
     paths: ["import:@fixtures/exports-map/bundle#BundleMtsMarker.kind"]
     access: all
+  - {distribution: 'types-scope-name', entity: 'ambient.scope.name', paths: ['import:@scope/name', 'require:@scope/name'], access: all}
+  - {distribution: 'generated-platform-pkg', entity: 'generated.platform-generated.index.d.ts', paths: ['import:@fixtures/generated-platform-pkg', 'require:@fixtures/generated-platform-pkg'], access: all}
+  - {distribution: 'direct-dep', entity: 'local-packages.direct-dep.index.d.ts', paths: ['import:@fixtures/direct-dep', 'require:@fixtures/direct-dep'], access: all}
+  - {distribution: 'peer-dep', entity: 'local-packages.peer-dep.index.d.ts', paths: ['import:@fixtures/peer-dep', 'require:@fixtures/peer-dep'], access: all}
+  - {distribution: 'transitive-dep', entity: 'local-packages.transitive-dep.index.d.ts', paths: ['import:@fixtures/transitive-dep', 'require:@fixtures/transitive-dep'], access: all}
+  - {distribution: 'types-generic-ambient', entity: 'packages.atypes-generic-ambient.index.d.ts', paths: ['import:generic-ambient', 'require:generic-ambient'], access: all}
+  - {distribution: 'custom-conditions-dep', entity: 'packages.custom-conditions-dep.dist-types.index.d.ts', paths: ['import:@fixtures/custom-conditions-dep', 'require:@fixtures/custom-conditions-dep'], access: all, contexts: [bundler, declaration, default, emit-declaration-only, nodenext, platform, platform-browser-prod, platform-native, platform-server, skip-lib-check-off, skip-lib-check-on]}
+  - {distribution: 'custom-conditions-dep', entity: 'packages.custom-conditions-dep.dist-types.workspace.d.ts', paths: ['import:@fixtures/custom-conditions-dep', 'require:@fixtures/custom-conditions-dep'], access: all, contexts: [custom-conditions]}
+  - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.bundler.d.ts', paths: ['import:@fixtures/dual-pkg/bundler', 'require:@fixtures/dual-pkg/bundler'], access: all}
+  - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.index.d.cts', paths: ['require:@fixtures/dual-pkg'], access: all, contexts: [custom-conditions, declaration, default, emit-declaration-only, nodenext, platform, platform-browser-prod, platform-native, platform-server, skip-lib-check-off, skip-lib-check-on]}
+  - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.index.d.mts', paths: ['import:@fixtures/dual-pkg'], access: all}
+  - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.types-only.d.ts', paths: ['import:@fixtures/dual-pkg/types-only', 'require:@fixtures/dual-pkg/types-only'], access: all}
+  - {distribution: 'dual-pkg', entity: 'packages.dual-pkg.dist-types.utils.d.ts', paths: ['import:@fixtures/dual-pkg/utils', 'require:@fixtures/dual-pkg/utils'], access: all}
+  - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.bundle.d.mts', paths: ['import:@fixtures/exports-map/bundle'], access: all}
+  - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.feature.alpha.d.ts', paths: ['import:@fixtures/exports-map/feature/alpha', 'require:@fixtures/exports-map/feature/alpha'], access: all}
+  - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.index.v5.d.ts', paths: ['import:@fixtures/exports-map', 'require:@fixtures/exports-map'], access: all}
+  - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.utils.d.ts', paths: ['import:@fixtures/exports-map/utils', 'require:@fixtures/exports-map/utils'], access: all}
+  - {distribution: 'exports-map', entity: 'packages.exports-map.dist-types.utils.extra.d.ts', paths: ['import:@fixtures/exports-map/utils/extra', 'require:@fixtures/exports-map/utils/extra'], access: all}
+  - {distribution: 'legacy-fallback', entity: 'packages.legacy-fallback.dist.index.d.ts', paths: ['import:@fixtures/legacy-fallback', 'require:@fixtures/legacy-fallback'], access: all}
+  - {distribution: 'mismatch-pkg', entity: 'packages.mismatch-pkg.dist-types.index.d.ts', paths: ['import:@fixtures/mismatch-pkg', 'require:@fixtures/mismatch-pkg'], access: all}
+  - {distribution: 'platform-pkg', entity: 'packages.platform-pkg.dist-types.browser.d.ts', paths: ['import:@fixtures/platform-pkg/browser', 'require:@fixtures/platform-pkg/browser'], access: all}
+  - {distribution: 'platform-pkg', entity: 'packages.platform-pkg.dist-types.index.d.ts', paths: ['import:@fixtures/platform-pkg', 'require:@fixtures/platform-pkg'], access: all}
+  - {distribution: 'platform-pkg', entity: 'packages.platform-pkg.dist-types.native.d.ts', paths: ['import:@fixtures/platform-pkg/native', 'require:@fixtures/platform-pkg/native'], access: all}
+  - {distribution: 'platform-pkg', entity: 'packages.platform-pkg.dist-types.server.d.ts', paths: ['import:@fixtures/platform-pkg/server', 'require:@fixtures/platform-pkg/server'], access: all}
+  - {distribution: 'self-ref-pkg', entity: 'packages.self-ref-pkg.dist.feature.alpha.d.ts', paths: ['import:self-ref-pkg/feature/alpha', 'require:self-ref-pkg/feature/alpha'], access: all, contexts: [custom-conditions, declaration, default, emit-declaration-only, nodenext, platform, platform-browser-prod, platform-native, platform-server, skip-lib-check-off, skip-lib-check-on]}
+  - {distribution: 'sensitive-lib', entity: 'packages.sensitive-lib.index.d.ts', paths: ['import:@fixtures/sensitive-lib', 'require:@fixtures/sensitive-lib'], access: all}
+  - {distribution: 'typed-conventional', entity: 'packages.typed-conventional.index.d.ts', paths: ['import:@fixtures/typed-conventional', 'require:@fixtures/typed-conventional'], access: all}
+  - {distribution: 'typed-via-exports', entity: 'packages.typed-via-exports.dist-types.index.d.ts', paths: ['import:@fixtures/typed-via-exports', 'require:@fixtures/typed-via-exports'], access: all}
+  - {distribution: 'typed-via-typings', entity: 'packages.typed-via-typings.dist.index.d.ts', paths: ['import:@fixtures/typed-via-typings', 'require:@fixtures/typed-via-typings'], access: all}
+  - {distribution: 'types-versions-pkg', entity: 'packages.types-versions-pkg.dist-types.v5.index.d.ts', paths: ['import:@fixtures/types-versions-pkg', 'require:@fixtures/types-versions-pkg'], access: all}
+  - {distribution: 'workspace-a', entity: 'packages.workspace-a.dist.index.d.ts', paths: ['import:@fixtures/workspace-a', 'require:@fixtures/workspace-a'], access: all}
+  - {distribution: 'workspace-b', entity: 'packages.workspace-b.dist.index.d.ts', paths: ['import:@fixtures/workspace-b', 'require:@fixtures/workspace-b'], access: all}
+
 extensions:
   typescript:module-format:
     - unit: u.packages.atypes-generic-ambient.index.d.ts
