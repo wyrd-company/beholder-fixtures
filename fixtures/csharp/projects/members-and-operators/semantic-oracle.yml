@@ -4,14 +4,35 @@ project:
   language: csharp
   name: members-and-operators
 authoring:
-  notes: 'Facts derived from project source, the project files, the C# language specification and feature specifications, and the .NET SDK documentation. Contexts are the seven `dotnet build` commands of
-    the `build` task, each at `net10.0` in Release. `define-constants` is the DefineConstants list the compiler receives, after the SDK adds its implicit framework symbols, read with `dotnet msbuild -t:AddImplicitDefineConstants
-    -getProperty:DefineConstants` on a copy of the project under /tmp; `language-version` of a `LangVersion` `latest` project is 14.0, the version the .NET SDK 10.0.403 compiler resolves. A Roslyn compile
-    probe outside the tree confirmed that the reference assemblies define each external type in System.Runtime, the overload sets that external paths depend on, that `!=` on two delegates binds to the built-in
-    delegate comparison, and that an explicit interface implementation is private. Signatures were written from source and the specification before any compiler report was run. The Roslyn report found one
-    disagreement in the authored slots: Roslyn synthesizes a record struct''s Equals(object), ToString and PrintMembers nullable-oblivious, in source and in emitted metadata, where the record-structs specification
-    writes `object?`; a compile probe outside the tree confirmed it, and those slots state the oblivious annotation. The same author wrote the Roslyn report script, which is a limit on independence. No
-    indexer or language service was used.'
+  notes: 'Facts derived from project source, the project files, the C# language specification and feature specifications, and the .NET SDK documentation, under profile csharp/1 as settled after the C# pilot.
+    Rules followed, for review: (1) Contexts: the seven `dotnet build` commands of the `build` task, each `net10.0`, Release, `properties: [Configuration=Release]`, `release: 10.0.403`. (2) Units: one per
+    project; `assembly-version` 1.0.0.0, the SDK default for Version 1.0.0; `language-version` is LangVersion when it is a number (9.0, 11.0, 13.0) and 14.0 for `latest`, the version the 10.0.403 compiler
+    resolves; `define-constants` is the list the compiler receives after the SDK adds its implicit framework symbols, read with `dotnet msbuild -t:AddImplicitDefineConstants -getProperty:DefineConstants`
+    on a copy under /tmp. Every project is a library, so every unit is a distribution; `csharp:reference-alias` records the three ProjectReferences to Catalog.Core with alias `global`; framework references
+    are not listed. (3) Each unit''s root is its assembly, `kind: module`, `language-kind: assembly`, path `[<assembly name>]`, with no definition site or anchor; it is the `from` of every site outside
+    every namespace and type declaration (the top-level `using` directives and `[assembly:]` attribute), no entity''s parent and no public API member. (4) Definition sites: an identifier; `this` for an
+    indexer; the repeated type name for a constructor, static constructor and finalizer; the operator token for an operator (`+`, `==`, `true`, the `+` of `operator checked +`); `implicit` or `explicit`
+    for a conversion; the type name, shared with the type, for Coordinate''s primary constructor, whose parameters X and Y are entities. A delegate''s declared parameters are no entities; its synthetic
+    `.ctor`, `Invoke`, `BeginInvoke` and `EndInvoke` and their parameters are, anchored on the delegate''s name. (5) Synthetic entities: the default constructor of each class with no declared instance constructor
+    (none for static classes or for structs that declare one); RequiredRecord''s default and copy constructors, EqualityContract, Equals(object), Equals(RequiredRecord), GetHashCode, ToString, PrintMembers,
+    op_Equality and op_Inequality; Coordinate''s positional properties X and Y, Equals(object), Equals(Coordinate), GetHashCode, ToString, PrintMembers, Deconstruct, op_Equality and op_Inequality. (6) Paths:
+    an overloaded member appends its parameters'' metadata type paths separated by `,` with no space, such as `Worker.Transform(System.Int32,System.Int32)` and `PropertySurface.this[](System.String,System.Int32)`;
+    a member is overloaded when another entity of its type has the same member name. An explicit interface implementation is `<interface metadata type path with type arguments>.<member>`, such as `Vector2.Catalog.Core.Operators.IAdditive`1<Catalog.Core.Operators.Vector2>.op_Addition`.
+    External paths follow the same rule against the overload sets of the net10.0 reference assemblies, where every external here is defined in System.Runtime. (7) Visibility: defaults by the profile; a
+    static constructor and an explicit interface implementation are `private`, and the finalizer is `protected`, all with `explicit: false`; InternalsVisibleTo("FriendAccess") makes FriendAccess Catalog.Core''s
+    friend unit; a member of a private nested type is scoped to the type that contains the nested type. (8) References: every token that denotes an entity or external; predefined type keywords, `void` included,
+    are `type` references to their System externals (`string` in `string.Empty` is a `qualifier`); `this` and `base` constructor initializers are `call` references to the selected constructor; the `[` of
+    an element access that binds to an indexer is a reference by use (`base[index]` read, object-initializer `[2] = 5` write); a user-defined operator token is a `call`; a field-like event named inside
+    its class is the event; event `+=` and `-=` are `write`; the interface name in an explicit member name is `type`; the type qualifier of a static member access is `qualifier`. Not references: parameters,
+    locals, lambda parameters, pattern variables, discards, `var`, target-typed `new()`, `new T()`, delegate invocation through a local, predefined operators (including delegate `+` and `!=`, which a probe
+    showed bind to built-in operators), user-defined conversions and `operator true`/`false`, which have no token. (9) Relations: `inherits` and `implements` at the base-list token; a record''s IEquatable<T>
+    implementation has no token; `overrides` for each override and each implicit or explicit interface implementation, to the immediate overridden member (System.ValueType for structs, System.Object for
+    classes). (10) Signatures are written from source and the specification, with implied modifiers left out: a struct is not `sealed`, a member of a readonly struct is not `readonly`, a delegate''s synthetic
+    members have no modifiers; an interface member with no body is `abstract`; `volatile` is a field modifier. Synthetic slots are `{inferred}`. A record struct''s Equals(object), ToString and PrintMembers
+    are nullable-oblivious (`object~`, `string~`, `@{StringBuilder}~`) as the compiler emits them in metadata, which a compile probe outside the tree confirmed; a record class''s are annotated. A delegate''s
+    compiler-supplied parameters are oblivious. Signatures were written before any compiler report was run on this project. The Roslyn report''s first run disagreed on Coordinate''s Equals(object) and ToString
+    annotations, which settled the profile rule above, and found a report defect in a self-referencing generic constraint. The same author wrote the Roslyn report script, which limits independence. No indexer
+    or language service was used.'
   tools:
   - name: .NET SDK
     version: 10.0.403
@@ -267,7 +288,8 @@ units:
   kind: assembly
   name: Catalog.Core
   distribution: d.core
-  contexts: &id002 [core, friend-access, external-access, constants-consumer]
+  root: assembly.Catalog.Core
+  contexts: &id003 [core, friend-access, external-access, constants-consumer]
   assembly-version: 1.0.0.0
   project: src/Core/Core.csproj
   language-version: '14.0'
@@ -278,7 +300,8 @@ units:
   kind: assembly
   name: FriendAccess
   distribution: d.friend
-  contexts: &id004 [friend-access]
+  root: assembly.FriendAccess
+  contexts: &id005 [friend-access]
   assembly-version: 1.0.0.0
   project: src/FriendAccess/FriendAccess.csproj
   language-version: '14.0'
@@ -288,7 +311,8 @@ units:
   kind: assembly
   name: ExternalAccess
   distribution: d.external
-  contexts: &id005 [external-access]
+  root: assembly.ExternalAccess
+  contexts: &id006 [external-access]
   assembly-version: 1.0.0.0
   project: src/ExternalAccess/ExternalAccess.csproj
   language-version: '14.0'
@@ -298,7 +322,8 @@ units:
   kind: assembly
   name: ConstantsConsumer
   distribution: d.consumer
-  contexts: &id003 [constants-consumer]
+  root: assembly.ConstantsConsumer
+  contexts: &id004 [constants-consumer]
   assembly-version: 1.0.0.0
   project: src/ConstantsConsumer/ConstantsConsumer.csproj
   language-version: '14.0'
@@ -308,7 +333,8 @@ units:
   kind: assembly
   name: Catalog.CSharp9
   distribution: d.cs9
-  contexts: &id006 [csharp9]
+  root: assembly.Catalog.CSharp9
+  contexts: &id007 [csharp9]
   assembly-version: 1.0.0.0
   project: contexts/csharp9/CSharp9.csproj
   language-version: '9.0'
@@ -318,7 +344,8 @@ units:
   kind: assembly
   name: Catalog.CSharp11
   distribution: d.cs11
-  contexts: &id007 [csharp11]
+  root: assembly.Catalog.CSharp11
+  contexts: &id008 [csharp11]
   assembly-version: 1.0.0.0
   project: contexts/csharp11/CSharp11.csproj
   language-version: '11.0'
@@ -328,13 +355,101 @@ units:
   kind: assembly
   name: Catalog.CSharp13
   distribution: d.cs13
-  contexts: &id008 [csharp13]
+  root: assembly.Catalog.CSharp13
+  contexts: &id009 [csharp13]
   assembly-version: 1.0.0.0
   project: contexts/csharp13/CSharp13.csproj
   language-version: '13.0'
   define-constants: *id001
   target-framework: net10.0
 entities:
+- id: assembly.Catalog.Core
+  kind: module
+  language-kind: assembly
+  name: Catalog.Core
+  path: '[Catalog.Core]'
+  unit: u.core
+  origin: source
+  definitions: []
+  declared-visibility:
+    value: public
+    explicit: false
+  effective-visibility: &id002
+    unit: all
+    project: all
+    external: all
+- id: assembly.FriendAccess
+  kind: module
+  language-kind: assembly
+  name: FriendAccess
+  path: '[FriendAccess]'
+  unit: u.friend
+  origin: source
+  definitions: []
+  declared-visibility:
+    value: public
+    explicit: false
+  effective-visibility: *id002
+- id: assembly.ExternalAccess
+  kind: module
+  language-kind: assembly
+  name: ExternalAccess
+  path: '[ExternalAccess]'
+  unit: u.external
+  origin: source
+  definitions: []
+  declared-visibility:
+    value: public
+    explicit: false
+  effective-visibility: *id002
+- id: assembly.ConstantsConsumer
+  kind: module
+  language-kind: assembly
+  name: ConstantsConsumer
+  path: '[ConstantsConsumer]'
+  unit: u.consumer
+  origin: source
+  definitions: []
+  declared-visibility:
+    value: public
+    explicit: false
+  effective-visibility: *id002
+- id: assembly.Catalog.CSharp9
+  kind: module
+  language-kind: assembly
+  name: Catalog.CSharp9
+  path: '[Catalog.CSharp9]'
+  unit: u.cs9
+  origin: source
+  definitions: []
+  declared-visibility:
+    value: public
+    explicit: false
+  effective-visibility: *id002
+- id: assembly.Catalog.CSharp11
+  kind: module
+  language-kind: assembly
+  name: Catalog.CSharp11
+  path: '[Catalog.CSharp11]'
+  unit: u.cs11
+  origin: source
+  definitions: []
+  declared-visibility:
+    value: public
+    explicit: false
+  effective-visibility: *id002
+- id: assembly.Catalog.CSharp13
+  kind: module
+  language-kind: assembly
+  name: Catalog.CSharp13
+  path: '[Catalog.CSharp13]'
+  unit: u.cs13
+  origin: source
+  definitions: []
+  declared-visibility:
+    value: public
+    explicit: false
+  effective-visibility: *id002
 - id: Catalog
   kind: namespace
   language-kind: namespace
@@ -344,50 +459,47 @@ entities:
   origin: source
   definitions:
   - at: {path: src/Core/Events/EventSurface.cs, start: [1, 11], end: [1, 18], text: Catalog}
-    contexts: *id002
-  - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [1, 11], end: [1, 18], text: Catalog}
-    contexts: *id002
-  - at: {path: src/Core/Operators/UserOperators.cs, start: [1, 11], end: [1, 18], text: Catalog}
-    contexts: *id002
-  - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [1, 11], end: [1, 18], text: Catalog}
-    contexts: *id002
-  - at: {path: src/Core/Fields/FieldContracts.cs, start: [1, 11], end: [1, 18], text: Catalog}
-    contexts: *id002
-  - at: {path: src/Core/Fields/PartialInitializer.cs, start: [1, 11], end: [1, 18], text: Catalog}
-    contexts: *id002
-  - at: {path: src/Core/Fields/PartialInitializer.InitializerPart.cs, start: [1, 11], end: [1, 18], text: Catalog}
-    contexts: *id002
-  - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [1, 11], end: [1, 18], text: Catalog}
-    contexts: *id002
-  - at: {path: src/Core/Properties/PropertySurface.cs, start: [1, 11], end: [1, 18], text: Catalog}
-    contexts: *id002
-  - at: {path: src/ConstantsConsumer/ConstantReader.cs, start: [3, 11], end: [3, 18], text: Catalog}
     contexts: *id003
+  - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [1, 11], end: [1, 18], text: Catalog}
+    contexts: *id003
+  - at: {path: src/Core/Operators/UserOperators.cs, start: [1, 11], end: [1, 18], text: Catalog}
+    contexts: *id003
+  - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [1, 11], end: [1, 18], text: Catalog}
+    contexts: *id003
+  - at: {path: src/Core/Fields/FieldContracts.cs, start: [1, 11], end: [1, 18], text: Catalog}
+    contexts: *id003
+  - at: {path: src/Core/Fields/PartialInitializer.cs, start: [1, 11], end: [1, 18], text: Catalog}
+    contexts: *id003
+  - at: {path: src/Core/Fields/PartialInitializer.InitializerPart.cs, start: [1, 11], end: [1, 18], text: Catalog}
+    contexts: *id003
+  - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [1, 11], end: [1, 18], text: Catalog}
+    contexts: *id003
+  - at: {path: src/Core/Properties/PropertySurface.cs, start: [1, 11], end: [1, 18], text: Catalog}
+    contexts: *id003
+  - at: {path: src/ConstantsConsumer/ConstantReader.cs, start: [3, 11], end: [3, 18], text: Catalog}
+    contexts: *id004
   - at: {path: src/FriendAccess/FriendDerivedAccess.cs, start: [3, 11], end: [3, 18], text: Catalog}
-    contexts: *id004
+    contexts: *id005
   - at: {path: src/FriendAccess/FriendVisibility.cs, start: [3, 11], end: [3, 18], text: Catalog}
-    contexts: *id004
+    contexts: *id005
   - at: {path: src/ExternalAccess/ExternalDerivedAccess.cs, start: [3, 11], end: [3, 18], text: Catalog}
-    contexts: *id005
-  - at: {path: src/ExternalAccess/ExternalVisibility.cs, start: [3, 11], end: [3, 18], text: Catalog}
-    contexts: *id005
-  - at: {path: contexts/csharp9/InitOnlyMembers.cs, start: [1, 11], end: [1, 18], text: Catalog}
     contexts: *id006
+  - at: {path: src/ExternalAccess/ExternalVisibility.cs, start: [3, 11], end: [3, 18], text: Catalog}
+    contexts: *id006
+  - at: {path: contexts/csharp9/InitOnlyMembers.cs, start: [1, 11], end: [1, 18], text: Catalog}
+    contexts: *id007
   - at: {path: contexts/csharp11/CheckedOperators.cs, start: [1, 11], end: [1, 18], text: Catalog}
-    contexts: *id007
+    contexts: *id008
   - at: {path: contexts/csharp11/RequiredContracts.cs, start: [3, 11], end: [3, 18], text: Catalog}
-    contexts: *id007
+    contexts: *id008
   - at: {path: contexts/csharp13/PartialIndexerHost.cs, start: [1, 11], end: [1, 18], text: Catalog}
-    contexts: *id008
+    contexts: *id009
   - at: {path: contexts/csharp13/PartialIndexerHost.Implementation.cs, start: [1, 11], end: [1, 18], text: Catalog}
-    contexts: *id008
+    contexts: *id009
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: &id009
-    unit: all
-    project: all
-    external: all
+  effective-visibility: *id002
 - id: Catalog.Core
   kind: namespace
   language-kind: namespace
@@ -408,7 +520,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog
 - id: Catalog.Core.Events
   kind: namespace
@@ -422,7 +534,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog.Core
 - id: Catalog.Core.Events.INotifier
   kind: type
@@ -437,7 +549,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.INotifier.Changed
   kind: property
   language-kind: event
@@ -451,7 +563,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.NoticeSink
   kind: type
   language-kind: class
@@ -465,7 +577,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.NoticeSink..ctor
   kind: callable
   language-kind: constructor
@@ -479,7 +591,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.NoticeSink.Record
   kind: callable
   language-kind: method
@@ -493,7 +605,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.NoticeSink.Record.message
   kind: parameter
   language-kind: param
@@ -517,7 +629,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.EventSurface..ctor
   kind: callable
   language-kind: constructor
@@ -531,7 +643,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.EventSurface.Changed
   kind: property
   language-kind: event
@@ -545,7 +657,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.EventSurface.GlobalTick
   kind: property
   language-kind: event
@@ -559,7 +671,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.EventSurface.Transformed
   kind: property
   language-kind: event
@@ -573,7 +685,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.EventSurface._transformed
   kind: property
   language-kind: event
@@ -625,7 +737,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.EventSurface.RaiseChanged.message
   kind: parameter
   language-kind: param
@@ -649,7 +761,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.EventSurface.SubscribeAndUnsubscribe.surface
   kind: parameter
   language-kind: param
@@ -712,7 +824,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.EventSurface.RaiseGlobalTick.value
   kind: parameter
   language-kind: param
@@ -766,7 +878,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.DerivedEventSurface..ctor
   kind: callable
   language-kind: constructor
@@ -780,7 +892,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.DerivedEventSurface.Transformed
   kind: property
   language-kind: event
@@ -794,7 +906,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.CustomEventHost
   kind: type
   language-kind: class
@@ -808,7 +920,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.CustomEventHost..ctor
   kind: callable
   language-kind: constructor
@@ -822,7 +934,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.CustomEventHost._handlers
   kind: field
   language-kind: field
@@ -855,7 +967,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.CustomEventHost.Publish
   kind: callable
   language-kind: method
@@ -869,7 +981,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Events.CustomEventHost.Publish.message
   kind: parameter
   language-kind: param
@@ -892,7 +1004,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog.Core
 - id: Catalog.Core.Accessibility.AccessModifiers
   kind: type
@@ -907,7 +1019,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.AccessModifiers..ctor
   kind: callable
   language-kind: constructor
@@ -921,7 +1033,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.AccessModifiers.PublicField
   kind: field
   language-kind: field
@@ -935,7 +1047,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.AccessModifiers.InternalField
   kind: field
   language-kind: field
@@ -1049,7 +1161,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.AccessModifiers.InternalProperty
   kind: property
   language-kind: property
@@ -1163,7 +1275,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.AccessModifiers.InternalMethod
   kind: callable
   language-kind: method
@@ -1277,7 +1389,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.DerivedAccessModifiers..ctor
   kind: callable
   language-kind: constructor
@@ -1291,7 +1403,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.DerivedAccessModifiers.UseProtected
   kind: callable
   language-kind: method
@@ -1305,7 +1417,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.DerivedAccessModifiers.UseProtectedInternal
   kind: callable
   language-kind: method
@@ -1319,7 +1431,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.DerivedAccessModifiers.UsePrivateProtected
   kind: callable
   language-kind: method
@@ -1333,7 +1445,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.NestedAccessHost
   kind: type
   language-kind: class
@@ -1347,7 +1459,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.NestedAccessHost..ctor
   kind: callable
   language-kind: constructor
@@ -1361,7 +1473,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.NestedAccessHost._hostValue
   kind: field
   language-kind: field
@@ -1394,7 +1506,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.NestedAccessHost.PublicNested
   kind: type
   language-kind: class
@@ -1408,7 +1520,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.NestedAccessHost.PublicNested..ctor
   kind: callable
   language-kind: constructor
@@ -1422,7 +1534,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.NestedAccessHost.PublicNested.TouchHost
   kind: callable
   language-kind: method
@@ -1436,7 +1548,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.NestedAccessHost.PublicNested.TouchHost.host
   kind: parameter
   language-kind: param
@@ -1588,7 +1700,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.SameAssemblyAccess.Demonstrate
   kind: callable
   language-kind: method
@@ -1641,7 +1753,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.LessAccessibleSignatureHost..ctor
   kind: callable
   language-kind: constructor
@@ -1655,7 +1767,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Accessibility.LessAccessibleSignatureHost._value
   kind: field
   language-kind: field
@@ -1688,7 +1800,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators
   kind: namespace
   language-kind: namespace
@@ -1701,7 +1813,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog.Core
 - id: Catalog.Core.Operators.Measure
   kind: type
@@ -1716,7 +1828,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure..ctor
   kind: callable
   language-kind: constructor
@@ -1730,7 +1842,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure..ctor.value
   kind: parameter
   language-kind: param
@@ -1754,7 +1866,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_Addition
   kind: callable
   language-kind: operator
@@ -1768,7 +1880,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_Addition.left
   kind: parameter
   language-kind: param
@@ -1802,7 +1914,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_Subtraction.left
   kind: parameter
   language-kind: param
@@ -1836,7 +1948,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_Equality.left
   kind: parameter
   language-kind: param
@@ -1870,7 +1982,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_Inequality.left
   kind: parameter
   language-kind: param
@@ -1904,7 +2016,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_LessThan.left
   kind: parameter
   language-kind: param
@@ -1938,7 +2050,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_GreaterThan.left
   kind: parameter
   language-kind: param
@@ -1972,7 +2084,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_LessThanOrEqual.left
   kind: parameter
   language-kind: param
@@ -2006,7 +2118,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_GreaterThanOrEqual.left
   kind: parameter
   language-kind: param
@@ -2040,7 +2152,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_Multiply.left
   kind: parameter
   language-kind: param
@@ -2074,7 +2186,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_True.value
   kind: parameter
   language-kind: param
@@ -2098,7 +2210,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_False.value
   kind: parameter
   language-kind: param
@@ -2122,7 +2234,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_Implicit.value
   kind: parameter
   language-kind: param
@@ -2146,7 +2258,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.op_Explicit.value
   kind: parameter
   language-kind: param
@@ -2170,7 +2282,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.CompareTo.other
   kind: parameter
   language-kind: param
@@ -2194,7 +2306,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.Equals#Catalog.Core.Operators.Measure.other
   kind: parameter
   language-kind: param
@@ -2218,7 +2330,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Measure.Equals#System.Object.obj
   kind: parameter
   language-kind: param
@@ -2242,7 +2354,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.SignedMeasure
   kind: type
   language-kind: struct
@@ -2256,7 +2368,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.SignedMeasure..ctor
   kind: callable
   language-kind: constructor
@@ -2270,7 +2382,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.SignedMeasure..ctor.value
   kind: parameter
   language-kind: param
@@ -2294,7 +2406,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.SignedMeasure.op_Addition
   kind: callable
   language-kind: operator
@@ -2308,7 +2420,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.SignedMeasure.op_Addition.left
   kind: parameter
   language-kind: param
@@ -2342,7 +2454,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.SignedMeasure.op_CheckedAddition.left
   kind: parameter
   language-kind: param
@@ -2376,7 +2488,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.NullableLiftedOperators.AddNullable
   kind: callable
   language-kind: method
@@ -2390,7 +2502,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.NullableLiftedOperators.AddNullable.left
   kind: parameter
   language-kind: param
@@ -2424,7 +2536,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.IAdditive-1.T
   kind: type-parameter
   language-kind: type-param
@@ -2448,7 +2560,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.IAdditive-1.op_Addition.left
   kind: parameter
   language-kind: param
@@ -2482,7 +2594,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Vector2..ctor
   kind: callable
   language-kind: constructor
@@ -2496,7 +2608,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Vector2..ctor.x
   kind: parameter
   language-kind: param
@@ -2530,7 +2642,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Vector2.Y
   kind: property
   language-kind: property
@@ -2544,7 +2656,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Vector2.op_Addition
   kind: callable
   language-kind: operator
@@ -2558,7 +2670,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.Vector2.op_Addition.left
   kind: parameter
   language-kind: param
@@ -2579,11 +2691,11 @@ entities:
   origin: source
   definitions:
   - at: {path: src/Core/Operators/UserOperators.cs, start: [87, 60], end: [87, 65], text: right}
-- id: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1.op_Addition
+- id: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition
   kind: callable
   language-kind: operator
   name: op_Addition
-  path: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive`1.op_Addition
+  path: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive`1<Catalog.Core.Operators.Vector2>.op_Addition
   unit: u.core
   parent: Catalog.Core.Operators.Vector2
   origin: source
@@ -2598,23 +2710,23 @@ entities:
       scope: [Catalog.Core.Operators.Vector2]
     project: none
     external: none
-- id: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1.op_Addition.left
+- id: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition.left
   kind: parameter
   language-kind: param
   name: left
-  path: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive`1.op_Addition.left
+  path: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive`1<Catalog.Core.Operators.Vector2>.op_Addition.left
   unit: u.core
-  parent: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1.op_Addition
+  parent: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition
   origin: source
   definitions:
   - at: {path: src/Core/Operators/UserOperators.cs, start: [90, 58], end: [90, 62], text: left}
-- id: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1.op_Addition.right
+- id: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition.right
   kind: parameter
   language-kind: param
   name: right
-  path: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive`1.op_Addition.right
+  path: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive`1<Catalog.Core.Operators.Vector2>.op_Addition.right
   unit: u.core
-  parent: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1.op_Addition
+  parent: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition
   origin: source
   definitions:
   - at: {path: src/Core/Operators/UserOperators.cs, start: [90, 72], end: [90, 77], text: right}
@@ -2631,7 +2743,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.OperatorExercise.Evaluate
   kind: callable
   language-kind: method
@@ -2645,7 +2757,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.OperatorExercise.Evaluate.left
   kind: parameter
   language-kind: param
@@ -2679,7 +2791,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Operators.OperatorExercise.IsTruthy.value
   kind: parameter
   language-kind: param
@@ -2702,7 +2814,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog.Core
 - id: Catalog.Core.Delegates.PairTransform
   kind: type
@@ -2717,7 +2829,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.PairTransform..ctor
   kind: callable
   language-kind: constructor
@@ -2731,7 +2843,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.PairTransform..ctor.object
   kind: parameter
   language-kind: param
@@ -2765,7 +2877,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.PairTransform.Invoke.left
   kind: parameter
   language-kind: param
@@ -2799,7 +2911,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.PairTransform.BeginInvoke.left
   kind: parameter
   language-kind: param
@@ -2853,7 +2965,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.PairTransform.EndInvoke.result
   kind: parameter
   language-kind: param
@@ -2877,7 +2989,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.NoticeHandler..ctor
   kind: callable
   language-kind: constructor
@@ -2891,7 +3003,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.NoticeHandler..ctor.object
   kind: parameter
   language-kind: param
@@ -2925,7 +3037,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.NoticeHandler.Invoke.message
   kind: parameter
   language-kind: param
@@ -2949,7 +3061,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.NoticeHandler.BeginInvoke.message
   kind: parameter
   language-kind: param
@@ -2993,7 +3105,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.NoticeHandler.EndInvoke.result
   kind: parameter
   language-kind: param
@@ -3017,7 +3129,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.SelfMap-1.T
   kind: type-parameter
   language-kind: type-param
@@ -3041,7 +3153,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.SelfMap-1..ctor.object
   kind: parameter
   language-kind: param
@@ -3075,7 +3187,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.SelfMap-1.Invoke.value
   kind: parameter
   language-kind: param
@@ -3099,7 +3211,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.SelfMap-1.BeginInvoke.value
   kind: parameter
   language-kind: param
@@ -3143,7 +3255,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.SelfMap-1.EndInvoke.result
   kind: parameter
   language-kind: param
@@ -3167,7 +3279,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.CovariantFactory-1.T
   kind: type-parameter
   language-kind: type-param
@@ -3191,7 +3303,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.CovariantFactory-1..ctor.object
   kind: parameter
   language-kind: param
@@ -3225,7 +3337,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.CovariantFactory-1.Invoke.seed
   kind: parameter
   language-kind: param
@@ -3249,7 +3361,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.CovariantFactory-1.BeginInvoke.seed
   kind: parameter
   language-kind: param
@@ -3293,7 +3405,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.CovariantFactory-1.EndInvoke.result
   kind: parameter
   language-kind: param
@@ -3317,7 +3429,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.ContravariantSink-1.T
   kind: type-parameter
   language-kind: type-param
@@ -3341,7 +3453,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.ContravariantSink-1..ctor.object
   kind: parameter
   language-kind: param
@@ -3375,7 +3487,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.ContravariantSink-1.Invoke.value
   kind: parameter
   language-kind: param
@@ -3399,7 +3511,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.ContravariantSink-1.BeginInvoke.value
   kind: parameter
   language-kind: param
@@ -3443,7 +3555,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.ContravariantSink-1.EndInvoke.result
   kind: parameter
   language-kind: param
@@ -3467,7 +3579,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.CallableIdentity.CombineAndInvoke
   kind: callable
   language-kind: method
@@ -3481,7 +3593,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.CallableIdentity.CombineAndInvoke.first
   kind: parameter
   language-kind: param
@@ -3535,7 +3647,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.CallableIdentity.BindTargets.worker
   kind: parameter
   language-kind: param
@@ -3569,7 +3681,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.CallableIdentity.CompareDelegateIdentity.worker
   kind: parameter
   language-kind: param
@@ -3593,7 +3705,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.CallableIdentity.RemoveLastMatchingSubsequence.first
   kind: parameter
   language-kind: param
@@ -3657,7 +3769,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.CallableIdentity.InvokeThrowingMulticast.safe
   kind: parameter
   language-kind: param
@@ -3711,7 +3823,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.CallableIdentity.SelectByTargetSignature.worker
   kind: parameter
   language-kind: param
@@ -3755,7 +3867,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.CallableIdentity.SelectStaticOverloadByTargetSignature.left
   kind: parameter
   language-kind: param
@@ -3818,7 +3930,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.Worker..ctor
   kind: callable
   language-kind: constructor
@@ -3832,7 +3944,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.Worker.RaiseNotice
   kind: callable
   language-kind: method
@@ -3846,7 +3958,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.Worker.RaiseNotice.message
   kind: parameter
   language-kind: param
@@ -3870,7 +3982,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.Worker.Apply.value
   kind: parameter
   language-kind: param
@@ -3894,7 +4006,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.Worker.Transform#System.Int32#System.Int32.left
   kind: parameter
   language-kind: param
@@ -3928,7 +4040,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.Worker.Transform#System.Int32.value
   kind: parameter
   language-kind: param
@@ -3952,7 +4064,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.Worker.Transform#System.String.message
   kind: parameter
   language-kind: param
@@ -3976,7 +4088,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.Worker.Scale#System.Int32#System.Int32.left
   kind: parameter
   language-kind: param
@@ -4010,7 +4122,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.Worker.Scale#System.Int32.value
   kind: parameter
   language-kind: param
@@ -4034,7 +4146,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.Worker.ThrowingTransform.left
   kind: parameter
   language-kind: param
@@ -4068,7 +4180,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.GridPoint.X
   kind: field
   language-kind: field
@@ -4082,7 +4194,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.GridPoint.Y
   kind: field
   language-kind: field
@@ -4096,7 +4208,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.GridPoint..ctor
   kind: callable
   language-kind: constructor
@@ -4110,7 +4222,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.GridPoint..ctor.x
   kind: parameter
   language-kind: param
@@ -4144,7 +4256,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.GridPoint.Signal.message
   kind: parameter
   language-kind: param
@@ -4168,7 +4280,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.AsyncReturningDelegateHost..ctor
   kind: callable
   language-kind: constructor
@@ -4182,7 +4294,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.AsyncReturningDelegateHost.AsyncCompute
   kind: type
   language-kind: delegate
@@ -4196,7 +4308,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.AsyncReturningDelegateHost.AsyncCompute..ctor
   kind: callable
   language-kind: constructor
@@ -4210,7 +4322,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.AsyncReturningDelegateHost.AsyncCompute..ctor.object
   kind: parameter
   language-kind: param
@@ -4244,7 +4356,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.AsyncReturningDelegateHost.AsyncCompute.Invoke.seed
   kind: parameter
   language-kind: param
@@ -4268,7 +4380,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.AsyncReturningDelegateHost.AsyncCompute.BeginInvoke.seed
   kind: parameter
   language-kind: param
@@ -4312,7 +4424,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.AsyncReturningDelegateHost.AsyncCompute.EndInvoke.result
   kind: parameter
   language-kind: param
@@ -4336,7 +4448,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Delegates.AsyncReturningDelegateHost.Run.compute
   kind: parameter
   language-kind: param
@@ -4371,7 +4483,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog.Core
 - id: Catalog.Core.Fields.SharedLimits
   kind: type
@@ -4386,7 +4498,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.SharedLimits.DefaultCapacity
   kind: constant
   language-kind: const
@@ -4400,7 +4512,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.SharedLimits.DefaultLabel
   kind: constant
   language-kind: const
@@ -4414,7 +4526,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.FieldContracts
   kind: type
   language-kind: class
@@ -4428,7 +4540,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.FieldContracts.TableWidth
   kind: constant
   language-kind: const
@@ -4442,7 +4554,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.FieldContracts.Epoch
   kind: field
   language-kind: field
@@ -4456,7 +4568,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.FieldContracts.InstanceSeed
   kind: field
   language-kind: field
@@ -4470,7 +4582,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.FieldContracts.RefreshCount
   kind: field
   language-kind: field
@@ -4484,7 +4596,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.FieldContracts.SharedCounter
   kind: field
   language-kind: field
@@ -4498,7 +4610,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.FieldContracts.MutableCount
   kind: field
   language-kind: field
@@ -4512,7 +4624,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.FieldContracts..cctor
   kind: callable
   language-kind: static-constructor
@@ -4545,7 +4657,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.FieldContracts..ctor.seed
   kind: parameter
   language-kind: param
@@ -4569,7 +4681,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.CircularPartnerA..ctor
   kind: callable
   language-kind: constructor
@@ -4583,7 +4695,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.CircularPartnerA.PartnerValue
   kind: field
   language-kind: field
@@ -4597,7 +4709,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.CircularPartnerB
   kind: type
   language-kind: class
@@ -4611,7 +4723,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.CircularPartnerB..ctor
   kind: callable
   language-kind: constructor
@@ -4625,7 +4737,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.CircularPartnerB.PartnerValue
   kind: field
   language-kind: field
@@ -4639,7 +4751,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.BeforeFieldInitContrast
   kind: type
   language-kind: class
@@ -4653,7 +4765,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.BeforeFieldInitContrast.EagerValue
   kind: field
   language-kind: field
@@ -4667,7 +4779,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.BeforeFieldInitContrast.CreateEager
   kind: callable
   language-kind: method
@@ -4700,7 +4812,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.BeforeFieldInitHolder..ctor
   kind: callable
   language-kind: constructor
@@ -4714,7 +4826,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.BeforeFieldInitHolder.LazyValue
   kind: field
   language-kind: field
@@ -4728,7 +4840,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.BeforeFieldInitHolder.CreateLazy
   kind: callable
   language-kind: method
@@ -4800,7 +4912,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.PartialInitializer..ctor
   kind: callable
   language-kind: constructor
@@ -4814,7 +4926,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.PartialInitializer.First
   kind: field
   language-kind: field
@@ -4828,7 +4940,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.PartialInitializer.CreateFirst
   kind: callable
   language-kind: method
@@ -4861,7 +4973,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Fields.PartialInitializer.CreateSecond
   kind: callable
   language-kind: method
@@ -4893,7 +5005,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog.Core
 - id: Catalog.Core.Constructors.InitializationOrder
   kind: type
@@ -4908,7 +5020,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.InitializationOrder._name
   kind: field
   language-kind: field
@@ -4960,7 +5072,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.InitializationOrder..ctor#
   kind: callable
   language-kind: constructor
@@ -4974,7 +5086,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.InitializationOrder..ctor#System.String
   kind: callable
   language-kind: constructor
@@ -4988,7 +5100,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.InitializationOrder..ctor#System.String.name
   kind: parameter
   language-kind: param
@@ -5080,7 +5192,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.ChainedInitialization..ctor#
   kind: callable
   language-kind: constructor
@@ -5094,7 +5206,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.ChainedInitialization..ctor#System.Int32
   kind: callable
   language-kind: constructor
@@ -5108,7 +5220,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.ChainedInitialization..ctor#System.Int32.seed
   kind: parameter
   language-kind: param
@@ -5132,7 +5244,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.StaticInitializationHost
   kind: type
   language-kind: class
@@ -5146,7 +5258,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.StaticInitializationHost.TableSize
   kind: field
   language-kind: field
@@ -5160,7 +5272,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.StaticInitializationHost..cctor
   kind: callable
   language-kind: static-constructor
@@ -5212,7 +5324,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.FinalizableResource._released
   kind: field
   language-kind: field
@@ -5245,7 +5357,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.FinalizableResource.Finalize
   kind: callable
   language-kind: finalizer
@@ -5279,7 +5391,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.Coordinate
   kind: type
   language-kind: record-struct
@@ -5293,7 +5405,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.Coordinate..ctor#System.Int32#System.Int32
   kind: callable
   language-kind: constructor
@@ -5307,7 +5419,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.Coordinate..ctor#System.Int32#System.Int32.X
   kind: parameter
   language-kind: param
@@ -5341,7 +5453,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.Coordinate..ctor#Catalog.Core.Constructors.Coordinate.other
   kind: parameter
   language-kind: param
@@ -5365,7 +5477,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.Coordinate.Y
   kind: property
   language-kind: property
@@ -5379,7 +5491,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.Coordinate.Equals#System.Object
   kind: callable
   language-kind: method
@@ -5393,7 +5505,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.Coordinate.Equals#System.Object.obj
   kind: parameter
   language-kind: param
@@ -5417,7 +5529,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.Coordinate.Equals#Catalog.Core.Constructors.Coordinate.other
   kind: parameter
   language-kind: param
@@ -5441,7 +5553,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.Coordinate.ToString
   kind: callable
   language-kind: method
@@ -5455,7 +5567,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.Coordinate.PrintMembers
   kind: callable
   language-kind: method
@@ -5498,7 +5610,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.Coordinate.Deconstruct.X
   kind: parameter
   language-kind: param
@@ -5519,6 +5631,74 @@ entities:
   origin: synthetic
   definitions: []
   anchor: *id036
+- id: Catalog.Core.Constructors.Coordinate.op_Equality
+  kind: callable
+  language-kind: operator
+  name: op_Equality
+  path: Catalog.Core.Constructors.Coordinate.op_Equality
+  unit: u.core
+  parent: Catalog.Core.Constructors.Coordinate
+  origin: synthetic
+  definitions: []
+  anchor: *id036
+  declared-visibility:
+    value: public
+    explicit: false
+  effective-visibility: *id002
+- id: Catalog.Core.Constructors.Coordinate.op_Equality.left
+  kind: parameter
+  language-kind: param
+  name: left
+  path: Catalog.Core.Constructors.Coordinate.op_Equality.left
+  unit: u.core
+  parent: Catalog.Core.Constructors.Coordinate.op_Equality
+  origin: synthetic
+  definitions: []
+  anchor: *id036
+- id: Catalog.Core.Constructors.Coordinate.op_Equality.right
+  kind: parameter
+  language-kind: param
+  name: right
+  path: Catalog.Core.Constructors.Coordinate.op_Equality.right
+  unit: u.core
+  parent: Catalog.Core.Constructors.Coordinate.op_Equality
+  origin: synthetic
+  definitions: []
+  anchor: *id036
+- id: Catalog.Core.Constructors.Coordinate.op_Inequality
+  kind: callable
+  language-kind: operator
+  name: op_Inequality
+  path: Catalog.Core.Constructors.Coordinate.op_Inequality
+  unit: u.core
+  parent: Catalog.Core.Constructors.Coordinate
+  origin: synthetic
+  definitions: []
+  anchor: *id036
+  declared-visibility:
+    value: public
+    explicit: false
+  effective-visibility: *id002
+- id: Catalog.Core.Constructors.Coordinate.op_Inequality.left
+  kind: parameter
+  language-kind: param
+  name: left
+  path: Catalog.Core.Constructors.Coordinate.op_Inequality.left
+  unit: u.core
+  parent: Catalog.Core.Constructors.Coordinate.op_Inequality
+  origin: synthetic
+  definitions: []
+  anchor: *id036
+- id: Catalog.Core.Constructors.Coordinate.op_Inequality.right
+  kind: parameter
+  language-kind: param
+  name: right
+  path: Catalog.Core.Constructors.Coordinate.op_Inequality.right
+  unit: u.core
+  parent: Catalog.Core.Constructors.Coordinate.op_Inequality
+  origin: synthetic
+  definitions: []
+  anchor: *id036
 - id: Catalog.Core.Constructors.ExplicitStruct
   kind: type
   language-kind: struct
@@ -5532,7 +5712,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.ExplicitStruct.Value
   kind: field
   language-kind: field
@@ -5546,7 +5726,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.ExplicitStruct..ctor
   kind: callable
   language-kind: constructor
@@ -5560,7 +5740,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.ExplicitStruct..ctor.value
   kind: parameter
   language-kind: param
@@ -5584,7 +5764,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.ExplicitStruct.Create.value
   kind: parameter
   language-kind: param
@@ -5608,7 +5788,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.BaseWithVirtual.Name
   kind: property
   language-kind: property
@@ -5682,7 +5862,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.VirtualFromBaseConstructor..ctor
   kind: callable
   language-kind: constructor
@@ -5696,7 +5876,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.VirtualFromBaseConstructor.Name
   kind: property
   language-kind: property
@@ -5730,7 +5910,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.PropertyInitializerHost..ctor
   kind: callable
   language-kind: constructor
@@ -5744,7 +5924,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.PropertyInitializerHost.Seed
   kind: property
   language-kind: property
@@ -5758,7 +5938,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.PropertyInitializerHost.CreateSeed
   kind: callable
   language-kind: method
@@ -5791,7 +5971,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.ThrowingInitializerHost..ctor
   kind: callable
   language-kind: constructor
@@ -5805,7 +5985,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.ThrowingInitializerHost._value
   kind: field
   language-kind: field
@@ -5838,7 +6018,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.ThrowingInitializerHost.ThrowOnInit
   kind: callable
   language-kind: method
@@ -5871,7 +6051,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.DefaultStructBypass.Value
   kind: field
   language-kind: field
@@ -5885,7 +6065,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.DefaultStructBypass..ctor
   kind: callable
   language-kind: constructor
@@ -5899,7 +6079,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.DefaultStructBypass..ctor.value
   kind: parameter
   language-kind: param
@@ -5923,7 +6103,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.CircularStaticA
   kind: type
   language-kind: class
@@ -5937,7 +6117,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.CircularStaticA..ctor
   kind: callable
   language-kind: constructor
@@ -5951,7 +6131,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.CircularStaticA.Value
   kind: field
   language-kind: field
@@ -5965,7 +6145,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.CircularStaticA.BaseSeed
   kind: property
   language-kind: property
@@ -5979,7 +6159,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.CircularStaticB
   kind: type
   language-kind: class
@@ -5993,7 +6173,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.CircularStaticB..ctor
   kind: callable
   language-kind: constructor
@@ -6007,7 +6187,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.CircularStaticB.Offset
   kind: field
   language-kind: field
@@ -6021,7 +6201,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Constructors.CircularStaticB.BaseSeed
   kind: property
   language-kind: property
@@ -6035,7 +6215,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties
   kind: namespace
   language-kind: namespace
@@ -6048,7 +6228,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog.Core
 - id: Catalog.Core.Properties.PropertySurface
   kind: type
@@ -6063,7 +6243,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.PropertySurface..ctor
   kind: callable
   language-kind: constructor
@@ -6077,7 +6257,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.PropertySurface._count
   kind: field
   language-kind: field
@@ -6129,7 +6309,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.PropertySurface.Label
   kind: property
   language-kind: property
@@ -6143,7 +6323,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.PropertySurface.Doubled
   kind: property
   language-kind: property
@@ -6157,7 +6337,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.PropertySurface.this#System.Int32
   kind: property
   language-kind: indexer
@@ -6170,7 +6350,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.PropertySurface.this#System.Int32.index
   kind: parameter
   language-kind: param
@@ -6193,7 +6373,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.PropertySurface.this#System.String#System.Int32.key
   kind: parameter
   language-kind: param
@@ -6227,7 +6407,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.DerivedPropertySurface
   kind: type
   language-kind: class
@@ -6241,7 +6421,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.DerivedPropertySurface..ctor
   kind: callable
   language-kind: constructor
@@ -6255,7 +6435,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.DerivedPropertySurface.Count
   kind: property
   language-kind: property
@@ -6269,7 +6449,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.DerivedPropertySurface.this
   kind: property
   language-kind: indexer
@@ -6282,7 +6462,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.DerivedPropertySurface.this.index
   kind: parameter
   language-kind: param
@@ -6306,7 +6486,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.IReadable.ReadableValue
   kind: property
   language-kind: property
@@ -6320,7 +6500,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.ExplicitPropertySurface
   kind: type
   language-kind: class
@@ -6334,7 +6514,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.ExplicitPropertySurface..ctor
   kind: callable
   language-kind: constructor
@@ -6348,7 +6528,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.ExplicitPropertySurface._value
   kind: field
   language-kind: field
@@ -6400,7 +6580,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.AccessorAttributedProperty
   kind: type
   language-kind: class
@@ -6414,7 +6594,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.AccessorAttributedProperty..ctor
   kind: callable
   language-kind: constructor
@@ -6428,7 +6608,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.AccessorAttributedProperty._value
   kind: field
   language-kind: field
@@ -6461,7 +6641,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.RenamedIndexerMetadata
   kind: type
   language-kind: class
@@ -6475,7 +6655,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.RenamedIndexerMetadata..ctor
   kind: callable
   language-kind: constructor
@@ -6489,7 +6669,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.RenamedIndexerMetadata.this
   kind: property
   language-kind: indexer
@@ -6502,7 +6682,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.Core.Properties.RenamedIndexerMetadata.this.shelf
   kind: parameter
   language-kind: param
@@ -6535,7 +6715,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog
 - id: Catalog.ConstantsConsumer.ConstantReader
   kind: type
@@ -6550,7 +6730,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.ConstantsConsumer.ConstantReader.ReadBakedConstants
   kind: callable
   language-kind: method
@@ -6564,7 +6744,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.FriendAccess
   kind: namespace
   language-kind: namespace
@@ -6578,7 +6758,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog
 - id: Catalog.FriendAccess.FriendDerivedAccess
   kind: type
@@ -6593,7 +6773,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.FriendAccess.FriendDerivedAccess..ctor
   kind: callable
   language-kind: constructor
@@ -6607,7 +6787,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.FriendAccess.FriendDerivedAccess.UseProtectedInternalUnion
   kind: callable
   language-kind: method
@@ -6621,7 +6801,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.FriendAccess.FriendVisibility
   kind: type
   language-kind: class
@@ -6635,7 +6815,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.FriendAccess.FriendVisibility.TouchInternal
   kind: callable
   language-kind: method
@@ -6713,7 +6893,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog
 - id: Catalog.ExternalAccess.ExternalDerivedAccess
   kind: type
@@ -6728,7 +6908,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.ExternalAccess.ExternalDerivedAccess..ctor
   kind: callable
   language-kind: constructor
@@ -6742,7 +6922,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.ExternalAccess.ExternalDerivedAccess.UseProtectedInternalUnion
   kind: callable
   language-kind: method
@@ -6756,7 +6936,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.ExternalAccess.ExternalVisibility
   kind: type
   language-kind: class
@@ -6770,7 +6950,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.ExternalAccess.ExternalVisibility.TouchPublicOnly
   kind: callable
   language-kind: method
@@ -6784,7 +6964,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.ExternalAccess.ExternalVisibility.TouchPublicOnly.target
   kind: parameter
   language-kind: param
@@ -6808,7 +6988,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.ExternalAccess.ExternalVisibility.DemonstrateEffectiveAccessibility.target
   kind: parameter
   language-kind: param
@@ -6831,7 +7011,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog
 - id: Catalog.CSharp9.InitOnlyMembers
   kind: type
@@ -6846,7 +7026,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp9.InitOnlyMembers..ctor
   kind: callable
   language-kind: constructor
@@ -6860,7 +7040,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp9.InitOnlyMembers.Count
   kind: property
   language-kind: property
@@ -6874,7 +7054,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp9.InitOnlyMembers.Label
   kind: property
   language-kind: property
@@ -6888,7 +7068,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp9.InitOnlyMembers.this
   kind: property
   language-kind: indexer
@@ -6901,7 +7081,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp9.InitOnlyMembers.this.index
   kind: parameter
   language-kind: param
@@ -6925,7 +7105,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp9.InitOnlyFactory.Create
   kind: callable
   language-kind: method
@@ -6939,7 +7119,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11
   kind: namespace
   language-kind: namespace
@@ -6953,7 +7133,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog
 - id: Catalog.CSharp11.CheckedMeasure
   kind: type
@@ -6968,7 +7148,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.CheckedMeasure..ctor
   kind: callable
   language-kind: constructor
@@ -6982,7 +7162,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.CheckedMeasure..ctor.value
   kind: parameter
   language-kind: param
@@ -7006,7 +7186,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.CheckedMeasure.op_Addition
   kind: callable
   language-kind: operator
@@ -7020,7 +7200,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.CheckedMeasure.op_Addition.left
   kind: parameter
   language-kind: param
@@ -7054,7 +7234,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.CheckedMeasure.op_CheckedAddition.left
   kind: parameter
   language-kind: param
@@ -7088,7 +7268,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.CheckedMeasure.op_Subtraction.left
   kind: parameter
   language-kind: param
@@ -7122,7 +7302,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.CheckedMeasure.op_CheckedSubtraction.left
   kind: parameter
   language-kind: param
@@ -7156,7 +7336,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.CheckedOperatorExercise.SumChecked
   kind: callable
   language-kind: method
@@ -7170,7 +7350,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.CheckedOperatorExercise.SumChecked.left
   kind: parameter
   language-kind: param
@@ -7204,7 +7384,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredBase..ctor
   kind: callable
   language-kind: constructor
@@ -7218,7 +7398,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredBase.Seed
   kind: property
   language-kind: property
@@ -7232,7 +7412,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredBase.Label
   kind: property
   language-kind: property
@@ -7246,7 +7426,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredDerived
   kind: type
   language-kind: class
@@ -7260,7 +7440,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredDerived..ctor
   kind: callable
   language-kind: constructor
@@ -7274,7 +7454,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredDerived.Offset
   kind: property
   language-kind: property
@@ -7288,7 +7468,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredRecord
   kind: type
   language-kind: record
@@ -7302,7 +7482,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredRecord.Count
   kind: property
   language-kind: property
@@ -7316,7 +7496,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredRecord.Name
   kind: property
   language-kind: property
@@ -7330,7 +7510,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredRecord..ctor#
   kind: callable
   language-kind: constructor
@@ -7344,7 +7524,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredRecord..ctor#Catalog.CSharp11.RequiredRecord
   kind: callable
   language-kind: constructor
@@ -7406,7 +7586,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredRecord.Equals#System.Object.obj
   kind: parameter
   language-kind: param
@@ -7430,7 +7610,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredRecord.Equals#Catalog.CSharp11.RequiredRecord.other
   kind: parameter
   language-kind: param
@@ -7454,7 +7634,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredRecord.ToString
   kind: callable
   language-kind: method
@@ -7468,7 +7648,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredRecord.PrintMembers
   kind: callable
   language-kind: method
@@ -7498,6 +7678,74 @@ entities:
   origin: synthetic
   definitions: []
   anchor: *id052
+- id: Catalog.CSharp11.RequiredRecord.op_Equality
+  kind: callable
+  language-kind: operator
+  name: op_Equality
+  path: Catalog.CSharp11.RequiredRecord.op_Equality
+  unit: u.cs11
+  parent: Catalog.CSharp11.RequiredRecord
+  origin: synthetic
+  definitions: []
+  anchor: *id052
+  declared-visibility:
+    value: public
+    explicit: false
+  effective-visibility: *id002
+- id: Catalog.CSharp11.RequiredRecord.op_Equality.left
+  kind: parameter
+  language-kind: param
+  name: left
+  path: Catalog.CSharp11.RequiredRecord.op_Equality.left
+  unit: u.cs11
+  parent: Catalog.CSharp11.RequiredRecord.op_Equality
+  origin: synthetic
+  definitions: []
+  anchor: *id052
+- id: Catalog.CSharp11.RequiredRecord.op_Equality.right
+  kind: parameter
+  language-kind: param
+  name: right
+  path: Catalog.CSharp11.RequiredRecord.op_Equality.right
+  unit: u.cs11
+  parent: Catalog.CSharp11.RequiredRecord.op_Equality
+  origin: synthetic
+  definitions: []
+  anchor: *id052
+- id: Catalog.CSharp11.RequiredRecord.op_Inequality
+  kind: callable
+  language-kind: operator
+  name: op_Inequality
+  path: Catalog.CSharp11.RequiredRecord.op_Inequality
+  unit: u.cs11
+  parent: Catalog.CSharp11.RequiredRecord
+  origin: synthetic
+  definitions: []
+  anchor: *id052
+  declared-visibility:
+    value: public
+    explicit: false
+  effective-visibility: *id002
+- id: Catalog.CSharp11.RequiredRecord.op_Inequality.left
+  kind: parameter
+  language-kind: param
+  name: left
+  path: Catalog.CSharp11.RequiredRecord.op_Inequality.left
+  unit: u.cs11
+  parent: Catalog.CSharp11.RequiredRecord.op_Inequality
+  origin: synthetic
+  definitions: []
+  anchor: *id052
+- id: Catalog.CSharp11.RequiredRecord.op_Inequality.right
+  kind: parameter
+  language-kind: param
+  name: right
+  path: Catalog.CSharp11.RequiredRecord.op_Inequality.right
+  unit: u.cs11
+  parent: Catalog.CSharp11.RequiredRecord.op_Inequality
+  origin: synthetic
+  definitions: []
+  anchor: *id052
 - id: Catalog.CSharp11.RequiredWithDefault
   kind: type
   language-kind: class
@@ -7511,7 +7759,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredWithDefault..ctor
   kind: callable
   language-kind: constructor
@@ -7525,7 +7773,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredWithDefault.Value
   kind: property
   language-kind: property
@@ -7539,7 +7787,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredLabelBase
   kind: type
   language-kind: class
@@ -7553,7 +7801,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredLabelBase..ctor
   kind: callable
   language-kind: constructor
@@ -7567,7 +7815,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredLabelBase.Caption
   kind: property
   language-kind: property
@@ -7581,7 +7829,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredHiddenMember
   kind: type
   language-kind: class
@@ -7595,7 +7843,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredHiddenMember..ctor
   kind: callable
   language-kind: constructor
@@ -7609,7 +7857,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredHiddenMember.Caption
   kind: property
   language-kind: property
@@ -7623,7 +7871,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredFieldHost
   kind: type
   language-kind: class
@@ -7637,7 +7885,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredFieldHost..ctor
   kind: callable
   language-kind: constructor
@@ -7651,7 +7899,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredFieldHost.RequiredField
   kind: field
   language-kind: field
@@ -7665,7 +7913,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredFieldHost.Label
   kind: property
   language-kind: property
@@ -7679,7 +7927,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredConstructorHost
   kind: type
   language-kind: class
@@ -7693,7 +7941,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredConstructorHost.Count
   kind: property
   language-kind: property
@@ -7707,7 +7955,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredConstructorHost.Name
   kind: property
   language-kind: property
@@ -7721,7 +7969,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredConstructorHost..ctor
   kind: callable
   language-kind: constructor
@@ -7735,7 +7983,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredConstructorHost..ctor.count
   kind: parameter
   language-kind: param
@@ -7769,7 +8017,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredFactory.Create
   kind: callable
   language-kind: method
@@ -7783,7 +8031,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredFactory.Copy
   kind: callable
   language-kind: method
@@ -7797,7 +8045,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.RequiredFactory.Copy.source
   kind: parameter
   language-kind: param
@@ -7821,7 +8069,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.GenericRequiredHost-1.T
   kind: type-parameter
   language-kind: type-param
@@ -7845,7 +8093,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.GenericRequiredHost-1.Payload
   kind: property
   language-kind: property
@@ -7859,7 +8107,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp11.GenericRequiredHost-1.CreateDefault
   kind: callable
   language-kind: method
@@ -7873,7 +8121,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp13
   kind: namespace
   language-kind: namespace
@@ -7887,7 +8135,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
   parent: Catalog
 - id: Catalog.CSharp13.PartialIndexerHost
   kind: type
@@ -7903,7 +8151,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp13.PartialIndexerHost..ctor
   kind: callable
   language-kind: constructor
@@ -7917,7 +8165,7 @@ entities:
   declared-visibility:
     value: public
     explicit: false
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp13.PartialIndexerHost._base
   kind: field
   language-kind: field
@@ -7950,7 +8198,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 - id: Catalog.CSharp13.PartialIndexerHost.this.index
   kind: parameter
   language-kind: param
@@ -7976,7 +8224,7 @@ entities:
   declared-visibility:
     value: public
     explicit: true
-  effective-visibility: *id009
+  effective-visibility: *id002
 externals:
 - id: ext.System
   kind: namespace
@@ -8198,6 +8446,11 @@ externals:
   language-kind: method
   distribution: System.Runtime
   path: System.ValueType.ToString
+- id: ext.System.Void
+  kind: type
+  language-kind: struct
+  distribution: System.Runtime
+  path: System.Void
 references:
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [5, 31], end: [5, 34], text: int}
   from: Catalog.CSharp11.CheckedMeasure..ctor
@@ -8328,15 +8581,15 @@ references:
   target: Catalog.CSharp11.CheckedMeasure.Value
   role: read
 - at: {path: contexts/csharp11/RequiredContracts.cs, start: [1, 7], end: [1, 13], text: System}
-  from: Catalog.CSharp11
+  from: assembly.Catalog.CSharp11
   target: ext.System
   role: qualifier
 - at: {path: contexts/csharp11/RequiredContracts.cs, start: [1, 14], end: [1, 25], text: Diagnostics}
-  from: Catalog.CSharp11
+  from: assembly.Catalog.CSharp11
   target: ext.System.Diagnostics
   role: qualifier
 - at: {path: contexts/csharp11/RequiredContracts.cs, start: [1, 26], end: [1, 38], text: CodeAnalysis}
-  from: Catalog.CSharp11
+  from: assembly.Catalog.CSharp11
   target: ext.System.Diagnostics.CodeAnalysis
   role: import
 - at: {path: contexts/csharp11/RequiredContracts.cs, start: [7, 25], end: [7, 28], text: int}
@@ -8539,16 +8792,20 @@ references:
   from: Catalog.CSharp9.InitOnlyFactory.Create
   target: Catalog.CSharp9.InitOnlyMembers.Label
   role: write
+- at: {path: contexts/csharp9/InitOnlyMembers.cs, start: [24, 17], end: [24, 18], text: '['}
+  from: Catalog.CSharp9.InitOnlyFactory.Create
+  target: Catalog.CSharp9.InitOnlyMembers.this
+  role: write
 - at: {path: src/ConstantsConsumer/ConstantReader.cs, start: [1, 7], end: [1, 14], text: Catalog}
-  from: Catalog.ConstantsConsumer
+  from: assembly.ConstantsConsumer
   target: Catalog
   role: qualifier
 - at: {path: src/ConstantsConsumer/ConstantReader.cs, start: [1, 15], end: [1, 19], text: Core}
-  from: Catalog.ConstantsConsumer
+  from: assembly.ConstantsConsumer
   target: Catalog.Core
   role: qualifier
 - at: {path: src/ConstantsConsumer/ConstantReader.cs, start: [1, 20], end: [1, 26], text: Fields}
-  from: Catalog.ConstantsConsumer
+  from: assembly.ConstantsConsumer
   target: Catalog.Core.Fields
   role: import
 - at: {path: src/ConstantsConsumer/ConstantReader.cs, start: [7, 19], end: [7, 22], text: int}
@@ -8619,26 +8876,50 @@ references:
   from: Catalog.Core.Accessibility.AccessModifiers.PrivateProtectedProperty
   target: ext.System.Int32
   role: type
+- at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [29, 12], end: [29, 16], text: void}
+  from: Catalog.Core.Accessibility.AccessModifiers.PublicMethod
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [29, 39], end: [29, 51], text: PrivateField}
   from: Catalog.Core.Accessibility.AccessModifiers.PublicMethod
   target: Catalog.Core.Accessibility.AccessModifiers.PrivateField
   role: read
+- at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [31, 14], end: [31, 18], text: void}
+  from: Catalog.Core.Accessibility.AccessModifiers.InternalMethod
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [31, 43], end: [31, 56], text: InternalField}
   from: Catalog.Core.Accessibility.AccessModifiers.InternalMethod
   target: Catalog.Core.Accessibility.AccessModifiers.InternalField
   role: read
+- at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [33, 15], end: [33, 19], text: void}
+  from: Catalog.Core.Accessibility.AccessModifiers.ProtectedMethod
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [33, 45], end: [33, 59], text: ProtectedField}
   from: Catalog.Core.Accessibility.AccessModifiers.ProtectedMethod
   target: Catalog.Core.Accessibility.AccessModifiers.ProtectedField
   role: read
+- at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [35, 13], end: [35, 17], text: void}
+  from: Catalog.Core.Accessibility.AccessModifiers.PrivateMethod
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [35, 41], end: [35, 53], text: PrivateField}
   from: Catalog.Core.Accessibility.AccessModifiers.PrivateMethod
   target: Catalog.Core.Accessibility.AccessModifiers.PrivateField
   role: read
+- at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [37, 24], end: [37, 28], text: void}
+  from: Catalog.Core.Accessibility.AccessModifiers.ProtectedInternalMethod
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [37, 62], end: [37, 84], text: ProtectedInternalField}
   from: Catalog.Core.Accessibility.AccessModifiers.ProtectedInternalMethod
   target: Catalog.Core.Accessibility.AccessModifiers.ProtectedInternalField
   role: read
+- at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [39, 23], end: [39, 27], text: void}
+  from: Catalog.Core.Accessibility.AccessModifiers.PrivateProtectedMethod
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [39, 60], end: [39, 81], text: PrivateProtectedField}
   from: Catalog.Core.Accessibility.AccessModifiers.PrivateProtectedMethod
   target: Catalog.Core.Accessibility.AccessModifiers.PrivateProtectedField
@@ -8647,14 +8928,26 @@ references:
   from: Catalog.Core.Accessibility.DerivedAccessModifiers
   target: Catalog.Core.Accessibility.AccessModifiers
   role: type
+- at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [44, 12], end: [44, 16], text: void}
+  from: Catalog.Core.Accessibility.DerivedAccessModifiers.UseProtected
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [44, 35], end: [44, 50], text: ProtectedMethod}
   from: Catalog.Core.Accessibility.DerivedAccessModifiers.UseProtected
   target: Catalog.Core.Accessibility.AccessModifiers.ProtectedMethod
   role: call
+- at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [46, 12], end: [46, 16], text: void}
+  from: Catalog.Core.Accessibility.DerivedAccessModifiers.UseProtectedInternal
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [46, 43], end: [46, 66], text: ProtectedInternalMethod}
   from: Catalog.Core.Accessibility.DerivedAccessModifiers.UseProtectedInternal
   target: Catalog.Core.Accessibility.AccessModifiers.ProtectedInternalMethod
   role: call
+- at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [48, 12], end: [48, 16], text: void}
+  from: Catalog.Core.Accessibility.DerivedAccessModifiers.UsePrivateProtected
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [48, 42], end: [48, 64], text: PrivateProtectedMethod}
   from: Catalog.Core.Accessibility.DerivedAccessModifiers.UsePrivateProtected
   target: Catalog.Core.Accessibility.AccessModifiers.PrivateProtectedMethod
@@ -8671,6 +8964,10 @@ references:
   from: Catalog.Core.Accessibility.NestedAccessHost.HostValue
   target: Catalog.Core.Accessibility.NestedAccessHost._hostValue
   role: read
+- at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [59, 16], end: [59, 20], text: void}
+  from: Catalog.Core.Accessibility.NestedAccessHost.PublicNested.TouchHost
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [59, 31], end: [59, 47], text: NestedAccessHost}
   from: Catalog.Core.Accessibility.NestedAccessHost.PublicNested.TouchHost
   target: Catalog.Core.Accessibility.NestedAccessHost
@@ -8679,6 +8976,10 @@ references:
   from: Catalog.Core.Accessibility.NestedAccessHost.PublicNested.TouchHost
   target: Catalog.Core.Accessibility.NestedAccessHost._hostValue
   role: write
+- at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [64, 16], end: [64, 20], text: void}
+  from: Catalog.Core.Accessibility.NestedAccessHost.PrivateNested.TouchHost
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [64, 31], end: [64, 47], text: NestedAccessHost}
   from: Catalog.Core.Accessibility.NestedAccessHost.PrivateNested.TouchHost
   target: Catalog.Core.Accessibility.NestedAccessHost
@@ -8691,6 +8992,10 @@ references:
   from: Catalog.Core.Accessibility.InternalCatalogEntry.InternalOnlyValue
   target: ext.System.Int32
   role: type
+- at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [72, 14], end: [72, 18], text: void}
+  from: Catalog.Core.Accessibility.InternalCatalogEntry.Touch
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [72, 25], end: [72, 40], text: AccessModifiers}
   from: Catalog.Core.Accessibility.InternalCatalogEntry.Touch
   target: Catalog.Core.Accessibility.AccessModifiers
@@ -8699,6 +9004,10 @@ references:
   from: Catalog.Core.Accessibility.InternalCatalogEntry.Touch
   target: Catalog.Core.Accessibility.AccessModifiers.InternalMethod
   role: call
+- at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [77, 21], end: [77, 25], text: void}
+  from: Catalog.Core.Accessibility.SameAssemblyAccess.Demonstrate
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [77, 38], end: [77, 53], text: AccessModifiers}
   from: Catalog.Core.Accessibility.SameAssemblyAccess.Demonstrate
   target: Catalog.Core.Accessibility.AccessModifiers
@@ -8732,19 +9041,19 @@ references:
   target: Catalog.Core.Accessibility.LessAccessibleSignatureHost._value
   role: write
 - at: {path: src/Core/AssemblyInfo.cs, start: [1, 7], end: [1, 13], text: System}
-  from: Catalog.Core
+  from: assembly.Catalog.Core
   target: ext.System
   role: qualifier
 - at: {path: src/Core/AssemblyInfo.cs, start: [1, 14], end: [1, 21], text: Runtime}
-  from: Catalog.Core
+  from: assembly.Catalog.Core
   target: ext.System.Runtime
   role: qualifier
 - at: {path: src/Core/AssemblyInfo.cs, start: [1, 22], end: [1, 38], text: CompilerServices}
-  from: Catalog.Core
+  from: assembly.Catalog.Core
   target: ext.System.Runtime.CompilerServices
   role: import
 - at: {path: src/Core/AssemblyInfo.cs, start: [3, 12], end: [3, 30], text: InternalsVisibleTo}
-  from: Catalog.Core
+  from: assembly.Catalog.Core
   target: ext.System.Runtime.CompilerServices.InternalsVisibleToAttribute..ctor
   role: attribute
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [5, 22], end: [5, 28], text: string}
@@ -8923,6 +9232,10 @@ references:
   from: Catalog.Core.Constructors.BaseWithVirtual..ctor
   target: Catalog.Core.Constructors.BaseWithVirtual.DispatchDuringConstruction
   role: call
+- at: {path: src/Core/Constructors/InitializationOrder.cs, start: [100, 15], end: [100, 19], text: void}
+  from: Catalog.Core.Constructors.BaseWithVirtual.DispatchDuringConstruction
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [100, 56], end: [100, 60], text: Name}
   from: Catalog.Core.Constructors.BaseWithVirtual.DispatchDuringConstruction
   target: Catalog.Core.Constructors.BaseWithVirtual.Name
@@ -9031,6 +9344,10 @@ references:
   from: Catalog.Core.Delegates.PairTransform
   target: ext.System.Int32
   role: type
+- at: {path: src/Core/Delegates/CallableIdentity.cs, start: [5, 17], end: [5, 21], text: void}
+  from: Catalog.Core.Delegates.NoticeHandler
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [5, 36], end: [5, 42], text: string}
   from: Catalog.Core.Delegates.NoticeHandler
   target: ext.System.String
@@ -9038,6 +9355,10 @@ references:
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [9, 43], end: [9, 46], text: int}
   from: Catalog.Core.Delegates.CovariantFactory-1
   target: ext.System.Int32
+  role: type
+- at: {path: src/Core/Delegates/CallableIdentity.cs, start: [11, 17], end: [11, 21], text: void}
+  from: Catalog.Core.Delegates.ContravariantSink-1
+  target: ext.System.Void
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [15, 19], end: [15, 22], text: int}
   from: Catalog.Core.Delegates.CallableIdentity.CombineAndInvoke
@@ -9087,6 +9408,10 @@ references:
   from: Catalog.Core.Delegates.CallableIdentity.CombineAndInvoke
   target: ext.System.Delegate.Combine#System.Delegate#System.Delegate
   role: call
+- at: {path: src/Core/Delegates/CallableIdentity.cs, start: [27, 19], end: [27, 23], text: void}
+  from: Catalog.Core.Delegates.CallableIdentity.BindTargets
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [27, 36], end: [27, 42], text: Worker}
   from: Catalog.Core.Delegates.CallableIdentity.BindTargets
   target: Catalog.Core.Delegates.Worker
@@ -9367,13 +9692,25 @@ references:
   from: Catalog.Core.Delegates.CallableIdentity.SelectStaticOverloadByTargetSignature
   target: Catalog.Core.Delegates.Worker.Scale#System.Int32
   role: read
+- at: {path: src/Core/Delegates/CallableIdentity.cs, start: [97, 20], end: [97, 24], text: void}
+  from: Catalog.Core.Delegates.CallableIdentity.StaticNotice
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [97, 38], end: [97, 44], text: string}
   from: Catalog.Core.Delegates.CallableIdentity.StaticNotice
   target: ext.System.String
   role: type
+- at: {path: src/Core/Delegates/CallableIdentity.cs, start: [105, 12], end: [105, 16], text: void}
+  from: Catalog.Core.Delegates.Worker.RaiseNotice
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [105, 29], end: [105, 35], text: string}
   from: Catalog.Core.Delegates.Worker.RaiseNotice
   target: ext.System.String
+  role: type
+- at: {path: src/Core/Delegates/CallableIdentity.cs, start: [107, 12], end: [107, 16], text: void}
+  from: Catalog.Core.Delegates.Worker.Apply
+  target: ext.System.Void
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [107, 23], end: [107, 26], text: int}
   from: Catalog.Core.Delegates.Worker.Apply
@@ -9398,6 +9735,10 @@ references:
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [111, 26], end: [111, 29], text: int}
   from: Catalog.Core.Delegates.Worker.Transform#System.Int32
   target: ext.System.Int32
+  role: type
+- at: {path: src/Core/Delegates/CallableIdentity.cs, start: [113, 12], end: [113, 16], text: void}
+  from: Catalog.Core.Delegates.Worker.Transform#System.String
+  target: ext.System.Void
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [113, 27], end: [113, 33], text: string}
   from: Catalog.Core.Delegates.Worker.Transform#System.String
@@ -9463,6 +9804,10 @@ references:
   from: Catalog.Core.Delegates.GridPoint..ctor
   target: Catalog.Core.Delegates.GridPoint.Y
   role: write
+- at: {path: src/Core/Delegates/CallableIdentity.cs, start: [134, 12], end: [134, 16], text: void}
+  from: Catalog.Core.Delegates.GridPoint.Signal
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [134, 24], end: [134, 30], text: string}
   from: Catalog.Core.Delegates.GridPoint.Signal
   target: ext.System.String
@@ -9502,6 +9847,10 @@ references:
 - at: {path: src/Core/Events/EventSurface.cs, start: [5, 18], end: [5, 24], text: string}
   from: Catalog.Core.Events.INotifier.Changed
   target: ext.System.String
+  role: type
+- at: {path: src/Core/Events/EventSurface.cs, start: [10, 12], end: [10, 16], text: void}
+  from: Catalog.Core.Events.NoticeSink.Record
+  target: ext.System.Void
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [10, 24], end: [10, 30], text: string}
   from: Catalog.Core.Events.NoticeSink.Record
@@ -9579,6 +9928,10 @@ references:
   from: Catalog.Core.Events.EventSurface.Catalog.Core.Events.INotifier.Changed
   target: Catalog.Core.Events.EventSurface.Changed
   role: write
+- at: {path: src/Core/Events/EventSurface.cs, start: [33, 12], end: [33, 16], text: void}
+  from: Catalog.Core.Events.EventSurface.RaiseChanged
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [33, 30], end: [33, 36], text: string}
   from: Catalog.Core.Events.EventSurface.RaiseChanged
   target: ext.System.String
@@ -9591,6 +9944,10 @@ references:
   from: Catalog.Core.Events.EventSurface.RaiseChanged
   target: ext.System.Action-1.Invoke
   role: call
+- at: {path: src/Core/Events/EventSurface.cs, start: [35, 19], end: [35, 23], text: void}
+  from: Catalog.Core.Events.EventSurface.SubscribeAndUnsubscribe
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [35, 48], end: [35, 60], text: EventSurface}
   from: Catalog.Core.Events.EventSurface.SubscribeAndUnsubscribe
   target: Catalog.Core.Events.EventSurface
@@ -9647,9 +10004,17 @@ references:
   from: Catalog.Core.Events.EventSurface.SubscribeAndUnsubscribe
   target: Catalog.Core.Events.NoticeSink.Record
   role: call
+- at: {path: src/Core/Events/EventSurface.cs, start: [45, 20], end: [45, 24], text: void}
+  from: Catalog.Core.Events.EventSurface.LogNotice
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [45, 35], end: [45, 41], text: string}
   from: Catalog.Core.Events.EventSurface.LogNotice
   target: ext.System.String
+  role: type
+- at: {path: src/Core/Events/EventSurface.cs, start: [47, 19], end: [47, 23], text: void}
+  from: Catalog.Core.Events.EventSurface.RaiseGlobalTick
+  target: ext.System.Void
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [47, 40], end: [47, 43], text: int}
   from: Catalog.Core.Events.EventSurface.RaiseGlobalTick
@@ -9663,6 +10028,10 @@ references:
   from: Catalog.Core.Events.EventSurface.RaiseGlobalTick
   target: ext.System.Action-1.Invoke
   role: call
+- at: {path: src/Core/Events/EventSurface.cs, start: [49, 23], end: [49, 27], text: void}
+  from: Catalog.Core.Events.EventSurface.OnTransformed
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [49, 42], end: [49, 45], text: int}
   from: Catalog.Core.Events.EventSurface.OnTransformed
   target: ext.System.Int32
@@ -9763,6 +10132,10 @@ references:
   from: Catalog.Core.Events.CustomEventHost.CustomChanged
   target: Catalog.Core.Events.CustomEventHost._handlers
   role: read
+- at: {path: src/Core/Events/EventSurface.cs, start: [71, 12], end: [71, 16], text: void}
+  from: Catalog.Core.Events.CustomEventHost.Publish
+  target: ext.System.Void
+  role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [71, 25], end: [71, 31], text: string}
   from: Catalog.Core.Events.CustomEventHost.Publish
   target: ext.System.String
@@ -10352,27 +10725,27 @@ references:
   target: Catalog.Core.Operators.Vector2.Y
   role: read
 - at: {path: src/Core/Operators/UserOperators.cs, start: [90, 12], end: [90, 19], text: Vector2}
-  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1.op_Addition
+  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition
   target: Catalog.Core.Operators.Vector2
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [90, 20], end: [90, 29], text: IAdditive}
-  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1.op_Addition
+  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition
   target: Catalog.Core.Operators.IAdditive-1
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [90, 30], end: [90, 37], text: Vector2}
-  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1.op_Addition
+  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition
   target: Catalog.Core.Operators.Vector2
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [90, 50], end: [90, 57], text: Vector2}
-  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1.op_Addition
+  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition
   target: Catalog.Core.Operators.Vector2
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [90, 64], end: [90, 71], text: Vector2}
-  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1.op_Addition
+  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition
   target: Catalog.Core.Operators.Vector2
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [91, 14], end: [91, 15], text: +}
-  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1.op_Addition
+  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition
   target: Catalog.Core.Operators.Vector2.op_Addition
   role: call
 - at: {path: src/Core/Operators/UserOperators.cs, start: [96, 19], end: [96, 23], text: bool}
@@ -10563,6 +10936,10 @@ references:
   from: Catalog.Core.Properties.DerivedPropertySurface.this
   target: ext.System.Int32
   role: type
+- at: {path: src/Core/Properties/PropertySurface.cs, start: [45, 24], end: [45, 25], text: '['}
+  from: Catalog.Core.Properties.DerivedPropertySurface.this
+  target: Catalog.Core.Properties.PropertySurface.this#System.Int32
+  role: read
 - at: {path: src/Core/Properties/PropertySurface.cs, start: [45, 25], end: [45, 28], text: int}
   from: Catalog.Core.Properties.DerivedPropertySurface.this
   target: ext.System.Int32
@@ -10720,37 +11097,45 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/ExternalAccess/ExternalDerivedAccess.cs, start: [1, 7], end: [1, 14], text: Catalog}
-  from: Catalog.ExternalAccess
+  from: assembly.ExternalAccess
   target: Catalog
   role: qualifier
 - at: {path: src/ExternalAccess/ExternalDerivedAccess.cs, start: [1, 15], end: [1, 19], text: Core}
-  from: Catalog.ExternalAccess
+  from: assembly.ExternalAccess
   target: Catalog.Core
   role: qualifier
 - at: {path: src/ExternalAccess/ExternalDerivedAccess.cs, start: [1, 20], end: [1, 33], text: Accessibility}
-  from: Catalog.ExternalAccess
+  from: assembly.ExternalAccess
   target: Catalog.Core.Accessibility
   role: import
 - at: {path: src/ExternalAccess/ExternalDerivedAccess.cs, start: [5, 45], end: [5, 60], text: AccessModifiers}
   from: Catalog.ExternalAccess.ExternalDerivedAccess
   target: Catalog.Core.Accessibility.AccessModifiers
   role: type
+- at: {path: src/ExternalAccess/ExternalDerivedAccess.cs, start: [7, 12], end: [7, 16], text: void}
+  from: Catalog.ExternalAccess.ExternalDerivedAccess.UseProtectedInternalUnion
+  target: ext.System.Void
+  role: type
 - at: {path: src/ExternalAccess/ExternalDerivedAccess.cs, start: [7, 48], end: [7, 71], text: ProtectedInternalMethod}
   from: Catalog.ExternalAccess.ExternalDerivedAccess.UseProtectedInternalUnion
   target: Catalog.Core.Accessibility.AccessModifiers.ProtectedInternalMethod
   role: call
 - at: {path: src/ExternalAccess/ExternalVisibility.cs, start: [1, 7], end: [1, 14], text: Catalog}
-  from: Catalog.ExternalAccess
+  from: assembly.ExternalAccess
   target: Catalog
   role: qualifier
 - at: {path: src/ExternalAccess/ExternalVisibility.cs, start: [1, 15], end: [1, 19], text: Core}
-  from: Catalog.ExternalAccess
+  from: assembly.ExternalAccess
   target: Catalog.Core
   role: qualifier
 - at: {path: src/ExternalAccess/ExternalVisibility.cs, start: [1, 20], end: [1, 33], text: Accessibility}
-  from: Catalog.ExternalAccess
+  from: assembly.ExternalAccess
   target: Catalog.Core.Accessibility
   role: import
+- at: {path: src/ExternalAccess/ExternalVisibility.cs, start: [7, 19], end: [7, 23], text: void}
+  from: Catalog.ExternalAccess.ExternalVisibility.TouchPublicOnly
+  target: ext.System.Void
+  role: type
 - at: {path: src/ExternalAccess/ExternalVisibility.cs, start: [7, 40], end: [7, 55], text: AccessModifiers}
   from: Catalog.ExternalAccess.ExternalVisibility.TouchPublicOnly
   target: Catalog.Core.Accessibility.AccessModifiers
@@ -10763,6 +11148,10 @@ references:
   from: Catalog.ExternalAccess.ExternalVisibility.TouchPublicOnly
   target: Catalog.Core.Accessibility.AccessModifiers.PublicProperty
   role: read
+- at: {path: src/ExternalAccess/ExternalVisibility.cs, start: [13, 19], end: [13, 23], text: void}
+  from: Catalog.ExternalAccess.ExternalVisibility.DemonstrateEffectiveAccessibility
+  target: ext.System.Void
+  role: type
 - at: {path: src/ExternalAccess/ExternalVisibility.cs, start: [13, 58], end: [13, 73], text: AccessModifiers}
   from: Catalog.ExternalAccess.ExternalVisibility.DemonstrateEffectiveAccessibility
   target: Catalog.Core.Accessibility.AccessModifiers
@@ -10780,37 +11169,45 @@ references:
   target: Catalog.Core.Accessibility.AccessModifiers.PublicMethod
   role: call
 - at: {path: src/FriendAccess/FriendDerivedAccess.cs, start: [1, 7], end: [1, 14], text: Catalog}
-  from: Catalog.FriendAccess
+  from: assembly.FriendAccess
   target: Catalog
   role: qualifier
 - at: {path: src/FriendAccess/FriendDerivedAccess.cs, start: [1, 15], end: [1, 19], text: Core}
-  from: Catalog.FriendAccess
+  from: assembly.FriendAccess
   target: Catalog.Core
   role: qualifier
 - at: {path: src/FriendAccess/FriendDerivedAccess.cs, start: [1, 20], end: [1, 33], text: Accessibility}
-  from: Catalog.FriendAccess
+  from: assembly.FriendAccess
   target: Catalog.Core.Accessibility
   role: import
 - at: {path: src/FriendAccess/FriendDerivedAccess.cs, start: [5, 43], end: [5, 58], text: AccessModifiers}
   from: Catalog.FriendAccess.FriendDerivedAccess
   target: Catalog.Core.Accessibility.AccessModifiers
   role: type
+- at: {path: src/FriendAccess/FriendDerivedAccess.cs, start: [7, 12], end: [7, 16], text: void}
+  from: Catalog.FriendAccess.FriendDerivedAccess.UseProtectedInternalUnion
+  target: ext.System.Void
+  role: type
 - at: {path: src/FriendAccess/FriendDerivedAccess.cs, start: [7, 48], end: [7, 71], text: ProtectedInternalMethod}
   from: Catalog.FriendAccess.FriendDerivedAccess.UseProtectedInternalUnion
   target: Catalog.Core.Accessibility.AccessModifiers.ProtectedInternalMethod
   role: call
 - at: {path: src/FriendAccess/FriendVisibility.cs, start: [1, 7], end: [1, 14], text: Catalog}
-  from: Catalog.FriendAccess
+  from: assembly.FriendAccess
   target: Catalog
   role: qualifier
 - at: {path: src/FriendAccess/FriendVisibility.cs, start: [1, 15], end: [1, 19], text: Core}
-  from: Catalog.FriendAccess
+  from: assembly.FriendAccess
   target: Catalog.Core
   role: qualifier
 - at: {path: src/FriendAccess/FriendVisibility.cs, start: [1, 20], end: [1, 33], text: Accessibility}
-  from: Catalog.FriendAccess
+  from: assembly.FriendAccess
   target: Catalog.Core.Accessibility
   role: import
+- at: {path: src/FriendAccess/FriendVisibility.cs, start: [7, 21], end: [7, 25], text: void}
+  from: Catalog.FriendAccess.FriendVisibility.TouchInternal
+  target: ext.System.Void
+  role: type
 - at: {path: src/FriendAccess/FriendVisibility.cs, start: [7, 40], end: [7, 60], text: InternalCatalogEntry}
   from: Catalog.FriendAccess.FriendVisibility.TouchInternal
   target: Catalog.Core.Accessibility.InternalCatalogEntry
@@ -10831,6 +11228,10 @@ references:
   from: Catalog.FriendAccess.FriendVisibility.TouchInternal
   target: Catalog.Core.Accessibility.AccessModifiers.InternalMethod
   role: call
+- at: {path: src/FriendAccess/FriendVisibility.cs, start: [14, 21], end: [14, 25], text: void}
+  from: Catalog.FriendAccess.FriendVisibility.DemonstrateEffectiveAccessibility
+  target: ext.System.Void
+  role: type
 - at: {path: src/FriendAccess/FriendVisibility.cs, start: [14, 60], end: [14, 75], text: AccessModifiers}
   from: Catalog.FriendAccess.FriendVisibility.DemonstrateEffectiveAccessibility
   target: Catalog.Core.Accessibility.AccessModifiers
@@ -10891,7 +11292,7 @@ relations:
   to: Catalog.Core.Operators.IAdditive-1
   at: {path: src/Core/Operators/UserOperators.cs, start: [76, 34], end: [76, 43], text: IAdditive}
 - kind: overrides
-  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1.op_Addition
+  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition
   to: Catalog.Core.Operators.IAdditive-1.op_Addition
 - kind: inherits
   from: Catalog.Core.Constructors.ChainedInitialization
@@ -11162,6 +11563,8 @@ public-api:
   - {distribution: d.core, entity: Catalog.Core.Constructors.Coordinate.GetHashCode, paths: [Catalog.Core.Constructors.Coordinate.GetHashCode], access: all}
   - {distribution: d.core, entity: Catalog.Core.Constructors.Coordinate.ToString, paths: [Catalog.Core.Constructors.Coordinate.ToString], access: all}
   - {distribution: d.core, entity: Catalog.Core.Constructors.Coordinate.Deconstruct, paths: [Catalog.Core.Constructors.Coordinate.Deconstruct], access: all}
+  - {distribution: d.core, entity: Catalog.Core.Constructors.Coordinate.op_Equality, paths: [Catalog.Core.Constructors.Coordinate.op_Equality], access: all}
+  - {distribution: d.core, entity: Catalog.Core.Constructors.Coordinate.op_Inequality, paths: [Catalog.Core.Constructors.Coordinate.op_Inequality], access: all}
   - {distribution: d.core, entity: Catalog.Core.Constructors.ExplicitStruct, paths: [Catalog.Core.Constructors.ExplicitStruct], access: all}
   - {distribution: d.core, entity: Catalog.Core.Constructors.ExplicitStruct.Value, paths: [Catalog.Core.Constructors.ExplicitStruct.Value], access: all}
   - {distribution: d.core, entity: Catalog.Core.Constructors.ExplicitStruct..ctor, paths: [Catalog.Core.Constructors.ExplicitStruct..ctor], access: all}
@@ -11214,7 +11617,7 @@ public-api:
   - {distribution: d.core, entity: Catalog.Core.Properties.RenamedIndexerMetadata, paths: [Catalog.Core.Properties.RenamedIndexerMetadata], access: all}
   - {distribution: d.core, entity: Catalog.Core.Properties.RenamedIndexerMetadata..ctor, paths: [Catalog.Core.Properties.RenamedIndexerMetadata..ctor], access: all}
   - {distribution: d.core, entity: Catalog.Core.Properties.RenamedIndexerMetadata.this, paths: ['Catalog.Core.Properties.RenamedIndexerMetadata.this[]'], access: all}
-  - {distribution: d.core, entity: Catalog, paths: [Catalog], access: all, contexts: *id002}
+  - {distribution: d.core, entity: Catalog, paths: [Catalog], access: all, contexts: *id003}
   - {distribution: d.core, entity: Catalog.Core, paths: [Catalog.Core], access: all}
   - {distribution: d.core, entity: Catalog.Core.Events, paths: [Catalog.Core.Events], access: all}
   - {distribution: d.core, entity: Catalog.Core.Accessibility, paths: [Catalog.Core.Accessibility], access: all}
@@ -11227,7 +11630,7 @@ public-api:
   - {distribution: d.friend, entity: Catalog.FriendAccess.FriendDerivedAccess..ctor, paths: [Catalog.FriendAccess.FriendDerivedAccess..ctor], access: all}
   - {distribution: d.friend, entity: Catalog.FriendAccess.FriendDerivedAccess.UseProtectedInternalUnion, paths: [Catalog.FriendAccess.FriendDerivedAccess.UseProtectedInternalUnion], access: all}
   - {distribution: d.friend, entity: Catalog.FriendAccess.FriendVisibility, paths: [Catalog.FriendAccess.FriendVisibility], access: all}
-  - {distribution: d.friend, entity: Catalog, paths: [Catalog], access: all, contexts: *id004}
+  - {distribution: d.friend, entity: Catalog, paths: [Catalog], access: all, contexts: *id005}
   - {distribution: d.friend, entity: Catalog.FriendAccess, paths: [Catalog.FriendAccess], access: all}
   - {distribution: d.external, entity: Catalog.ExternalAccess.ExternalDerivedAccess, paths: [Catalog.ExternalAccess.ExternalDerivedAccess], access: all}
   - {distribution: d.external, entity: Catalog.ExternalAccess.ExternalDerivedAccess..ctor, paths: [Catalog.ExternalAccess.ExternalDerivedAccess..ctor], access: all}
@@ -11236,11 +11639,11 @@ public-api:
   - {distribution: d.external, entity: Catalog.ExternalAccess.ExternalVisibility.TouchPublicOnly, paths: [Catalog.ExternalAccess.ExternalVisibility.TouchPublicOnly], access: all}
   - {distribution: d.external, entity: Catalog.ExternalAccess.ExternalVisibility.DemonstrateEffectiveAccessibility, paths: [Catalog.ExternalAccess.ExternalVisibility.DemonstrateEffectiveAccessibility],
     access: all}
-  - {distribution: d.external, entity: Catalog, paths: [Catalog], access: all, contexts: *id005}
+  - {distribution: d.external, entity: Catalog, paths: [Catalog], access: all, contexts: *id006}
   - {distribution: d.external, entity: Catalog.ExternalAccess, paths: [Catalog.ExternalAccess], access: all}
   - {distribution: d.consumer, entity: Catalog.ConstantsConsumer.ConstantReader, paths: [Catalog.ConstantsConsumer.ConstantReader], access: all}
   - {distribution: d.consumer, entity: Catalog.ConstantsConsumer.ConstantReader.ReadBakedConstants, paths: [Catalog.ConstantsConsumer.ConstantReader.ReadBakedConstants], access: all}
-  - {distribution: d.consumer, entity: Catalog, paths: [Catalog], access: all, contexts: *id003}
+  - {distribution: d.consumer, entity: Catalog, paths: [Catalog], access: all, contexts: *id004}
   - {distribution: d.consumer, entity: Catalog.ConstantsConsumer, paths: [Catalog.ConstantsConsumer], access: all}
   - {distribution: d.cs9, entity: Catalog.CSharp9.InitOnlyMembers, paths: [Catalog.CSharp9.InitOnlyMembers], access: all}
   - {distribution: d.cs9, entity: Catalog.CSharp9.InitOnlyMembers..ctor, paths: [Catalog.CSharp9.InitOnlyMembers..ctor], access: all}
@@ -11249,7 +11652,7 @@ public-api:
   - {distribution: d.cs9, entity: Catalog.CSharp9.InitOnlyMembers.this, paths: ['Catalog.CSharp9.InitOnlyMembers.this[]'], access: all}
   - {distribution: d.cs9, entity: Catalog.CSharp9.InitOnlyFactory, paths: [Catalog.CSharp9.InitOnlyFactory], access: all}
   - {distribution: d.cs9, entity: Catalog.CSharp9.InitOnlyFactory.Create, paths: [Catalog.CSharp9.InitOnlyFactory.Create], access: all}
-  - {distribution: d.cs9, entity: Catalog, paths: [Catalog], access: all, contexts: *id006}
+  - {distribution: d.cs9, entity: Catalog, paths: [Catalog], access: all, contexts: *id007}
   - {distribution: d.cs9, entity: Catalog.CSharp9, paths: [Catalog.CSharp9], access: all}
   - {distribution: d.cs11, entity: Catalog.CSharp11.CheckedMeasure, paths: [Catalog.CSharp11.CheckedMeasure], access: all}
   - {distribution: d.cs11, entity: Catalog.CSharp11.CheckedMeasure..ctor, paths: [Catalog.CSharp11.CheckedMeasure..ctor], access: all}
@@ -11275,6 +11678,8 @@ public-api:
   - {distribution: d.cs11, entity: Catalog.CSharp11.RequiredRecord.Equals#Catalog.CSharp11.RequiredRecord, paths: [Catalog.CSharp11.RequiredRecord.Equals(Catalog.CSharp11.RequiredRecord)], access: all}
   - {distribution: d.cs11, entity: Catalog.CSharp11.RequiredRecord.GetHashCode, paths: [Catalog.CSharp11.RequiredRecord.GetHashCode], access: all}
   - {distribution: d.cs11, entity: Catalog.CSharp11.RequiredRecord.ToString, paths: [Catalog.CSharp11.RequiredRecord.ToString], access: all}
+  - {distribution: d.cs11, entity: Catalog.CSharp11.RequiredRecord.op_Equality, paths: [Catalog.CSharp11.RequiredRecord.op_Equality], access: all}
+  - {distribution: d.cs11, entity: Catalog.CSharp11.RequiredRecord.op_Inequality, paths: [Catalog.CSharp11.RequiredRecord.op_Inequality], access: all}
   - {distribution: d.cs11, entity: Catalog.CSharp11.RequiredWithDefault, paths: [Catalog.CSharp11.RequiredWithDefault], access: all}
   - {distribution: d.cs11, entity: Catalog.CSharp11.RequiredWithDefault..ctor, paths: [Catalog.CSharp11.RequiredWithDefault..ctor], access: all}
   - {distribution: d.cs11, entity: Catalog.CSharp11.RequiredWithDefault.Value, paths: [Catalog.CSharp11.RequiredWithDefault.Value], access: all}
@@ -11299,13 +11704,13 @@ public-api:
   - {distribution: d.cs11, entity: Catalog.CSharp11.GenericRequiredHost-1..ctor, paths: [Catalog.CSharp11.GenericRequiredHost`1..ctor], access: all}
   - {distribution: d.cs11, entity: Catalog.CSharp11.GenericRequiredHost-1.Payload, paths: [Catalog.CSharp11.GenericRequiredHost`1.Payload], access: all}
   - {distribution: d.cs11, entity: Catalog.CSharp11.GenericRequiredHost-1.CreateDefault, paths: [Catalog.CSharp11.GenericRequiredHost`1.CreateDefault], access: all}
-  - {distribution: d.cs11, entity: Catalog, paths: [Catalog], access: all, contexts: *id007}
+  - {distribution: d.cs11, entity: Catalog, paths: [Catalog], access: all, contexts: *id008}
   - {distribution: d.cs11, entity: Catalog.CSharp11, paths: [Catalog.CSharp11], access: all}
   - {distribution: d.cs13, entity: Catalog.CSharp13.PartialIndexerHost, paths: [Catalog.CSharp13.PartialIndexerHost], access: all}
   - {distribution: d.cs13, entity: Catalog.CSharp13.PartialIndexerHost..ctor, paths: [Catalog.CSharp13.PartialIndexerHost..ctor], access: all}
   - {distribution: d.cs13, entity: Catalog.CSharp13.PartialIndexerHost.this, paths: ['Catalog.CSharp13.PartialIndexerHost.this[]'], access: all}
   - {distribution: d.cs13, entity: Catalog.CSharp13.PartialIndexerHost.Title, paths: [Catalog.CSharp13.PartialIndexerHost.Title], access: all}
-  - {distribution: d.cs13, entity: Catalog, paths: [Catalog], access: all, contexts: *id008}
+  - {distribution: d.cs13, entity: Catalog, paths: [Catalog], access: all, contexts: *id009}
   - {distribution: d.cs13, entity: Catalog.CSharp13, paths: [Catalog.CSharp13], access: all}
   signatures:
   - entity: Catalog.Core.Events.INotifier.Changed
@@ -12054,6 +12459,7 @@ public-api:
     modifiers: [readonly]
   - entity: Catalog.Core.Fields.FieldContracts.RefreshCount
     type: int
+    modifiers: [volatile]
   - entity: Catalog.Core.Fields.FieldContracts.SharedCounter
     type: int
     modifiers: [static]
@@ -12181,6 +12587,28 @@ public-api:
       type:
         inferred: int
       mode: out
+  - entity: Catalog.Core.Constructors.Coordinate.op_Equality
+    returns:
+      inferred: bool
+    modifiers: [static]
+    parameters:
+    - name: left
+      type:
+        inferred: '@{Catalog.Core.Constructors.Coordinate}'
+    - name: right
+      type:
+        inferred: '@{Catalog.Core.Constructors.Coordinate}'
+  - entity: Catalog.Core.Constructors.Coordinate.op_Inequality
+    returns:
+      inferred: bool
+    modifiers: [static]
+    parameters:
+    - name: left
+      type:
+        inferred: '@{Catalog.Core.Constructors.Coordinate}'
+    - name: right
+      type:
+        inferred: '@{Catalog.Core.Constructors.Coordinate}'
   - entity: Catalog.Core.Constructors.ExplicitStruct.Value
     type: int
   - entity: Catalog.Core.Constructors.ExplicitStruct..ctor
@@ -12496,6 +12924,28 @@ public-api:
     returns:
       inferred: string
     modifiers: [override]
+  - entity: Catalog.CSharp11.RequiredRecord.op_Equality
+    returns:
+      inferred: bool
+    modifiers: [static]
+    parameters:
+    - name: left
+      type:
+        inferred: '@{Catalog.CSharp11.RequiredRecord}?'
+    - name: right
+      type:
+        inferred: '@{Catalog.CSharp11.RequiredRecord}?'
+  - entity: Catalog.CSharp11.RequiredRecord.op_Inequality
+    returns:
+      inferred: bool
+    modifiers: [static]
+    parameters:
+    - name: left
+      type:
+        inferred: '@{Catalog.CSharp11.RequiredRecord}?'
+    - name: right
+      type:
+        inferred: '@{Catalog.CSharp11.RequiredRecord}?'
   - entity: Catalog.CSharp11.RequiredWithDefault
     modifiers: [sealed]
   - entity: Catalog.CSharp11.RequiredWithDefault.Value
