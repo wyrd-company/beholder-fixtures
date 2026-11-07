@@ -243,6 +243,7 @@ contexts:
       cfg: []
       features: []
       profile: dev
+      release: '1.99'
     command: "cargo build --offline --workspace"
   - id: build-cfg-a
     parameters:
@@ -254,6 +255,7 @@ contexts:
       cfg: ["fixture_use_a"]
       features: []
       profile: dev
+      release: '1.99'
     command: "RUSTFLAGS=\"--cfg fixture_use_a\" cargo build --offline"
   - id: build-skew-v2
     parameters:
@@ -265,6 +267,7 @@ contexts:
       cfg: []
       features: []
       profile: dev
+      release: '1.99'
     command: "cargo build --offline --manifest-path crates/skew_v2/Cargo.toml"
   - id: build-edition2015
     parameters:
@@ -276,6 +279,7 @@ contexts:
       cfg: []
       features: []
       profile: dev
+      release: '1.99'
     command: "cargo build --offline --manifest-path crates/edition2015/Cargo.toml"
   - id: build-edition2018
     parameters:
@@ -287,6 +291,7 @@ contexts:
       cfg: []
       features: []
       profile: dev
+      release: '1.99'
     command: "cargo build --offline --manifest-path crates/edition2018/Cargo.toml"
   - id: build-target
     parameters:
@@ -298,6 +303,7 @@ contexts:
       cfg: []
       features: []
       profile: dev
+      release: '1.99'
     command: "cargo build --offline --target x86_64-unknown-linux-gnu"
   - id: doc
     parameters:
@@ -309,6 +315,7 @@ contexts:
       cfg: []
       features: []
       profile: dev
+      release: '1.99'
     command: "RUSTDOCFLAGS=\"-D rustdoc::broken_intra_doc_links\" cargo doc --offline --workspace --no-deps"
   - id: doc-private
     parameters:
@@ -320,6 +327,7 @@ contexts:
       cfg: []
       features: []
       profile: dev
+      release: '1.99'
     command: "RUSTDOCFLAGS=\"--document-private-items -D rustdoc::broken_intra_doc_links -D rustdoc::private_intra_doc_links\" cargo doc --offline -p modules-visibility-and-resolution --no-deps"
   - id: doc-skew-v2
     parameters:
@@ -331,6 +339,7 @@ contexts:
       cfg: []
       features: []
       profile: dev
+      release: '1.99'
     command: "RUSTDOCFLAGS=\"-D rustdoc::broken_intra_doc_links\" cargo doc --offline --manifest-path crates/skew_v2/Cargo.toml --no-deps"
   - id: test
     parameters:
@@ -342,6 +351,7 @@ contexts:
       cfg: []
       features: []
       profile: test
+      release: '1.99'
     command: "cargo test --offline --workspace"
   - id: test-skew-v2
     parameters:
@@ -353,6 +363,7 @@ contexts:
       cfg: []
       features: []
       profile: test
+      release: '1.99'
     command: "cargo test --offline --manifest-path crates/skew_v2/Cargo.toml"
   - id: doctest
     parameters:
@@ -364,6 +375,7 @@ contexts:
       cfg: []
       features: []
       profile: test
+      release: '1.99'
     command: "cargo test --offline --workspace"
   - id: doctest-skew-v2
     parameters:
@@ -375,6 +387,7 @@ contexts:
       cfg: []
       features: []
       profile: test
+      release: '1.99'
     command: "cargo test --offline --manifest-path crates/skew_v2/Cargo.toml"
 
 distributions:
