@@ -7,9 +7,9 @@ authoring:
 
     Pilot. This is the Dart signature pilot of wyrd-company/beholder#73. It was chosen because it has a real public API of 50 public libraries, with export chains, a re-export diamond, an export cycle, a conditional export and a `lib/src` facade. It also declares three named public extensions, `VisibleGreeter`, `HiddenGreeter` and `DescribableExtension`, which exercise the extension `receiver` slot.
 
-    Contexts. The build task runs `dart pub get --offline` (no context), `dart analyze` (context `analysis`: entry analysis, platform vm), `dart run bin/vm_main.dart` (context `vm`) and `dart compile js -o build/js_main.js bin/js_main.dart` (context `js`); the test task runs `:`. `library-flags` lists the `dart.library.*` flags that the project's configurable directives test and that are true on the platform: `dart.library.io` for vm and `dart.library.js_interop` for js. `dart analyze` declares no environment, so the analyzer selects each configurable directive's default URI, and `analysis` has no library flags. Indexed documents are every `.dart` file under lib/ in `analysis`, and the files each entry reaches through the selected URIs of its imports and exports in vm and js: platform_api, platform_selector and deferred_payload in both; first_match_selector and platform_native in vm; platform_web in js. The bin files are indexed only in their own context, because the profile indexes only lib/ in `analysis`.
+    Contexts. The build task runs `dart pub get --offline` (no context), `dart analyze` (context `analysis`: entry analysis, platform vm), `dart run bin/vm_main.dart` (context `vm`) and `dart compile js -o build/js_main.js bin/js_main.dart` (context `js`); the test task runs `:`. `library-flags` lists every `dart.library.*` value true for the command, from the SDK's lib/libraries.json: the public libraries of the `vm` target for `dart run`, and of the `dart2js` target for `dart compile js`, less those marked `support_conditional_import: false` (`io` and `isolate` for dart2js). Private `_` libraries are left out, because no source can import them. `dart analyze` declares no environment, so the analyzer treats no flag as true and selects each configurable directive's default URI, and `analysis` has no library flags. The first matching condition in source order selects the same branch as before: `dart.library.io` in vm and `dart.library.js_interop` in js. Indexed documents are every `.dart` file under lib/ in `analysis`, and the files each entry reaches through the selected URIs of its imports and exports in vm and js: platform_api, platform_selector and deferred_payload in both; first_match_selector and platform_native in vm; platform_web in js. The bin files are indexed only in their own context, because the profile indexes only lib/ in `analysis`.
 
-    References. A configurable directive has one reference, at its selected URI, in each context; unselected URIs have none. A part URI and a URI-form `part of` are `import` references to the owning library; a legacy `part of <name>` names no entity and is no reference. Each type name in a type position is a `type` reference, including the `dart:core` classes that signatures write bare (String, int, double, num); `void` is a keyword. A reference inside a parameter's type has the parameter as `from`. An annotation `@C(...)` targets the constructor it invokes. SDK operators (`*`, `+`, `++` on core types) are not user-defined and have no reference; a local variable, local function and parameter is never a target. A `.runtimeType` on a `JSObject` resolves to `Object.runtimeType`.
+    References. Every URI of a configurable directive is an `import` reference to the library it names, selected or not, in each context where that library is built; a library no URI selects in a context is not built there, so it has no unit in that context and no reference can target it. The selected URI of platform_api's configurable export is also an `export` reference in its context. A part URI and a URI-form `part of` are `import` references to the owning library; a legacy `part of <name>` names no entity and is no reference. Each type name in a type position is a `type` reference, including the `dart:core` classes that signatures write bare (String, int, double, num); `void` is a keyword. A reference inside a parameter's type has the parameter as `from`. An annotation `@C(...)` targets the constructor it invokes. SDK operators (`*`, `+`, `++` on core types) are not user-defined and have no reference; a local variable, local function and parameter is never a target. A `.runtimeType` on a `JSObject` resolves to `Object.runtimeType`.
 
     Exports. An export relation's `at` is the combinator name when the directive has `show`, and otherwise the URI string of the first directive in source order that adds the name, as for a glob re-export: cycle_a gets ExtraGadget first through `cycle_b.dart`.
 
@@ -343,7 +343,24 @@ contexts:
       platform: "js"
       entry: "bin/js_main.dart"
       defines: []
-      library-flags: ["dart.library.js_interop"]
+      library-flags:
+        - "dart.library.async"
+        - "dart.library.collection"
+        - "dart.library.convert"
+        - "dart.library.core"
+        - "dart.library.developer"
+        - "dart.library.html"
+        - "dart.library.html_common"
+        - "dart.library.indexed_db"
+        - "dart.library.js"
+        - "dart.library.js_interop"
+        - "dart.library.js_interop_unsafe"
+        - "dart.library.js_util"
+        - "dart.library.math"
+        - "dart.library.svg"
+        - "dart.library.typed_data"
+        - "dart.library.web_audio"
+        - "dart.library.web_gl"
       options: []
       release: "3.13"
     command: "dart compile js -o build/js_main.js bin/js_main.dart"
@@ -352,7 +369,22 @@ contexts:
       platform: "vm"
       entry: "bin/vm_main.dart"
       defines: []
-      library-flags: ["dart.library.io"]
+      library-flags:
+        - "dart.library.async"
+        - "dart.library.cli"
+        - "dart.library.collection"
+        - "dart.library.concurrent"
+        - "dart.library.convert"
+        - "dart.library.core"
+        - "dart.library.developer"
+        - "dart.library.ffi"
+        - "dart.library.io"
+        - "dart.library.isolate"
+        - "dart.library.math"
+        - "dart.library.mirrors"
+        - "dart.library.nativewrappers"
+        - "dart.library.typed_data"
+        - "dart.library.vmservice_io"
       options: []
       release: "3.13"
     command: "dart run bin/vm_main.dart"
@@ -3738,7 +3770,15 @@ references:
     from: "conditional.first_match_selector"
     target: "conditional.platform_native"
     role: "import"
-    contexts: ["vm"]
+  - at:
+      path: "lib/conditional/first_match_selector.dart"
+      start: [9, 27]
+      end: [9, 51]
+      text: "platform_native_alt.dart"
+    from: "conditional.first_match_selector"
+    target: "conditional.platform_native_alt"
+    role: "import"
+    contexts: ["analysis"]
   - at:
       path: "lib/conditional/first_match_selector.dart"
       start: [12, 1]
@@ -3790,6 +3830,15 @@ references:
       text: "platform_default.dart"
     from: "conditional.platform_api"
     target: "conditional.platform_default"
+    role: "import"
+    contexts: ["analysis"]
+  - at:
+      path: "lib/conditional/platform_api.dart"
+      start: [11, 9]
+      end: [11, 30]
+      text: "platform_default.dart"
+    from: "conditional.platform_api"
+    target: "conditional.platform_default"
     role: "export"
     contexts: ["analysis"]
   - at:
@@ -3799,8 +3848,26 @@ references:
       text: "platform_native.dart"
     from: "conditional.platform_api"
     target: "conditional.platform_native"
+    role: "import"
+    contexts: ["analysis", "vm"]
+  - at:
+      path: "lib/conditional/platform_api.dart"
+      start: [12, 27]
+      end: [12, 47]
+      text: "platform_native.dart"
+    from: "conditional.platform_api"
+    target: "conditional.platform_native"
     role: "export"
     contexts: ["vm"]
+  - at:
+      path: "lib/conditional/platform_api.dart"
+      start: [13, 35]
+      end: [13, 52]
+      text: "platform_web.dart"
+    from: "conditional.platform_api"
+    target: "conditional.platform_web"
+    role: "import"
+    contexts: ["analysis", "js"]
   - at:
       path: "lib/conditional/platform_api.dart"
       start: [13, 35]
@@ -3827,7 +3894,7 @@ references:
     from: "conditional.platform_selector"
     target: "conditional.platform_native"
     role: "import"
-    contexts: ["vm"]
+    contexts: ["analysis", "vm"]
   - at:
       path: "lib/conditional/platform_selector.dart"
       start: [7, 35]
@@ -3836,7 +3903,7 @@ references:
     from: "conditional.platform_selector"
     target: "conditional.platform_web"
     role: "import"
-    contexts: ["js"]
+    contexts: ["analysis", "js"]
   - at:
       path: "lib/conditional/platform_selector.dart"
       start: [10, 1]
