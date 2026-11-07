@@ -15,12 +15,12 @@ authoring:
 
     Synthetic entities. Each class without a constructor has its default constructor, anchored on the class name; each deferred prefix has its `loadLibrary` function, anchored on the prefix.
 
-    Signatures. Slots were written from source and the Dart specification before any compiler report was read, then checked with scripts/semantic-oracle/report-dart.dart (package:analyzer 14.7.0 on Dart 3.13.7) in all three contexts: 94 slots, 93 agreed, 0 errors, 1 unchecked. The unchecked slot is `bases` of ForeignSubclass: a base's slot path holds the dataset's ids, which a report cannot name. The first check had two errors, the analyzer report stating `parameters[0].name` and `parameters[1].name` as `_` for wildcardParameters. The cause was a report gap: from language version 3.7 a `_` parameter is a wildcard that binds no name, so the record correctly has none, and the report now omits it.
+    Signatures. Slots were written from source and the Dart specification before any compiler report was read, then checked with scripts/semantic-oracle/report-dart.dart (package:analyzer 14.7.0 on Dart 3.13.7) in all three contexts: 110 slots, 109 agreed, 0 errors, 1 unchecked. The 16 slots of the six unnamed constructor records agreed at the first check. The unchecked slot is `bases` of ForeignSubclass: a base's slot path holds the dataset's ids, which a report cannot name. The first check had two errors, the analyzer report stating `parameters[0].name` and `parameters[1].name` as `_` for wildcardParameters. The cause was a report gap: from language version 3.7 a `_` parameter is a wildcard that binds no name, so the record correctly has none, and the report now omits it.
 
-    Workarounds for contract gaps, to be settled in the contract:
-    - wildcardParameters(int _, String _) has two parameters with no binding name. Two `parameter` entities would both have the path `...::wildcardParameters.(_)` (model:entity-identity), and the profile defines no suffix for them. They are recorded as no entities, and the signature's parameters have types and no names.
-    - prefixes.prefixed_access.payloadPrefix.loadLibrary has no `parent`. With the library as parent, the Dart public API recomputation makes every public-named child of a public library a member, which would list `prefixed_access.dart::loadLibrary`. An import prefix is not in a library's export namespace, so a consumer cannot name it.
-    - An unnamed constructor has no `name`, so it is no public API member and has no signature record, although a consumer calls it (BaseGadget('x')). Its parameters have no slot, so a change to them is no fact.
+    Profile rules this key applies (wyrd-company/beholder#77):
+    - A wildcard parameter, `_` at language version 3.7 or later, binds no name and declares no entity; its signature entry has a `type` and no `name`. wildcardParameters(int _, String _) has no parameter entities and two unnamed parameter entries.
+    - The unnamed constructor of an exported class is a public API member with the consumer path segment `new`, and so is a class's synthetic default constructor. Six unnamed constructors have records: their `this.` parameters have an `{inferred}` type, and each is `const`. The eight synthetic default constructors have no parameter and no modifier, so they have no slot and no record.
+    - A deferred prefix's synthetic `loadLibrary` keeps the importing library as its `parent` and is no public API member, because a consumer cannot name another library's import prefix.
   tools:
     - {"name": "Dart SDK", "version": "3.13.7"}
     - {"name": "package:analyzer", "version": "14.7.0"}
@@ -2225,6 +2225,7 @@ entities:
     name: "loadLibrary"
     path: "package:libraries_and_visibility/prefixes/prefixed_access.dart::payloadPrefix.loadLibrary"
     unit: "u.prefixes.prefixed_access"
+    parent: "prefixes.prefixed_access"
     origin: "synthetic"
     definitions: []
     anchor:
@@ -5458,6 +5459,10 @@ public-api:
       paths: ["package:libraries_and_visibility/deferred/deferred_payload.dart::DeferredPayload.label"]
       access: "all"
     - distribution: "dist.libraries_and_visibility"
+      entity: "deferred.deferred_payload.DeferredPayload.new"
+      paths: ["package:libraries_and_visibility/deferred/deferred_payload.dart::DeferredPayload.new"]
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
       entity: "deferred.deferred_payload.describePayload"
       paths: ["package:libraries_and_visibility/deferred/deferred_payload.dart::describePayload"]
       access: "all"
@@ -5538,6 +5543,10 @@ public-api:
       paths: ["package:libraries_and_visibility/identity/library_metadata.dart::LibraryMetadata"]
       access: "all"
     - distribution: "dist.libraries_and_visibility"
+      entity: "identity.library_metadata.LibraryMetadata.new"
+      paths: ["package:libraries_and_visibility/identity/library_metadata.dart::LibraryMetadata.new"]
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
       entity: "identity.library_metadata.LibraryMetadata.note"
       paths: ["package:libraries_and_visibility/identity/library_metadata.dart::LibraryMetadata.note"]
       access: "all"
@@ -5548,6 +5557,10 @@ public-api:
     - distribution: "dist.libraries_and_visibility"
       entity: "identity.omitted_directive.OmittedDirectiveMarker"
       paths: ["package:libraries_and_visibility/identity/omitted_directive.dart::OmittedDirectiveMarker"]
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
+      entity: "identity.omitted_directive.OmittedDirectiveMarker.new"
+      paths: ["package:libraries_and_visibility/identity/omitted_directive.dart::OmittedDirectiveMarker.new"]
       access: "all"
     - distribution: "dist.libraries_and_visibility"
       entity: "identity.omitted_directive.omittedDirectiveLabel"
@@ -5568,6 +5581,10 @@ public-api:
     - distribution: "dist.libraries_and_visibility"
       entity: "imports.core_hide.Duration"
       paths: ["package:libraries_and_visibility/imports/core_hide.dart::Duration"]
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
+      entity: "imports.core_hide.Duration.new"
+      paths: ["package:libraries_and_visibility/imports/core_hide.dart::Duration.new"]
       access: "all"
     - distribution: "dist.libraries_and_visibility"
       entity: "imports.core_hide.Duration.toString"
@@ -5664,6 +5681,10 @@ public-api:
       paths: ["package:libraries_and_visibility/privacy/base_with_private_state.dart::StatefulBase.bump"]
       access: "all"
     - distribution: "dist.libraries_and_visibility"
+      entity: "privacy.base_with_private_state.StatefulBase.new"
+      paths: ["package:libraries_and_visibility/privacy/base_with_private_state.dart::StatefulBase.new"]
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
       entity: "privacy.base_with_private_state.StatefulBase.state"
       paths: ["package:libraries_and_visibility/privacy/base_with_private_state.dart::StatefulBase.state"]
       access: "all"
@@ -5678,6 +5699,10 @@ public-api:
     - distribution: "dist.libraries_and_visibility"
       entity: "privacy.foreign_subclass.ForeignSubclass.foreignState"
       paths: ["package:libraries_and_visibility/privacy/foreign_subclass.dart::ForeignSubclass.foreignState"]
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
+      entity: "privacy.foreign_subclass.ForeignSubclass.new"
+      paths: ["package:libraries_and_visibility/privacy/foreign_subclass.dart::ForeignSubclass.new"]
       access: "all"
     - distribution: "dist.libraries_and_visibility"
       entity: "privacy.other_private"
@@ -5696,8 +5721,16 @@ public-api:
       paths: ["package:libraries_and_visibility/privacy/private_members.dart::Holder"]
       access: "all"
     - distribution: "dist.libraries_and_visibility"
+      entity: "privacy.private_members.Holder.new"
+      paths: ["package:libraries_and_visibility/privacy/private_members.dart::Holder.new"]
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
       entity: "privacy.private_members.Peer"
       paths: ["package:libraries_and_visibility/privacy/private_members.dart::Peer"]
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
+      entity: "privacy.private_members.Peer.new"
+      paths: ["package:libraries_and_visibility/privacy/private_members.dart::Peer.new"]
       access: "all"
     - distribution: "dist.libraries_and_visibility"
       entity: "privacy.private_members.Peer.readHolderValue"
@@ -5744,6 +5777,10 @@ public-api:
       paths: ["package:libraries_and_visibility/scope/mutual_a.dart::NodeA.describe"]
       access: "all"
     - distribution: "dist.libraries_and_visibility"
+      entity: "scope.mutual_a.NodeA.new"
+      paths: ["package:libraries_and_visibility/scope/mutual_a.dart::NodeA.new"]
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
       entity: "scope.mutual_a.NodeA.partner"
       paths: ["package:libraries_and_visibility/scope/mutual_a.dart::NodeA.partner"]
       access: "all"
@@ -5758,6 +5795,10 @@ public-api:
     - distribution: "dist.libraries_and_visibility"
       entity: "scope.mutual_b.NodeB.describe"
       paths: ["package:libraries_and_visibility/scope/mutual_b.dart::NodeB.describe"]
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
+      entity: "scope.mutual_b.NodeB.new"
+      paths: ["package:libraries_and_visibility/scope/mutual_b.dart::NodeB.new"]
       access: "all"
     - distribution: "dist.libraries_and_visibility"
       entity: "scope.mutual_b.NodeB.partner"
@@ -5778,6 +5819,10 @@ public-api:
     - distribution: "dist.libraries_and_visibility"
       entity: "scope.scope_demo.ScopeDemo.field"
       paths: ["package:libraries_and_visibility/scope/scope_demo.dart::ScopeDemo.field"]
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
+      entity: "scope.scope_demo.ScopeDemo.new"
+      paths: ["package:libraries_and_visibility/scope/scope_demo.dart::ScopeDemo.new"]
       access: "all"
     - distribution: "dist.libraries_and_visibility"
       entity: "src.public_gadgets.BaseGadget"
@@ -5813,11 +5858,29 @@ public-api:
         - "package:libraries_and_visibility/libraries_and_visibility.dart::BaseGadget.name"
       access: "all"
     - distribution: "dist.libraries_and_visibility"
+      entity: "src.public_gadgets.BaseGadget.new"
+      paths:
+        - "package:libraries_and_visibility/facades/chain_leaf.dart::BaseGadget.new"
+        - "package:libraries_and_visibility/facades/chain_mid.dart::BaseGadget.new"
+        - "package:libraries_and_visibility/facades/chain_root.dart::BaseGadget.new"
+        - "package:libraries_and_visibility/facades/diamond_left.dart::BaseGadget.new"
+        - "package:libraries_and_visibility/facades/diamond_right.dart::BaseGadget.new"
+        - "package:libraries_and_visibility/facades/diamond_top.dart::BaseGadget.new"
+        - "package:libraries_and_visibility/libraries_and_visibility.dart::BaseGadget.new"
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
       entity: "src.public_gadgets.ExtraGadget"
       paths:
         - "package:libraries_and_visibility/facades/cycle_a.dart::ExtraGadget"
         - "package:libraries_and_visibility/facades/cycle_b.dart::ExtraGadget"
         - "package:libraries_and_visibility/libraries_and_visibility.dart::ExtraGadget"
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
+      entity: "src.public_gadgets.ExtraGadget.new"
+      paths:
+        - "package:libraries_and_visibility/facades/cycle_a.dart::ExtraGadget.new"
+        - "package:libraries_and_visibility/facades/cycle_b.dart::ExtraGadget.new"
+        - "package:libraries_and_visibility/libraries_and_visibility.dart::ExtraGadget.new"
       access: "all"
     - distribution: "dist.libraries_and_visibility"
       entity: "src.public_gadgets.ExtraGadget.tag"
@@ -5841,6 +5904,10 @@ public-api:
     - distribution: "dist.libraries_and_visibility"
       entity: "wildcards.modern_wildcards.WildcardHolder"
       paths: ["package:libraries_and_visibility/wildcards/modern_wildcards.dart::WildcardHolder"]
+      access: "all"
+    - distribution: "dist.libraries_and_visibility"
+      entity: "wildcards.modern_wildcards.WildcardHolder.new"
+      paths: ["package:libraries_and_visibility/wildcards/modern_wildcards.dart::WildcardHolder.new"]
       access: "all"
     - distribution: "dist.libraries_and_visibility"
       entity: "wildcards.modern_wildcards.WildcardHolder.read"
@@ -5894,6 +5961,9 @@ public-api:
     - entity: "deferred.deferred_payload.DeferredPayload.label"
       modifiers: ["final"]
       type: "String"
+    - entity: "deferred.deferred_payload.DeferredPayload.new"
+      parameters: [{"name": "label", "type": {"inferred": "String"}}]
+      modifiers: ["const"]
     - entity: "deferred.deferred_payload.describePayload"
       parameters: [{"name": "payload", "type": "@{deferred.deferred_payload.DeferredPayload}"}]
       returns: "String"
@@ -5903,11 +5973,18 @@ public-api:
     - {"entity": "identity.identity_consumer.describeIdentitySources", "returns": "String"}
     - {"entity": "identity.legacy_named_alpha.sharedNameLabel", "returns": "String"}
     - {"entity": "identity.legacy_named_beta.sharedNameOtherLabel", "returns": "String"}
+    - entity: "identity.library_metadata.LibraryMetadata.new"
+      parameters: [{"name": "note", "type": {"inferred": "String"}}]
+      modifiers: ["const"]
     - entity: "identity.library_metadata.LibraryMetadata.note"
       modifiers: ["final"]
       type: "String"
+    - {"entity": "identity.omitted_directive.OmittedDirectiveMarker.new", "modifiers": ["const"]}
     - {"entity": "identity.omitted_directive.omittedDirectiveLabel", "returns": "String"}
     - {"entity": "identity.unnamed_directive.unnamedDirectiveLabel", "returns": "String"}
+    - entity: "imports.core_hide.Duration.new"
+      parameters: [{"name": "totalUnits", "type": {"inferred": "int"}}]
+      modifiers: ["const"]
     - {"entity": "imports.core_hide.Duration.toString", "returns": "String"}
     - {"entity": "imports.core_hide.Duration.totalUnits", "modifiers": ["final"], "type": "int"}
     - {"entity": "imports.core_hide.describeLocalDuration", "returns": "String"}
@@ -5949,6 +6026,12 @@ public-api:
     - {"entity": "scope.scope_demo.ScopeDemo.field", "type": "int"}
     - {"entity": "src.public_gadgets.BaseGadget.describe", "returns": "String"}
     - {"entity": "src.public_gadgets.BaseGadget.name", "modifiers": ["final"], "type": "String"}
+    - entity: "src.public_gadgets.BaseGadget.new"
+      parameters: [{"name": "name", "type": {"inferred": "String"}}]
+      modifiers: ["const"]
+    - entity: "src.public_gadgets.ExtraGadget.new"
+      parameters: [{"name": "tag", "type": {"inferred": "String"}}]
+      modifiers: ["const"]
     - {"entity": "src.public_gadgets.ExtraGadget.tag", "modifiers": ["final"], "type": "String"}
     - entity: "wildcards.legacy_wildcards.legacySingleUnderscoreBinding"
       parameters: [{"name": "seed", "type": "int"}]
