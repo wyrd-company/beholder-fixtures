@@ -20,19 +20,21 @@ authoring:
     a member is overloaded when another entity of its type has the same member name. An explicit interface implementation is `<interface metadata type path with type arguments>.<member>`, such as `Vector2.Catalog.Core.Operators.IAdditive`1<Catalog.Core.Operators.Vector2>.op_Addition`.
     External paths follow the same rule against the overload sets of the net10.0 reference assemblies, where every external here is defined in System.Runtime. (7) Visibility: defaults by the profile; a
     static constructor and an explicit interface implementation are `private`, and the finalizer is `protected`, all with `explicit: false`; InternalsVisibleTo("FriendAccess") makes FriendAccess Catalog.Core''s
-    friend unit; a member of a private nested type is scoped to the type that contains the nested type. (8) References: every token that denotes an entity or external; predefined type keywords, `void` included,
-    are `type` references to their System externals (`string` in `string.Empty` is a `qualifier`); `this` and `base` constructor initializers are `call` references to the selected constructor; the `[` of
-    an element access that binds to an indexer is a reference by use (`base[index]` read, object-initializer `[2] = 5` write); a user-defined operator token is a `call`; a field-like event named inside
-    its class is the event; event `+=` and `-=` are `write`; the interface name in an explicit member name is `type`; the type qualifier of a static member access is `qualifier`. Not references: parameters,
-    locals, lambda parameters, pattern variables, discards, `var`, target-typed `new()`, `new T()`, delegate invocation through a local, predefined operators (including delegate `+` and `!=`, which a probe
-    showed bind to built-in operators), user-defined conversions and `operator true`/`false`, which have no token. (9) Relations: `inherits` and `implements` at the base-list token; a record''s IEquatable<T>
-    implementation has no token; `overrides` for each override and each implicit or explicit interface implementation, to the immediate overridden member (System.ValueType for structs, System.Object for
-    classes). (10) Signatures are written from source and the specification, with implied modifiers left out: a struct is not `sealed`, a member of a readonly struct is not `readonly`, a delegate''s synthetic
-    members have no modifiers; an interface member with no body is `abstract`; `volatile` is a field modifier. Synthetic slots are `{inferred}`. A record struct''s Equals(object), ToString and PrintMembers
-    are nullable-oblivious (`object~`, `string~`, `@{StringBuilder}~`) as the compiler emits them in metadata, which a compile probe outside the tree confirmed; a record class''s are annotated. A delegate''s
-    compiler-supplied parameters are oblivious. Signatures were written before any compiler report was run on this project. The Roslyn report''s first run disagreed on Coordinate''s Equals(object) and ToString
-    annotations, which settled the profile rule above, and found a report defect in a self-referencing generic constraint. The same author wrote the Roslyn report script, which limits independence. No indexer
-    or language service was used.'
+    friend unit; a member of a private nested type is scoped to the type that contains the nested type. (8) References: every token that denotes an entity or external; `from` is the innermost entity whose
+    declaration contains the site, so a token inside a source parameter''s declaration (its type, default value or attributes) is `from` that parameter, while a delegate''s declared parameters are no entities
+    and their tokens are `from` the delegate; a member access targets the member that lookup selects after removing overrides, so `Value.GetHashCode()` targets System.Object.GetHashCode; predefined type
+    keywords, `void` included, are `type` references to their System externals (`string` in `string.Empty` is a `qualifier`); `this` and `base` constructor initializers are `call` references to the selected
+    constructor; the `[` of an element access that binds to an indexer is a reference by use (`base[index]` read, object-initializer `[2] = 5` write); a user-defined operator token is a `call`; a field-like
+    event named inside its class is the event; event `+=` and `-=` are `write`; the interface name in an explicit member name is `type`; the type qualifier of a static member access is `qualifier`. Not
+    references: parameters, locals, lambda parameters, pattern variables, discards, `var`, target-typed `new()`, `new T()`, delegate invocation through a local, predefined operators (including delegate
+    `+` and `!=`, which a probe showed bind to built-in operators), user-defined conversions and `operator true`/`false`, which have no token. (9) Relations: `inherits` and `implements` at the base-list
+    token; a record''s IEquatable<T> implementation has no token; `overrides` for each override and each implicit or explicit interface implementation, to the immediate overridden member (System.ValueType
+    for structs, System.Object for classes). (10) Signatures are written from source and the specification, with implied modifiers left out: a struct is not `sealed`, a member of a readonly struct is not
+    `readonly`, a delegate''s synthetic members have no modifiers; an interface member with no body is `abstract`; `volatile` is a field modifier. Synthetic slots are `{inferred}`. A record struct''s Equals(object),
+    ToString and PrintMembers are nullable-oblivious (`object~`, `string~`, `@{StringBuilder}~`) as the compiler emits them in metadata, which a compile probe outside the tree confirmed; a record class''s
+    are annotated. A delegate''s compiler-supplied parameters are oblivious. Signatures were written before any compiler report was run on this project. The Roslyn report''s first run disagreed on Coordinate''s
+    Equals(object) and ToString annotations, which settled the profile rule above, and found a report defect in a self-referencing generic constraint. The same author wrote the Roslyn report script, which
+    limits independence. No indexer or language service was used.'
   tools:
   - name: .NET SDK
     version: 10.0.403
@@ -8331,11 +8333,6 @@ externals:
   language-kind: method
   distribution: System.Runtime
   path: System.Int32.CompareTo(System.Int32)
-- id: ext.System.Int32.GetHashCode
-  kind: callable
-  language-kind: method
-  distribution: System.Runtime
-  path: System.Int32.GetHashCode
 - id: ext.System.InvalidOperationException
   kind: type
   language-kind: class
@@ -8453,7 +8450,7 @@ externals:
   path: System.Void
 references:
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [5, 31], end: [5, 34], text: int}
-  from: Catalog.CSharp11.CheckedMeasure..ctor
+  from: Catalog.CSharp11.CheckedMeasure..ctor.value
   target: ext.System.Int32
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [5, 45], end: [5, 50], text: Value}
@@ -8469,11 +8466,11 @@ references:
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [9, 49], end: [9, 63], text: CheckedMeasure}
-  from: Catalog.CSharp11.CheckedMeasure.op_Addition
+  from: Catalog.CSharp11.CheckedMeasure.op_Addition.left
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [9, 70], end: [9, 84], text: CheckedMeasure}
-  from: Catalog.CSharp11.CheckedMeasure.op_Addition
+  from: Catalog.CSharp11.CheckedMeasure.op_Addition.right
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [10, 17], end: [10, 31], text: CheckedMeasure}
@@ -8493,11 +8490,11 @@ references:
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [12, 57], end: [12, 71], text: CheckedMeasure}
-  from: Catalog.CSharp11.CheckedMeasure.op_CheckedAddition
+  from: Catalog.CSharp11.CheckedMeasure.op_CheckedAddition.left
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [12, 78], end: [12, 92], text: CheckedMeasure}
-  from: Catalog.CSharp11.CheckedMeasure.op_CheckedAddition
+  from: Catalog.CSharp11.CheckedMeasure.op_CheckedAddition.right
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [13, 17], end: [13, 31], text: CheckedMeasure}
@@ -8517,11 +8514,11 @@ references:
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [15, 49], end: [15, 63], text: CheckedMeasure}
-  from: Catalog.CSharp11.CheckedMeasure.op_Subtraction
+  from: Catalog.CSharp11.CheckedMeasure.op_Subtraction.left
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [15, 70], end: [15, 84], text: CheckedMeasure}
-  from: Catalog.CSharp11.CheckedMeasure.op_Subtraction
+  from: Catalog.CSharp11.CheckedMeasure.op_Subtraction.right
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [16, 17], end: [16, 31], text: CheckedMeasure}
@@ -8541,11 +8538,11 @@ references:
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [18, 57], end: [18, 71], text: CheckedMeasure}
-  from: Catalog.CSharp11.CheckedMeasure.op_CheckedSubtraction
+  from: Catalog.CSharp11.CheckedMeasure.op_CheckedSubtraction.left
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [18, 78], end: [18, 92], text: CheckedMeasure}
-  from: Catalog.CSharp11.CheckedMeasure.op_CheckedSubtraction
+  from: Catalog.CSharp11.CheckedMeasure.op_CheckedSubtraction.right
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [19, 17], end: [19, 31], text: CheckedMeasure}
@@ -8565,11 +8562,11 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [24, 38], end: [24, 52], text: CheckedMeasure}
-  from: Catalog.CSharp11.CheckedOperatorExercise.SumChecked
+  from: Catalog.CSharp11.CheckedOperatorExercise.SumChecked.left
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [24, 59], end: [24, 73], text: CheckedMeasure}
-  from: Catalog.CSharp11.CheckedOperatorExercise.SumChecked
+  from: Catalog.CSharp11.CheckedOperatorExercise.SumChecked.right
   target: Catalog.CSharp11.CheckedMeasure
   role: type
 - at: {path: contexts/csharp11/CheckedOperators.cs, start: [25, 26], end: [25, 27], text: +}
@@ -8661,11 +8658,11 @@ references:
   target: ext.System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute..ctor
   role: attribute
 - at: {path: contexts/csharp11/RequiredContracts.cs, start: [53, 40], end: [53, 43], text: int}
-  from: Catalog.CSharp11.RequiredConstructorHost..ctor
+  from: Catalog.CSharp11.RequiredConstructorHost..ctor.count
   target: ext.System.Int32
   role: type
 - at: {path: contexts/csharp11/RequiredContracts.cs, start: [53, 51], end: [53, 57], text: string}
-  from: Catalog.CSharp11.RequiredConstructorHost..ctor
+  from: Catalog.CSharp11.RequiredConstructorHost..ctor.name
   target: ext.System.String
   role: type
 - at: {path: contexts/csharp11/RequiredContracts.cs, start: [55, 13], end: [55, 18], text: Count}
@@ -8697,7 +8694,7 @@ references:
   target: Catalog.CSharp11.RequiredRecord
   role: type
 - at: {path: contexts/csharp11/RequiredContracts.cs, start: [71, 43], end: [71, 57], text: RequiredRecord}
-  from: Catalog.CSharp11.RequiredFactory.Copy
+  from: Catalog.CSharp11.RequiredFactory.Copy.source
   target: Catalog.CSharp11.RequiredRecord
   role: type
 - at: {path: contexts/csharp11/RequiredContracts.cs, start: [71, 83], end: [71, 88], text: Count}
@@ -8709,7 +8706,7 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: contexts/csharp13/PartialIndexerHost.Implementation.cs, start: [5, 29], end: [5, 32], text: int}
-  from: Catalog.CSharp13.PartialIndexerHost.this
+  from: Catalog.CSharp13.PartialIndexerHost.this.index
   target: ext.System.Int32
   role: type
 - at: {path: contexts/csharp13/PartialIndexerHost.Implementation.cs, start: [7, 16], end: [7, 21], text: _base}
@@ -8745,7 +8742,7 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: contexts/csharp13/PartialIndexerHost.cs, start: [7, 29], end: [7, 32], text: int}
-  from: Catalog.CSharp13.PartialIndexerHost.this
+  from: Catalog.CSharp13.PartialIndexerHost.this.index
   target: ext.System.Int32
   role: type
 - at: {path: contexts/csharp13/PartialIndexerHost.cs, start: [9, 20], end: [9, 26], text: string}
@@ -8765,7 +8762,7 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: contexts/csharp9/InitOnlyMembers.cs, start: [9, 25], end: [9, 28], text: int}
-  from: Catalog.CSharp9.InitOnlyMembers.this
+  from: Catalog.CSharp9.InitOnlyMembers.this.index
   target: ext.System.Int32
   role: type
 - at: {path: contexts/csharp9/InitOnlyMembers.cs, start: [11, 20], end: [11, 25], text: Count}
@@ -8969,7 +8966,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [59, 31], end: [59, 47], text: NestedAccessHost}
-  from: Catalog.Core.Accessibility.NestedAccessHost.PublicNested.TouchHost
+  from: Catalog.Core.Accessibility.NestedAccessHost.PublicNested.TouchHost.host
   target: Catalog.Core.Accessibility.NestedAccessHost
   role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [59, 62], end: [59, 72], text: _hostValue}
@@ -8981,7 +8978,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [64, 31], end: [64, 47], text: NestedAccessHost}
-  from: Catalog.Core.Accessibility.NestedAccessHost.PrivateNested.TouchHost
+  from: Catalog.Core.Accessibility.NestedAccessHost.PrivateNested.TouchHost.host
   target: Catalog.Core.Accessibility.NestedAccessHost
   role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [64, 62], end: [64, 72], text: _hostValue}
@@ -8997,7 +8994,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [72, 25], end: [72, 40], text: AccessModifiers}
-  from: Catalog.Core.Accessibility.InternalCatalogEntry.Touch
+  from: Catalog.Core.Accessibility.InternalCatalogEntry.Touch.target
   target: Catalog.Core.Accessibility.AccessModifiers
   role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [72, 59], end: [72, 73], text: InternalMethod}
@@ -9009,11 +9006,11 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [77, 38], end: [77, 53], text: AccessModifiers}
-  from: Catalog.Core.Accessibility.SameAssemblyAccess.Demonstrate
+  from: Catalog.Core.Accessibility.SameAssemblyAccess.Demonstrate.target
   target: Catalog.Core.Accessibility.AccessModifiers
   role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [77, 62], end: [77, 82], text: InternalCatalogEntry}
-  from: Catalog.Core.Accessibility.SameAssemblyAccess.Demonstrate
+  from: Catalog.Core.Accessibility.SameAssemblyAccess.Demonstrate.entry
   target: Catalog.Core.Accessibility.InternalCatalogEntry
   role: type
 - at: {path: src/Core/Accessibility/AccessModifiers.cs, start: [79, 16], end: [79, 30], text: InternalMethod}
@@ -9077,7 +9074,7 @@ references:
   target: Catalog.Core.Constructors.InitializationOrder..ctor#System.String
   role: call
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [15, 32], end: [15, 38], text: string}
-  from: Catalog.Core.Constructors.InitializationOrder..ctor#System.String
+  from: Catalog.Core.Constructors.InitializationOrder..ctor#System.String.name
   target: ext.System.String
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [16, 11], end: [16, 15], text: this}
@@ -9089,11 +9086,11 @@ references:
   target: Catalog.Core.Constructors.InitializationOrder.CreateSequence
   role: call
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [20, 33], end: [20, 39], text: string}
-  from: Catalog.Core.Constructors.InitializationOrder..ctor#System.String#System.Int32
+  from: Catalog.Core.Constructors.InitializationOrder..ctor#System.String#System.Int32.name
   target: ext.System.String
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [20, 46], end: [20, 49], text: int}
-  from: Catalog.Core.Constructors.InitializationOrder..ctor#System.String#System.Int32
+  from: Catalog.Core.Constructors.InitializationOrder..ctor#System.String#System.Int32.sequence
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [22, 9], end: [22, 14], text: _name}
@@ -9109,7 +9106,7 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [26, 39], end: [26, 45], text: string}
-  from: Catalog.Core.Constructors.InitializationOrder.CreateSequence
+  from: Catalog.Core.Constructors.InitializationOrder.CreateSequence.name
   target: ext.System.String
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [26, 60], end: [26, 66], text: Length}
@@ -9125,7 +9122,7 @@ references:
   target: Catalog.Core.Constructors.InitializationOrder..ctor#System.String
   role: call
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [36, 34], end: [36, 37], text: int}
-  from: Catalog.Core.Constructors.ChainedInitialization..ctor#System.Int32
+  from: Catalog.Core.Constructors.ChainedInitialization..ctor#System.Int32.seed
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [37, 11], end: [37, 15], text: this}
@@ -9181,15 +9178,15 @@ references:
   target: Catalog.Core.Constructors.FinalizableResource._released
   role: read
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [71, 42], end: [71, 45], text: int}
-  from: Catalog.Core.Constructors.Coordinate..ctor#System.Int32#System.Int32
+  from: Catalog.Core.Constructors.Coordinate..ctor#System.Int32#System.Int32.X
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [71, 49], end: [71, 52], text: int}
-  from: Catalog.Core.Constructors.Coordinate..ctor#System.Int32#System.Int32
+  from: Catalog.Core.Constructors.Coordinate..ctor#System.Int32#System.Int32.Y
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [73, 23], end: [73, 33], text: Coordinate}
-  from: Catalog.Core.Constructors.Coordinate..ctor#Catalog.Core.Constructors.Coordinate
+  from: Catalog.Core.Constructors.Coordinate..ctor#Catalog.Core.Constructors.Coordinate.other
   target: Catalog.Core.Constructors.Coordinate
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [74, 11], end: [74, 15], text: this}
@@ -9209,7 +9206,7 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [83, 27], end: [83, 30], text: int}
-  from: Catalog.Core.Constructors.ExplicitStruct..ctor
+  from: Catalog.Core.Constructors.ExplicitStruct..ctor.value
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [85, 9], end: [85, 14], text: Value}
@@ -9221,7 +9218,7 @@ references:
   target: Catalog.Core.Constructors.ExplicitStruct
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [88, 41], end: [88, 44], text: int}
-  from: Catalog.Core.Constructors.ExplicitStruct.Create
+  from: Catalog.Core.Constructors.ExplicitStruct.Create.value
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [93, 23], end: [93, 29], text: string}
@@ -9289,7 +9286,7 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [128, 32], end: [128, 35], text: int}
-  from: Catalog.Core.Constructors.DefaultStructBypass..ctor
+  from: Catalog.Core.Constructors.DefaultStructBypass..ctor.value
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Constructors/InitializationOrder.cs, start: [128, 46], end: [128, 51], text: Value}
@@ -9365,19 +9362,19 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [16, 9], end: [16, 22], text: PairTransform}
-  from: Catalog.Core.Delegates.CallableIdentity.CombineAndInvoke
+  from: Catalog.Core.Delegates.CallableIdentity.CombineAndInvoke.first
   target: Catalog.Core.Delegates.PairTransform
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [17, 9], end: [17, 22], text: PairTransform}
-  from: Catalog.Core.Delegates.CallableIdentity.CombineAndInvoke
+  from: Catalog.Core.Delegates.CallableIdentity.CombineAndInvoke.second
   target: Catalog.Core.Delegates.PairTransform
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [18, 9], end: [18, 12], text: int}
-  from: Catalog.Core.Delegates.CallableIdentity.CombineAndInvoke
+  from: Catalog.Core.Delegates.CallableIdentity.CombineAndInvoke.left
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [19, 9], end: [19, 12], text: int}
-  from: Catalog.Core.Delegates.CallableIdentity.CombineAndInvoke
+  from: Catalog.Core.Delegates.CallableIdentity.CombineAndInvoke.right
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [21, 9], end: [21, 22], text: PairTransform}
@@ -9413,11 +9410,11 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [27, 36], end: [27, 42], text: Worker}
-  from: Catalog.Core.Delegates.CallableIdentity.BindTargets
+  from: Catalog.Core.Delegates.CallableIdentity.BindTargets.worker
   target: Catalog.Core.Delegates.Worker
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [27, 51], end: [27, 60], text: GridPoint}
-  from: Catalog.Core.Delegates.CallableIdentity.BindTargets
+  from: Catalog.Core.Delegates.CallableIdentity.BindTargets.point
   target: Catalog.Core.Delegates.GridPoint
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [29, 9], end: [29, 22], text: NoticeHandler}
@@ -9493,7 +9490,7 @@ references:
   target: ext.System.Boolean
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [42, 48], end: [42, 54], text: Worker}
-  from: Catalog.Core.Delegates.CallableIdentity.CompareDelegateIdentity
+  from: Catalog.Core.Delegates.CallableIdentity.CompareDelegateIdentity.worker
   target: Catalog.Core.Delegates.Worker
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [44, 9], end: [44, 15], text: Action}
@@ -9537,23 +9534,23 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [52, 9], end: [52, 22], text: PairTransform}
-  from: Catalog.Core.Delegates.CallableIdentity.RemoveLastMatchingSubsequence
+  from: Catalog.Core.Delegates.CallableIdentity.RemoveLastMatchingSubsequence.first
   target: Catalog.Core.Delegates.PairTransform
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [53, 9], end: [53, 22], text: PairTransform}
-  from: Catalog.Core.Delegates.CallableIdentity.RemoveLastMatchingSubsequence
+  from: Catalog.Core.Delegates.CallableIdentity.RemoveLastMatchingSubsequence.second
   target: Catalog.Core.Delegates.PairTransform
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [54, 9], end: [54, 22], text: PairTransform}
-  from: Catalog.Core.Delegates.CallableIdentity.RemoveLastMatchingSubsequence
+  from: Catalog.Core.Delegates.CallableIdentity.RemoveLastMatchingSubsequence.third
   target: Catalog.Core.Delegates.PairTransform
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [55, 9], end: [55, 12], text: int}
-  from: Catalog.Core.Delegates.CallableIdentity.RemoveLastMatchingSubsequence
+  from: Catalog.Core.Delegates.CallableIdentity.RemoveLastMatchingSubsequence.left
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [56, 9], end: [56, 12], text: int}
-  from: Catalog.Core.Delegates.CallableIdentity.RemoveLastMatchingSubsequence
+  from: Catalog.Core.Delegates.CallableIdentity.RemoveLastMatchingSubsequence.right
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [58, 9], end: [58, 22], text: PairTransform}
@@ -9577,19 +9574,19 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [64, 9], end: [64, 22], text: PairTransform}
-  from: Catalog.Core.Delegates.CallableIdentity.InvokeThrowingMulticast
+  from: Catalog.Core.Delegates.CallableIdentity.InvokeThrowingMulticast.safe
   target: Catalog.Core.Delegates.PairTransform
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [65, 9], end: [65, 22], text: PairTransform}
-  from: Catalog.Core.Delegates.CallableIdentity.InvokeThrowingMulticast
+  from: Catalog.Core.Delegates.CallableIdentity.InvokeThrowingMulticast.throwing
   target: Catalog.Core.Delegates.PairTransform
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [66, 9], end: [66, 12], text: int}
-  from: Catalog.Core.Delegates.CallableIdentity.InvokeThrowingMulticast
+  from: Catalog.Core.Delegates.CallableIdentity.InvokeThrowingMulticast.left
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [67, 9], end: [67, 12], text: int}
-  from: Catalog.Core.Delegates.CallableIdentity.InvokeThrowingMulticast
+  from: Catalog.Core.Delegates.CallableIdentity.InvokeThrowingMulticast.right
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [69, 9], end: [69, 22], text: PairTransform}
@@ -9605,15 +9602,15 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [80, 47], end: [80, 53], text: Worker}
-  from: Catalog.Core.Delegates.CallableIdentity.SelectByTargetSignature
+  from: Catalog.Core.Delegates.CallableIdentity.SelectByTargetSignature.worker
   target: Catalog.Core.Delegates.Worker
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [80, 62], end: [80, 65], text: int}
-  from: Catalog.Core.Delegates.CallableIdentity.SelectByTargetSignature
+  from: Catalog.Core.Delegates.CallableIdentity.SelectByTargetSignature.left
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [80, 72], end: [80, 75], text: int}
-  from: Catalog.Core.Delegates.CallableIdentity.SelectByTargetSignature
+  from: Catalog.Core.Delegates.CallableIdentity.SelectByTargetSignature.right
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [82, 9], end: [82, 22], text: PairTransform}
@@ -9653,11 +9650,11 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [90, 61], end: [90, 64], text: int}
-  from: Catalog.Core.Delegates.CallableIdentity.SelectStaticOverloadByTargetSignature
+  from: Catalog.Core.Delegates.CallableIdentity.SelectStaticOverloadByTargetSignature.left
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [90, 71], end: [90, 74], text: int}
-  from: Catalog.Core.Delegates.CallableIdentity.SelectStaticOverloadByTargetSignature
+  from: Catalog.Core.Delegates.CallableIdentity.SelectStaticOverloadByTargetSignature.right
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [92, 9], end: [92, 22], text: PairTransform}
@@ -9697,7 +9694,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [97, 38], end: [97, 44], text: string}
-  from: Catalog.Core.Delegates.CallableIdentity.StaticNotice
+  from: Catalog.Core.Delegates.CallableIdentity.StaticNotice.message
   target: ext.System.String
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [105, 12], end: [105, 16], text: void}
@@ -9705,7 +9702,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [105, 29], end: [105, 35], text: string}
-  from: Catalog.Core.Delegates.Worker.RaiseNotice
+  from: Catalog.Core.Delegates.Worker.RaiseNotice.message
   target: ext.System.String
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [107, 12], end: [107, 16], text: void}
@@ -9713,7 +9710,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [107, 23], end: [107, 26], text: int}
-  from: Catalog.Core.Delegates.Worker.Apply
+  from: Catalog.Core.Delegates.Worker.Apply.value
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [109, 12], end: [109, 15], text: int}
@@ -9721,11 +9718,11 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [109, 26], end: [109, 29], text: int}
-  from: Catalog.Core.Delegates.Worker.Transform#System.Int32#System.Int32
+  from: Catalog.Core.Delegates.Worker.Transform#System.Int32#System.Int32.left
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [109, 36], end: [109, 39], text: int}
-  from: Catalog.Core.Delegates.Worker.Transform#System.Int32#System.Int32
+  from: Catalog.Core.Delegates.Worker.Transform#System.Int32#System.Int32.right
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [111, 12], end: [111, 15], text: int}
@@ -9733,7 +9730,7 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [111, 26], end: [111, 29], text: int}
-  from: Catalog.Core.Delegates.Worker.Transform#System.Int32
+  from: Catalog.Core.Delegates.Worker.Transform#System.Int32.value
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [113, 12], end: [113, 16], text: void}
@@ -9741,7 +9738,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [113, 27], end: [113, 33], text: string}
-  from: Catalog.Core.Delegates.Worker.Transform#System.String
+  from: Catalog.Core.Delegates.Worker.Transform#System.String.message
   target: ext.System.String
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [115, 19], end: [115, 22], text: int}
@@ -9749,11 +9746,11 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [115, 29], end: [115, 32], text: int}
-  from: Catalog.Core.Delegates.Worker.Scale#System.Int32#System.Int32
+  from: Catalog.Core.Delegates.Worker.Scale#System.Int32#System.Int32.left
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [115, 39], end: [115, 42], text: int}
-  from: Catalog.Core.Delegates.Worker.Scale#System.Int32#System.Int32
+  from: Catalog.Core.Delegates.Worker.Scale#System.Int32#System.Int32.right
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [117, 19], end: [117, 22], text: int}
@@ -9761,7 +9758,7 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [117, 29], end: [117, 32], text: int}
-  from: Catalog.Core.Delegates.Worker.Scale#System.Int32
+  from: Catalog.Core.Delegates.Worker.Scale#System.Int32.value
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [119, 19], end: [119, 22], text: int}
@@ -9769,11 +9766,11 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [119, 41], end: [119, 44], text: int}
-  from: Catalog.Core.Delegates.Worker.ThrowingTransform
+  from: Catalog.Core.Delegates.Worker.ThrowingTransform.left
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [119, 51], end: [119, 54], text: int}
-  from: Catalog.Core.Delegates.Worker.ThrowingTransform
+  from: Catalog.Core.Delegates.Worker.ThrowingTransform.right
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [120, 19], end: [120, 44], text: InvalidOperationException}
@@ -9789,11 +9786,11 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [128, 22], end: [128, 25], text: int}
-  from: Catalog.Core.Delegates.GridPoint..ctor
+  from: Catalog.Core.Delegates.GridPoint..ctor.x
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [128, 29], end: [128, 32], text: int}
-  from: Catalog.Core.Delegates.GridPoint..ctor
+  from: Catalog.Core.Delegates.GridPoint..ctor.y
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [130, 9], end: [130, 10], text: X}
@@ -9809,7 +9806,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [134, 24], end: [134, 30], text: string}
-  from: Catalog.Core.Delegates.GridPoint.Signal
+  from: Catalog.Core.Delegates.GridPoint.Signal.message
   target: ext.System.String
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [139, 21], end: [139, 25], text: Task}
@@ -9833,11 +9830,11 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [141, 39], end: [141, 51], text: AsyncCompute}
-  from: Catalog.Core.Delegates.AsyncReturningDelegateHost.Run
+  from: Catalog.Core.Delegates.AsyncReturningDelegateHost.Run.compute
   target: Catalog.Core.Delegates.AsyncReturningDelegateHost.AsyncCompute
   role: type
 - at: {path: src/Core/Delegates/CallableIdentity.cs, start: [141, 61], end: [141, 64], text: int}
-  from: Catalog.Core.Delegates.AsyncReturningDelegateHost.Run
+  from: Catalog.Core.Delegates.AsyncReturningDelegateHost.Run.seed
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [5, 11], end: [5, 17], text: Action}
@@ -9853,7 +9850,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [10, 24], end: [10, 30], text: string}
-  from: Catalog.Core.Events.NoticeSink.Record
+  from: Catalog.Core.Events.NoticeSink.Record.message
   target: ext.System.String
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [13, 29], end: [13, 38], text: INotifier}
@@ -9933,7 +9930,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [33, 30], end: [33, 36], text: string}
-  from: Catalog.Core.Events.EventSurface.RaiseChanged
+  from: Catalog.Core.Events.EventSurface.RaiseChanged.message
   target: ext.System.String
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [33, 49], end: [33, 56], text: Changed}
@@ -9949,11 +9946,11 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [35, 48], end: [35, 60], text: EventSurface}
-  from: Catalog.Core.Events.EventSurface.SubscribeAndUnsubscribe
+  from: Catalog.Core.Events.EventSurface.SubscribeAndUnsubscribe.surface
   target: Catalog.Core.Events.EventSurface
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [35, 70], end: [35, 80], text: NoticeSink}
-  from: Catalog.Core.Events.EventSurface.SubscribeAndUnsubscribe
+  from: Catalog.Core.Events.EventSurface.SubscribeAndUnsubscribe.sink
   target: Catalog.Core.Events.NoticeSink
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [37, 17], end: [37, 24], text: Changed}
@@ -10009,7 +10006,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [45, 35], end: [45, 41], text: string}
-  from: Catalog.Core.Events.EventSurface.LogNotice
+  from: Catalog.Core.Events.EventSurface.LogNotice.message
   target: ext.System.String
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [47, 19], end: [47, 23], text: void}
@@ -10017,7 +10014,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [47, 40], end: [47, 43], text: int}
-  from: Catalog.Core.Events.EventSurface.RaiseGlobalTick
+  from: Catalog.Core.Events.EventSurface.RaiseGlobalTick.value
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [47, 54], end: [47, 64], text: GlobalTick}
@@ -10033,7 +10030,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [49, 42], end: [49, 45], text: int}
-  from: Catalog.Core.Events.EventSurface.OnTransformed
+  from: Catalog.Core.Events.EventSurface.OnTransformed.value
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [49, 56], end: [49, 68], text: _transformed}
@@ -10137,7 +10134,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [71, 25], end: [71, 31], text: string}
-  from: Catalog.Core.Events.CustomEventHost.Publish
+  from: Catalog.Core.Events.CustomEventHost.Publish.message
   target: ext.System.String
   role: type
 - at: {path: src/Core/Events/EventSurface.cs, start: [71, 44], end: [71, 53], text: _handlers}
@@ -10189,7 +10186,7 @@ references:
   target: Catalog.Core.Fields.FieldContracts.TableWidth
   role: read
 - at: {path: src/Core/Fields/FieldContracts.cs, start: [28, 27], end: [28, 30], text: int}
-  from: Catalog.Core.Fields.FieldContracts..ctor
+  from: Catalog.Core.Fields.FieldContracts..ctor.seed
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Fields/FieldContracts.cs, start: [30, 9], end: [30, 21], text: InstanceSeed}
@@ -10297,7 +10294,7 @@ references:
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [5, 20], end: [5, 23], text: int}
-  from: Catalog.Core.Operators.Measure..ctor
+  from: Catalog.Core.Operators.Measure..ctor.value
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [5, 34], end: [5, 39], text: Value}
@@ -10313,11 +10310,11 @@ references:
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [9, 38], end: [9, 45], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_Addition
+  from: Catalog.Core.Operators.Measure.op_Addition.left
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [9, 52], end: [9, 59], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_Addition
+  from: Catalog.Core.Operators.Measure.op_Addition.right
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [10, 18], end: [10, 23], text: Value}
@@ -10333,11 +10330,11 @@ references:
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [12, 38], end: [12, 45], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_Subtraction
+  from: Catalog.Core.Operators.Measure.op_Subtraction.left
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [12, 52], end: [12, 59], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_Subtraction
+  from: Catalog.Core.Operators.Measure.op_Subtraction.right
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [13, 18], end: [13, 23], text: Value}
@@ -10353,11 +10350,11 @@ references:
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [15, 38], end: [15, 45], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_Multiply
+  from: Catalog.Core.Operators.Measure.op_Multiply.left
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [15, 52], end: [15, 55], text: int}
-  from: Catalog.Core.Operators.Measure.op_Multiply
+  from: Catalog.Core.Operators.Measure.op_Multiply.factor
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [16, 18], end: [16, 23], text: Value}
@@ -10369,11 +10366,11 @@ references:
   target: ext.System.Boolean
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [18, 36], end: [18, 43], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_Equality
+  from: Catalog.Core.Operators.Measure.op_Equality.left
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [18, 50], end: [18, 57], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_Equality
+  from: Catalog.Core.Operators.Measure.op_Equality.right
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [19, 14], end: [19, 19], text: Value}
@@ -10389,11 +10386,11 @@ references:
   target: ext.System.Boolean
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [21, 36], end: [21, 43], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_Inequality
+  from: Catalog.Core.Operators.Measure.op_Inequality.left
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [21, 50], end: [21, 57], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_Inequality
+  from: Catalog.Core.Operators.Measure.op_Inequality.right
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [22, 14], end: [22, 19], text: Value}
@@ -10409,11 +10406,11 @@ references:
   target: ext.System.Boolean
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [24, 35], end: [24, 42], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_LessThan
+  from: Catalog.Core.Operators.Measure.op_LessThan.left
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [24, 49], end: [24, 56], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_LessThan
+  from: Catalog.Core.Operators.Measure.op_LessThan.right
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [25, 14], end: [25, 19], text: Value}
@@ -10429,11 +10426,11 @@ references:
   target: ext.System.Boolean
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [27, 35], end: [27, 42], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_GreaterThan
+  from: Catalog.Core.Operators.Measure.op_GreaterThan.left
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [27, 49], end: [27, 56], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_GreaterThan
+  from: Catalog.Core.Operators.Measure.op_GreaterThan.right
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [28, 14], end: [28, 19], text: Value}
@@ -10449,11 +10446,11 @@ references:
   target: ext.System.Boolean
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [30, 36], end: [30, 43], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_LessThanOrEqual
+  from: Catalog.Core.Operators.Measure.op_LessThanOrEqual.left
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [30, 50], end: [30, 57], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_LessThanOrEqual
+  from: Catalog.Core.Operators.Measure.op_LessThanOrEqual.right
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [31, 14], end: [31, 19], text: Value}
@@ -10469,11 +10466,11 @@ references:
   target: ext.System.Boolean
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [33, 36], end: [33, 43], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_GreaterThanOrEqual
+  from: Catalog.Core.Operators.Measure.op_GreaterThanOrEqual.left
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [33, 50], end: [33, 57], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_GreaterThanOrEqual
+  from: Catalog.Core.Operators.Measure.op_GreaterThanOrEqual.right
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [34, 14], end: [34, 19], text: Value}
@@ -10489,7 +10486,7 @@ references:
   target: ext.System.Boolean
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [36, 38], end: [36, 45], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_True
+  from: Catalog.Core.Operators.Measure.op_True.value
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [36, 62], end: [36, 67], text: Value}
@@ -10501,7 +10498,7 @@ references:
   target: ext.System.Boolean
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [38, 39], end: [38, 46], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_False
+  from: Catalog.Core.Operators.Measure.op_False.value
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [38, 63], end: [38, 68], text: Value}
@@ -10513,7 +10510,7 @@ references:
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [40, 45], end: [40, 48], text: int}
-  from: Catalog.Core.Operators.Measure.op_Implicit
+  from: Catalog.Core.Operators.Measure.op_Implicit.value
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [42, 37], end: [42, 40], text: int}
@@ -10521,7 +10518,7 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [42, 41], end: [42, 48], text: Measure}
-  from: Catalog.Core.Operators.Measure.op_Explicit
+  from: Catalog.Core.Operators.Measure.op_Explicit.value
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [42, 65], end: [42, 70], text: Value}
@@ -10533,7 +10530,7 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [44, 26], end: [44, 33], text: Measure}
-  from: Catalog.Core.Operators.Measure.CompareTo
+  from: Catalog.Core.Operators.Measure.CompareTo.other
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [44, 44], end: [44, 49], text: Value}
@@ -10553,7 +10550,7 @@ references:
   target: ext.System.Boolean
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [46, 24], end: [46, 31], text: Measure}
-  from: Catalog.Core.Operators.Measure.Equals#Catalog.Core.Operators.Measure
+  from: Catalog.Core.Operators.Measure.Equals#Catalog.Core.Operators.Measure.other
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [46, 42], end: [46, 47], text: Value}
@@ -10569,7 +10566,7 @@ references:
   target: ext.System.Boolean
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [48, 33], end: [48, 39], text: object}
-  from: Catalog.Core.Operators.Measure.Equals#System.Object
+  from: Catalog.Core.Operators.Measure.Equals#System.Object.obj
   target: ext.System.Object
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [48, 56], end: [48, 63], text: Measure}
@@ -10590,10 +10587,10 @@ references:
   role: read
 - at: {path: src/Core/Operators/UserOperators.cs, start: [50, 48], end: [50, 59], text: GetHashCode}
   from: Catalog.Core.Operators.Measure.GetHashCode
-  target: ext.System.Int32.GetHashCode
+  target: ext.System.Object.GetHashCode
   role: call
 - at: {path: src/Core/Operators/UserOperators.cs, start: [55, 26], end: [55, 29], text: int}
-  from: Catalog.Core.Operators.SignedMeasure..ctor
+  from: Catalog.Core.Operators.SignedMeasure..ctor.value
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [55, 40], end: [55, 45], text: Value}
@@ -10609,11 +10606,11 @@ references:
   target: Catalog.Core.Operators.SignedMeasure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [59, 44], end: [59, 57], text: SignedMeasure}
-  from: Catalog.Core.Operators.SignedMeasure.op_Addition
+  from: Catalog.Core.Operators.SignedMeasure.op_Addition.left
   target: Catalog.Core.Operators.SignedMeasure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [59, 64], end: [59, 77], text: SignedMeasure}
-  from: Catalog.Core.Operators.SignedMeasure.op_Addition
+  from: Catalog.Core.Operators.SignedMeasure.op_Addition.right
   target: Catalog.Core.Operators.SignedMeasure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [60, 18], end: [60, 23], text: Value}
@@ -10629,11 +10626,11 @@ references:
   target: Catalog.Core.Operators.SignedMeasure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [62, 52], end: [62, 65], text: SignedMeasure}
-  from: Catalog.Core.Operators.SignedMeasure.op_CheckedAddition
+  from: Catalog.Core.Operators.SignedMeasure.op_CheckedAddition.left
   target: Catalog.Core.Operators.SignedMeasure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [62, 72], end: [62, 85], text: SignedMeasure}
-  from: Catalog.Core.Operators.SignedMeasure.op_CheckedAddition
+  from: Catalog.Core.Operators.SignedMeasure.op_CheckedAddition.right
   target: Catalog.Core.Operators.SignedMeasure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [63, 26], end: [63, 31], text: Value}
@@ -10649,11 +10646,11 @@ references:
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [68, 40], end: [68, 47], text: Measure}
-  from: Catalog.Core.Operators.NullableLiftedOperators.AddNullable
+  from: Catalog.Core.Operators.NullableLiftedOperators.AddNullable.left
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [68, 55], end: [68, 62], text: Measure}
-  from: Catalog.Core.Operators.NullableLiftedOperators.AddNullable
+  from: Catalog.Core.Operators.NullableLiftedOperators.AddNullable.right
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [68, 79], end: [68, 80], text: +}
@@ -10673,11 +10670,11 @@ references:
   target: Catalog.Core.Operators.Vector2
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [78, 20], end: [78, 23], text: int}
-  from: Catalog.Core.Operators.Vector2..ctor
+  from: Catalog.Core.Operators.Vector2..ctor.x
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [78, 27], end: [78, 30], text: int}
-  from: Catalog.Core.Operators.Vector2..ctor
+  from: Catalog.Core.Operators.Vector2..ctor.y
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [80, 9], end: [80, 10], text: X}
@@ -10701,11 +10698,11 @@ references:
   target: Catalog.Core.Operators.Vector2
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [87, 38], end: [87, 45], text: Vector2}
-  from: Catalog.Core.Operators.Vector2.op_Addition
+  from: Catalog.Core.Operators.Vector2.op_Addition.left
   target: Catalog.Core.Operators.Vector2
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [87, 52], end: [87, 59], text: Vector2}
-  from: Catalog.Core.Operators.Vector2.op_Addition
+  from: Catalog.Core.Operators.Vector2.op_Addition.right
   target: Catalog.Core.Operators.Vector2
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [88, 18], end: [88, 19], text: X}
@@ -10737,11 +10734,11 @@ references:
   target: Catalog.Core.Operators.Vector2
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [90, 50], end: [90, 57], text: Vector2}
-  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition
+  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition.left
   target: Catalog.Core.Operators.Vector2
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [90, 64], end: [90, 71], text: Vector2}
-  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition
+  from: Catalog.Core.Operators.Vector2.Catalog.Core.Operators.IAdditive-1_Catalog.Core.Operators.Vector2_.op_Addition.right
   target: Catalog.Core.Operators.Vector2
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [91, 14], end: [91, 15], text: +}
@@ -10753,11 +10750,11 @@ references:
   target: ext.System.Boolean
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [96, 33], end: [96, 40], text: Measure}
-  from: Catalog.Core.Operators.OperatorExercise.Evaluate
+  from: Catalog.Core.Operators.OperatorExercise.Evaluate.left
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [96, 47], end: [96, 54], text: Measure}
-  from: Catalog.Core.Operators.OperatorExercise.Evaluate
+  from: Catalog.Core.Operators.OperatorExercise.Evaluate.right
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [98, 9], end: [98, 16], text: Measure}
@@ -10829,7 +10826,7 @@ references:
   target: ext.System.Boolean
   role: type
 - at: {path: src/Core/Operators/UserOperators.cs, start: [107, 33], end: [107, 40], text: Measure}
-  from: Catalog.Core.Operators.OperatorExercise.IsTruthy
+  from: Catalog.Core.Operators.OperatorExercise.IsTruthy.value
   target: Catalog.Core.Operators.Measure
   role: type
 - at: {path: src/Core/Properties/PropertySurface.cs, start: [5, 13], end: [5, 16], text: int}
@@ -10877,7 +10874,7 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Properties/PropertySurface.cs, start: [22, 21], end: [22, 24], text: int}
-  from: Catalog.Core.Properties.PropertySurface.this#System.Int32
+  from: Catalog.Core.Properties.PropertySurface.this#System.Int32.index
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Properties/PropertySurface.cs, start: [24, 16], end: [24, 22], text: _count}
@@ -10893,11 +10890,11 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Properties/PropertySurface.cs, start: [28, 21], end: [28, 27], text: string}
-  from: Catalog.Core.Properties.PropertySurface.this#System.String#System.Int32
+  from: Catalog.Core.Properties.PropertySurface.this#System.String#System.Int32.key
   target: ext.System.String
   role: type
 - at: {path: src/Core/Properties/PropertySurface.cs, start: [28, 33], end: [28, 36], text: int}
-  from: Catalog.Core.Properties.PropertySurface.this#System.String#System.Int32
+  from: Catalog.Core.Properties.PropertySurface.this#System.String#System.Int32.offset
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Properties/PropertySurface.cs, start: [30, 20], end: [30, 26], text: Length}
@@ -10941,7 +10938,7 @@ references:
   target: Catalog.Core.Properties.PropertySurface.this#System.Int32
   role: read
 - at: {path: src/Core/Properties/PropertySurface.cs, start: [45, 25], end: [45, 28], text: int}
-  from: Catalog.Core.Properties.DerivedPropertySurface.this
+  from: Catalog.Core.Properties.DerivedPropertySurface.this.index
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Properties/PropertySurface.cs, start: [50, 5], end: [50, 8], text: int}
@@ -11089,11 +11086,11 @@ references:
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Properties/PropertySurface.cs, start: [85, 21], end: [85, 24], text: int}
-  from: Catalog.Core.Properties.RenamedIndexerMetadata.this
+  from: Catalog.Core.Properties.RenamedIndexerMetadata.this.shelf
   target: ext.System.Int32
   role: type
 - at: {path: src/Core/Properties/PropertySurface.cs, start: [85, 32], end: [85, 35], text: int}
-  from: Catalog.Core.Properties.RenamedIndexerMetadata.this
+  from: Catalog.Core.Properties.RenamedIndexerMetadata.this.slot
   target: ext.System.Int32
   role: type
 - at: {path: src/ExternalAccess/ExternalDerivedAccess.cs, start: [1, 7], end: [1, 14], text: Catalog}
@@ -11137,7 +11134,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/ExternalAccess/ExternalVisibility.cs, start: [7, 40], end: [7, 55], text: AccessModifiers}
-  from: Catalog.ExternalAccess.ExternalVisibility.TouchPublicOnly
+  from: Catalog.ExternalAccess.ExternalVisibility.TouchPublicOnly.target
   target: Catalog.Core.Accessibility.AccessModifiers
   role: type
 - at: {path: src/ExternalAccess/ExternalVisibility.cs, start: [9, 16], end: [9, 28], text: PublicMethod}
@@ -11153,7 +11150,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/ExternalAccess/ExternalVisibility.cs, start: [13, 58], end: [13, 73], text: AccessModifiers}
-  from: Catalog.ExternalAccess.ExternalVisibility.DemonstrateEffectiveAccessibility
+  from: Catalog.ExternalAccess.ExternalVisibility.DemonstrateEffectiveAccessibility.target
   target: Catalog.Core.Accessibility.AccessModifiers
   role: type
 - at: {path: src/ExternalAccess/ExternalVisibility.cs, start: [15, 9], end: [15, 30], text: ExternalDerivedAccess}
@@ -11209,11 +11206,11 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/FriendAccess/FriendVisibility.cs, start: [7, 40], end: [7, 60], text: InternalCatalogEntry}
-  from: Catalog.FriendAccess.FriendVisibility.TouchInternal
+  from: Catalog.FriendAccess.FriendVisibility.TouchInternal.entry
   target: Catalog.Core.Accessibility.InternalCatalogEntry
   role: type
 - at: {path: src/FriendAccess/FriendVisibility.cs, start: [7, 68], end: [7, 83], text: AccessModifiers}
-  from: Catalog.FriendAccess.FriendVisibility.TouchInternal
+  from: Catalog.FriendAccess.FriendVisibility.TouchInternal.target
   target: Catalog.Core.Accessibility.AccessModifiers
   role: type
 - at: {path: src/FriendAccess/FriendVisibility.cs, start: [9, 15], end: [9, 32], text: InternalOnlyValue}
@@ -11233,7 +11230,7 @@ references:
   target: ext.System.Void
   role: type
 - at: {path: src/FriendAccess/FriendVisibility.cs, start: [14, 60], end: [14, 75], text: AccessModifiers}
-  from: Catalog.FriendAccess.FriendVisibility.DemonstrateEffectiveAccessibility
+  from: Catalog.FriendAccess.FriendVisibility.DemonstrateEffectiveAccessibility.target
   target: Catalog.Core.Accessibility.AccessModifiers
   role: type
 - at: {path: src/FriendAccess/FriendVisibility.cs, start: [16, 9], end: [16, 28], text: FriendDerivedAccess}
