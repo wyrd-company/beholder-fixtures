@@ -11,7 +11,7 @@ authoring:
 
     Visibility. `internal/notes` is under the module root's `internal` directory, so its exported names are project-scoped to every unit of the module, and `external` is `none` because the `internal` parent lies inside the distribution. Exportedness follows the first rune's Unicode class: `Étage` (Lu) is exported and `πράγμα` (Ll) is not. Entity ids are ASCII (`pantry.Etage`, `pantry.pragma`); their names and paths keep the source spelling.
 
-    Entities and references. The blank identifier declares no entity: the `_` struct field of `Parcel`, the `_` results of `blankReturns`, `var _ shelfOpener = Shelf{}` and the blank imports. A type token in an unnamed or blank result, or in the blank field, has the enclosing declaration (callable or struct) as `from`; a token in a named parameter, result or receiver has that parameter. A site in a package-level blank declaration has the unit root as `from`. `type localPoint PackagePoint` inside `localNamedTypes` is body-local and out-of-profile; its fields are the fields of PackagePoint's struct type, so the keys and selectors `X` and `Y` on `localPoint` values target `PackagePoint.X` and `PackagePoint.Y`. Locally shadowed predeclared names in `shadowedUniverse` (`any`, `comparable`, `clear`, `min`, `max`, `len`, `true`, `nil`) denote body-local declarations and are out-of-profile; `delete` and the predeclared types there are references. Predeclared identifiers are externals of distribution `go` with path `builtin.<name>`, as the profile's References section and its example state. `//line` and `/*line*/` directives change only logical positions; locators are physical.
+    Entities and references. The blank identifier declares no entity: the `_` struct field of `Parcel`, the `_` results of `blankReturns`, `var _ shelfOpener = Shelf{}` and the blank imports. A type token in an unnamed or blank result, or in the blank field, has the enclosing declaration (callable or struct) as `from`; a token in a named parameter, result or receiver has that parameter. A site in a package-level blank declaration has the unit root as `from`. `type localPoint PackagePoint` inside `localNamedTypes` is body-local and out-of-profile; its fields are the fields of PackagePoint's struct type, so the keys and selectors `X` and `Y` on `localPoint` values target `PackagePoint.X` and `PackagePoint.Y`. Locally shadowed predeclared names in `shadowedUniverse` (`any`, `comparable`, `clear`, `min`, `max`, `len`, `true`, `nil`) denote body-local declarations and are out-of-profile; `delete` and the predeclared types there are references. Predeclared identifiers are externals of distribution `std` with path `builtin.<name>`, as the profile states. `//line` and `/*line*/` directives change only logical positions; locators are physical.
 
     Relations. `shelfOpener` is the only interface the project declares. By the method-set rule only `Shelf` implements it (value receiver `Open() string`), so there is one `implements` pair, without `go:pointer-receiver`, and one `overrides`. `Earlier` and `PackagePointAlias` alias defined types. No struct embeds a field, and there is no `//go:linkname` or `//go:embed`, so all four extensions are empty.
 
@@ -2366,21 +2366,21 @@ entities:
     declared-visibility: {value: "unexported", explicit: true}
     effective-visibility: {unit: "all", project: "none", external: "none"}
 externals:
-  - {id: "b.any", kind: "type-alias", language-kind: "alias", distribution: "go", path: "builtin.any"}
-  - {id: "b.append", kind: "callable", language-kind: "func", distribution: "go", path: "builtin.append"}
-  - {id: "b.bool", kind: "type", language-kind: "defined", distribution: "go", path: "builtin.bool"}
-  - {id: "b.clear", kind: "callable", language-kind: "func", distribution: "go", path: "builtin.clear"}
-  - {id: "b.comparable", kind: "type", language-kind: "interface", distribution: "go", path: "builtin.comparable"}
-  - {id: "b.delete", kind: "callable", language-kind: "func", distribution: "go", path: "builtin.delete"}
-  - {id: "b.error", kind: "type", language-kind: "interface", distribution: "go", path: "builtin.error"}
-  - {id: "b.float64", kind: "type", language-kind: "defined", distribution: "go", path: "builtin.float64"}
-  - {id: "b.int", kind: "type", language-kind: "defined", distribution: "go", path: "builtin.int"}
-  - {id: "b.len", kind: "callable", language-kind: "func", distribution: "go", path: "builtin.len"}
-  - {id: "b.max", kind: "callable", language-kind: "func", distribution: "go", path: "builtin.max"}
-  - {id: "b.min", kind: "callable", language-kind: "func", distribution: "go", path: "builtin.min"}
-  - {id: "b.nil", kind: "variable", language-kind: "var", distribution: "go", path: "builtin.nil"}
-  - {id: "b.string", kind: "type", language-kind: "defined", distribution: "go", path: "builtin.string"}
-  - {id: "b.true", kind: "constant", language-kind: "const", distribution: "go", path: "builtin.true"}
+  - {id: "b.any", kind: "type-alias", language-kind: "alias", distribution: "std", path: "builtin.any"}
+  - {id: "b.append", kind: "callable", language-kind: "func", distribution: "std", path: "builtin.append"}
+  - {id: "b.bool", kind: "type", language-kind: "defined", distribution: "std", path: "builtin.bool"}
+  - {id: "b.clear", kind: "callable", language-kind: "func", distribution: "std", path: "builtin.clear"}
+  - {id: "b.comparable", kind: "type", language-kind: "interface", distribution: "std", path: "builtin.comparable"}
+  - {id: "b.delete", kind: "callable", language-kind: "func", distribution: "std", path: "builtin.delete"}
+  - {id: "b.error", kind: "type", language-kind: "interface", distribution: "std", path: "builtin.error"}
+  - {id: "b.float64", kind: "type", language-kind: "defined", distribution: "std", path: "builtin.float64"}
+  - {id: "b.int", kind: "type", language-kind: "defined", distribution: "std", path: "builtin.int"}
+  - {id: "b.len", kind: "callable", language-kind: "func", distribution: "std", path: "builtin.len"}
+  - {id: "b.max", kind: "callable", language-kind: "func", distribution: "std", path: "builtin.max"}
+  - {id: "b.min", kind: "callable", language-kind: "func", distribution: "std", path: "builtin.min"}
+  - {id: "b.nil", kind: "variable", language-kind: "var", distribution: "std", path: "builtin.nil"}
+  - {id: "b.string", kind: "type", language-kind: "defined", distribution: "std", path: "builtin.string"}
+  - {id: "b.true", kind: "constant", language-kind: "const", distribution: "std", path: "builtin.true"}
   - {id: "std.fmt", kind: "module", language-kind: "package", distribution: "std", path: "fmt"}
   - {id: "std.fmt.Println", kind: "callable", language-kind: "func", distribution: "std", path: "fmt.Println"}
   - {id: "std.fmt.Sprintf", kind: "callable", language-kind: "func", distribution: "std", path: "fmt.Sprintf"}

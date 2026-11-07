@@ -14,9 +14,10 @@ under `fixtures/go/plan/projects/`.
 
 ## Selected compiler and build contexts
 
-- **Compiler.** Official Go `gc` toolchain `go1.26.5`, module mode, on 64-bit x86
-  Linux. This is the single installed release the corpus builds with. No
-  historical toolchain is provisioned.
+- **Compiler.** Official Go `gc` toolchain, module mode, on 64-bit x86 Linux.
+  Each semantic-oracle dataset names the release it is authored and checked
+  under in its contexts' `release`; the plan was written against `go1.26.5`.
+  No historical toolchain is provisioned.
 - **Language-version baseline.** The checklist baseline is Go 1.25. A newer
   installed toolchain does not erase semantics selected by a module or file
   language version, so version-sensitive items select their language version
