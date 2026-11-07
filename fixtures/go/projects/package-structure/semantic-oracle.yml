@@ -1,0 +1,3037 @@
+model: "semantic-oracle/1"
+profile: "go/1"
+project: {language: "go", name: "package-structure"}
+authoring:
+  notes: |-
+    Facts derived from project source, go.mod and Taskfile.yml, the Go Programming Language Specification, `go help packages`, `go help test` and the Go Modules Reference. Toolchain: go1.27.3 (gc, linux/amd64). It supports the module's `go 1.26` directive; no rule used here differs between go1.26 and go1.27.
+
+    Contexts. The `build` task runs `go build ./...` and the `test` task `go test ./...`; each defines one context (mode build and mode test). `go vet` runs only in the `lint` task, so it defines no context. No command assigns GOOS, GOARCH, GOAMD64, CGO_ENABLED or tags, so both take the host values the Go fixture plan declares: linux, amd64, v1, cgo enabled, gc, no tags.
+
+    Units. Nine library packages, the external test package `pantry_test` (mode test only) and the command `cmd/showcase`. Three package names differ from their directory (`quantity` in `measure`, `pattern` in `patterns`, `label` in both `labels/bright` and `labels/dim`); entity paths use import paths, so the two `label` packages are distinct units with equal declarations. A package entity's definition sites are the package clause of each of its files. No package has in-package `_test.go` files, so each package unit has the same files in both contexts.
+
+    Visibility. `internal/notes` is under the module root's `internal` directory, so its exported names are project-scoped to every unit of the module, and `external` is `none` because the `internal` parent lies inside the distribution. Exportedness follows the first rune's Unicode class: `Étage` (Lu) is exported and `πράγμα` (Ll) is not. Entity ids are ASCII (`pantry.Etage`, `pantry.pragma`); their names and paths keep the source spelling.
+
+    Entities and references. The blank identifier declares no entity: the `_` struct field of `Parcel`, the `_` results of `blankReturns`, `var _ shelfOpener = Shelf{}` and the blank imports. A type token in an unnamed or blank result, or in the blank field, has the enclosing declaration (callable or struct) as `from`; a token in a named parameter, result or receiver has that parameter. A site in a package-level blank declaration has the unit root as `from`. `type localPoint PackagePoint` inside `localNamedTypes` is body-local and out-of-profile; its fields are the fields of PackagePoint's struct type, so the keys and selectors `X` and `Y` on `localPoint` values target `PackagePoint.X` and `PackagePoint.Y`. Locally shadowed predeclared names in `shadowedUniverse` (`any`, `comparable`, `clear`, `min`, `max`, `len`, `true`, `nil`) denote body-local declarations and are out-of-profile; `delete` and the predeclared types there are references. Predeclared identifiers are externals of distribution `go` with path `builtin.<name>`, as the profile's References section and its example state. `//line` and `/*line*/` directives change only logical positions; locators are physical.
+
+    Relations. `shelfOpener` is the only interface the project declares. By the method-set rule only `Shelf` implements it (value receiver `Open() string`), so there is one `implements` pair, without `go:pointer-receiver`, and one `overrides`. `Earlier` and `PackagePointAlias` alias defined types. No struct embeds a field, and there is no `//go:linkname` or `//go:embed`, so all four extensions are empty.
+
+    Signatures. Slots were written from source and the Go specification before any report was read: constants by the Constants section (untyped kind, exact value; `6.022e23` is integral, `1_000.25` is 4001/4, `0755` and `0o755` are 493), `var X = "..."` as {inferred: string}. They were then compared with the go/types report for both contexts. `Shelf`'s `bases` entry is not stated by the report; a go/types `types.Implements` probe run outside the project tree, over every project type and interface, found the same single pair.
+  tools:
+    - {name: "go", version: "go1.27.3"}
+    - {name: "The Go Programming Language Specification", version: "go1.27"}
+    - {name: "Go Modules Reference", version: "go1.27"}
+documents:
+  - {path: "Taskfile.yml", sha256: "d81ae060de5f4052d20915232bd434fc5eb03faad5a6e49d021cd89a120896f3", disposition: "out-of-profile", reason: "task runner file"}
+  - path: "blank.go"
+    sha256: "67d5702a5863d619db0ab8dc8111f83cdf967de99daa985ed1fcf37450d5315e"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "blank_import.go"
+    sha256: "49750b1f11117733365427d227712d4a2717b027f0e97537daea68659d8869d7"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "branches/evening/evening.go"
+    sha256: "6db7255560783d160393794c54a54cd0a984c26eaed117b74809c67c5b2ed4e2"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "evening-pkg"}
+  - path: "branches/morning/morning.go"
+    sha256: "a69980a8d5aa8348cd36a1e372e2bc817a0bd9af116df5c3a85e831c4835615b"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "morning-pkg"}
+  - path: "cmd/showcase/main.go"
+    sha256: "66f106e447b9ead6c755ece02c59c1a9e62bd892e55bb8a79c0e9b065fe2aaf9"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "showcase-main"}
+  - {path: "coverage.md", sha256: "1819993938626a8f5f9cc9cec41e7cfe4d86f85f2b80c9907c6e35a1161423a5", disposition: "out-of-profile", reason: "documentation"}
+  - path: "declarations.go"
+    sha256: "e8cc0954a1b3c3396ac2b8a94416fbe9272bbff09b5af9b6c24d5560fe2e5bcc"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "doc.go"
+    sha256: "488fe1953ae2dc1dde482e4438ef09c4fee39143c73739f63d3acbce77354ea2"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "dot_import.go"
+    sha256: "b8cfe8e8e498000eef76531870312aef823a78e9af03f9655a8a1b6ee977efa9"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "exported.go"
+    sha256: "65a9290b0a8d46b8141a92ce208509b7deb02c5b07829589f0b75ddf7227a613"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "external_test.go"
+    sha256: "bcb79b560f6a52dbd961a6f0a77df37110a006c22dfe736eb38b9ac98e70f13c"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-xtest", contexts: ["test"]}
+  - {path: "go.mod", sha256: "95550bc0a2924a22dcafcc1d7f6554f87ca525de6e8da233d4615610fea283c8", disposition: "configuration"}
+  - path: "imports_alias.go"
+    sha256: "17faf412fce0212909e1745b50377ae918f76e1304e6371b6444409732a2c2f4"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "imports_default.go"
+    sha256: "2a2ca1c506be8b788f1b1f8edf9d1fa3904e87fd748d69aea5fdceaf73a3e6cb"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "init_secondary.go"
+    sha256: "0c13674dd98cc657f4760c933d5e898f39bfa4c04b78d48983a89639890beadb"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "initialization.go"
+    sha256: "96362bb763e462b76824f8959068afaa50d60544b1e862030fdc439944d11904"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "initialization_values.go"
+    sha256: "f6c59f186648e1ed5a5661c9bbd40f40732a461f482c25915a8ef15ef9441836"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "internal/notes/note.go"
+    sha256: "71745acfa422bb864e0109df116edb552a3326ee5a9be8c891b4019ddfaf9b79"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "notes-pkg"}
+  - path: "internal_import.go"
+    sha256: "4e37861b3988b736b064649dc849538ce2f58a2bc725f9a902ee7990b7676a14"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "labels.go"
+    sha256: "d67d08120770ab8992332c8ab695890226a7bb11a8e2b7b75e0716db89b00f7c"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "labels/bright/label.go"
+    sha256: "9412c43d99a37333ee31e6f741f98d3f7912c4d51ee350c9d339f9ffbc5ff8a2"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "bright-pkg"}
+  - path: "labels/dim/label.go"
+    sha256: "9412c43d99a37333ee31e6f741f98d3f7912c4d51ee350c9d339f9ffbc5ff8a2"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "dim-pkg"}
+  - path: "local_types.go"
+    sha256: "49c3a8934634c0aa90a8ce6ac91bb88e8eba7480cf883b70cb3b6548ce5396ad"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "measure/amount.go"
+    sha256: "121f4800b5078609146a4878be152cbcd86fc6d669ee96e0662f7cb46c0e4130"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "quantity-pkg"}
+  - path: "package_identity.go"
+    sha256: "7b68b99ca03a5ef15161dc311c82bd45aeb186038a94d84f18204c2bef2a10b8"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "patterns/pattern.go"
+    sha256: "0b257c70417b725c193b36c49aeb57b1b59309cd2d9c41ed72af2422e7c27297"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pattern-pkg"}
+  - path: "positions.go"
+    sha256: "fccae653166190f8cc58e1168b48fffab6561dad2a746ce20c3b7289b0dc72b7"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "registry/registry.go"
+    sha256: "00085587018edda57f611135e95e1e9799707e209245708c1bb8dc5ec1ea0d74"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "registry-pkg"}
+  - path: "scopes.go"
+    sha256: "be6e17e328e8c58d396571060c93a2feb67c98dbb9393b0a1f1598d19130d41a"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "short.go"
+    sha256: "3e7974a766042f3800735d9c1c5cc2844e75081b2809456030f5aae468de082c"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "summary.go"
+    sha256: "ba6559caa2855a1679d34729af8899c7999aeba838cc2ee731261136e2434092"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "universe.go"
+    sha256: "eacf2ee915db86c3081f65f2af215cd94372559fbf59c3f7f3f627a21d207697"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+  - path: "unused.go"
+    sha256: "4149081b66a8a786d56e551c019e81a152aa512459869a9ef1ee7bd45d2f13d7"
+    disposition: "indexed"
+    origin: "source"
+    members:
+      - {unit: "pantry-pkg"}
+contexts:
+  - id: "build"
+    parameters:
+      mode: "build"
+      goos: "linux"
+      goarch: "amd64"
+      arch-level: "v1"
+      cgo: true
+      tags: []
+      compiler: "gc"
+      module-root: "."
+      go-version: "1.26"
+      release: "go1.27"
+      patterns: ["./..."]
+    command: "go build ./..."
+  - id: "test"
+    parameters:
+      mode: "test"
+      goos: "linux"
+      goarch: "amd64"
+      arch-level: "v1"
+      cgo: true
+      tags: []
+      compiler: "gc"
+      module-root: "."
+      go-version: "1.26"
+      release: "go1.27"
+      patterns: ["./..."]
+    command: "go test ./..."
+distributions:
+  - {id: "ps-module", kind: "module", name: "example.com/fixture/package-structure"}
+units:
+  - {id: "pantry-pkg", kind: "package", name: "example.com/fixture/package-structure", distribution: "ps-module", root: "pantry", package-name: "pantry"}
+  - id: "evening-pkg"
+    kind: "package"
+    name: "example.com/fixture/package-structure/branches/evening"
+    distribution: "ps-module"
+    root: "evening"
+    package-name: "evening"
+  - id: "morning-pkg"
+    kind: "package"
+    name: "example.com/fixture/package-structure/branches/morning"
+    distribution: "ps-module"
+    root: "morning"
+    package-name: "morning"
+  - id: "notes-pkg"
+    kind: "package"
+    name: "example.com/fixture/package-structure/internal/notes"
+    distribution: "ps-module"
+    root: "notes"
+    package-name: "notes"
+  - id: "bright-pkg"
+    kind: "package"
+    name: "example.com/fixture/package-structure/labels/bright"
+    distribution: "ps-module"
+    root: "bright"
+    package-name: "label"
+  - {id: "dim-pkg", kind: "package", name: "example.com/fixture/package-structure/labels/dim", distribution: "ps-module", root: "dim", package-name: "label"}
+  - id: "quantity-pkg"
+    kind: "package"
+    name: "example.com/fixture/package-structure/measure"
+    distribution: "ps-module"
+    root: "quantity"
+    package-name: "quantity"
+  - id: "pattern-pkg"
+    kind: "package"
+    name: "example.com/fixture/package-structure/patterns"
+    distribution: "ps-module"
+    root: "pattern"
+    package-name: "pattern"
+  - id: "registry-pkg"
+    kind: "package"
+    name: "example.com/fixture/package-structure/registry"
+    distribution: "ps-module"
+    root: "registry"
+    package-name: "registry"
+  - id: "pantry-xtest"
+    kind: "external-test"
+    name: "example.com/fixture/package-structure_test"
+    root: "pantry_test"
+    package-name: "pantry_test"
+    contexts: ["test"]
+  - {id: "showcase-main", kind: "main", name: "example.com/fixture/package-structure/cmd/showcase", root: "showcase", package-name: "main"}
+entities:
+  - id: "pantry"
+    kind: "module"
+    language-kind: "package"
+    name: "pantry"
+    path: "example.com/fixture/package-structure"
+    unit: "pantry-pkg"
+    origin: "source"
+    definitions:
+      - {at: {path: "blank.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "blank_import.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "declarations.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "doc.go", start: [1, 12], end: [1, 18], text: "pantry"}}
+      - {at: {path: "dot_import.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "exported.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "imports_alias.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "imports_default.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "init_secondary.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "initialization.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "initialization_values.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "internal_import.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "labels.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "local_types.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "package_identity.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "positions.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "scopes.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "short.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "summary.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "universe.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+      - {at: {path: "unused.go", start: [1, 9], end: [1, 15], text: "pantry"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "evening"
+    kind: "module"
+    language-kind: "package"
+    name: "evening"
+    path: "example.com/fixture/package-structure/branches/evening"
+    unit: "evening-pkg"
+    origin: "source"
+    definitions:
+      - {at: {path: "branches/evening/evening.go", start: [1, 9], end: [1, 16], text: "evening"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "morning"
+    kind: "module"
+    language-kind: "package"
+    name: "morning"
+    path: "example.com/fixture/package-structure/branches/morning"
+    unit: "morning-pkg"
+    origin: "source"
+    definitions:
+      - {at: {path: "branches/morning/morning.go", start: [1, 9], end: [1, 16], text: "morning"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "notes"
+    kind: "module"
+    language-kind: "package"
+    name: "notes"
+    path: "example.com/fixture/package-structure/internal/notes"
+    unit: "notes-pkg"
+    origin: "source"
+    definitions:
+      - {at: {path: "internal/notes/note.go", start: [1, 9], end: [1, 14], text: "notes"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility:
+      unit: "all"
+      project:
+        access: "scoped"
+        scope:
+          - "bright-pkg"
+          - "dim-pkg"
+          - "evening-pkg"
+          - "morning-pkg"
+          - "notes-pkg"
+          - "pantry-pkg"
+          - "pantry-xtest"
+          - "pattern-pkg"
+          - "quantity-pkg"
+          - "registry-pkg"
+          - "showcase-main"
+      external: "none"
+  - id: "bright"
+    kind: "module"
+    language-kind: "package"
+    name: "label"
+    path: "example.com/fixture/package-structure/labels/bright"
+    unit: "bright-pkg"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/bright/label.go", start: [1, 9], end: [1, 14], text: "label"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "dim"
+    kind: "module"
+    language-kind: "package"
+    name: "label"
+    path: "example.com/fixture/package-structure/labels/dim"
+    unit: "dim-pkg"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/dim/label.go", start: [1, 9], end: [1, 14], text: "label"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "quantity"
+    kind: "module"
+    language-kind: "package"
+    name: "quantity"
+    path: "example.com/fixture/package-structure/measure"
+    unit: "quantity-pkg"
+    origin: "source"
+    definitions:
+      - {at: {path: "measure/amount.go", start: [1, 9], end: [1, 17], text: "quantity"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pattern"
+    kind: "module"
+    language-kind: "package"
+    name: "pattern"
+    path: "example.com/fixture/package-structure/patterns"
+    unit: "pattern-pkg"
+    origin: "source"
+    definitions:
+      - {at: {path: "patterns/pattern.go", start: [1, 9], end: [1, 16], text: "pattern"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "registry"
+    kind: "module"
+    language-kind: "package"
+    name: "registry"
+    path: "example.com/fixture/package-structure/registry"
+    unit: "registry-pkg"
+    origin: "source"
+    definitions:
+      - {at: {path: "registry/registry.go", start: [1, 9], end: [1, 17], text: "registry"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry_test"
+    kind: "module"
+    language-kind: "package"
+    name: "pantry_test"
+    path: "example.com/fixture/package-structure_test"
+    unit: "pantry-xtest"
+    origin: "source"
+    definitions:
+      - {at: {path: "external_test.go", start: [1, 9], end: [1, 20], text: "pantry_test"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "showcase"
+    kind: "module"
+    language-kind: "package"
+    name: "main"
+    path: "example.com/fixture/package-structure/cmd/showcase"
+    unit: "showcase-main"
+    origin: "source"
+    definitions:
+      - {at: {path: "cmd/showcase/main.go", start: [1, 9], end: [1, 13], text: "main"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.Parcel"
+    kind: "type"
+    language-kind: "struct"
+    name: "Parcel"
+    path: "example.com/fixture/package-structure.Parcel"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "blank.go", start: [9, 6], end: [9, 12], text: "Parcel"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.Parcel.Code"
+    kind: "field"
+    language-kind: "field"
+    name: "Code"
+    path: "example.com/fixture/package-structure.Parcel.Code"
+    unit: "pantry-pkg"
+    parent: "pantry.Parcel"
+    origin: "source"
+    definitions:
+      - {at: {path: "blank.go", start: [11, 2], end: [11, 6], text: "Code"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.shelfOpener"
+    kind: "type"
+    language-kind: "interface"
+    name: "shelfOpener"
+    path: "example.com/fixture/package-structure.shelfOpener"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "blank.go", start: [14, 6], end: [14, 17], text: "shelfOpener"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.shelfOpener.Open"
+    kind: "callable"
+    language-kind: "interface-method"
+    name: "Open"
+    path: "example.com/fixture/package-structure.shelfOpener.Open"
+    unit: "pantry-pkg"
+    parent: "pantry.shelfOpener"
+    origin: "source"
+    definitions:
+      - {at: {path: "blank.go", start: [15, 2], end: [15, 6], text: "Open"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.typedPair"
+    kind: "callable"
+    language-kind: "func"
+    name: "typedPair"
+    path: "example.com/fixture/package-structure.typedPair"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "blank.go", start: [20, 6], end: [20, 15], text: "typedPair"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.blankAssignments"
+    kind: "callable"
+    language-kind: "func"
+    name: "blankAssignments"
+    path: "example.com/fixture/package-structure.blankAssignments"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "blank.go", start: [24, 6], end: [24, 22], text: "blankAssignments"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.blankReturns"
+    kind: "callable"
+    language-kind: "func"
+    name: "blankReturns"
+    path: "example.com/fixture/package-structure.blankReturns"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "blank.go", start: [31, 6], end: [31, 18], text: "blankReturns"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.blankRange"
+    kind: "callable"
+    language-kind: "func"
+    name: "blankRange"
+    path: "example.com/fixture/package-structure.blankRange"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "blank.go", start: [35, 6], end: [35, 16], text: "blankRange"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.blankRange.values"
+    kind: "parameter"
+    language-kind: "param"
+    name: "values"
+    path: "example.com/fixture/package-structure.blankRange.(values)"
+    unit: "pantry-pkg"
+    parent: "pantry.blankRange"
+    origin: "source"
+    definitions:
+      - {at: {path: "blank.go", start: [35, 17], end: [35, 23], text: "values"}}
+  - id: "pantry.blankImportedAnchor"
+    kind: "variable"
+    language-kind: "var"
+    name: "blankImportedAnchor"
+    path: "example.com/fixture/package-structure.blankImportedAnchor"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "blank_import.go", start: [11, 5], end: [11, 24], text: "blankImportedAnchor"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.LooseCount"
+    kind: "constant"
+    language-kind: "const"
+    name: "LooseCount"
+    path: "example.com/fixture/package-structure.LooseCount"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [9, 7], end: [9, 17], text: "LooseCount"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.GroupedCount"
+    kind: "constant"
+    language-kind: "const"
+    name: "GroupedCount"
+    path: "example.com/fixture/package-structure.GroupedCount"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [12, 2], end: [12, 14], text: "GroupedCount"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.groupedOffset"
+    kind: "constant"
+    language-kind: "const"
+    name: "groupedOffset"
+    path: "example.com/fixture/package-structure.groupedOffset"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [13, 2], end: [13, 15], text: "groupedOffset"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.looseLabel"
+    kind: "variable"
+    language-kind: "var"
+    name: "looseLabel"
+    path: "example.com/fixture/package-structure.looseLabel"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [16, 5], end: [16, 15], text: "looseLabel"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.groupedLabel"
+    kind: "variable"
+    language-kind: "var"
+    name: "groupedLabel"
+    path: "example.com/fixture/package-structure.groupedLabel"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [19, 2], end: [19, 14], text: "groupedLabel"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.GroupedPhrase"
+    kind: "variable"
+    language-kind: "var"
+    name: "GroupedPhrase"
+    path: "example.com/fixture/package-structure.GroupedPhrase"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [20, 2], end: [20, 15], text: "GroupedPhrase"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.LooseRecord"
+    kind: "type"
+    language-kind: "struct"
+    name: "LooseRecord"
+    path: "example.com/fixture/package-structure.LooseRecord"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [23, 6], end: [23, 17], text: "LooseRecord"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.LooseRecord.Name"
+    kind: "field"
+    language-kind: "field"
+    name: "Name"
+    path: "example.com/fixture/package-structure.LooseRecord.Name"
+    unit: "pantry-pkg"
+    parent: "pantry.LooseRecord"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [24, 2], end: [24, 6], text: "Name"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.LooseRecord.Count"
+    kind: "field"
+    language-kind: "field"
+    name: "Count"
+    path: "example.com/fixture/package-structure.LooseRecord.Count"
+    unit: "pantry-pkg"
+    parent: "pantry.LooseRecord"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [25, 2], end: [25, 7], text: "Count"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.GroupedRecord"
+    kind: "type"
+    language-kind: "struct"
+    name: "GroupedRecord"
+    path: "example.com/fixture/package-structure.GroupedRecord"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [29, 2], end: [29, 15], text: "GroupedRecord"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.GroupedRecord.Name"
+    kind: "field"
+    language-kind: "field"
+    name: "Name"
+    path: "example.com/fixture/package-structure.GroupedRecord.Name"
+    unit: "pantry-pkg"
+    parent: "pantry.GroupedRecord"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [30, 3], end: [30, 7], text: "Name"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.Earlier"
+    kind: "type-alias"
+    language-kind: "alias"
+    name: "Earlier"
+    path: "example.com/fixture/package-structure.Earlier"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [32, 2], end: [32, 9], text: "Earlier"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.BeforeDeclaration"
+    kind: "callable"
+    language-kind: "func"
+    name: "BeforeDeclaration"
+    path: "example.com/fixture/package-structure.BeforeDeclaration"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [37, 6], end: [37, 23], text: "BeforeDeclaration"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.mutualLeft"
+    kind: "callable"
+    language-kind: "func"
+    name: "mutualLeft"
+    path: "example.com/fixture/package-structure.mutualLeft"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [41, 6], end: [41, 16], text: "mutualLeft"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.mutualLeft.value"
+    kind: "parameter"
+    language-kind: "param"
+    name: "value"
+    path: "example.com/fixture/package-structure.mutualLeft.(value)"
+    unit: "pantry-pkg"
+    parent: "pantry.mutualLeft"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [41, 17], end: [41, 22], text: "value"}}
+  - id: "pantry.mutualRight"
+    kind: "callable"
+    language-kind: "func"
+    name: "mutualRight"
+    path: "example.com/fixture/package-structure.mutualRight"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [45, 6], end: [45, 17], text: "mutualRight"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.mutualRight.value"
+    kind: "parameter"
+    language-kind: "param"
+    name: "value"
+    path: "example.com/fixture/package-structure.mutualRight.(value)"
+    unit: "pantry-pkg"
+    parent: "pantry.mutualRight"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [45, 18], end: [45, 23], text: "value"}}
+  - id: "pantry.AfterDeclaration"
+    kind: "callable"
+    language-kind: "func"
+    name: "AfterDeclaration"
+    path: "example.com/fixture/package-structure.AfterDeclaration"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [49, 6], end: [49, 22], text: "AfterDeclaration"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.Later"
+    kind: "type"
+    language-kind: "struct"
+    name: "Later"
+    path: "example.com/fixture/package-structure.Later"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [53, 6], end: [53, 11], text: "Later"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.Later.Value"
+    kind: "field"
+    language-kind: "field"
+    name: "Value"
+    path: "example.com/fixture/package-structure.Later.Value"
+    unit: "pantry-pkg"
+    parent: "pantry.Later"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [54, 2], end: [54, 7], text: "Value"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.groupedSummary"
+    kind: "callable"
+    language-kind: "func"
+    name: "groupedSummary"
+    path: "example.com/fixture/package-structure.groupedSummary"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "declarations.go", start: [57, 6], end: [57, 20], text: "groupedSummary"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.dotImportExample"
+    kind: "callable"
+    language-kind: "func"
+    name: "dotImportExample"
+    path: "example.com/fixture/package-structure.dotImportExample"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "dot_import.go", start: [11, 6], end: [11, 22], text: "dotImportExample"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.dotImportExample.name"
+    kind: "parameter"
+    language-kind: "param"
+    name: "name"
+    path: "example.com/fixture/package-structure.dotImportExample.(name)"
+    unit: "pantry-pkg"
+    parent: "pantry.dotImportExample"
+    origin: "source"
+    definitions:
+      - {at: {path: "dot_import.go", start: [11, 23], end: [11, 27], text: "name"}}
+  - id: "pantry.Shelf"
+    kind: "type"
+    language-kind: "struct"
+    name: "Shelf"
+    path: "example.com/fixture/package-structure.Shelf"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [10, 6], end: [10, 11], text: "Shelf"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.Shelf.Public"
+    kind: "field"
+    language-kind: "field"
+    name: "Public"
+    path: "example.com/fixture/package-structure.Shelf.Public"
+    unit: "pantry-pkg"
+    parent: "pantry.Shelf"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [11, 2], end: [11, 8], text: "Public"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.Shelf.private"
+    kind: "field"
+    language-kind: "field"
+    name: "private"
+    path: "example.com/fixture/package-structure.Shelf.private"
+    unit: "pantry-pkg"
+    parent: "pantry.Shelf"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [12, 2], end: [12, 9], text: "private"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.shelf"
+    kind: "type"
+    language-kind: "struct"
+    name: "shelf"
+    path: "example.com/fixture/package-structure.shelf"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [15, 6], end: [15, 11], text: "shelf"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.shelf.value"
+    kind: "field"
+    language-kind: "field"
+    name: "value"
+    path: "example.com/fixture/package-structure.shelf.value"
+    unit: "pantry-pkg"
+    parent: "pantry.shelf"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [16, 2], end: [16, 7], text: "value"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.Etage"
+    kind: "type"
+    language-kind: "struct"
+    name: "Étage"
+    path: "example.com/fixture/package-structure.Étage"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [20, 6], end: [20, 11], text: "Étage"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.Etage.Name"
+    kind: "field"
+    language-kind: "field"
+    name: "Name"
+    path: "example.com/fixture/package-structure.Étage.Name"
+    unit: "pantry-pkg"
+    parent: "pantry.Etage"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [21, 2], end: [21, 6], text: "Name"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.pragma"
+    kind: "type"
+    language-kind: "struct"
+    name: "πράγμα"
+    path: "example.com/fixture/package-structure.πράγμα"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [24, 6], end: [24, 12], text: "πράγμα"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.pragma.name"
+    kind: "field"
+    language-kind: "field"
+    name: "name"
+    path: "example.com/fixture/package-structure.πράγμα.name"
+    unit: "pantry-pkg"
+    parent: "pantry.pragma"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [25, 2], end: [25, 6], text: "name"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.PublicValue"
+    kind: "variable"
+    language-kind: "var"
+    name: "PublicValue"
+    path: "example.com/fixture/package-structure.PublicValue"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [28, 5], end: [28, 16], text: "PublicValue"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.privateValue"
+    kind: "variable"
+    language-kind: "var"
+    name: "privateValue"
+    path: "example.com/fixture/package-structure.privateValue"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [29, 5], end: [29, 17], text: "privateValue"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.PublicFunction"
+    kind: "callable"
+    language-kind: "func"
+    name: "PublicFunction"
+    path: "example.com/fixture/package-structure.PublicFunction"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [32, 6], end: [32, 20], text: "PublicFunction"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.PublicFunction.s"
+    kind: "parameter"
+    language-kind: "param"
+    name: "s"
+    path: "example.com/fixture/package-structure.PublicFunction.(s)"
+    unit: "pantry-pkg"
+    parent: "pantry.PublicFunction"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [32, 21], end: [32, 22], text: "s"}}
+  - id: "pantry.privateFunction"
+    kind: "callable"
+    language-kind: "func"
+    name: "privateFunction"
+    path: "example.com/fixture/package-structure.privateFunction"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [36, 6], end: [36, 21], text: "privateFunction"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.Shelf.Open"
+    kind: "callable"
+    language-kind: "method"
+    name: "Open"
+    path: "example.com/fixture/package-structure.Shelf.Open"
+    unit: "pantry-pkg"
+    parent: "pantry.Shelf"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [41, 16], end: [41, 20], text: "Open"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.Shelf.Open.s"
+    kind: "parameter"
+    language-kind: "receiver"
+    name: "s"
+    path: "example.com/fixture/package-structure.Shelf.Open.(s)"
+    unit: "pantry-pkg"
+    parent: "pantry.Shelf.Open"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [41, 7], end: [41, 8], text: "s"}}
+  - id: "pantry.Shelf.close"
+    kind: "callable"
+    language-kind: "method"
+    name: "close"
+    path: "example.com/fixture/package-structure.Shelf.close"
+    unit: "pantry-pkg"
+    parent: "pantry.Shelf"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [45, 16], end: [45, 21], text: "close"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.Shelf.close.s"
+    kind: "parameter"
+    language-kind: "receiver"
+    name: "s"
+    path: "example.com/fixture/package-structure.Shelf.close.(s)"
+    unit: "pantry-pkg"
+    parent: "pantry.Shelf.close"
+    origin: "source"
+    definitions:
+      - {at: {path: "exported.go", start: [45, 7], end: [45, 8], text: "s"}}
+  - id: "pantry.aliasImportExample"
+    kind: "callable"
+    language-kind: "func"
+    name: "aliasImportExample"
+    path: "example.com/fixture/package-structure.aliasImportExample"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "imports_alias.go", start: [16, 6], end: [16, 24], text: "aliasImportExample"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.aliasImportExample.units"
+    kind: "parameter"
+    language-kind: "param"
+    name: "units"
+    path: "example.com/fixture/package-structure.aliasImportExample.(units)"
+    unit: "pantry-pkg"
+    parent: "pantry.aliasImportExample"
+    origin: "source"
+    definitions:
+      - {at: {path: "imports_alias.go", start: [16, 25], end: [16, 30], text: "units"}}
+  - id: "pantry.defaultImportExample"
+    kind: "callable"
+    language-kind: "func"
+    name: "defaultImportExample"
+    path: "example.com/fixture/package-structure.defaultImportExample"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "imports_default.go", start: [11, 6], end: [11, 26], text: "defaultImportExample"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.defaultImportExample.units"
+    kind: "parameter"
+    language-kind: "param"
+    name: "units"
+    path: "example.com/fixture/package-structure.defaultImportExample.(units)"
+    unit: "pantry-pkg"
+    parent: "pantry.defaultImportExample"
+    origin: "source"
+    definitions:
+      - {at: {path: "imports_default.go", start: [11, 27], end: [11, 32], text: "units"}}
+  - id: "pantry.init-1"
+    kind: "callable"
+    language-kind: "func"
+    name: "init"
+    path: "example.com/fixture/package-structure.init#1"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "init_secondary.go", start: [9, 6], end: [9, 10], text: "init"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.init-2"
+    kind: "callable"
+    language-kind: "func"
+    name: "init"
+    path: "example.com/fixture/package-structure.init#2"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "init_secondary.go", start: [14, 6], end: [14, 10], text: "init"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.recordInitialization"
+    kind: "callable"
+    language-kind: "func"
+    name: "recordInitialization"
+    path: "example.com/fixture/package-structure.recordInitialization"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "initialization.go", start: [15, 6], end: [15, 26], text: "recordInitialization"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.recordInitialization.name"
+    kind: "parameter"
+    language-kind: "param"
+    name: "name"
+    path: "example.com/fixture/package-structure.recordInitialization.(name)"
+    unit: "pantry-pkg"
+    parent: "pantry.recordInitialization"
+    origin: "source"
+    definitions:
+      - {at: {path: "initialization.go", start: [15, 27], end: [15, 31], text: "name"}}
+  - id: "pantry.initializeThroughFunction"
+    kind: "callable"
+    language-kind: "func"
+    name: "initializeThroughFunction"
+    path: "example.com/fixture/package-structure.initializeThroughFunction"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "initialization.go", start: [20, 6], end: [20, 31], text: "initializeThroughFunction"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.InitializationTrace"
+    kind: "callable"
+    language-kind: "func"
+    name: "InitializationTrace"
+    path: "example.com/fixture/package-structure.InitializationTrace"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "initialization.go", start: [26, 6], end: [26, 25], text: "InitializationTrace"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.cycleValues"
+    kind: "callable"
+    language-kind: "func"
+    name: "cycleValues"
+    path: "example.com/fixture/package-structure.cycleValues"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "initialization.go", start: [33, 6], end: [33, 17], text: "cycleValues"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.initTrace"
+    kind: "variable"
+    language-kind: "var"
+    name: "initTrace"
+    path: "example.com/fixture/package-structure.initTrace"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "initialization_values.go", start: [9, 5], end: [9, 14], text: "initTrace"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.directSource"
+    kind: "variable"
+    language-kind: "var"
+    name: "directSource"
+    path: "example.com/fixture/package-structure.directSource"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "initialization_values.go", start: [11, 5], end: [11, 17], text: "directSource"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.directValue"
+    kind: "variable"
+    language-kind: "var"
+    name: "directValue"
+    path: "example.com/fixture/package-structure.directValue"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "initialization_values.go", start: [12, 5], end: [12, 16], text: "directValue"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.throughValue"
+    kind: "variable"
+    language-kind: "var"
+    name: "throughValue"
+    path: "example.com/fixture/package-structure.throughValue"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "initialization_values.go", start: [13, 5], end: [13, 17], text: "throughValue"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.independentValue"
+    kind: "variable"
+    language-kind: "var"
+    name: "independentValue"
+    path: "example.com/fixture/package-structure.independentValue"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "initialization_values.go", start: [14, 5], end: [14, 21], text: "independentValue"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.cycleLeft"
+    kind: "variable"
+    language-kind: "var"
+    name: "cycleLeft"
+    path: "example.com/fixture/package-structure.cycleLeft"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "initialization_values.go", start: [18, 5], end: [18, 14], text: "cycleLeft"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.cycleRight"
+    kind: "variable"
+    language-kind: "var"
+    name: "cycleRight"
+    path: "example.com/fixture/package-structure.cycleRight"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "initialization_values.go", start: [19, 5], end: [19, 15], text: "cycleRight"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.directInitializationSummary"
+    kind: "callable"
+    language-kind: "func"
+    name: "directInitializationSummary"
+    path: "example.com/fixture/package-structure.directInitializationSummary"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "initialization_values.go", start: [21, 6], end: [21, 33], text: "directInitializationSummary"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.internalToken"
+    kind: "callable"
+    language-kind: "func"
+    name: "internalToken"
+    path: "example.com/fixture/package-structure.internalToken"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "internal_import.go", start: [11, 6], end: [11, 19], text: "internalToken"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.internalToken.text"
+    kind: "parameter"
+    language-kind: "param"
+    name: "text"
+    path: "example.com/fixture/package-structure.internalToken.(text)"
+    unit: "pantry-pkg"
+    parent: "pantry.internalToken"
+    origin: "source"
+    definitions:
+      - {at: {path: "internal_import.go", start: [11, 20], end: [11, 24], text: "text"}}
+  - id: "pantry.labelDance"
+    kind: "callable"
+    language-kind: "func"
+    name: "labelDance"
+    path: "example.com/fixture/package-structure.labelDance"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels.go", start: [9, 6], end: [9, 16], text: "labelDance"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.PackagePoint"
+    kind: "type"
+    language-kind: "struct"
+    name: "PackagePoint"
+    path: "example.com/fixture/package-structure.PackagePoint"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "local_types.go", start: [9, 6], end: [9, 18], text: "PackagePoint"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.PackagePoint.X"
+    kind: "field"
+    language-kind: "field"
+    name: "X"
+    path: "example.com/fixture/package-structure.PackagePoint.X"
+    unit: "pantry-pkg"
+    parent: "pantry.PackagePoint"
+    origin: "source"
+    definitions:
+      - {at: {path: "local_types.go", start: [10, 2], end: [10, 3], text: "X"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.PackagePoint.Y"
+    kind: "field"
+    language-kind: "field"
+    name: "Y"
+    path: "example.com/fixture/package-structure.PackagePoint.Y"
+    unit: "pantry-pkg"
+    parent: "pantry.PackagePoint"
+    origin: "source"
+    definitions:
+      - {at: {path: "local_types.go", start: [11, 2], end: [11, 3], text: "Y"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.PackagePointAlias"
+    kind: "type-alias"
+    language-kind: "alias"
+    name: "PackagePointAlias"
+    path: "example.com/fixture/package-structure.PackagePointAlias"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "local_types.go", start: [14, 6], end: [14, 23], text: "PackagePointAlias"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.localNamedTypes"
+    kind: "callable"
+    language-kind: "func"
+    name: "localNamedTypes"
+    path: "example.com/fixture/package-structure.localNamedTypes"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "local_types.go", start: [16, 6], end: [16, 21], text: "localNamedTypes"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.localNamedTypes.value"
+    kind: "parameter"
+    language-kind: "param"
+    name: "value"
+    path: "example.com/fixture/package-structure.localNamedTypes.(value)"
+    unit: "pantry-pkg"
+    parent: "pantry.localNamedTypes"
+    origin: "source"
+    definitions:
+      - {at: {path: "local_types.go", start: [16, 22], end: [16, 27], text: "value"}}
+  - id: "pantry.packageIdentityExample"
+    kind: "callable"
+    language-kind: "func"
+    name: "packageIdentityExample"
+    path: "example.com/fixture/package-structure.packageIdentityExample"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "package_identity.go", start: [15, 6], end: [15, 28], text: "packageIdentityExample"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.LogicalDirectiveValue"
+    kind: "constant"
+    language-kind: "const"
+    name: "LogicalDirectiveValue"
+    path: "example.com/fixture/package-structure.LogicalDirectiveValue"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "positions.go", start: [10, 7], end: [10, 28], text: "LogicalDirectiveValue"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.BlockDirectiveValue"
+    kind: "constant"
+    language-kind: "const"
+    name: "BlockDirectiveValue"
+    path: "example.com/fixture/package-structure.BlockDirectiveValue"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "positions.go", start: [13, 7], end: [13, 26], text: "BlockDirectiveValue"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.NearMissCommentValue"
+    kind: "constant"
+    language-kind: "const"
+    name: "NearMissCommentValue"
+    path: "example.com/fixture/package-structure.NearMissCommentValue"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "positions.go", start: [16, 7], end: [16, 27], text: "NearMissCommentValue"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.DecimalLiteral"
+    kind: "constant"
+    language-kind: "const"
+    name: "DecimalLiteral"
+    path: "example.com/fixture/package-structure.DecimalLiteral"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "positions.go", start: [19, 2], end: [19, 16], text: "DecimalLiteral"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.BinaryLiteral"
+    kind: "constant"
+    language-kind: "const"
+    name: "BinaryLiteral"
+    path: "example.com/fixture/package-structure.BinaryLiteral"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "positions.go", start: [20, 2], end: [20, 15], text: "BinaryLiteral"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.HexLiteral"
+    kind: "constant"
+    language-kind: "const"
+    name: "HexLiteral"
+    path: "example.com/fixture/package-structure.HexLiteral"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "positions.go", start: [21, 2], end: [21, 12], text: "HexLiteral"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.OctalLiteral"
+    kind: "constant"
+    language-kind: "const"
+    name: "OctalLiteral"
+    path: "example.com/fixture/package-structure.OctalLiteral"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "positions.go", start: [22, 2], end: [22, 14], text: "OctalLiteral"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.LegacyOctalLiteral"
+    kind: "constant"
+    language-kind: "const"
+    name: "LegacyOctalLiteral"
+    path: "example.com/fixture/package-structure.LegacyOctalLiteral"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "positions.go", start: [23, 2], end: [23, 20], text: "LegacyOctalLiteral"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.FloatLiteral"
+    kind: "constant"
+    language-kind: "const"
+    name: "FloatLiteral"
+    path: "example.com/fixture/package-structure.FloatLiteral"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "positions.go", start: [24, 2], end: [24, 14], text: "FloatLiteral"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.DigitSeparatedFloat"
+    kind: "constant"
+    language-kind: "const"
+    name: "DigitSeparatedFloat"
+    path: "example.com/fixture/package-structure.DigitSeparatedFloat"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "positions.go", start: [25, 2], end: [25, 21], text: "DigitSeparatedFloat"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.automaticSemicolons"
+    kind: "callable"
+    language-kind: "func"
+    name: "automaticSemicolons"
+    path: "example.com/fixture/package-structure.automaticSemicolons"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "positions.go", start: [28, 6], end: [28, 25], text: "automaticSemicolons"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.numericLiterals"
+    kind: "callable"
+    language-kind: "func"
+    name: "numericLiterals"
+    path: "example.com/fixture/package-structure.numericLiterals"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "positions.go", start: [37, 6], end: [37, 21], text: "numericLiterals"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.packageScopedValue"
+    kind: "variable"
+    language-kind: "var"
+    name: "packageScopedValue"
+    path: "example.com/fixture/package-structure.packageScopedValue"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "scopes.go", start: [9, 5], end: [9, 23], text: "packageScopedValue"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.scopeParameters"
+    kind: "callable"
+    language-kind: "func"
+    name: "scopeParameters"
+    path: "example.com/fixture/package-structure.scopeParameters"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "scopes.go", start: [11, 6], end: [11, 21], text: "scopeParameters"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.scopeParameters.input"
+    kind: "parameter"
+    language-kind: "param"
+    name: "input"
+    path: "example.com/fixture/package-structure.scopeParameters.(input)"
+    unit: "pantry-pkg"
+    parent: "pantry.scopeParameters"
+    origin: "source"
+    definitions:
+      - {at: {path: "scopes.go", start: [11, 22], end: [11, 27], text: "input"}}
+  - id: "pantry.scopeParameters.result"
+    kind: "parameter"
+    language-kind: "result"
+    name: "result"
+    path: "example.com/fixture/package-structure.scopeParameters.(result)"
+    unit: "pantry-pkg"
+    parent: "pantry.scopeParameters"
+    origin: "source"
+    definitions:
+      - {at: {path: "scopes.go", start: [11, 34], end: [11, 40], text: "result"}}
+  - id: "pantry.nestedScopes"
+    kind: "callable"
+    language-kind: "func"
+    name: "nestedScopes"
+    path: "example.com/fixture/package-structure.nestedScopes"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "scopes.go", start: [20, 6], end: [20, 18], text: "nestedScopes"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.functionScope"
+    kind: "callable"
+    language-kind: "func"
+    name: "functionScope"
+    path: "example.com/fixture/package-structure.functionScope"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "scopes.go", start: [32, 6], end: [32, 19], text: "functionScope"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.functionScope.value"
+    kind: "parameter"
+    language-kind: "param"
+    name: "value"
+    path: "example.com/fixture/package-structure.functionScope.(value)"
+    unit: "pantry-pkg"
+    parent: "pantry.functionScope"
+    origin: "source"
+    definitions:
+      - {at: {path: "scopes.go", start: [32, 20], end: [32, 25], text: "value"}}
+  - id: "pantry.shortDeclaration"
+    kind: "callable"
+    language-kind: "func"
+    name: "shortDeclaration"
+    path: "example.com/fixture/package-structure.shortDeclaration"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "short.go", start: [9, 6], end: [9, 22], text: "shortDeclaration"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.partialRedeclaration"
+    kind: "callable"
+    language-kind: "func"
+    name: "partialRedeclaration"
+    path: "example.com/fixture/package-structure.partialRedeclaration"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "short.go", start: [23, 6], end: [23, 26], text: "partialRedeclaration"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.partialRedeclaration.value"
+    kind: "parameter"
+    language-kind: "param"
+    name: "value"
+    path: "example.com/fixture/package-structure.partialRedeclaration.(value)"
+    unit: "pantry-pkg"
+    parent: "pantry.partialRedeclaration"
+    origin: "source"
+    definitions:
+      - {at: {path: "short.go", start: [23, 27], end: [23, 32], text: "value"}}
+  - id: "pantry.initializerScope"
+    kind: "callable"
+    language-kind: "func"
+    name: "initializerScope"
+    path: "example.com/fixture/package-structure.initializerScope"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "short.go", start: [29, 6], end: [29, 22], text: "initializerScope"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.initializerScope.value"
+    kind: "parameter"
+    language-kind: "param"
+    name: "value"
+    path: "example.com/fixture/package-structure.initializerScope.(value)"
+    unit: "pantry-pkg"
+    parent: "pantry.initializerScope"
+    origin: "source"
+    definitions:
+      - {at: {path: "short.go", start: [29, 23], end: [29, 28], text: "value"}}
+  - id: "pantry.chooseValue"
+    kind: "callable"
+    language-kind: "func"
+    name: "chooseValue"
+    path: "example.com/fixture/package-structure.chooseValue"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "short.go", start: [36, 6], end: [36, 17], text: "chooseValue"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.chooseValue.value"
+    kind: "parameter"
+    language-kind: "param"
+    name: "value"
+    path: "example.com/fixture/package-structure.chooseValue.(value)"
+    unit: "pantry-pkg"
+    parent: "pantry.chooseValue"
+    origin: "source"
+    definitions:
+      - {at: {path: "short.go", start: [36, 18], end: [36, 23], text: "value"}}
+  - id: "pantry.Summary"
+    kind: "callable"
+    language-kind: "func"
+    name: "Summary"
+    path: "example.com/fixture/package-structure.Summary"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "summary.go", start: [10, 6], end: [10, 13], text: "Summary"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pantry.unshadowedAny"
+    kind: "variable"
+    language-kind: "var"
+    name: "unshadowedAny"
+    path: "example.com/fixture/package-structure.unshadowedAny"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "universe.go", start: [9, 5], end: [9, 18], text: "unshadowedAny"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.acceptsComparable"
+    kind: "callable"
+    language-kind: "func"
+    name: "acceptsComparable"
+    path: "example.com/fixture/package-structure.acceptsComparable"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "universe.go", start: [11, 6], end: [11, 23], text: "acceptsComparable"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.acceptsComparable.value"
+    kind: "parameter"
+    language-kind: "param"
+    name: "value"
+    path: "example.com/fixture/package-structure.acceptsComparable.(value)"
+    unit: "pantry-pkg"
+    parent: "pantry.acceptsComparable"
+    origin: "source"
+    definitions:
+      - {at: {path: "universe.go", start: [11, 38], end: [11, 43], text: "value"}}
+  - id: "pantry.acceptsComparable.T"
+    kind: "type-parameter"
+    language-kind: "type-param"
+    name: "T"
+    path: "example.com/fixture/package-structure.acceptsComparable.[T]"
+    unit: "pantry-pkg"
+    parent: "pantry.acceptsComparable"
+    origin: "source"
+    definitions:
+      - {at: {path: "universe.go", start: [11, 24], end: [11, 25], text: "T"}}
+  - id: "pantry.unshadowedUniverse"
+    kind: "callable"
+    language-kind: "func"
+    name: "unshadowedUniverse"
+    path: "example.com/fixture/package-structure.unshadowedUniverse"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "universe.go", start: [15, 6], end: [15, 24], text: "unshadowedUniverse"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.shadowedUniverse"
+    kind: "callable"
+    language-kind: "func"
+    name: "shadowedUniverse"
+    path: "example.com/fixture/package-structure.shadowedUniverse"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "universe.go", start: [21, 6], end: [21, 22], text: "shadowedUniverse"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.unusedPackageConstant"
+    kind: "constant"
+    language-kind: "const"
+    name: "unusedPackageConstant"
+    path: "example.com/fixture/package-structure.unusedPackageConstant"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "unused.go", start: [9, 7], end: [9, 28], text: "unusedPackageConstant"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.unusedPackageType"
+    kind: "type"
+    language-kind: "struct"
+    name: "unusedPackageType"
+    path: "example.com/fixture/package-structure.unusedPackageType"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "unused.go", start: [11, 6], end: [11, 23], text: "unusedPackageType"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.unusedPackageType.value"
+    kind: "field"
+    language-kind: "field"
+    name: "value"
+    path: "example.com/fixture/package-structure.unusedPackageType.value"
+    unit: "pantry-pkg"
+    parent: "pantry.unusedPackageType"
+    origin: "source"
+    definitions:
+      - {at: {path: "unused.go", start: [12, 2], end: [12, 7], text: "value"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.unusedPackageVariable"
+    kind: "variable"
+    language-kind: "var"
+    name: "unusedPackageVariable"
+    path: "example.com/fixture/package-structure.unusedPackageVariable"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "unused.go", start: [15, 5], end: [15, 26], text: "unusedPackageVariable"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.unusedParameters"
+    kind: "callable"
+    language-kind: "func"
+    name: "unusedParameters"
+    path: "example.com/fixture/package-structure.unusedParameters"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "unused.go", start: [17, 6], end: [17, 22], text: "unusedParameters"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "pantry.unusedParameters.unusedInput"
+    kind: "parameter"
+    language-kind: "param"
+    name: "unusedInput"
+    path: "example.com/fixture/package-structure.unusedParameters.(unusedInput)"
+    unit: "pantry-pkg"
+    parent: "pantry.unusedParameters"
+    origin: "source"
+    definitions:
+      - {at: {path: "unused.go", start: [17, 23], end: [17, 34], text: "unusedInput"}}
+  - id: "pantry.unusedParameters.unusedResult"
+    kind: "parameter"
+    language-kind: "result"
+    name: "unusedResult"
+    path: "example.com/fixture/package-structure.unusedParameters.(unusedResult)"
+    unit: "pantry-pkg"
+    parent: "pantry.unusedParameters"
+    origin: "source"
+    definitions:
+      - {at: {path: "unused.go", start: [17, 44], end: [17, 56], text: "unusedResult"}}
+  - id: "pantry.suppressedLocal"
+    kind: "callable"
+    language-kind: "func"
+    name: "suppressedLocal"
+    path: "example.com/fixture/package-structure.suppressedLocal"
+    unit: "pantry-pkg"
+    parent: "pantry"
+    origin: "source"
+    definitions:
+      - {at: {path: "unused.go", start: [21, 6], end: [21, 21], text: "suppressedLocal"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "evening.Name"
+    kind: "variable"
+    language-kind: "var"
+    name: "Name"
+    path: "example.com/fixture/package-structure/branches/evening.Name"
+    unit: "evening-pkg"
+    parent: "evening"
+    origin: "source"
+    definitions:
+      - {at: {path: "branches/evening/evening.go", start: [11, 5], end: [11, 9], text: "Name"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "evening.init-1"
+    kind: "callable"
+    language-kind: "func"
+    name: "init"
+    path: "example.com/fixture/package-structure/branches/evening.init#1"
+    unit: "evening-pkg"
+    parent: "evening"
+    origin: "source"
+    definitions:
+      - {at: {path: "branches/evening/evening.go", start: [13, 6], end: [13, 10], text: "init"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "morning.Name"
+    kind: "variable"
+    language-kind: "var"
+    name: "Name"
+    path: "example.com/fixture/package-structure/branches/morning.Name"
+    unit: "morning-pkg"
+    parent: "morning"
+    origin: "source"
+    definitions:
+      - {at: {path: "branches/morning/morning.go", start: [11, 5], end: [11, 9], text: "Name"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "notes.Token"
+    kind: "type"
+    language-kind: "struct"
+    name: "Token"
+    path: "example.com/fixture/package-structure/internal/notes.Token"
+    unit: "notes-pkg"
+    parent: "notes"
+    origin: "source"
+    definitions:
+      - {at: {path: "internal/notes/note.go", start: [10, 6], end: [10, 11], text: "Token"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility:
+      unit: "all"
+      project:
+        access: "scoped"
+        scope:
+          - "bright-pkg"
+          - "dim-pkg"
+          - "evening-pkg"
+          - "morning-pkg"
+          - "notes-pkg"
+          - "pantry-pkg"
+          - "pantry-xtest"
+          - "pattern-pkg"
+          - "quantity-pkg"
+          - "registry-pkg"
+          - "showcase-main"
+      external: "none"
+  - id: "notes.Token.text"
+    kind: "field"
+    language-kind: "field"
+    name: "text"
+    path: "example.com/fixture/package-structure/internal/notes.Token.text"
+    unit: "notes-pkg"
+    parent: "notes.Token"
+    origin: "source"
+    definitions:
+      - {at: {path: "internal/notes/note.go", start: [11, 2], end: [11, 6], text: "text"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "notes.New"
+    kind: "callable"
+    language-kind: "func"
+    name: "New"
+    path: "example.com/fixture/package-structure/internal/notes.New"
+    unit: "notes-pkg"
+    parent: "notes"
+    origin: "source"
+    definitions:
+      - {at: {path: "internal/notes/note.go", start: [14, 6], end: [14, 9], text: "New"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility:
+      unit: "all"
+      project:
+        access: "scoped"
+        scope:
+          - "bright-pkg"
+          - "dim-pkg"
+          - "evening-pkg"
+          - "morning-pkg"
+          - "notes-pkg"
+          - "pantry-pkg"
+          - "pantry-xtest"
+          - "pattern-pkg"
+          - "quantity-pkg"
+          - "registry-pkg"
+          - "showcase-main"
+      external: "none"
+  - id: "notes.New.text"
+    kind: "parameter"
+    language-kind: "param"
+    name: "text"
+    path: "example.com/fixture/package-structure/internal/notes.New.(text)"
+    unit: "notes-pkg"
+    parent: "notes.New"
+    origin: "source"
+    definitions:
+      - {at: {path: "internal/notes/note.go", start: [14, 10], end: [14, 14], text: "text"}}
+  - id: "notes.Token.Text"
+    kind: "callable"
+    language-kind: "method"
+    name: "Text"
+    path: "example.com/fixture/package-structure/internal/notes.Token.Text"
+    unit: "notes-pkg"
+    parent: "notes.Token"
+    origin: "source"
+    definitions:
+      - {at: {path: "internal/notes/note.go", start: [18, 16], end: [18, 20], text: "Text"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility:
+      unit: "all"
+      project:
+        access: "scoped"
+        scope:
+          - "bright-pkg"
+          - "dim-pkg"
+          - "evening-pkg"
+          - "morning-pkg"
+          - "notes-pkg"
+          - "pantry-pkg"
+          - "pantry-xtest"
+          - "pattern-pkg"
+          - "quantity-pkg"
+          - "registry-pkg"
+          - "showcase-main"
+      external: "none"
+  - id: "notes.Token.Text.t"
+    kind: "parameter"
+    language-kind: "receiver"
+    name: "t"
+    path: "example.com/fixture/package-structure/internal/notes.Token.Text.(t)"
+    unit: "notes-pkg"
+    parent: "notes.Token.Text"
+    origin: "source"
+    definitions:
+      - {at: {path: "internal/notes/note.go", start: [18, 7], end: [18, 8], text: "t"}}
+  - id: "bright.Badge"
+    kind: "type"
+    language-kind: "struct"
+    name: "Badge"
+    path: "example.com/fixture/package-structure/labels/bright.Badge"
+    unit: "bright-pkg"
+    parent: "bright"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/bright/label.go", start: [9, 6], end: [9, 11], text: "Badge"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "bright.Badge.tone"
+    kind: "field"
+    language-kind: "field"
+    name: "tone"
+    path: "example.com/fixture/package-structure/labels/bright.Badge.tone"
+    unit: "bright-pkg"
+    parent: "bright.Badge"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/bright/label.go", start: [10, 2], end: [10, 6], text: "tone"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "bright.New"
+    kind: "callable"
+    language-kind: "func"
+    name: "New"
+    path: "example.com/fixture/package-structure/labels/bright.New"
+    unit: "bright-pkg"
+    parent: "bright"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/bright/label.go", start: [13, 6], end: [13, 9], text: "New"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "bright.New.tone"
+    kind: "parameter"
+    language-kind: "param"
+    name: "tone"
+    path: "example.com/fixture/package-structure/labels/bright.New.(tone)"
+    unit: "bright-pkg"
+    parent: "bright.New"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/bright/label.go", start: [13, 10], end: [13, 14], text: "tone"}}
+  - id: "bright.Badge.Name"
+    kind: "callable"
+    language-kind: "method"
+    name: "Name"
+    path: "example.com/fixture/package-structure/labels/bright.Badge.Name"
+    unit: "bright-pkg"
+    parent: "bright.Badge"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/bright/label.go", start: [17, 16], end: [17, 20], text: "Name"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "bright.Badge.Name.b"
+    kind: "parameter"
+    language-kind: "receiver"
+    name: "b"
+    path: "example.com/fixture/package-structure/labels/bright.Badge.Name.(b)"
+    unit: "bright-pkg"
+    parent: "bright.Badge.Name"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/bright/label.go", start: [17, 7], end: [17, 8], text: "b"}}
+  - id: "dim.Badge"
+    kind: "type"
+    language-kind: "struct"
+    name: "Badge"
+    path: "example.com/fixture/package-structure/labels/dim.Badge"
+    unit: "dim-pkg"
+    parent: "dim"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/dim/label.go", start: [9, 6], end: [9, 11], text: "Badge"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "dim.Badge.tone"
+    kind: "field"
+    language-kind: "field"
+    name: "tone"
+    path: "example.com/fixture/package-structure/labels/dim.Badge.tone"
+    unit: "dim-pkg"
+    parent: "dim.Badge"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/dim/label.go", start: [10, 2], end: [10, 6], text: "tone"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "dim.New"
+    kind: "callable"
+    language-kind: "func"
+    name: "New"
+    path: "example.com/fixture/package-structure/labels/dim.New"
+    unit: "dim-pkg"
+    parent: "dim"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/dim/label.go", start: [13, 6], end: [13, 9], text: "New"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "dim.New.tone"
+    kind: "parameter"
+    language-kind: "param"
+    name: "tone"
+    path: "example.com/fixture/package-structure/labels/dim.New.(tone)"
+    unit: "dim-pkg"
+    parent: "dim.New"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/dim/label.go", start: [13, 10], end: [13, 14], text: "tone"}}
+  - id: "dim.Badge.Name"
+    kind: "callable"
+    language-kind: "method"
+    name: "Name"
+    path: "example.com/fixture/package-structure/labels/dim.Badge.Name"
+    unit: "dim-pkg"
+    parent: "dim.Badge"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/dim/label.go", start: [17, 16], end: [17, 20], text: "Name"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "dim.Badge.Name.b"
+    kind: "parameter"
+    language-kind: "receiver"
+    name: "b"
+    path: "example.com/fixture/package-structure/labels/dim.Badge.Name.(b)"
+    unit: "dim-pkg"
+    parent: "dim.Badge.Name"
+    origin: "source"
+    definitions:
+      - {at: {path: "labels/dim/label.go", start: [17, 7], end: [17, 8], text: "b"}}
+  - id: "quantity.Amount"
+    kind: "type"
+    language-kind: "struct"
+    name: "Amount"
+    path: "example.com/fixture/package-structure/measure.Amount"
+    unit: "quantity-pkg"
+    parent: "quantity"
+    origin: "source"
+    definitions:
+      - {at: {path: "measure/amount.go", start: [12, 6], end: [12, 12], text: "Amount"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "quantity.Amount.units"
+    kind: "field"
+    language-kind: "field"
+    name: "units"
+    path: "example.com/fixture/package-structure/measure.Amount.units"
+    unit: "quantity-pkg"
+    parent: "quantity.Amount"
+    origin: "source"
+    definitions:
+      - {at: {path: "measure/amount.go", start: [13, 2], end: [13, 7], text: "units"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "quantity.New"
+    kind: "callable"
+    language-kind: "func"
+    name: "New"
+    path: "example.com/fixture/package-structure/measure.New"
+    unit: "quantity-pkg"
+    parent: "quantity"
+    origin: "source"
+    definitions:
+      - {at: {path: "measure/amount.go", start: [16, 6], end: [16, 9], text: "New"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "quantity.New.units"
+    kind: "parameter"
+    language-kind: "param"
+    name: "units"
+    path: "example.com/fixture/package-structure/measure.New.(units)"
+    unit: "quantity-pkg"
+    parent: "quantity.New"
+    origin: "source"
+    definitions:
+      - {at: {path: "measure/amount.go", start: [16, 10], end: [16, 15], text: "units"}}
+  - id: "quantity.Amount.Units"
+    kind: "callable"
+    language-kind: "method"
+    name: "Units"
+    path: "example.com/fixture/package-structure/measure.Amount.Units"
+    unit: "quantity-pkg"
+    parent: "quantity.Amount"
+    origin: "source"
+    definitions:
+      - {at: {path: "measure/amount.go", start: [20, 17], end: [20, 22], text: "Units"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "quantity.Amount.Units.a"
+    kind: "parameter"
+    language-kind: "receiver"
+    name: "a"
+    path: "example.com/fixture/package-structure/measure.Amount.Units.(a)"
+    unit: "quantity-pkg"
+    parent: "quantity.Amount.Units"
+    origin: "source"
+    definitions:
+      - {at: {path: "measure/amount.go", start: [20, 7], end: [20, 8], text: "a"}}
+  - id: "quantity.Amount.String"
+    kind: "callable"
+    language-kind: "method"
+    name: "String"
+    path: "example.com/fixture/package-structure/measure.Amount.String"
+    unit: "quantity-pkg"
+    parent: "quantity.Amount"
+    origin: "source"
+    definitions:
+      - {at: {path: "measure/amount.go", start: [24, 17], end: [24, 23], text: "String"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "quantity.Amount.String.a"
+    kind: "parameter"
+    language-kind: "receiver"
+    name: "a"
+    path: "example.com/fixture/package-structure/measure.Amount.String.(a)"
+    unit: "quantity-pkg"
+    parent: "quantity.Amount.String"
+    origin: "source"
+    definitions:
+      - {at: {path: "measure/amount.go", start: [24, 7], end: [24, 8], text: "a"}}
+  - id: "pattern.Pattern"
+    kind: "type"
+    language-kind: "struct"
+    name: "Pattern"
+    path: "example.com/fixture/package-structure/patterns.Pattern"
+    unit: "pattern-pkg"
+    parent: "pattern"
+    origin: "source"
+    definitions:
+      - {at: {path: "patterns/pattern.go", start: [10, 6], end: [10, 13], text: "Pattern"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pattern.Pattern.Name"
+    kind: "field"
+    language-kind: "field"
+    name: "Name"
+    path: "example.com/fixture/package-structure/patterns.Pattern.Name"
+    unit: "pattern-pkg"
+    parent: "pattern.Pattern"
+    origin: "source"
+    definitions:
+      - {at: {path: "patterns/pattern.go", start: [11, 2], end: [11, 6], text: "Name"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pattern.New"
+    kind: "callable"
+    language-kind: "func"
+    name: "New"
+    path: "example.com/fixture/package-structure/patterns.New"
+    unit: "pattern-pkg"
+    parent: "pattern"
+    origin: "source"
+    definitions:
+      - {at: {path: "patterns/pattern.go", start: [14, 6], end: [14, 9], text: "New"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "pattern.New.name"
+    kind: "parameter"
+    language-kind: "param"
+    name: "name"
+    path: "example.com/fixture/package-structure/patterns.New.(name)"
+    unit: "pattern-pkg"
+    parent: "pattern.New"
+    origin: "source"
+    definitions:
+      - {at: {path: "patterns/pattern.go", start: [14, 10], end: [14, 14], text: "name"}}
+  - id: "registry.entries"
+    kind: "variable"
+    language-kind: "var"
+    name: "entries"
+    path: "example.com/fixture/package-structure/registry.entries"
+    unit: "registry-pkg"
+    parent: "registry"
+    origin: "source"
+    definitions:
+      - {at: {path: "registry/registry.go", start: [9, 5], end: [9, 12], text: "entries"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "registry.Ready"
+    kind: "variable"
+    language-kind: "var"
+    name: "Ready"
+    path: "example.com/fixture/package-structure/registry.Ready"
+    unit: "registry-pkg"
+    parent: "registry"
+    origin: "source"
+    definitions:
+      - {at: {path: "registry/registry.go", start: [12, 5], end: [12, 10], text: "Ready"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "registry.Register"
+    kind: "callable"
+    language-kind: "func"
+    name: "Register"
+    path: "example.com/fixture/package-structure/registry.Register"
+    unit: "registry-pkg"
+    parent: "registry"
+    origin: "source"
+    definitions:
+      - {at: {path: "registry/registry.go", start: [14, 6], end: [14, 14], text: "Register"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "registry.Register.name"
+    kind: "parameter"
+    language-kind: "param"
+    name: "name"
+    path: "example.com/fixture/package-structure/registry.Register.(name)"
+    unit: "registry-pkg"
+    parent: "registry.Register"
+    origin: "source"
+    definitions:
+      - {at: {path: "registry/registry.go", start: [14, 15], end: [14, 19], text: "name"}}
+  - id: "registry.Snapshot"
+    kind: "callable"
+    language-kind: "func"
+    name: "Snapshot"
+    path: "example.com/fixture/package-structure/registry.Snapshot"
+    unit: "registry-pkg"
+    parent: "registry"
+    origin: "source"
+    definitions:
+      - {at: {path: "registry/registry.go", start: [18, 6], end: [18, 14], text: "Snapshot"}}
+    declared-visibility: {value: "exported", explicit: true}
+    effective-visibility: {unit: "all", project: "all", external: "all"}
+  - id: "registry.init-1"
+    kind: "callable"
+    language-kind: "func"
+    name: "init"
+    path: "example.com/fixture/package-structure/registry.init#1"
+    unit: "registry-pkg"
+    parent: "registry"
+    origin: "source"
+    definitions:
+      - {at: {path: "registry/registry.go", start: [22, 6], end: [22, 10], text: "init"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+  - id: "showcase.main"
+    kind: "callable"
+    language-kind: "func"
+    name: "main"
+    path: "example.com/fixture/package-structure/cmd/showcase.main"
+    unit: "showcase-main"
+    parent: "showcase"
+    origin: "source"
+    definitions:
+      - {at: {path: "cmd/showcase/main.go", start: [15, 6], end: [15, 10], text: "main"}}
+    declared-visibility: {value: "unexported", explicit: true}
+    effective-visibility: {unit: "all", project: "none", external: "none"}
+externals:
+  - {id: "b.any", kind: "type-alias", language-kind: "alias", distribution: "go", path: "builtin.any"}
+  - {id: "b.append", kind: "callable", language-kind: "func", distribution: "go", path: "builtin.append"}
+  - {id: "b.bool", kind: "type", language-kind: "defined", distribution: "go", path: "builtin.bool"}
+  - {id: "b.clear", kind: "callable", language-kind: "func", distribution: "go", path: "builtin.clear"}
+  - {id: "b.comparable", kind: "type", language-kind: "interface", distribution: "go", path: "builtin.comparable"}
+  - {id: "b.delete", kind: "callable", language-kind: "func", distribution: "go", path: "builtin.delete"}
+  - {id: "b.error", kind: "type", language-kind: "interface", distribution: "go", path: "builtin.error"}
+  - {id: "b.float64", kind: "type", language-kind: "defined", distribution: "go", path: "builtin.float64"}
+  - {id: "b.int", kind: "type", language-kind: "defined", distribution: "go", path: "builtin.int"}
+  - {id: "b.len", kind: "callable", language-kind: "func", distribution: "go", path: "builtin.len"}
+  - {id: "b.max", kind: "callable", language-kind: "func", distribution: "go", path: "builtin.max"}
+  - {id: "b.min", kind: "callable", language-kind: "func", distribution: "go", path: "builtin.min"}
+  - {id: "b.nil", kind: "variable", language-kind: "var", distribution: "go", path: "builtin.nil"}
+  - {id: "b.string", kind: "type", language-kind: "defined", distribution: "go", path: "builtin.string"}
+  - {id: "b.true", kind: "constant", language-kind: "const", distribution: "go", path: "builtin.true"}
+  - {id: "std.fmt", kind: "module", language-kind: "package", distribution: "std", path: "fmt"}
+  - {id: "std.fmt.Println", kind: "callable", language-kind: "func", distribution: "std", path: "fmt.Println"}
+  - {id: "std.fmt.Sprintf", kind: "callable", language-kind: "func", distribution: "std", path: "fmt.Sprintf"}
+  - {id: "std.strconv", kind: "module", language-kind: "package", distribution: "std", path: "strconv"}
+  - {id: "std.strconv.Itoa", kind: "callable", language-kind: "func", distribution: "std", path: "strconv.Itoa"}
+references:
+  - {at: {path: "blank.go", start: [10, 7], end: [10, 10], text: "int"}, from: "pantry.Parcel", target: "b.int", role: "type"}
+  - {at: {path: "blank.go", start: [11, 7], end: [11, 13], text: "string"}, from: "pantry.Parcel.Code", target: "b.string", role: "type"}
+  - {at: {path: "blank.go", start: [15, 9], end: [15, 15], text: "string"}, from: "pantry.shelfOpener.Open", target: "b.string", role: "type"}
+  - {at: {path: "blank.go", start: [18, 7], end: [18, 18], text: "shelfOpener"}, from: "pantry", target: "pantry.shelfOpener", role: "type"}
+  - {at: {path: "blank.go", start: [18, 21], end: [18, 26], text: "Shelf"}, from: "pantry", target: "pantry.Shelf", role: "construct"}
+  - {at: {path: "blank.go", start: [20, 19], end: [20, 22], text: "int"}, from: "pantry.typedPair", target: "b.int", role: "type"}
+  - {at: {path: "blank.go", start: [20, 24], end: [20, 29], text: "error"}, from: "pantry.typedPair", target: "b.error", role: "type"}
+  - {at: {path: "blank.go", start: [21, 12], end: [21, 15], text: "nil"}, from: "pantry.typedPair", target: "b.nil", role: "read"}
+  - {at: {path: "blank.go", start: [24, 25], end: [24, 28], text: "int"}, from: "pantry.blankAssignments", target: "b.int", role: "type"}
+  - {at: {path: "blank.go", start: [25, 16], end: [25, 25], text: "typedPair"}, from: "pantry.blankAssignments", target: "pantry.typedPair", role: "call"}
+  - {at: {path: "blank.go", start: [31, 24], end: [31, 27], text: "int"}, from: "pantry.blankReturns", target: "b.int", role: "type"}
+  - {at: {path: "blank.go", start: [31, 31], end: [31, 36], text: "error"}, from: "pantry.blankReturns", target: "b.error", role: "type"}
+  - {at: {path: "blank.go", start: [32, 12], end: [32, 15], text: "nil"}, from: "pantry.blankReturns", target: "b.nil", role: "read"}
+  - {at: {path: "blank.go", start: [35, 26], end: [35, 29], text: "int"}, from: "pantry.blankRange.values", target: "b.int", role: "type"}
+  - {at: {path: "blank.go", start: [35, 31], end: [35, 34], text: "int"}, from: "pantry.blankRange", target: "b.int", role: "type"}
+  - at: {path: "blank_import.go", start: [9, 11], end: [9, 57], text: "example.com/fixture/package-structure/registry"}
+    from: "pantry"
+    target: "registry"
+    role: "import"
+  - {at: {path: "declarations.go", start: [12, 18], end: [12, 28], text: "LooseCount"}, from: "pantry.GroupedCount", target: "pantry.LooseCount", role: "read"}
+  - {at: {path: "declarations.go", start: [19, 18], end: [19, 28], text: "looseLabel"}, from: "pantry.groupedLabel", target: "pantry.looseLabel", role: "read"}
+  - {at: {path: "declarations.go", start: [24, 8], end: [24, 14], text: "string"}, from: "pantry.LooseRecord.Name", target: "b.string", role: "type"}
+  - {at: {path: "declarations.go", start: [25, 8], end: [25, 11], text: "int"}, from: "pantry.LooseRecord.Count", target: "b.int", role: "type"}
+  - {at: {path: "declarations.go", start: [30, 8], end: [30, 14], text: "string"}, from: "pantry.GroupedRecord.Name", target: "b.string", role: "type"}
+  - {at: {path: "declarations.go", start: [32, 12], end: [32, 17], text: "Later"}, from: "pantry.Earlier", target: "pantry.Later", role: "type"}
+  - {at: {path: "declarations.go", start: [37, 26], end: [37, 32], text: "string"}, from: "pantry.BeforeDeclaration", target: "b.string", role: "type"}
+  - at: {path: "declarations.go", start: [38, 9], end: [38, 25], text: "AfterDeclaration"}
+    from: "pantry.BeforeDeclaration"
+    target: "pantry.AfterDeclaration"
+    role: "call"
+  - {at: {path: "declarations.go", start: [41, 23], end: [41, 29], text: "string"}, from: "pantry.mutualLeft.value", target: "b.string", role: "type"}
+  - {at: {path: "declarations.go", start: [41, 31], end: [41, 37], text: "string"}, from: "pantry.mutualLeft", target: "b.string", role: "type"}
+  - {at: {path: "declarations.go", start: [42, 9], end: [42, 20], text: "mutualRight"}, from: "pantry.mutualLeft", target: "pantry.mutualRight", role: "call"}
+  - {at: {path: "declarations.go", start: [45, 24], end: [45, 30], text: "string"}, from: "pantry.mutualRight.value", target: "b.string", role: "type"}
+  - {at: {path: "declarations.go", start: [45, 32], end: [45, 38], text: "string"}, from: "pantry.mutualRight", target: "b.string", role: "type"}
+  - {at: {path: "declarations.go", start: [49, 25], end: [49, 31], text: "string"}, from: "pantry.AfterDeclaration", target: "b.string", role: "type"}
+  - at: {path: "declarations.go", start: [50, 9], end: [50, 19], text: "mutualLeft"}
+    from: "pantry.AfterDeclaration"
+    target: "pantry.mutualLeft"
+    role: "call"
+  - {at: {path: "declarations.go", start: [54, 8], end: [54, 11], text: "int"}, from: "pantry.Later.Value", target: "b.int", role: "type"}
+  - {at: {path: "declarations.go", start: [57, 23], end: [57, 29], text: "string"}, from: "pantry.groupedSummary", target: "b.string", role: "type"}
+  - at: {path: "declarations.go", start: [58, 9], end: [58, 21], text: "groupedLabel"}
+    from: "pantry.groupedSummary"
+    target: "pantry.groupedLabel"
+    role: "read"
+  - at: {path: "declarations.go", start: [58, 30], end: [58, 43], text: "GroupedPhrase"}
+    from: "pantry.groupedSummary"
+    target: "pantry.GroupedPhrase"
+    role: "read"
+  - at: {path: "dot_import.go", start: [9, 11], end: [9, 57], text: "example.com/fixture/package-structure/patterns"}
+    from: "pantry"
+    target: "pattern"
+    role: "import"
+  - {at: {path: "dot_import.go", start: [11, 28], end: [11, 34], text: "string"}, from: "pantry.dotImportExample.name", target: "b.string", role: "type"}
+  - {at: {path: "dot_import.go", start: [11, 36], end: [11, 43], text: "Pattern"}, from: "pantry.dotImportExample", target: "pattern.Pattern", role: "type"}
+  - {at: {path: "dot_import.go", start: [12, 9], end: [12, 12], text: "New"}, from: "pantry.dotImportExample", target: "pattern.New", role: "call"}
+  - {at: {path: "exported.go", start: [11, 10], end: [11, 16], text: "string"}, from: "pantry.Shelf.Public", target: "b.string", role: "type"}
+  - {at: {path: "exported.go", start: [12, 10], end: [12, 16], text: "string"}, from: "pantry.Shelf.private", target: "b.string", role: "type"}
+  - {at: {path: "exported.go", start: [16, 8], end: [16, 14], text: "string"}, from: "pantry.shelf.value", target: "b.string", role: "type"}
+  - {at: {path: "exported.go", start: [21, 7], end: [21, 13], text: "string"}, from: "pantry.Etage.Name", target: "b.string", role: "type"}
+  - {at: {path: "exported.go", start: [25, 7], end: [25, 13], text: "string"}, from: "pantry.pragma.name", target: "b.string", role: "type"}
+  - {at: {path: "exported.go", start: [32, 23], end: [32, 28], text: "Shelf"}, from: "pantry.PublicFunction.s", target: "pantry.Shelf", role: "type"}
+  - {at: {path: "exported.go", start: [32, 30], end: [32, 36], text: "string"}, from: "pantry.PublicFunction", target: "b.string", role: "type"}
+  - {at: {path: "exported.go", start: [33, 11], end: [33, 15], text: "Open"}, from: "pantry.PublicFunction", target: "pantry.Shelf.Open", role: "call"}
+  - {at: {path: "exported.go", start: [36, 24], end: [36, 30], text: "string"}, from: "pantry.privateFunction", target: "b.string", role: "type"}
+  - {at: {path: "exported.go", start: [37, 9], end: [37, 21], text: "privateValue"}, from: "pantry.privateFunction", target: "pantry.privateValue", role: "read"}
+  - {at: {path: "exported.go", start: [41, 9], end: [41, 14], text: "Shelf"}, from: "pantry.Shelf.Open.s", target: "pantry.Shelf", role: "type"}
+  - {at: {path: "exported.go", start: [41, 23], end: [41, 29], text: "string"}, from: "pantry.Shelf.Open", target: "b.string", role: "type"}
+  - {at: {path: "exported.go", start: [42, 11], end: [42, 17], text: "Public"}, from: "pantry.Shelf.Open", target: "pantry.Shelf.Public", role: "read"}
+  - {at: {path: "exported.go", start: [45, 9], end: [45, 14], text: "Shelf"}, from: "pantry.Shelf.close.s", target: "pantry.Shelf", role: "type"}
+  - {at: {path: "exported.go", start: [45, 24], end: [45, 30], text: "string"}, from: "pantry.Shelf.close", target: "b.string", role: "type"}
+  - {at: {path: "exported.go", start: [46, 11], end: [46, 18], text: "private"}, from: "pantry.Shelf.close", target: "pantry.Shelf.private", role: "read"}
+  - at: {path: "external_test.go", start: [9, 16], end: [9, 53], text: "example.com/fixture/package-structure"}
+    from: "pantry_test"
+    target: "pantry"
+    role: "import"
+  - {at: {path: "external_test.go", start: [11, 9], end: [11, 15], text: "pantry"}, from: "pantry_test", target: "pantry", role: "qualifier"}
+  - {at: {path: "external_test.go", start: [11, 16], end: [11, 27], text: "PublicValue"}, from: "pantry_test", target: "pantry.PublicValue", role: "read"}
+  - at: {path: "imports_alias.go", start: [10, 15], end: [10, 66], text: "example.com/fixture/package-structure/labels/bright"}
+    from: "pantry"
+    target: "bright"
+    role: "import"
+  - at: {path: "imports_alias.go", start: [11, 12], end: [11, 60], text: "example.com/fixture/package-structure/labels/dim"}
+    from: "pantry"
+    target: "dim"
+    role: "import"
+  - at: {path: "imports_alias.go", start: [12, 16], end: [12, 61], text: "example.com/fixture/package-structure/measure"}
+    from: "pantry"
+    target: "quantity"
+    role: "import"
+  - {at: {path: "imports_alias.go", start: [13, 3], end: [13, 6], text: "fmt"}, from: "pantry", target: "std.fmt", role: "import"}
+  - {at: {path: "imports_alias.go", start: [16, 31], end: [16, 34], text: "int"}, from: "pantry.aliasImportExample.units", target: "b.int", role: "type"}
+  - {at: {path: "imports_alias.go", start: [16, 36], end: [16, 42], text: "string"}, from: "pantry.aliasImportExample", target: "b.string", role: "type"}
+  - at: {path: "imports_alias.go", start: [17, 12], end: [17, 24], text: "measureAlias"}
+    from: "pantry.aliasImportExample"
+    target: "quantity"
+    role: "qualifier"
+  - {at: {path: "imports_alias.go", start: [17, 25], end: [17, 28], text: "New"}, from: "pantry.aliasImportExample", target: "quantity.New", role: "call"}
+  - {at: {path: "imports_alias.go", start: [18, 12], end: [18, 23], text: "brightLabel"}, from: "pantry.aliasImportExample", target: "bright", role: "qualifier"}
+  - {at: {path: "imports_alias.go", start: [18, 24], end: [18, 27], text: "New"}, from: "pantry.aliasImportExample", target: "bright.New", role: "call"}
+  - {at: {path: "imports_alias.go", start: [19, 9], end: [19, 17], text: "dimLabel"}, from: "pantry.aliasImportExample", target: "dim", role: "qualifier"}
+  - {at: {path: "imports_alias.go", start: [19, 18], end: [19, 21], text: "New"}, from: "pantry.aliasImportExample", target: "dim.New", role: "call"}
+  - {at: {path: "imports_alias.go", start: [20, 9], end: [20, 12], text: "fmt"}, from: "pantry.aliasImportExample", target: "std.fmt", role: "qualifier"}
+  - {at: {path: "imports_alias.go", start: [20, 13], end: [20, 20], text: "Sprintf"}, from: "pantry.aliasImportExample", target: "std.fmt.Sprintf", role: "call"}
+  - at: {path: "imports_alias.go", start: [20, 40], end: [20, 45], text: "Units"}
+    from: "pantry.aliasImportExample"
+    target: "quantity.Amount.Units"
+    role: "call"
+  - {at: {path: "imports_alias.go", start: [20, 56], end: [20, 60], text: "Name"}, from: "pantry.aliasImportExample", target: "bright.Badge.Name", role: "call"}
+  - {at: {path: "imports_alias.go", start: [20, 68], end: [20, 72], text: "Name"}, from: "pantry.aliasImportExample", target: "dim.Badge.Name", role: "call"}
+  - at: {path: "imports_default.go", start: [9, 9], end: [9, 54], text: "example.com/fixture/package-structure/measure"}
+    from: "pantry"
+    target: "quantity"
+    role: "import"
+  - {at: {path: "imports_default.go", start: [11, 33], end: [11, 36], text: "int"}, from: "pantry.defaultImportExample.units", target: "b.int", role: "type"}
+  - at: {path: "imports_default.go", start: [11, 38], end: [11, 46], text: "quantity"}
+    from: "pantry.defaultImportExample"
+    target: "quantity"
+    role: "qualifier"
+  - at: {path: "imports_default.go", start: [11, 47], end: [11, 53], text: "Amount"}
+    from: "pantry.defaultImportExample"
+    target: "quantity.Amount"
+    role: "type"
+  - at: {path: "imports_default.go", start: [12, 9], end: [12, 17], text: "quantity"}
+    from: "pantry.defaultImportExample"
+    target: "quantity"
+    role: "qualifier"
+  - {at: {path: "imports_default.go", start: [12, 18], end: [12, 21], text: "New"}, from: "pantry.defaultImportExample", target: "quantity.New", role: "call"}
+  - {at: {path: "init_secondary.go", start: [10, 2], end: [10, 11], text: "initTrace"}, from: "pantry.init-1", target: "pantry.initTrace", role: "write"}
+  - {at: {path: "init_secondary.go", start: [10, 14], end: [10, 20], text: "append"}, from: "pantry.init-1", target: "b.append", role: "call"}
+  - {at: {path: "init_secondary.go", start: [10, 21], end: [10, 30], text: "initTrace"}, from: "pantry.init-1", target: "pantry.initTrace", role: "read"}
+  - {at: {path: "init_secondary.go", start: [15, 2], end: [15, 11], text: "initTrace"}, from: "pantry.init-2", target: "pantry.initTrace", role: "write"}
+  - {at: {path: "init_secondary.go", start: [15, 14], end: [15, 20], text: "append"}, from: "pantry.init-2", target: "b.append", role: "call"}
+  - {at: {path: "init_secondary.go", start: [15, 21], end: [15, 30], text: "initTrace"}, from: "pantry.init-2", target: "pantry.initTrace", role: "read"}
+  - {at: {path: "init_secondary.go", start: [11, 2], end: [11, 12], text: "cycleRight"}, from: "pantry.init-1", target: "pantry.cycleRight", role: "write"}
+  - {at: {path: "init_secondary.go", start: [11, 15], end: [11, 24], text: "cycleLeft"}, from: "pantry.init-1", target: "pantry.cycleLeft", role: "read"}
+  - at: {path: "initialization.go", start: [10, 3], end: [10, 57], text: "example.com/fixture/package-structure/branches/evening"}
+    from: "pantry"
+    target: "evening"
+    role: "import"
+  - at: {path: "initialization.go", start: [11, 3], end: [11, 57], text: "example.com/fixture/package-structure/branches/morning"}
+    from: "pantry"
+    target: "morning"
+    role: "import"
+  - at: {path: "initialization.go", start: [12, 3], end: [12, 49], text: "example.com/fixture/package-structure/registry"}
+    from: "pantry"
+    target: "registry"
+    role: "import"
+  - {at: {path: "initialization.go", start: [15, 32], end: [15, 38], text: "string"}, from: "pantry.recordInitialization.name", target: "b.string", role: "type"}
+  - {at: {path: "initialization.go", start: [15, 40], end: [15, 46], text: "string"}, from: "pantry.recordInitialization", target: "b.string", role: "type"}
+  - at: {path: "initialization.go", start: [16, 2], end: [16, 11], text: "initTrace"}
+    from: "pantry.recordInitialization"
+    target: "pantry.initTrace"
+    role: "write"
+  - {at: {path: "initialization.go", start: [16, 14], end: [16, 20], text: "append"}, from: "pantry.recordInitialization", target: "b.append", role: "call"}
+  - at: {path: "initialization.go", start: [16, 21], end: [16, 30], text: "initTrace"}
+    from: "pantry.recordInitialization"
+    target: "pantry.initTrace"
+    role: "read"
+  - {at: {path: "initialization.go", start: [20, 34], end: [20, 40], text: "string"}, from: "pantry.initializeThroughFunction", target: "b.string", role: "type"}
+  - at: {path: "initialization.go", start: [21, 2], end: [21, 11], text: "initTrace"}
+    from: "pantry.initializeThroughFunction"
+    target: "pantry.initTrace"
+    role: "write"
+  - {at: {path: "initialization.go", start: [21, 14], end: [21, 20], text: "append"}, from: "pantry.initializeThroughFunction", target: "b.append", role: "call"}
+  - at: {path: "initialization.go", start: [21, 21], end: [21, 30], text: "initTrace"}
+    from: "pantry.initializeThroughFunction"
+    target: "pantry.initTrace"
+    role: "read"
+  - at: {path: "initialization.go", start: [22, 9], end: [22, 21], text: "directSource"}
+    from: "pantry.initializeThroughFunction"
+    target: "pantry.directSource"
+    role: "read"
+  - {at: {path: "initialization.go", start: [26, 30], end: [26, 36], text: "string"}, from: "pantry.InitializationTrace", target: "b.string", role: "type"}
+  - {at: {path: "initialization.go", start: [27, 11], end: [27, 17], text: "append"}, from: "pantry.InitializationTrace", target: "b.append", role: "call"}
+  - {at: {path: "initialization.go", start: [27, 20], end: [27, 26], text: "string"}, from: "pantry.InitializationTrace", target: "b.string", role: "type"}
+  - {at: {path: "initialization.go", start: [27, 27], end: [27, 30], text: "nil"}, from: "pantry.InitializationTrace", target: "b.nil", role: "read"}
+  - at: {path: "initialization.go", start: [27, 33], end: [27, 42], text: "initTrace"}
+    from: "pantry.InitializationTrace"
+    target: "pantry.initTrace"
+    role: "read"
+  - {at: {path: "initialization.go", start: [28, 10], end: [28, 16], text: "append"}, from: "pantry.InitializationTrace", target: "b.append", role: "call"}
+  - {at: {path: "initialization.go", start: [28, 24], end: [28, 31], text: "morning"}, from: "pantry.InitializationTrace", target: "morning", role: "qualifier"}
+  - {at: {path: "initialization.go", start: [28, 32], end: [28, 36], text: "Name"}, from: "pantry.InitializationTrace", target: "morning.Name", role: "read"}
+  - {at: {path: "initialization.go", start: [28, 38], end: [28, 45], text: "evening"}, from: "pantry.InitializationTrace", target: "evening", role: "qualifier"}
+  - {at: {path: "initialization.go", start: [28, 46], end: [28, 50], text: "Name"}, from: "pantry.InitializationTrace", target: "evening.Name", role: "read"}
+  - {at: {path: "initialization.go", start: [29, 10], end: [29, 16], text: "append"}, from: "pantry.InitializationTrace", target: "b.append", role: "call"}
+  - at: {path: "initialization.go", start: [29, 24], end: [29, 32], text: "registry"}
+    from: "pantry.InitializationTrace"
+    target: "registry"
+    role: "qualifier"
+  - at: {path: "initialization.go", start: [29, 33], end: [29, 41], text: "Snapshot"}
+    from: "pantry.InitializationTrace"
+    target: "registry.Snapshot"
+    role: "call"
+  - {at: {path: "initialization.go", start: [33, 21], end: [33, 24], text: "int"}, from: "pantry.cycleValues", target: "b.int", role: "type"}
+  - {at: {path: "initialization.go", start: [33, 26], end: [33, 29], text: "int"}, from: "pantry.cycleValues", target: "b.int", role: "type"}
+  - {at: {path: "initialization.go", start: [34, 9], end: [34, 18], text: "cycleLeft"}, from: "pantry.cycleValues", target: "pantry.cycleLeft", role: "read"}
+  - {at: {path: "initialization.go", start: [34, 20], end: [34, 30], text: "cycleRight"}, from: "pantry.cycleValues", target: "pantry.cycleRight", role: "read"}
+  - {at: {path: "initialization_values.go", start: [9, 17], end: [9, 23], text: "string"}, from: "pantry.initTrace", target: "b.string", role: "type"}
+  - at: {path: "initialization_values.go", start: [11, 20], end: [11, 40], text: "recordInitialization"}
+    from: "pantry.directSource"
+    target: "pantry.recordInitialization"
+    role: "call"
+  - at: {path: "initialization_values.go", start: [12, 19], end: [12, 31], text: "directSource"}
+    from: "pantry.directValue"
+    target: "pantry.directSource"
+    role: "read"
+  - at: {path: "initialization_values.go", start: [13, 20], end: [13, 45], text: "initializeThroughFunction"}
+    from: "pantry.throughValue"
+    target: "pantry.initializeThroughFunction"
+    role: "call"
+  - at: {path: "initialization_values.go", start: [18, 17], end: [18, 27], text: "cycleRight"}
+    from: "pantry.cycleLeft"
+    target: "pantry.cycleRight"
+    role: "read"
+  - {at: {path: "initialization_values.go", start: [19, 16], end: [19, 19], text: "int"}, from: "pantry.cycleRight", target: "b.int", role: "type"}
+  - at: {path: "initialization_values.go", start: [21, 36], end: [21, 42], text: "string"}
+    from: "pantry.directInitializationSummary"
+    target: "b.string"
+    role: "type"
+  - at: {path: "initialization_values.go", start: [22, 9], end: [22, 20], text: "directValue"}
+    from: "pantry.directInitializationSummary"
+    target: "pantry.directValue"
+    role: "read"
+  - at: {path: "initialization_values.go", start: [22, 29], end: [22, 41], text: "throughValue"}
+    from: "pantry.directInitializationSummary"
+    target: "pantry.throughValue"
+    role: "read"
+  - at: {path: "initialization_values.go", start: [22, 50], end: [22, 66], text: "independentValue"}
+    from: "pantry.directInitializationSummary"
+    target: "pantry.independentValue"
+    role: "read"
+  - at: {path: "internal_import.go", start: [9, 9], end: [9, 61], text: "example.com/fixture/package-structure/internal/notes"}
+    from: "pantry"
+    target: "notes"
+    role: "import"
+  - {at: {path: "internal_import.go", start: [11, 25], end: [11, 31], text: "string"}, from: "pantry.internalToken.text", target: "b.string", role: "type"}
+  - {at: {path: "internal_import.go", start: [11, 33], end: [11, 38], text: "notes"}, from: "pantry.internalToken", target: "notes", role: "qualifier"}
+  - {at: {path: "internal_import.go", start: [11, 39], end: [11, 44], text: "Token"}, from: "pantry.internalToken", target: "notes.Token", role: "type"}
+  - {at: {path: "internal_import.go", start: [12, 9], end: [12, 14], text: "notes"}, from: "pantry.internalToken", target: "notes", role: "qualifier"}
+  - {at: {path: "internal_import.go", start: [12, 15], end: [12, 18], text: "New"}, from: "pantry.internalToken", target: "notes.New", role: "call"}
+  - {at: {path: "labels.go", start: [9, 19], end: [9, 22], text: "int"}, from: "pantry.labelDance", target: "b.int", role: "type"}
+  - {at: {path: "labels.go", start: [25, 18], end: [25, 21], text: "int"}, from: "pantry.labelDance", target: "b.int", role: "type"}
+  - {at: {path: "local_types.go", start: [10, 4], end: [10, 7], text: "int"}, from: "pantry.PackagePoint.X", target: "b.int", role: "type"}
+  - {at: {path: "local_types.go", start: [11, 4], end: [11, 7], text: "int"}, from: "pantry.PackagePoint.Y", target: "b.int", role: "type"}
+  - at: {path: "local_types.go", start: [14, 26], end: [14, 38], text: "PackagePoint"}
+    from: "pantry.PackagePointAlias"
+    target: "pantry.PackagePoint"
+    role: "type"
+  - {at: {path: "local_types.go", start: [16, 28], end: [16, 31], text: "int"}, from: "pantry.localNamedTypes.value", target: "b.int", role: "type"}
+  - {at: {path: "local_types.go", start: [16, 33], end: [16, 36], text: "int"}, from: "pantry.localNamedTypes", target: "b.int", role: "type"}
+  - at: {path: "local_types.go", start: [17, 18], end: [17, 30], text: "PackagePoint"}
+    from: "pantry.localNamedTypes"
+    target: "pantry.PackagePoint"
+    role: "type"
+  - {at: {path: "local_types.go", start: [18, 22], end: [18, 23], text: "X"}, from: "pantry.localNamedTypes", target: "pantry.PackagePoint.X", role: "write"}
+  - {at: {path: "local_types.go", start: [18, 32], end: [18, 33], text: "Y"}, from: "pantry.localNamedTypes", target: "pantry.PackagePoint.Y", role: "write"}
+  - at: {path: "local_types.go", start: [19, 18], end: [19, 30], text: "PackagePoint"}
+    from: "pantry.localNamedTypes"
+    target: "pantry.PackagePoint"
+    role: "type"
+  - at: {path: "local_types.go", start: [20, 16], end: [20, 33], text: "PackagePointAlias"}
+    from: "pantry.localNamedTypes"
+    target: "pantry.PackagePointAlias"
+    role: "type"
+  - {at: {path: "local_types.go", start: [21, 15], end: [21, 16], text: "X"}, from: "pantry.localNamedTypes", target: "pantry.PackagePoint.X", role: "read"}
+  - {at: {path: "local_types.go", start: [21, 32], end: [21, 33], text: "X"}, from: "pantry.localNamedTypes", target: "pantry.PackagePoint.X", role: "read"}
+  - {at: {path: "local_types.go", start: [21, 47], end: [21, 48], text: "Y"}, from: "pantry.localNamedTypes", target: "pantry.PackagePoint.Y", role: "read"}
+  - {at: {path: "measure/amount.go", start: [9, 9], end: [9, 16], text: "strconv"}, from: "quantity", target: "std.strconv", role: "import"}
+  - {at: {path: "measure/amount.go", start: [13, 8], end: [13, 11], text: "int"}, from: "quantity.Amount.units", target: "b.int", role: "type"}
+  - {at: {path: "measure/amount.go", start: [16, 16], end: [16, 19], text: "int"}, from: "quantity.New.units", target: "b.int", role: "type"}
+  - {at: {path: "measure/amount.go", start: [16, 21], end: [16, 27], text: "Amount"}, from: "quantity.New", target: "quantity.Amount", role: "type"}
+  - {at: {path: "measure/amount.go", start: [17, 9], end: [17, 15], text: "Amount"}, from: "quantity.New", target: "quantity.Amount", role: "construct"}
+  - {at: {path: "measure/amount.go", start: [17, 16], end: [17, 21], text: "units"}, from: "quantity.New", target: "quantity.Amount.units", role: "write"}
+  - {at: {path: "measure/amount.go", start: [20, 9], end: [20, 15], text: "Amount"}, from: "quantity.Amount.Units.a", target: "quantity.Amount", role: "type"}
+  - {at: {path: "measure/amount.go", start: [20, 25], end: [20, 28], text: "int"}, from: "quantity.Amount.Units", target: "b.int", role: "type"}
+  - at: {path: "measure/amount.go", start: [21, 11], end: [21, 16], text: "units"}
+    from: "quantity.Amount.Units"
+    target: "quantity.Amount.units"
+    role: "read"
+  - {at: {path: "measure/amount.go", start: [24, 9], end: [24, 15], text: "Amount"}, from: "quantity.Amount.String.a", target: "quantity.Amount", role: "type"}
+  - {at: {path: "measure/amount.go", start: [24, 26], end: [24, 32], text: "string"}, from: "quantity.Amount.String", target: "b.string", role: "type"}
+  - {at: {path: "measure/amount.go", start: [25, 9], end: [25, 16], text: "strconv"}, from: "quantity.Amount.String", target: "std.strconv", role: "qualifier"}
+  - {at: {path: "measure/amount.go", start: [25, 17], end: [25, 21], text: "Itoa"}, from: "quantity.Amount.String", target: "std.strconv.Itoa", role: "call"}
+  - at: {path: "measure/amount.go", start: [25, 24], end: [25, 29], text: "units"}
+    from: "quantity.Amount.String"
+    target: "quantity.Amount.units"
+    role: "read"
+  - {at: {path: "labels/bright/label.go", start: [10, 7], end: [10, 13], text: "string"}, from: "bright.Badge.tone", target: "b.string", role: "type"}
+  - {at: {path: "labels/bright/label.go", start: [13, 15], end: [13, 21], text: "string"}, from: "bright.New.tone", target: "b.string", role: "type"}
+  - {at: {path: "labels/bright/label.go", start: [13, 23], end: [13, 28], text: "Badge"}, from: "bright.New", target: "bright.Badge", role: "type"}
+  - {at: {path: "labels/bright/label.go", start: [14, 9], end: [14, 14], text: "Badge"}, from: "bright.New", target: "bright.Badge", role: "construct"}
+  - {at: {path: "labels/bright/label.go", start: [14, 15], end: [14, 19], text: "tone"}, from: "bright.New", target: "bright.Badge.tone", role: "write"}
+  - {at: {path: "labels/bright/label.go", start: [17, 9], end: [17, 14], text: "Badge"}, from: "bright.Badge.Name.b", target: "bright.Badge", role: "type"}
+  - {at: {path: "labels/bright/label.go", start: [17, 23], end: [17, 29], text: "string"}, from: "bright.Badge.Name", target: "b.string", role: "type"}
+  - {at: {path: "labels/bright/label.go", start: [18, 11], end: [18, 15], text: "tone"}, from: "bright.Badge.Name", target: "bright.Badge.tone", role: "read"}
+  - {at: {path: "labels/dim/label.go", start: [10, 7], end: [10, 13], text: "string"}, from: "dim.Badge.tone", target: "b.string", role: "type"}
+  - {at: {path: "labels/dim/label.go", start: [13, 15], end: [13, 21], text: "string"}, from: "dim.New.tone", target: "b.string", role: "type"}
+  - {at: {path: "labels/dim/label.go", start: [13, 23], end: [13, 28], text: "Badge"}, from: "dim.New", target: "dim.Badge", role: "type"}
+  - {at: {path: "labels/dim/label.go", start: [14, 9], end: [14, 14], text: "Badge"}, from: "dim.New", target: "dim.Badge", role: "construct"}
+  - {at: {path: "labels/dim/label.go", start: [14, 15], end: [14, 19], text: "tone"}, from: "dim.New", target: "dim.Badge.tone", role: "write"}
+  - {at: {path: "labels/dim/label.go", start: [17, 9], end: [17, 14], text: "Badge"}, from: "dim.Badge.Name.b", target: "dim.Badge", role: "type"}
+  - {at: {path: "labels/dim/label.go", start: [17, 23], end: [17, 29], text: "string"}, from: "dim.Badge.Name", target: "b.string", role: "type"}
+  - {at: {path: "labels/dim/label.go", start: [18, 11], end: [18, 15], text: "tone"}, from: "dim.Badge.Name", target: "dim.Badge.tone", role: "read"}
+  - {at: {path: "internal/notes/note.go", start: [11, 7], end: [11, 13], text: "string"}, from: "notes.Token.text", target: "b.string", role: "type"}
+  - {at: {path: "internal/notes/note.go", start: [14, 15], end: [14, 21], text: "string"}, from: "notes.New.text", target: "b.string", role: "type"}
+  - {at: {path: "internal/notes/note.go", start: [14, 23], end: [14, 28], text: "Token"}, from: "notes.New", target: "notes.Token", role: "type"}
+  - {at: {path: "internal/notes/note.go", start: [15, 9], end: [15, 14], text: "Token"}, from: "notes.New", target: "notes.Token", role: "construct"}
+  - {at: {path: "internal/notes/note.go", start: [15, 15], end: [15, 19], text: "text"}, from: "notes.New", target: "notes.Token.text", role: "write"}
+  - {at: {path: "internal/notes/note.go", start: [18, 9], end: [18, 14], text: "Token"}, from: "notes.Token.Text.t", target: "notes.Token", role: "type"}
+  - {at: {path: "internal/notes/note.go", start: [18, 23], end: [18, 29], text: "string"}, from: "notes.Token.Text", target: "b.string", role: "type"}
+  - {at: {path: "internal/notes/note.go", start: [19, 11], end: [19, 15], text: "text"}, from: "notes.Token.Text", target: "notes.Token.text", role: "read"}
+  - at: {path: "package_identity.go", start: [10, 15], end: [10, 66], text: "example.com/fixture/package-structure/labels/bright"}
+    from: "pantry"
+    target: "bright"
+    role: "import"
+  - at: {path: "package_identity.go", start: [11, 12], end: [11, 60], text: "example.com/fixture/package-structure/labels/dim"}
+    from: "pantry"
+    target: "dim"
+    role: "import"
+  - at: {path: "package_identity.go", start: [12, 19], end: [12, 64], text: "example.com/fixture/package-structure/measure"}
+    from: "pantry"
+    target: "quantity"
+    role: "import"
+  - {at: {path: "package_identity.go", start: [15, 31], end: [15, 37], text: "string"}, from: "pantry.packageIdentityExample", target: "b.string", role: "type"}
+  - at: {path: "package_identity.go", start: [16, 12], end: [16, 23], text: "brightLabel"}
+    from: "pantry.packageIdentityExample"
+    target: "bright"
+    role: "qualifier"
+  - {at: {path: "package_identity.go", start: [16, 24], end: [16, 27], text: "New"}, from: "pantry.packageIdentityExample", target: "bright.New", role: "call"}
+  - {at: {path: "package_identity.go", start: [17, 9], end: [17, 17], text: "dimLabel"}, from: "pantry.packageIdentityExample", target: "dim", role: "qualifier"}
+  - {at: {path: "package_identity.go", start: [17, 18], end: [17, 21], text: "New"}, from: "pantry.packageIdentityExample", target: "dim.New", role: "call"}
+  - at: {path: "package_identity.go", start: [18, 12], end: [18, 27], text: "measureQuantity"}
+    from: "pantry.packageIdentityExample"
+    target: "quantity"
+    role: "qualifier"
+  - {at: {path: "package_identity.go", start: [18, 28], end: [18, 31], text: "New"}, from: "pantry.packageIdentityExample", target: "quantity.New", role: "call"}
+  - at: {path: "package_identity.go", start: [19, 16], end: [19, 20], text: "Name"}
+    from: "pantry.packageIdentityExample"
+    target: "bright.Badge.Name"
+    role: "call"
+  - at: {path: "package_identity.go", start: [19, 35], end: [19, 39], text: "Name"}
+    from: "pantry.packageIdentityExample"
+    target: "dim.Badge.Name"
+    role: "call"
+  - at: {path: "package_identity.go", start: [19, 57], end: [19, 63], text: "String"}
+    from: "pantry.packageIdentityExample"
+    target: "quantity.Amount.String"
+    role: "call"
+  - {at: {path: "patterns/pattern.go", start: [11, 7], end: [11, 13], text: "string"}, from: "pattern.Pattern.Name", target: "b.string", role: "type"}
+  - {at: {path: "patterns/pattern.go", start: [14, 15], end: [14, 21], text: "string"}, from: "pattern.New.name", target: "b.string", role: "type"}
+  - {at: {path: "patterns/pattern.go", start: [14, 23], end: [14, 30], text: "Pattern"}, from: "pattern.New", target: "pattern.Pattern", role: "type"}
+  - {at: {path: "patterns/pattern.go", start: [15, 9], end: [15, 16], text: "Pattern"}, from: "pattern.New", target: "pattern.Pattern", role: "construct"}
+  - {at: {path: "patterns/pattern.go", start: [15, 17], end: [15, 21], text: "Name"}, from: "pattern.New", target: "pattern.Pattern.Name", role: "write"}
+  - {at: {path: "positions.go", start: [28, 28], end: [28, 31], text: "int"}, from: "pantry.automaticSemicolons", target: "b.int", role: "type"}
+  - at: {path: "positions.go", start: [29, 11], end: [29, 25], text: "DecimalLiteral"}
+    from: "pantry.automaticSemicolons"
+    target: "pantry.DecimalLiteral"
+    role: "read"
+  - {at: {path: "positions.go", start: [37, 24], end: [37, 31], text: "float64"}, from: "pantry.numericLiterals", target: "b.float64", role: "type"}
+  - at: {path: "positions.go", start: [38, 9], end: [38, 21], text: "FloatLiteral"}
+    from: "pantry.numericLiterals"
+    target: "pantry.FloatLiteral"
+    role: "read"
+  - at: {path: "positions.go", start: [38, 24], end: [38, 43], text: "DigitSeparatedFloat"}
+    from: "pantry.numericLiterals"
+    target: "pantry.DigitSeparatedFloat"
+    role: "read"
+  - {at: {path: "positions.go", start: [38, 46], end: [38, 53], text: "float64"}, from: "pantry.numericLiterals", target: "b.float64", role: "type"}
+  - at: {path: "positions.go", start: [38, 54], end: [38, 67], text: "BinaryLiteral"}
+    from: "pantry.numericLiterals"
+    target: "pantry.BinaryLiteral"
+    role: "read"
+  - {at: {path: "positions.go", start: [38, 68], end: [38, 78], text: "HexLiteral"}, from: "pantry.numericLiterals", target: "pantry.HexLiteral", role: "read"}
+  - at: {path: "positions.go", start: [38, 79], end: [38, 91], text: "OctalLiteral"}
+    from: "pantry.numericLiterals"
+    target: "pantry.OctalLiteral"
+    role: "read"
+  - at: {path: "positions.go", start: [38, 92], end: [38, 110], text: "LegacyOctalLiteral"}
+    from: "pantry.numericLiterals"
+    target: "pantry.LegacyOctalLiteral"
+    role: "read"
+  - {at: {path: "registry/registry.go", start: [9, 15], end: [9, 21], text: "string"}, from: "registry.entries", target: "b.string", role: "type"}
+  - {at: {path: "registry/registry.go", start: [12, 11], end: [12, 15], text: "bool"}, from: "registry.Ready", target: "b.bool", role: "type"}
+  - {at: {path: "registry/registry.go", start: [14, 20], end: [14, 26], text: "string"}, from: "registry.Register.name", target: "b.string", role: "type"}
+  - {at: {path: "registry/registry.go", start: [15, 2], end: [15, 9], text: "entries"}, from: "registry.Register", target: "registry.entries", role: "write"}
+  - {at: {path: "registry/registry.go", start: [15, 12], end: [15, 18], text: "append"}, from: "registry.Register", target: "b.append", role: "call"}
+  - {at: {path: "registry/registry.go", start: [15, 19], end: [15, 26], text: "entries"}, from: "registry.Register", target: "registry.entries", role: "read"}
+  - {at: {path: "registry/registry.go", start: [18, 19], end: [18, 25], text: "string"}, from: "registry.Snapshot", target: "b.string", role: "type"}
+  - {at: {path: "registry/registry.go", start: [19, 9], end: [19, 15], text: "append"}, from: "registry.Snapshot", target: "b.append", role: "call"}
+  - {at: {path: "registry/registry.go", start: [19, 18], end: [19, 24], text: "string"}, from: "registry.Snapshot", target: "b.string", role: "type"}
+  - {at: {path: "registry/registry.go", start: [19, 25], end: [19, 28], text: "nil"}, from: "registry.Snapshot", target: "b.nil", role: "read"}
+  - {at: {path: "registry/registry.go", start: [19, 31], end: [19, 38], text: "entries"}, from: "registry.Snapshot", target: "registry.entries", role: "read"}
+  - {at: {path: "registry/registry.go", start: [23, 2], end: [23, 10], text: "Register"}, from: "registry.init-1", target: "registry.Register", role: "call"}
+  - {at: {path: "registry/registry.go", start: [24, 2], end: [24, 7], text: "Ready"}, from: "registry.init-1", target: "registry.Ready", role: "write"}
+  - {at: {path: "registry/registry.go", start: [24, 10], end: [24, 14], text: "true"}, from: "registry.init-1", target: "b.true", role: "read"}
+  - at: {path: "branches/evening/evening.go", start: [9, 9], end: [9, 55], text: "example.com/fixture/package-structure/registry"}
+    from: "evening"
+    target: "registry"
+    role: "import"
+  - {at: {path: "branches/evening/evening.go", start: [14, 5], end: [14, 13], text: "registry"}, from: "evening.init-1", target: "registry", role: "qualifier"}
+  - {at: {path: "branches/evening/evening.go", start: [14, 14], end: [14, 19], text: "Ready"}, from: "evening.init-1", target: "registry.Ready", role: "read"}
+  - {at: {path: "branches/evening/evening.go", start: [15, 3], end: [15, 11], text: "registry"}, from: "evening.init-1", target: "registry", role: "qualifier"}
+  - at: {path: "branches/evening/evening.go", start: [15, 12], end: [15, 20], text: "Register"}
+    from: "evening.init-1"
+    target: "registry.Register"
+    role: "call"
+  - {at: {path: "branches/evening/evening.go", start: [15, 21], end: [15, 25], text: "Name"}, from: "evening.init-1", target: "evening.Name", role: "read"}
+  - at: {path: "branches/morning/morning.go", start: [9, 11], end: [9, 57], text: "example.com/fixture/package-structure/registry"}
+    from: "morning"
+    target: "registry"
+    role: "import"
+  - {at: {path: "scopes.go", start: [11, 28], end: [11, 31], text: "int"}, from: "pantry.scopeParameters.input", target: "b.int", role: "type"}
+  - {at: {path: "scopes.go", start: [11, 41], end: [11, 44], text: "int"}, from: "pantry.scopeParameters.result", target: "b.int", role: "type"}
+  - {at: {path: "scopes.go", start: [20, 21], end: [20, 24], text: "int"}, from: "pantry.nestedScopes", target: "b.int", role: "type"}
+  - at: {path: "scopes.go", start: [21, 11], end: [21, 29], text: "packageScopedValue"}
+    from: "pantry.nestedScopes"
+    target: "pantry.packageScopedValue"
+    role: "read"
+  - at: {path: "scopes.go", start: [26, 4], end: [26, 22], text: "packageScopedValue"}
+    from: "pantry.nestedScopes"
+    target: "pantry.packageScopedValue"
+    role: "write"
+  - at: {path: "scopes.go", start: [29, 9], end: [29, 27], text: "packageScopedValue"}
+    from: "pantry.nestedScopes"
+    target: "pantry.packageScopedValue"
+    role: "read"
+  - {at: {path: "scopes.go", start: [32, 26], end: [32, 29], text: "int"}, from: "pantry.functionScope.value", target: "b.int", role: "type"}
+  - {at: {path: "scopes.go", start: [32, 31], end: [32, 34], text: "int"}, from: "pantry.functionScope", target: "b.int", role: "type"}
+  - {at: {path: "short.go", start: [9, 25], end: [9, 28], text: "int"}, from: "pantry.shortDeclaration", target: "b.int", role: "type"}
+  - {at: {path: "short.go", start: [12, 15], end: [12, 24], text: "typedPair"}, from: "pantry.shortDeclaration", target: "pantry.typedPair", role: "call"}
+  - {at: {path: "short.go", start: [13, 12], end: [13, 15], text: "nil"}, from: "pantry.shortDeclaration", target: "b.nil", role: "read"}
+  - {at: {path: "short.go", start: [23, 33], end: [23, 36], text: "int"}, from: "pantry.partialRedeclaration.value", target: "b.int", role: "type"}
+  - {at: {path: "short.go", start: [23, 38], end: [23, 41], text: "int"}, from: "pantry.partialRedeclaration", target: "b.int", role: "type"}
+  - {at: {path: "short.go", start: [29, 29], end: [29, 32], text: "int"}, from: "pantry.initializerScope.value", target: "b.int", role: "type"}
+  - {at: {path: "short.go", start: [29, 34], end: [29, 37], text: "int"}, from: "pantry.initializerScope", target: "b.int", role: "type"}
+  - {at: {path: "short.go", start: [30, 18], end: [30, 29], text: "chooseValue"}, from: "pantry.initializerScope", target: "pantry.chooseValue", role: "call"}
+  - {at: {path: "short.go", start: [36, 24], end: [36, 27], text: "int"}, from: "pantry.chooseValue.value", target: "b.int", role: "type"}
+  - {at: {path: "short.go", start: [36, 30], end: [36, 33], text: "int"}, from: "pantry.chooseValue", target: "b.int", role: "type"}
+  - {at: {path: "short.go", start: [36, 35], end: [36, 39], text: "bool"}, from: "pantry.chooseValue", target: "b.bool", role: "type"}
+  - {at: {path: "short.go", start: [37, 20], end: [37, 24], text: "true"}, from: "pantry.chooseValue", target: "b.true", role: "read"}
+  - {at: {path: "summary.go", start: [10, 16], end: [10, 22], text: "string"}, from: "pantry.Summary", target: "b.string", role: "type"}
+  - {at: {path: "summary.go", start: [11, 11], end: [11, 16], text: "Shelf"}, from: "pantry.Summary", target: "pantry.Shelf", role: "construct"}
+  - {at: {path: "summary.go", start: [11, 17], end: [11, 23], text: "Public"}, from: "pantry.Summary", target: "pantry.Shelf.Public", role: "write"}
+  - {at: {path: "summary.go", start: [11, 34], end: [11, 41], text: "private"}, from: "pantry.Summary", target: "pantry.Shelf.private", role: "write"}
+  - {at: {path: "summary.go", start: [12, 15], end: [12, 19], text: "Open"}, from: "pantry.Summary", target: "pantry.Shelf.Open", role: "call"}
+  - at: {path: "summary.go", start: [12, 30], end: [12, 47], text: "BeforeDeclaration"}
+    from: "pantry.Summary"
+    target: "pantry.BeforeDeclaration"
+    role: "call"
+  - {at: {path: "universe.go", start: [9, 19], end: [9, 22], text: "any"}, from: "pantry.unshadowedAny", target: "b.any", role: "type"}
+  - {at: {path: "universe.go", start: [11, 26], end: [11, 36], text: "comparable"}, from: "pantry.acceptsComparable.T", target: "b.comparable", role: "type"}
+  - {at: {path: "universe.go", start: [15, 27], end: [15, 30], text: "int"}, from: "pantry.unshadowedUniverse", target: "b.int", role: "type"}
+  - {at: {path: "universe.go", start: [16, 16], end: [16, 22], text: "string"}, from: "pantry.unshadowedUniverse", target: "b.string", role: "type"}
+  - {at: {path: "universe.go", start: [16, 23], end: [16, 26], text: "int"}, from: "pantry.unshadowedUniverse", target: "b.int", role: "type"}
+  - {at: {path: "universe.go", start: [17, 2], end: [17, 7], text: "clear"}, from: "pantry.unshadowedUniverse", target: "b.clear", role: "call"}
+  - {at: {path: "universe.go", start: [18, 9], end: [18, 12], text: "min"}, from: "pantry.unshadowedUniverse", target: "b.min", role: "call"}
+  - {at: {path: "universe.go", start: [18, 16], end: [18, 19], text: "max"}, from: "pantry.unshadowedUniverse", target: "b.max", role: "call"}
+  - {at: {path: "universe.go", start: [18, 23], end: [18, 26], text: "len"}, from: "pantry.unshadowedUniverse", target: "b.len", role: "call"}
+  - {at: {path: "universe.go", start: [21, 25], end: [21, 28], text: "int"}, from: "pantry.shadowedUniverse", target: "b.int", role: "type"}
+  - {at: {path: "universe.go", start: [23, 9], end: [23, 12], text: "int"}, from: "pantry.shadowedUniverse", target: "b.int", role: "type"}
+  - {at: {path: "universe.go", start: [27, 27], end: [27, 33], text: "string"}, from: "pantry.shadowedUniverse", target: "b.string", role: "type"}
+  - {at: {path: "universe.go", start: [27, 34], end: [27, 37], text: "int"}, from: "pantry.shadowedUniverse", target: "b.int", role: "type"}
+  - {at: {path: "universe.go", start: [29, 4], end: [29, 10], text: "delete"}, from: "pantry.shadowedUniverse", target: "b.delete", role: "call"}
+  - {at: {path: "universe.go", start: [32, 26], end: [32, 29], text: "int"}, from: "pantry.shadowedUniverse", target: "b.int", role: "type"}
+  - {at: {path: "universe.go", start: [32, 31], end: [32, 34], text: "int"}, from: "pantry.shadowedUniverse", target: "b.int", role: "type"}
+  - {at: {path: "universe.go", start: [38, 26], end: [38, 29], text: "int"}, from: "pantry.shadowedUniverse", target: "b.int", role: "type"}
+  - {at: {path: "universe.go", start: [38, 31], end: [38, 34], text: "int"}, from: "pantry.shadowedUniverse", target: "b.int", role: "type"}
+  - {at: {path: "universe.go", start: [44, 14], end: [44, 20], text: "string"}, from: "pantry.shadowedUniverse", target: "b.string", role: "type"}
+  - {at: {path: "universe.go", start: [44, 22], end: [44, 25], text: "int"}, from: "pantry.shadowedUniverse", target: "b.int", role: "type"}
+  - {at: {path: "universe.go", start: [47, 16], end: [47, 22], text: "string"}, from: "pantry.shadowedUniverse", target: "b.string", role: "type"}
+  - {at: {path: "universe.go", start: [47, 23], end: [47, 26], text: "int"}, from: "pantry.shadowedUniverse", target: "b.int", role: "type"}
+  - {at: {path: "unused.go", start: [12, 8], end: [12, 11], text: "int"}, from: "pantry.unusedPackageType.value", target: "b.int", role: "type"}
+  - at: {path: "unused.go", start: [15, 29], end: [15, 46], text: "unusedPackageType"}
+    from: "pantry.unusedPackageVariable"
+    target: "pantry.unusedPackageType"
+    role: "construct"
+  - at: {path: "unused.go", start: [15, 47], end: [15, 52], text: "value"}
+    from: "pantry.unusedPackageVariable"
+    target: "pantry.unusedPackageType.value"
+    role: "write"
+  - at: {path: "unused.go", start: [15, 54], end: [15, 75], text: "unusedPackageConstant"}
+    from: "pantry.unusedPackageVariable"
+    target: "pantry.unusedPackageConstant"
+    role: "read"
+  - {at: {path: "unused.go", start: [17, 35], end: [17, 41], text: "string"}, from: "pantry.unusedParameters.unusedInput", target: "b.string", role: "type"}
+  - {at: {path: "unused.go", start: [17, 57], end: [17, 60], text: "int"}, from: "pantry.unusedParameters.unusedResult", target: "b.int", role: "type"}
+  - {at: {path: "unused.go", start: [21, 24], end: [21, 27], text: "int"}, from: "pantry.suppressedLocal", target: "b.int", role: "type"}
+  - {at: {path: "cmd/showcase/main.go", start: [10, 3], end: [10, 6], text: "fmt"}, from: "showcase", target: "std.fmt", role: "import"}
+  - at: {path: "cmd/showcase/main.go", start: [12, 3], end: [12, 40], text: "example.com/fixture/package-structure"}
+    from: "showcase"
+    target: "pantry"
+    role: "import"
+  - {at: {path: "cmd/showcase/main.go", start: [16, 2], end: [16, 5], text: "fmt"}, from: "showcase.main", target: "std.fmt", role: "qualifier"}
+  - {at: {path: "cmd/showcase/main.go", start: [16, 6], end: [16, 13], text: "Println"}, from: "showcase.main", target: "std.fmt.Println", role: "call"}
+  - {at: {path: "cmd/showcase/main.go", start: [16, 14], end: [16, 20], text: "pantry"}, from: "showcase.main", target: "pantry", role: "qualifier"}
+  - {at: {path: "cmd/showcase/main.go", start: [16, 21], end: [16, 28], text: "Summary"}, from: "showcase.main", target: "pantry.Summary", role: "call"}
+relations:
+  - {kind: "implements", from: "pantry.Shelf", to: "pantry.shelfOpener"}
+  - {kind: "overrides", from: "pantry.Shelf.Open", to: "pantry.shelfOpener.Open"}
+  - {kind: "aliases", from: "pantry.Earlier", to: "pantry.Later"}
+  - {kind: "aliases", from: "pantry.PackagePointAlias", to: "pantry.PackagePoint"}
+public-api:
+  members:
+    - {distribution: "ps-module", entity: "pantry", paths: ["example.com/fixture/package-structure"], access: "all"}
+    - {distribution: "ps-module", entity: "evening", paths: ["example.com/fixture/package-structure/branches/evening"], access: "all"}
+    - {distribution: "ps-module", entity: "morning", paths: ["example.com/fixture/package-structure/branches/morning"], access: "all"}
+    - {distribution: "ps-module", entity: "bright", paths: ["example.com/fixture/package-structure/labels/bright"], access: "all"}
+    - {distribution: "ps-module", entity: "dim", paths: ["example.com/fixture/package-structure/labels/dim"], access: "all"}
+    - {distribution: "ps-module", entity: "quantity", paths: ["example.com/fixture/package-structure/measure"], access: "all"}
+    - {distribution: "ps-module", entity: "pattern", paths: ["example.com/fixture/package-structure/patterns"], access: "all"}
+    - {distribution: "ps-module", entity: "registry", paths: ["example.com/fixture/package-structure/registry"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.Parcel", paths: ["example.com/fixture/package-structure.Parcel"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.Parcel.Code", paths: ["example.com/fixture/package-structure.Parcel.Code"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.LooseCount", paths: ["example.com/fixture/package-structure.LooseCount"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.GroupedCount", paths: ["example.com/fixture/package-structure.GroupedCount"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.GroupedPhrase", paths: ["example.com/fixture/package-structure.GroupedPhrase"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.LooseRecord", paths: ["example.com/fixture/package-structure.LooseRecord"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.LooseRecord.Name", paths: ["example.com/fixture/package-structure.LooseRecord.Name"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.LooseRecord.Count", paths: ["example.com/fixture/package-structure.LooseRecord.Count"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.GroupedRecord", paths: ["example.com/fixture/package-structure.GroupedRecord"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.GroupedRecord.Name", paths: ["example.com/fixture/package-structure.GroupedRecord.Name"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.Earlier", paths: ["example.com/fixture/package-structure.Earlier"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.BeforeDeclaration", paths: ["example.com/fixture/package-structure.BeforeDeclaration"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.AfterDeclaration", paths: ["example.com/fixture/package-structure.AfterDeclaration"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.Later", paths: ["example.com/fixture/package-structure.Later"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.Later.Value", paths: ["example.com/fixture/package-structure.Later.Value"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.Shelf", paths: ["example.com/fixture/package-structure.Shelf"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.Shelf.Public", paths: ["example.com/fixture/package-structure.Shelf.Public"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.Etage", paths: ["example.com/fixture/package-structure.Étage"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.Etage.Name", paths: ["example.com/fixture/package-structure.Étage.Name"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.PublicValue", paths: ["example.com/fixture/package-structure.PublicValue"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.PublicFunction", paths: ["example.com/fixture/package-structure.PublicFunction"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.Shelf.Open", paths: ["example.com/fixture/package-structure.Shelf.Open"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.InitializationTrace", paths: ["example.com/fixture/package-structure.InitializationTrace"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.PackagePoint", paths: ["example.com/fixture/package-structure.PackagePoint"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.PackagePoint.X", paths: ["example.com/fixture/package-structure.PackagePoint.X"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.PackagePoint.Y", paths: ["example.com/fixture/package-structure.PackagePoint.Y"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.PackagePointAlias", paths: ["example.com/fixture/package-structure.PackagePointAlias"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.LogicalDirectiveValue", paths: ["example.com/fixture/package-structure.LogicalDirectiveValue"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.BlockDirectiveValue", paths: ["example.com/fixture/package-structure.BlockDirectiveValue"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.NearMissCommentValue", paths: ["example.com/fixture/package-structure.NearMissCommentValue"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.DecimalLiteral", paths: ["example.com/fixture/package-structure.DecimalLiteral"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.BinaryLiteral", paths: ["example.com/fixture/package-structure.BinaryLiteral"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.HexLiteral", paths: ["example.com/fixture/package-structure.HexLiteral"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.OctalLiteral", paths: ["example.com/fixture/package-structure.OctalLiteral"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.LegacyOctalLiteral", paths: ["example.com/fixture/package-structure.LegacyOctalLiteral"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.FloatLiteral", paths: ["example.com/fixture/package-structure.FloatLiteral"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.DigitSeparatedFloat", paths: ["example.com/fixture/package-structure.DigitSeparatedFloat"], access: "all"}
+    - {distribution: "ps-module", entity: "pantry.Summary", paths: ["example.com/fixture/package-structure.Summary"], access: "all"}
+    - {distribution: "ps-module", entity: "evening.Name", paths: ["example.com/fixture/package-structure/branches/evening.Name"], access: "all"}
+    - {distribution: "ps-module", entity: "morning.Name", paths: ["example.com/fixture/package-structure/branches/morning.Name"], access: "all"}
+    - {distribution: "ps-module", entity: "bright.Badge", paths: ["example.com/fixture/package-structure/labels/bright.Badge"], access: "all"}
+    - {distribution: "ps-module", entity: "bright.New", paths: ["example.com/fixture/package-structure/labels/bright.New"], access: "all"}
+    - {distribution: "ps-module", entity: "bright.Badge.Name", paths: ["example.com/fixture/package-structure/labels/bright.Badge.Name"], access: "all"}
+    - {distribution: "ps-module", entity: "dim.Badge", paths: ["example.com/fixture/package-structure/labels/dim.Badge"], access: "all"}
+    - {distribution: "ps-module", entity: "dim.New", paths: ["example.com/fixture/package-structure/labels/dim.New"], access: "all"}
+    - {distribution: "ps-module", entity: "dim.Badge.Name", paths: ["example.com/fixture/package-structure/labels/dim.Badge.Name"], access: "all"}
+    - {distribution: "ps-module", entity: "quantity.Amount", paths: ["example.com/fixture/package-structure/measure.Amount"], access: "all"}
+    - {distribution: "ps-module", entity: "quantity.New", paths: ["example.com/fixture/package-structure/measure.New"], access: "all"}
+    - {distribution: "ps-module", entity: "quantity.Amount.Units", paths: ["example.com/fixture/package-structure/measure.Amount.Units"], access: "all"}
+    - {distribution: "ps-module", entity: "quantity.Amount.String", paths: ["example.com/fixture/package-structure/measure.Amount.String"], access: "all"}
+    - {distribution: "ps-module", entity: "pattern.Pattern", paths: ["example.com/fixture/package-structure/patterns.Pattern"], access: "all"}
+    - {distribution: "ps-module", entity: "pattern.Pattern.Name", paths: ["example.com/fixture/package-structure/patterns.Pattern.Name"], access: "all"}
+    - {distribution: "ps-module", entity: "pattern.New", paths: ["example.com/fixture/package-structure/patterns.New"], access: "all"}
+    - {distribution: "ps-module", entity: "registry.Ready", paths: ["example.com/fixture/package-structure/registry.Ready"], access: "all"}
+    - {distribution: "ps-module", entity: "registry.Register", paths: ["example.com/fixture/package-structure/registry.Register"], access: "all"}
+    - {distribution: "ps-module", entity: "registry.Snapshot", paths: ["example.com/fixture/package-structure/registry.Snapshot"], access: "all"}
+  signatures:
+    - {entity: "pantry.Parcel", underlying: "struct { _ int; Code string }"}
+    - {entity: "pantry.Parcel.Code", type: "string"}
+    - {entity: "pantry.LooseCount", type: "untyped int", value: "4"}
+    - {entity: "pantry.GroupedCount", type: "untyped int", value: "6"}
+    - {entity: "pantry.GroupedPhrase", type: {inferred: "string"}}
+    - {entity: "pantry.LooseRecord", underlying: "struct { Name string; Count int }"}
+    - {entity: "pantry.LooseRecord.Name", type: "string"}
+    - {entity: "pantry.LooseRecord.Count", type: "int"}
+    - {entity: "pantry.GroupedRecord", underlying: "struct { Name string }"}
+    - {entity: "pantry.GroupedRecord.Name", type: "string"}
+    - {entity: "pantry.Earlier", type: "@{pantry.Later}"}
+    - {entity: "pantry.BeforeDeclaration", returns: "string"}
+    - {entity: "pantry.AfterDeclaration", returns: "string"}
+    - {entity: "pantry.Later", underlying: "struct { Value int }"}
+    - {entity: "pantry.Later.Value", type: "int"}
+    - entity: "pantry.Shelf"
+      bases:
+        - {type: "@{pantry.shelfOpener}"}
+      underlying: "struct { Public string; private string }"
+    - {entity: "pantry.Shelf.Public", type: "string"}
+    - {entity: "pantry.Shelf.Open", receiver: "@{pantry.Shelf}", returns: "string"}
+    - {entity: "pantry.Etage", underlying: "struct { Name string }"}
+    - {entity: "pantry.Etage.Name", type: "string"}
+    - {entity: "pantry.PublicValue", type: {inferred: "string"}}
+    - entity: "pantry.PublicFunction"
+      parameters:
+        - {name: "s", type: "@{pantry.Shelf}"}
+      returns: "string"
+    - {entity: "pantry.InitializationTrace", returns: "[]string"}
+    - {entity: "pantry.PackagePoint", underlying: "struct { X int; Y int }"}
+    - {entity: "pantry.PackagePoint.X", type: "int"}
+    - {entity: "pantry.PackagePoint.Y", type: "int"}
+    - {entity: "pantry.PackagePointAlias", type: "@{pantry.PackagePoint}"}
+    - {entity: "pantry.LogicalDirectiveValue", type: "untyped int", value: "17"}
+    - {entity: "pantry.BlockDirectiveValue", type: "untyped int", value: "29"}
+    - {entity: "pantry.NearMissCommentValue", type: "untyped int", value: "41"}
+    - {entity: "pantry.DecimalLiteral", type: "untyped int", value: "1024"}
+    - {entity: "pantry.BinaryLiteral", type: "untyped int", value: "10"}
+    - {entity: "pantry.HexLiteral", type: "untyped int", value: "51966"}
+    - {entity: "pantry.OctalLiteral", type: "untyped int", value: "493"}
+    - {entity: "pantry.LegacyOctalLiteral", type: "untyped int", value: "493"}
+    - {entity: "pantry.FloatLiteral", type: "untyped float", value: "602200000000000000000000"}
+    - {entity: "pantry.DigitSeparatedFloat", type: "untyped float", value: "4001/4"}
+    - {entity: "pantry.Summary", returns: "string"}
+    - {entity: "evening.Name", type: {inferred: "string"}}
+    - {entity: "morning.Name", type: {inferred: "string"}}
+    - {entity: "registry.Ready", type: "bool"}
+    - entity: "registry.Register"
+      parameters:
+        - {name: "name", type: "string"}
+    - {entity: "registry.Snapshot", returns: "[]string"}
+    - {entity: "quantity.Amount", underlying: "struct { units int }"}
+    - entity: "quantity.New"
+      parameters:
+        - {name: "units", type: "int"}
+      returns: "@{quantity.Amount}"
+    - {entity: "quantity.Amount.Units", receiver: "@{quantity.Amount}", returns: "int"}
+    - {entity: "quantity.Amount.String", receiver: "@{quantity.Amount}", returns: "string"}
+    - {entity: "pattern.Pattern", underlying: "struct { Name string }"}
+    - {entity: "pattern.Pattern.Name", type: "string"}
+    - entity: "pattern.New"
+      parameters:
+        - {name: "name", type: "string"}
+      returns: "@{pattern.Pattern}"
+    - {entity: "bright.Badge", underlying: "struct { tone string }"}
+    - entity: "bright.New"
+      parameters:
+        - {name: "tone", type: "string"}
+      returns: "@{bright.Badge}"
+    - {entity: "bright.Badge.Name", receiver: "@{bright.Badge}", returns: "string"}
+    - {entity: "dim.Badge", underlying: "struct { tone string }"}
+    - entity: "dim.New"
+      parameters:
+        - {name: "tone", type: "string"}
+      returns: "@{dim.Badge}"
+    - {entity: "dim.Badge.Name", receiver: "@{dim.Badge}", returns: "string"}
+extensions: {go:embeds: [], go:pointer-receiver: [], go:linkname: [], go:embed-files: []}
