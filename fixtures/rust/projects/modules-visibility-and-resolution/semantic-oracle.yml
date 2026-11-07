@@ -5,7 +5,7 @@ project:
   name: modules-visibility-and-resolution
 authoring:
   notes: |-
-    Facts derived from project source, the Cargo manifests and Taskfile.yml, the Rust Reference, the Cargo Book, and the rust-src of the installed toolchain. Probes ran in a copy under /tmp (cargo -v and the unstable --unit-graph output via RUSTC_BOOTSTRAP=1). The installed toolchain is rustc/cargo 1.99.1; the profile's corpus toolchain is 1.97.1 and rust-toolchain.toml pins 1.97.1. No rule used here differs between the two versions.
+    Facts derived from project source, the Cargo manifests and Taskfile.yml, the Rust Reference, the Cargo Book, and the rust-src of the installed toolchain. Probes ran in a copy under /tmp (cargo -v and the unstable --unit-graph output via RUSTC_BOOTSTRAP=1). The installed toolchain is rustc/cargo 1.99.1, which rust-toolchain.toml selects and every context names as its release.
 
     Contexts. The build and test tasks hold eleven commands; each defines one context and no two have the same parameter values:
     - build: cargo build --workspace (all eight workspace libs, mvr-bin, and skew_v2 as a path dependency).
@@ -114,7 +114,7 @@ documents:
     disposition: "out-of-profile"
     reason: "documentation"
   - path: "rust-toolchain.toml"
-    sha256: "f268a47c4a1e1c42989223aca724daa117aea37ccc2538483e192f191ccbf97c"
+    sha256: "8564b2c7eaa080c8f2cddb8f66e6bc79c3d6396f7a0a1232ed183f7fca09b0e6"
     disposition: "configuration"
   - path: "src/bin/mvr_bin.rs"
     sha256: "029bc782c7076f6aecf5a48780eb897aa2cdfdd3257568455d010dc4b31bbe0a"
